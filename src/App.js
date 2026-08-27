@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import Cookies from 'js-cookie';
-import CryptoJS from "crypto-js";
 import Login from "./components/login/Login";
 import Dashboard from "./components/dashboard/Dashboard";
 import { Box } from "@mui/material";
@@ -44,7 +43,7 @@ import CloseFS from "./components/financial/CloseFS";
 import DriverDetail from "./components/driver/DriverDetail";
 import Financial from "./components/financial/Financial";
 import DeductionOfIncome from "./components/financial/DeductionOfIncome";
-import { BasicDataProvider, useBasicData } from "./server/provider/BasicDataProvider";
+import { apiGet } from "./server/apiClient";
 import { TripDataProvider } from "./server/provider/TripProvider";
 import { GasStationDataProvider } from "./server/provider/GasStationProvider";
 import SummaryOilBalance from "./components/oilbalance/SummaryOil";
@@ -101,106 +100,55 @@ const ShowSessionExpired = (navigate) => {
   });
 };
 
-const decryptPassword = (encryptedPassword) => {
-  try {
-    const bytes = CryptoJS.AES.decrypt(encryptedPassword, "your-secret-key");
-    return bytes.toString(CryptoJS.enc.Utf8);
-  } catch {
-    return "";
-  }
-};
-
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isRedirected, setIsRedirected] = useState(false);
 
-  const { positions, officers, drivers, creditors } = useBasicData();
-  const creditorsDetail = Object.values(creditors || {});
-  const driversDetail = Object.values(drivers || {});
-  const officersDetail = Object.values(officers || {});
-  const positionsDetail = Object.values(positions || {});
-
-  // ✅ ตรวจสอบ session / cookie ทุกครั้งที่เปิดหน้า
+  // ✅ ตรวจสอบ session (JWT) ทุกครั้งที่เปิดหน้า
   useEffect(() => {
-    // ถ้ายังโหลด basic data ไม่ครบ ให้รอก่อน
-    if (
-      !positionsDetail.length ||
-      !officersDetail.length ||
-      !driversDetail.length ||
-      !creditorsDetail.length
-    )
-      return;
-
     if (isRedirected) return;
 
-    const user = Cookies.get("user");
-    const encryptedPassword = Cookies.get("password");
+    const token = Cookies.get("token");
     const sessionToken = Cookies.get("sessionToken");
 
     // ❌ ไม่มี cookie → ต้องอยู่หน้า login
-    if (!user || !encryptedPassword || !sessionToken) {
+    if (!token || !sessionToken) {
       if (location.pathname !== "/login") {
         ShowSessionExpired(navigate);
       }
       return;
     }
 
-    // ✅ มี cookie → ตรวจสอบสิทธิ์
-    const password = decryptPassword(encryptedPassword);
-    const allUsers = [...officersDetail, ...creditorsDetail, ...driversDetail];
-    const matchedUser = allUsers.find(
-      (emp) => emp.User === user && emp.Password === password
-    );
+    let cancelled = false;
 
-    if (!matchedUser || !matchedUser.Position) {
-      ShowSessionExpired(navigate);
-      return;
-    }
+    apiGet("/api/auth/me")
+      .then(({ accessRights, ...matchedUser }) => {
+        if (cancelled) return;
+        setIsRedirected(true);
 
-    const positionId = Number(matchedUser.Position.split(":")[0]);
-    const position = positionsDetail.find((pos) => pos.id === positionId);
+        // ✅ ถ้าอยู่หน้า / หรือ /login → ให้ข้ามไปตามสิทธิ์
+        if (location.pathname === "/" || location.pathname === "/login") {
+          if (accessRights.length === 1 && accessRights[0] === "DriverData") {
+            navigate("/driver-detail", { state: { Employee: matchedUser } });
+          } else if (
+            accessRights.length === 1 &&
+            accessRights[0] === "GasStationData"
+          ) {
+            navigate("/gasstation-attendant", { state: { Employee: matchedUser } });
+          } else {
+            navigate("/choose", { state: { Employee: matchedUser } });
+          }
+        }
+      })
+      .catch(() => {
+        if (!cancelled) ShowSessionExpired(navigate);
+      });
 
-    if (!position) {
-      ShowSessionExpired(navigate);
-      return;
-    }
-
-    const accessRights = [
-      "DriverData",
-      "GasStationData",
-      "BasicData",
-      "OprerationData",
-      "FinancialData",
-      "ReportData",
-      "SmallTruckData",
-      "BigTruckData",
-    ].filter((key) => position[key] === 1);
-
-    setIsRedirected(true);
-
-    // ✅ ถ้าอยู่หน้า / หรือ /login → ให้ข้ามไปตามสิทธิ์
-    if (location.pathname === "/" || location.pathname === "/login") {
-      if (accessRights.length === 1 && accessRights[0] === "DriverData") {
-        navigate("/driver-detail", { state: { Employee: matchedUser } });
-      } else if (
-        accessRights.length === 1 &&
-        accessRights[0] === "GasStationData"
-      ) {
-        navigate("/gasstation-attendant", { state: { Employee: matchedUser } });
-      } else {
-        navigate("/choose", { state: { Employee: matchedUser } });
-      }
-    }
-  }, [
-    officersDetail,
-    creditorsDetail,
-    driversDetail,
-    positionsDetail,
-    navigate,
-    location.pathname,
-    isRedirected,
-  ]);
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate, location.pathname, isRedirected]);
 
   // ✅ ตรวจสอบการอัปเดต Firebase Hosting Version
   useEffect(() => {
