@@ -1,6 +1,12 @@
 import Cookies from "js-cookie";
 
-const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:4000";
+const API_BASE = process.env.REACT_APP_API_URL;
+
+if (!API_BASE) {
+  console.error(
+    "REACT_APP_API_URL is not set. Copy .env.local.example to .env.local and restart the dev server."
+  );
+}
 
 async function request(method, path, body) {
   const token = Cookies.get("token");
