@@ -70,7 +70,7 @@ import {
   showWelcome,
 } from "../sweetalert/sweetalert";
 import { auth, database } from "../../server/firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import ReplyAllIcon from '@mui/icons-material/ReplyAll';
 import ListIcon from '@mui/icons-material/List';
 import PaidIcon from '@mui/icons-material/Paid';
@@ -246,17 +246,13 @@ export default function Navbar({ open, onOpenChange }) {
   }, [officersDetail, driversDetail, creditorsDetail, positionsDetail]);
 
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is signed in.
-        console.log("true");
-      } else {
-        console.log("false");
-        ShowError("กรุณาเข้าสู่ระบบ");
-        navigate("/");
-        // User is signed out.
-      }
-    });
+    // Session is now JWT-based (backend + Postgres) instead of Firebase Auth;
+    // App.js's central session guard already verifies the token against the
+    // backend, this is just a presence check for the navbar-wrapped routes.
+    if (!Cookies.get("token")) {
+      ShowError("กรุณาเข้าสู่ระบบ");
+      navigate("/");
+    }
   }, []);
 
   console.log("OpenData : ", openData);
@@ -343,7 +339,7 @@ export default function Navbar({ open, onOpenChange }) {
             .then(() => {
               Cookies.remove('user');
               Cookies.remove('sessionToken');
-              Cookies.remove('password');
+              Cookies.remove('token');
               navigate("/");
               Swal.fire("ออกจากระบบเรียบร้อย", "", "success");
             })

@@ -1,47 +1,47 @@
 // src/providers/GasStationDataProvider.js
-import { createContext, useContext, useEffect, useState, useMemo } from "react";
-import { ref, onValue } from "firebase/database";
-import { database } from "../firebase";
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
+import { apiGet } from "../apiClient";
 
 const GasStationDataContext = createContext();
 
 export const useGasStationData = () => useContext(GasStationDataContext);
+
+const POLL_INTERVAL_MS = 30000;
 
 export const GasStationDataProvider = ({ children }) => {
     const [gasStationData, setGasStationData] = useState({
         gasstationDetail: {},
         stockDetail: {}
     });
-
     const [loading, setLoading] = useState(true);
+    const mounted = useRef(true);
 
-    const refs = useMemo(() => ({
-        gasstationDetail: ref(database, "/depot/gasStations/"),
-        stockDetail: ref(database, "/depot/stock/")
-    }), []);
+    const refetch = useCallback(async () => {
+        try {
+            const [gasstationDetail, stockDetail] = await Promise.all([
+                apiGet("/api/depot_gas_stations"),
+                apiGet("/api/depot_stock"),
+            ]);
+            if (mounted.current) setGasStationData({ gasstationDetail, stockDetail });
+        } catch (error) {
+            console.error("โหลดข้อมูลปั๊ม/สต็อกล้มเหลว", error);
+        } finally {
+            if (mounted.current) setLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
-        let loadedCount = 0;
-        const totalRefs = Object.keys(refs).length;
-
-        const unsubscribes = Object.entries(refs).map(([key, refItem]) =>
-            onValue(refItem, snapshot => {
-                setGasStationData(prev => ({
-                    ...prev,
-                    [key]: snapshot.val() || {}
-                }));
-                loadedCount++;
-                if (loadedCount === totalRefs) {
-                    setLoading(false); // ✅ ข้อมูลโหลดครบทุก path แล้ว
-                }
-            })
-        );
-
-        return () => unsubscribes.forEach(unsub => unsub());
-    }, [refs]);
+        mounted.current = true;
+        refetch();
+        const interval = setInterval(refetch, POLL_INTERVAL_MS);
+        return () => {
+            mounted.current = false;
+            clearInterval(interval);
+        };
+    }, [refetch]);
 
     return (
-        <GasStationDataContext.Provider value={{ ...gasStationData, loading }}>
+        <GasStationDataContext.Provider value={{ ...gasStationData, loading, refetch }}>
             {children}
         </GasStationDataContext.Provider>
     );
