@@ -179,7 +179,7 @@ const UpdateInvoice = (props) => {
     )
     .map((item) => {
       const matchedSmall = smalls.find(
-        (s) => s.id === Number(item.Registration),
+        (s) => s.uuid === item.Registration,
       );
 
       const company = customerS.find(
@@ -270,7 +270,7 @@ const UpdateInvoice = (props) => {
   );
   const invoiceC = companies.find((row) => {
     if (!customer?.Company) return false;
-    return row.id === Number(customer.Company);
+    return row.uuid === customer.Company;
   });
 
   console.log("customer : ", customer);

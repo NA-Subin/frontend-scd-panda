@@ -190,7 +190,7 @@ const UpdateInvoice = (props) => {
     .map((item) => {
       // ✅ หา registration ที่ id ตรงกับ Registration.split(":")[0]
       const regMatch = registrationHead.find(
-        (reg) => reg.id === Number(item.Registration),
+        (reg) => reg.uuid === item.Registration,
       );
 
       const company = customerB.find(
@@ -454,7 +454,7 @@ const UpdateInvoice = (props) => {
   );
   const invoiceC = companies.find((row) => {
     if (!customer?.Company) return false;
-    return row.id === Number(customer.Company);
+    return row.uuid === customer.Company;
   });
 
   const generatePDF = () => {

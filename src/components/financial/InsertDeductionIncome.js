@@ -141,7 +141,7 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
     const regheadSorted = Object.values(drivers)
         .filter((item) => item.TruckType === "รถใหญ่")
         .map((item) => {
-            const tail = Object.values(reghead).find((t) => t.id === Number(item.Registration));
+            const tail = Object.values(reghead).find((t) => t.uuid === item.Registration);
             return {
                 ...item,
                 RegTail: tail ? tail.RegTail : ""  // ถ้าเจอใน reghead → ดึงค่า RegTail จริง, ถ้าไม่เจอ → ค่าว่าง
@@ -152,7 +152,7 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
     const smallSorted = Object.values(drivers)
         .filter((item) => item.TruckType === "รถเล็ก")
         .map((item) => {
-            const smallD = Object.values(small).find((t) => t.id === Number(item.Registration));
+            const smallD = Object.values(small).find((t) => t.uuid === item.Registration);
             return {
                 ...item,
                 RegTail: smallD ? smallD.RegTail : "",  // ถ้าเจอใน reghead → ดึงค่า RegTail จริง, ถ้าไม่เจอ → ค่าว่าง

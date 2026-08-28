@@ -178,12 +178,12 @@ const DocSalary = ({ openNavbar }) => {
             let Registration = "";
             if (item.TruckType === "รถใหญ่") {
                 const Registrations = registrationH.find(
-                    (row) => row.id === Number(item.Registration)
+                    (row) => row.uuid === item.Registration
                 );
                 Registration = `${Registrations?.RegHead}/${Registrations?.RegTail.split(":")[1]}`;
             } else if (item.TruckType === "รถเล็ก") {
                 const Registrations = smalls.find(
-                    (row) => row.id === Number(item.Registration)
+                    (row) => row.uuid === item.Registration
                 );
                 Registration = Registrations?.RegHead;
             }
@@ -329,7 +329,7 @@ const DocSalary = ({ openNavbar }) => {
         const costrip = tripsDetails
             .filter(
                 (item) =>
-                    Number(item.Driver) === row.id &&
+                    item.Driver === row.uuid &&
                     item.TruckType === row.TruckType
             )
             .reduce((acc, cos) => acc + Number(cos.CostTrip || 0), 0);

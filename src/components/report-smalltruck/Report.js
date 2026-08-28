@@ -182,7 +182,7 @@ const ReportSmallTruck = () => {
     { id: "0", RegHead: "แสดงทั้งหมด", ShortName: "" }, // allOption
     ...registration,
     // ...customerB.filter((cust) => cust.StatusCompany === "อยู่บริษัทในเครือ" && cust.Name.split(".")[0] === "S").map((item) => {
-    //         const regHeadId = Number(item.Registration); // แยก id ก่อน :
+    //         const regHeadId = item.Registration; // แยก id ก่อน :
 
     //         const regHead = registration.find((row) => row.id === regHeadId);
 
@@ -267,10 +267,10 @@ const ReportSmallTruck = () => {
       const travel = Number(trip.Travel) || 0;
 
       const dv = driver.find(
-        (item) => item.id === Number(trip.Driver),
+        (item) => item.uuid === trip.Driver,
       );
       const rg = registration.find(
-        (item) => item.id === Number(trip.Registration),
+        (item) => item.uuid === trip.Registration,
       );
 
       const key = `${dv?.Name}_${rg?.RegHead}`;
@@ -622,7 +622,7 @@ const ReportSmallTruck = () => {
   // console.log("tripdetail : ", tripdetail.Depot);
 
   const detail = filtered.map((row) => {
-    const regId = Number(row.Registration); // สมมติว่า Registration = "123:1กข1234"
+    const regId = row.Registration; // สมมติว่า Registration = "123:1กข1234"
     const regInfo = registration.find((r) => r.id === regId);
 
     return {

@@ -306,7 +306,7 @@ const UpdateReport = (props) => {
         return tickets.flatMap((row) => {
             const matchedTrip = showTrips.find(trip => trip.id === row.Trip + 1);
 
-            const company = registrationHead.find(trip => trip.id === Number(matchedTrip.Registration));
+            const company = registrationHead.find(trip => trip.uuid === matchedTrip.Registration);
 
             // console.log("Company (raw):", `"${company.Company}"`);
             // console.log("Company (trim):", `"${company.Company.trim()}"`);

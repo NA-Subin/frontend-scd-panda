@@ -804,7 +804,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
         // merge reports
         reports
             .filter((ex) => {
-                const regMatch = registrationSm.find((h) => h.id === Number(ex.Registration));
+                const regMatch = registrationSm.find((h) => h.uuid === ex.Registration);
 
                 const rowDate = dayjs(ex.SelectedDateInvoice, "DD/MM/YYYY");
                 const selectedMonth = dayjs(months);
@@ -939,7 +939,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
                 // if (curr.TruckType === "รถเล็ก") {
                 //     const dv = driver
                 //         .filter((d) => d.TruckType === "รถเล็ก")
-                //         .find((rg) => rg.id === Number(curr.Driver));
+                //         .find((rg) => rg.uuid === curr.Driver);
 
                 //     driverName = `${dv?.id || ""}:${dv?.Name || ""}`;
                 // }

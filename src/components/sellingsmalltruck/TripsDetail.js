@@ -80,7 +80,7 @@ const TripsDetail = (props) => {
             });
     };
 
-    const ShortName = smalls.find((t) => t.id === Number(trips.Registration))?.ShortName || "-";
+    const ShortName = smalls.find((t) => t.uuid === trips.Registration)?.ShortName || "-";
 
     console.log("trips:", trips);
 

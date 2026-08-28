@@ -371,7 +371,7 @@ const Dashboard = () => {
       let registration = "";
       if (trip?.TruckType === "รถใหญ่") {
         const reghead = regheads.find(
-          (r) => r.id === Number(t.Registration),
+          (r) => r.uuid === t.Registration,
         );
         if (reghead) {
           registration = `${reghead.id}: ${reghead.RegHead}`;
@@ -380,7 +380,7 @@ const Dashboard = () => {
         }
       } else if (trip?.TruckType === "รถเล็ก") {
         const reghead = smalls.find(
-          (r) => r.id === Number(t.Registration),
+          (r) => r.uuid === t.Registration,
         );
         if (reghead) {
           registration = `${reghead.id}: ${reghead.RegHead}`;
@@ -421,7 +421,7 @@ const Dashboard = () => {
       let registration = "";
       if (trip?.TruckType === "รถใหญ่") {
         const reghead = regheads.find(
-          (r) => r.id === Number(o.Registration),
+          (r) => r.uuid === o.Registration,
         );
         if (reghead) {
           registration = `${reghead.id}: ${reghead.RegHead}`;
@@ -430,7 +430,7 @@ const Dashboard = () => {
         }
       } else if (trip?.TruckType === "รถเล็ก") {
         const reghead = smalls.find(
-          (r) => r.id === Number(o.Registration),
+          (r) => r.uuid === o.Registration,
         );
         if (reghead) {
           registration = `${reghead.id}: ${reghead.RegHead}`;

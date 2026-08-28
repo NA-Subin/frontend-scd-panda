@@ -140,8 +140,8 @@ const Choose = () => {
 
     if (!matchedUser || !matchedUser.Position) return;
 
-    const positionId = Number(matchedUser.Position);
-    const position = positionsDetail.find((pos) => pos.id === positionId);
+    const positionId = matchedUser.Position;
+    const position = positionsDetail.find((pos) => pos.uuid === positionId);
     if (!position) return;
 
     if (position.DriverData === 1) setShowDriver(true);

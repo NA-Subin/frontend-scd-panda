@@ -178,7 +178,7 @@ const ReportTrip = ({ openNavbar }) => {
                 const isValidStatus = item.StatusTrip === "จบทริป";
                 const isTruckType = item.TruckType === "รถใหญ่";
                 const isInDateRange = itemDate.isBetween(selectedDateStart, selectedDateEnd, null, "[]");
-                const matchDrivers = Number(item.Driver) === selectDriver?.id;
+                const matchDrivers = item.Driver === selectDriver?.id;
                 return isValidStatus && isInDateRange && matchDrivers && isTruckType;
             })
             .sort((a, b) => {

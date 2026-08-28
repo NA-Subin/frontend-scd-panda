@@ -81,7 +81,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
         const companies = Object.values(company || {}).find((c) =>
             c.id === (
                 item.Company
-                    ? Number(item.Company)
+                    ? item.Company
                     : null
             )
         );

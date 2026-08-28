@@ -191,8 +191,10 @@ const Driver = () => {
   // }, []);
 
   // const { reghead, trip, order, depots } = useData();
-  const { reghead, depots, inspection } = useBasicData();
+  const { reghead, small, depots, inspection } = useBasicData();
   const { trip, order } = useTripData();
+  const regheadsForUpdate = Object.values(reghead || {});
+  const smallsForUpdate = Object.values(small || {});
 
   const inspectionList = Object.values(inspection || {})
   const drivers = Object.values(reghead || {});
@@ -215,7 +217,7 @@ const Driver = () => {
   const depot = Object.values(depots || {});
 
   // กรองตามเงื่อนไขที่ต้องการหลังจาก data มาแล้ว
-  const driver = drivers.filter((d) => d.Driver !== "0:ไม่มี");
+  const driver = drivers.filter((d) => d.Driver != null);
 
   const today = dayjs(new Date()).format("DD/MM/YYYY");
   const tripDetail = trips
@@ -239,11 +241,11 @@ const Driver = () => {
   useEffect(() => {
     if (!truck || !orders?.length || !tripDetail?.length) return;
 
-    const driverId = Number(truck?.split(":")?.[0]);
+    const driverId = truck?.split(":")?.[0];
 
     // ✅ หา trip แบบ safe
     const check = tripDetail.find((item) => {
-      const id = Number(item.Driver);
+      const id = item.Driver;
       return id === driverId;
     });
 
@@ -309,9 +311,10 @@ const Driver = () => {
         if (!check || !orderNew?.length) return;
 
         if (check.TruckType === "รถใหญ่") {
+          const regheadMatch = regheadsForUpdate.find((r) => r.uuid === check.Registration);
           database
             .ref("truck/registration/")
-            .child(Number(check.Registration) - 1)
+            .child((regheadMatch?.id ?? 0) - 1)
             .update({
               Status: "ว่าง",
               RepairTruck: "00/00/0000:ยังไม่ตรวจสอบสภาพรถ",
@@ -324,9 +327,10 @@ const Driver = () => {
               console.error(error);
             });
         } else if (check.TruckType === "รถเล็ก") {
+          const smallMatch = smallsForUpdate.find((r) => r.uuid === check.Registration);
           database
             .ref("truck/small/")
-            .child(Number(check.Registration) - 1)
+            .child((smallMatch?.id ?? 0) - 1)
             .update({
               Status: "ว่าง",
               RepairTruck: "00/00/0000:ยังไม่ตรวจสอบสภาพรถ",
@@ -352,17 +356,17 @@ const Driver = () => {
     const trucks = e.target.value;
     setTruck(trucks);
 
-    const driverId = Number(trucks?.split(":")?.[0]);
+    const driverId = trucks?.split(":")?.[0];
 
     // ✅ หา trip
     const check = tripDetail.find((item) => {
-      const id = Number(item.Driver);
+      const id = item.Driver;
       return id === driverId;
     });
 
     // ✅ หา driver
     const driverName = drivers.find((item) => {
-      const id = Number(item.Driver);
+      const id = item.Driver;
       return id === driverId;
     });
 

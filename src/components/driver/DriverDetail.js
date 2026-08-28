@@ -141,14 +141,14 @@ const DriverDetail = () => {
     (row) => row.id === Number(userId.split("$")[1]),
   );
   const registrationDetail = regheads.find(
-    (reg) => reg.id === Number(driverDeetail?.Registration.split(":")[0]),
+    (reg) => reg.uuid === driverDeetail?.Registration,
   );
 
   console.log("Driver Detail ", driverDeetail);
   console.log("Registration Detail ", registrationDetail);
 
   // กรองตามเงื่อนไขที่ต้องการหลังจาก data มาแล้ว
-  const driver = regheads.filter((d) => d.Driver !== "ไม่มี");
+  const driver = regheads.filter((d) => d.Driver != null);
 
   const today = dayjs(new Date()).format("DD/MM/YYYY");
   const tripDetail = trips
@@ -237,10 +237,10 @@ const DriverDetail = () => {
   useEffect(() => {
     if (!truck || !orders.length || !tripDetail.length) return;
 
-    const driverId = Number(truck?.split(":")?.[0]);
+    const driverId = truck?.split(":")?.[0];
 
     const currentTrip = tripDetail.find((item) => {
-      const id = Number(item.Driver?.split(":")?.[0]);
+      const id = item.Driver;
       return id === driverId;
     });
 
@@ -294,11 +294,12 @@ const DriverDetail = () => {
         });
 
       const truckPath = getTruckPath(trip.TruckType);
+      const regheadMatch = regheads.find((r) => r.uuid === trip.Registration);
 
-      if (truckPath) {
+      if (truckPath && regheadMatch) {
         await database
           .ref(truckPath)
-          .child(Number(trip.Registration) - 1)
+          .child(regheadMatch.id - 1)
           .update({
             Status: "ว่าง",
             RepairTruck: "00/00/0000:ยังไม่ตรวจสอบสภาพรถ",
@@ -326,11 +327,11 @@ const DriverDetail = () => {
     const trucks = e.target.value;
     setTruck(trucks);
 
-    const driverId = Number(trucks?.split(":")?.[0]);
+    const driverId = trucks?.split(":")?.[0];
 
     // ✅ หา trip แบบ safe
     const check = tripDetail.find((item) => {
-      const id = Number(item.Driver?.split(":")?.[0]);
+      const id = item.Driver;
       return id === driverId;
     });
 

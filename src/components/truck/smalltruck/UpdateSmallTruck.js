@@ -96,7 +96,7 @@ const UpdateSmallTruck = (props) => {
     const [file, setFile] = useState(initialFile);
     const [fileType, setFileType] = useState(initialFileType);
 
-    console.log("show truck", Number(truck.Driver) - 1);
+    console.log("show truck", truck.Driver - 1);
     console.log("show Driver : ", driver);
 
     const handleCancle = () => {

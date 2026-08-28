@@ -757,8 +757,8 @@ const ReportGasStation = ({ openNavbar }) => {
                             key={stock.id || idx}
                         >
                             {gasStationOil.map((row, index) => {
-                                if (Number(row.Stock) === stock.id) {
-                                    const filteredStocks = gasStationOil.filter(r => Number(r.Stock) === stock.id);
+                                if (row.Stock === stock.uuid) {
+                                    const filteredStocks = gasStationOil.filter(r => r.Stock === stock.uuid);
                                     const stockCount = filteredStocks.length;  // จำนวนปั้มที่ตรงกัน
                                     // ✔ หาลำดับปั้ม (0,1)
                                     const pumpOrder = filteredStocks.findIndex(p => p.id === row.id);
@@ -767,7 +767,7 @@ const ReportGasStation = ({ openNavbar }) => {
                                     const month = selectedDate.month() + 1;
 
                                     const pumpsInStock = gasStationOil.filter(
-                                        r => Number(r.Stock) === stock.id
+                                        r => r.Stock === stock.uuid
                                     );
 
                                     const stockSummary = pumpsInStock.reduce(

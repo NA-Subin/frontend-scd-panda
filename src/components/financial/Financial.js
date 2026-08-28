@@ -408,9 +408,9 @@ const Financial = () => {
         setSelectedDateInvoice(row.SelectedDateInvoice);
         setSelectedDateTransfer(row.SelectedDateTransfer);
         setRegistration(`${row.Registration}:${row.RegistrationName}`);
-        setRegID(Number(row.Registration));
+        setRegID(row.Registration);
         setCompany(row.Company);
-        setCompanyID(Number(row.Company));
+        setCompanyID(row.Company);
         setBank(row.Bank);
         setPrice(row.Price);
         setVat(row.Vat);

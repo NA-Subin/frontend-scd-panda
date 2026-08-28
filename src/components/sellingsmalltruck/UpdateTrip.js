@@ -147,7 +147,7 @@ const UpdateTrip = (props) => {
             : trip.Driver || "";
 
         const registrationId = trip.Registration?.includes(":")
-            ? Number(trip.Registration)
+            ? trip.Registration
             : null;
 
         const plate = trip.Registration?.includes(":")

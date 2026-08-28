@@ -251,7 +251,7 @@ const UpdateFinancial = (props) => {
 
     const [selectedValue, setSelectedValue] = useState(row.Group !== "กลุ่ม" ? (
         getRegistration().find((item) =>
-            item.TruckType === row.TruckType && item.id === Number(row.Registration))) : null
+            item.TruckType === row.TruckType && item.uuid === row.Registration)) : null
     );
 
     console.log("List : ", list);
@@ -365,7 +365,7 @@ const UpdateFinancial = (props) => {
         setSelectedDateTransfer(dayjs(row.SelectedDateTransfer, "DD/MM/YYYY"));
         setSelectedValue(row.Group !== "กลุ่ม" ? (
             getRegistration().find((item) =>
-                item.TruckType === row.TruckType && item.id === Number(row.Registration))) : null
+                item.TruckType === row.TruckType && item.uuid === row.Registration)) : null
         );
         setList(formattedList);
         setGroup(row.Group !== "กลุ่ม" ? "เดี่ยว" : "กลุ่ม");
