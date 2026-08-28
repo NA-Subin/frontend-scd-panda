@@ -140,7 +140,7 @@ const Choose = () => {
 
     if (!matchedUser || !matchedUser.Position) return;
 
-    const positionId = Number(matchedUser.Position.split(":")[0]);
+    const positionId = Number(matchedUser.Position);
     const position = positionsDetail.find((pos) => pos.id === positionId);
     if (!position) return;
 

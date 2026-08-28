@@ -231,7 +231,7 @@ export default function Navbar({ open, onOpenChange }) {
     const matchedUser = allUsers.find((emp) => emp.User === user);
     if (!matchedUser || !matchedUser.Position) return;
 
-    const positionId = Number(matchedUser.Position.split(":")[0]);
+    const positionId = Number(matchedUser.Position);
     const position = positionsDetail.find((pos) => pos.id === positionId);
     if (!position) return;
 
