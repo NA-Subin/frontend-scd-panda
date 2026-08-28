@@ -83,8 +83,8 @@ const ReportDetail = (props) => {
             const dateDiff = dateA.diff(dateB);
             if (dateDiff !== 0) return dateDiff;
 
-            const driverA = a.Driver?.split(":")[1]?.trim() || '';
-            const driverB = b.Driver?.split(":")[1]?.trim() || '';
+            const driverA = a.DriverName?.trim() || '';
+            const driverB = b.DriverName?.trim() || '';
             return driverA.localeCompare(driverB);
         });
 
@@ -263,7 +263,7 @@ const ReportDetail = (props) => {
                                                 <TableRow>
                                                     <TableCell sx={{ textAlign: "center" }}>{index + 1}</TableCell>
                                                     <TableCell sx={{ textAlign: "center" }}>{order.Date}</TableCell>
-                                                    <TableCell sx={{ textAlign: "center" }}>{`${order.Driver.split(":")[1]}/${row.Registration.split(":")[1]}`}</TableCell>
+                                                    <TableCell sx={{ textAlign: "center" }}>{`${order.DriverName}/${row.RegistrationName}`}</TableCell>
                                                     <TableCell sx={{ textAlign: "center" }}>{order.ProductName}</TableCell>
                                                     <TableCell sx={{ textAlign: "center" }}>{new Intl.NumberFormat("en-US").format(order.VolumeProduct)}</TableCell>
                                                     <TableCell sx={{ textAlign: "center" }}>{new Intl.NumberFormat("en-US").format(order.RateOil)}</TableCell>
@@ -276,7 +276,7 @@ const ReportDetail = (props) => {
                                         {groupedOrders.map(([groupKey, groupOrders], groupIndex) => {
                                             const rowSpan = groupOrders.length;
                                             const [date, driver] = groupKey.split("|");
-                                            const registration = row.Registration.split(":")[1] || "";
+                                            const registration = row.RegistrationName || "";
 
                                             // คำนวณรวม
                                             const totalVolume = groupOrders.reduce((sum, o) => sum + o.VolumeProduct, 0);
@@ -356,7 +356,7 @@ const ReportDetail = (props) => {
                                                                                 ? dayjs(dateObj).locale("th").format("วันที่ D เดือนMMMM พ.ศ.BBBB")
                                                                                 : "-";
 
-                                                                            const bankName = money.BankName?.split(":")[1] || "-";
+                                                                            const bankName = money.BankNameName || "-";
 
                                                                             return groupOrders[0].IncomingMoneyDetail.length > 1
                                                                                 ? `ชำระเงินครั้งที่ ${idx + 1} เมื่อ${dateText} ผ่านบัญชี ${bankName} เป็นจำนวนเงินดังนี้`

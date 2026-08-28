@@ -132,8 +132,8 @@ const ReportDetail = (props) => {
       const dateDiff = dateA.diff(dateB);
       if (dateDiff !== 0) return dateDiff;
 
-      const driverA = a.Driver?.split(":")[1]?.trim() || "";
-      const driverB = b.Driver?.split(":")[1]?.trim() || "";
+      const driverA = a.DriverName?.trim() || "";
+      const driverB = b.DriverName?.trim() || "";
       return driverA.localeCompare(driverB);
     });
 
@@ -944,7 +944,7 @@ const ReportDetail = (props) => {
                                 borderRight: "1px solid white",
                               }}
                               colSpan={6}
-                            >{`${trans.BankName?.split(":")[1] || ""} ${trans.Number || ""}`}</TableCell>
+                            >{`${trans.BankNameName || ""} ${trans.Number || ""}`}</TableCell>
                             {/* ✅ แก้บั๊ก: เดิมใช้ trans.BankID ซึ่งไม่มี field นี้ในข้อมูลจริงเลย
                               (มีแต่ BankName, Number, Code) ทำให้ขึ้นคำว่า "undefined" ต่อท้าย
                               ทุกแถวเสมอ เปลี่ยนไปใช้ trans.Number ซึ่งเป็นเลขอ้างอิง/เลขที่บัญชี

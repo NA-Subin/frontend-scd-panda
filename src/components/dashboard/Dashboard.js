@@ -156,8 +156,8 @@ const Dashboard = () => {
   const Ctickets = Object.values(customertickets || {});
 
   const reports_F = Object.values(reportFinancial || {}).sort((a, b) => {
-    const driverA = (a.Driver || "").split(":")[1]?.trim() || "";
-    const driverB = (b.Driver || "").split(":")[1]?.trim() || "";
+    const driverA = a.DriverName || "";
+    const driverB = b.DriverName || "";
     return driverA.localeCompare(driverB, "th", { numeric: true });
   });
   const deductibleincomeDetail = Object.values(deductibleincome).filter(
@@ -371,7 +371,7 @@ const Dashboard = () => {
       let registration = "";
       if (trip?.TruckType === "รถใหญ่") {
         const reghead = regheads.find(
-          (r) => r.id === Number(t.Registration.split(":")[0]),
+          (r) => r.id === Number(t.Registration),
         );
         if (reghead) {
           registration = `${reghead.id}: ${reghead.RegHead}`;
@@ -380,7 +380,7 @@ const Dashboard = () => {
         }
       } else if (trip?.TruckType === "รถเล็ก") {
         const reghead = smalls.find(
-          (r) => r.id === Number(t.Registration.split(":")[0]),
+          (r) => r.id === Number(t.Registration),
         );
         if (reghead) {
           registration = `${reghead.id}: ${reghead.RegHead}`;
@@ -395,7 +395,7 @@ const Dashboard = () => {
         flowType: "in", // 🔥 สำคัญ
         tripId: t.Trip,
         truckType: trip.TruckType,
-        driver: trip.Driver,
+        driver: trip.DriverName ?? trip.Driver,
         registration: registration,
         month: date.format("MM/YYYY"),
         volume: getTotalVolumePerRow(t),
@@ -421,7 +421,7 @@ const Dashboard = () => {
       let registration = "";
       if (trip?.TruckType === "รถใหญ่") {
         const reghead = regheads.find(
-          (r) => r.id === Number(o.Registration.split(":")[0]),
+          (r) => r.id === Number(o.Registration),
         );
         if (reghead) {
           registration = `${reghead.id}: ${reghead.RegHead}`;
@@ -430,7 +430,7 @@ const Dashboard = () => {
         }
       } else if (trip?.TruckType === "รถเล็ก") {
         const reghead = smalls.find(
-          (r) => r.id === Number(o.Registration.split(":")[0]),
+          (r) => r.id === Number(o.Registration),
         );
         if (reghead) {
           registration = `${reghead.id}: ${reghead.RegHead}`;
@@ -445,7 +445,7 @@ const Dashboard = () => {
         flowType: "out", // 🔥 สำคัญ
         tripId: o.Trip,
         truckType: trip.TruckType,
-        driver: trip.Driver,
+        driver: trip.DriverName ?? trip.Driver,
         registration: registration,
         month: date.format("MM/YYYY"),
         volume: getTotalVolumePerRow(o),
@@ -458,11 +458,13 @@ const Dashboard = () => {
   console.log("monthVolumes : ", monthVolumes);
 
   const getDriverName = (driverStr = "") => {
-    return driverStr.split(":")[1]?.trim() || driverStr;
+    const str = String(driverStr ?? "");
+    return str.includes(":") ? str.split(":")[1]?.trim() || str : str;
   };
 
   const getRegistration = (regStr = "") => {
-    return regStr.split(":")[1]?.trim().split(" ")[0] || regStr;
+    const str = String(regStr ?? "");
+    return str.includes(":") ? str.split(":")[1]?.trim().split(" ")[0] || str : str;
   };
 
   const driverMonthVolumes = {};
@@ -485,8 +487,8 @@ const Dashboard = () => {
 
       const monthKey = date.format("MM/YYYY");
 
-      const driver = getDriverName(o.Driver);
-      const registration = getRegistration(o.Registration);
+      const driver = getDriverName(o.DriverName ?? o.Driver);
+      const registration = getRegistration(o.RegistrationName ?? o.Registration);
 
       const totalVolume = getTotalVolumePerRow(o);
 

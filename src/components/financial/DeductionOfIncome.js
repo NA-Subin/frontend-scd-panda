@@ -226,9 +226,9 @@ const DeductionOfIncome = (props) => {
 
     // ✅ กรองก่อน group
     const filteredReportDetail = reportDetail.filter((row) => {
-        const driverName = row.Driver.split(":")[1]?.trim() || "";
-        const regHead = row.RegHead.split(":")[1]?.trim() || "";
-        const regTail = row.RegTail.split(":")[1]?.trim() || "";
+        const driverName = row.DriverName?.trim() || "";
+        const regHead = row.RegHeadName?.trim() || "";
+        const regTail = row.RegTailName?.trim() || "";
 
         // คุณจะใช้แค่ driverName filter หรือรวมก็ได้
         return (
@@ -240,9 +240,9 @@ const DeductionOfIncome = (props) => {
 
     // ✅ Group
     const groupedData = filteredReportDetail.reduce((acc, row) => {
-        const driverName = row.Driver.split(":")[1]?.trim() || "";
-        const regHead = row.RegHead.split(":")[1]?.trim() || "";
-        const regTail = row.RegTail.split(":")[1]?.trim() || "";
+        const driverName = row.DriverName?.trim() || "";
+        const regHead = row.RegHeadName?.trim() || "";
+        const regTail = row.RegTailName?.trim() || "";
         const shortName = row.ShortName || "";
 
         // ✅ รวมเป็น key เดียว เช่น "ชื่อนามสกุล | หัว | หาง"

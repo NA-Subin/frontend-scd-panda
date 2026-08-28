@@ -306,7 +306,7 @@ const UpdateReport = (props) => {
         return tickets.flatMap((row) => {
             const matchedTrip = showTrips.find(trip => trip.id === row.Trip + 1);
 
-            const company = registrationHead.find(trip => trip.id === Number(matchedTrip.Registration.split(":")[0]));
+            const company = registrationHead.find(trip => trip.id === Number(matchedTrip.Registration));
 
             // console.log("Company (raw):", `"${company.Company}"`);
             // console.log("Company (trim):", `"${company.Company.trim()}"`);
@@ -994,7 +994,7 @@ const UpdateReport = (props) => {
                                                     sx={{ textAlign: "center", height: '30px', width: 150, verticalAlign: "middle" }}
                                                 >
                                                     <Typography variant="subtitle2" fontSize="14px" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>
-                                                        {row.Registration.split(":")[1]}
+                                                        {row.RegistrationName}
                                                     </Typography>
                                                 </TableCell>
                                             )}
@@ -1074,7 +1074,7 @@ const UpdateReport = (props) => {
                                                     sx={{ textAlign: "center", height: '30px', width: 300, verticalAlign: "middle" }}
                                                 >
                                                     <Typography variant="subtitle2" fontSize="14px" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>
-                                                        {row.Registration.split(":")[1]}
+                                                        {row.RegistrationName}
                                                     </Typography>
                                                 </TableCell>
                                             )}
@@ -1589,7 +1589,7 @@ const UpdateReport = (props) => {
                                                     sx={{ textAlign: "center", height: '30px', width: 300, verticalAlign: "middle" }}
                                                 >
                                                     <Typography variant="subtitle2" fontSize="14px" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>
-                                                        {row.Registration.split(":")[1]}
+                                                        {row.RegistrationName}
                                                     </Typography>
                                                 </TableCell>
                                             )}

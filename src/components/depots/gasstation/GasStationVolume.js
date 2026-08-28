@@ -234,7 +234,7 @@ const GasStationVolume = (props) => {
 
     const truckDriver = registration.filter((item => item.RegTail !== "0:ไม่มี" && item.Driver !== "0:ไม่มี"));
     // console.log("1.truckDriver : ", truckDriver);
-    // console.log("2.truckDriver : ", truckDriver.map((row) => row.Driver.split(":")[1]?.split(" ")[0]));
+    // console.log("2.truckDriver : ", truckDriver.map((row) => row.DriverName?.split(" ")[0]));
 
     const calculatePeriod = (row) => {
         const estimateSell = parseFloat(row.EstimateSell) || 0;

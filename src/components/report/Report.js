@@ -196,7 +196,7 @@ const Report = ({ openNavbar }) => {
       let totalOverdue = 0;
 
       // แยก driverId ออกมาก่อน
-      const driverId = Number(item.Driver?.split(":")[0]);
+      const driverId = Number(item.Driver);
 
       const TruckType =
         driverDetail.find((driver) => driver.id === driverId)?.TruckType || "";
@@ -290,7 +290,7 @@ const Report = ({ openNavbar }) => {
       let totalOverdue = 0;
 
       // แยก driverId ออกมาก่อน
-      const driverId = Number(item.Driver?.split(":")[0]);
+      const driverId = Number(item.Driver);
 
       const TruckType =
         driverDetail.find((driver) => driver.id === driverId)?.TruckType || "";
@@ -386,7 +386,7 @@ const Report = ({ openNavbar }) => {
       let totalOverdue = 0;
 
       // แยก driverId ออกมาก่อน
-      const driverId = Number(item.Driver?.split(":")[0]);
+      const driverId = Number(item.Driver);
 
       const TruckType =
         driverDetail.find((driver) => driver.id === driverId)?.TruckType || "";

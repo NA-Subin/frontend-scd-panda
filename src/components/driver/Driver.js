@@ -243,7 +243,7 @@ const Driver = () => {
 
     // ✅ หา trip แบบ safe
     const check = tripDetail.find((item) => {
-      const id = Number(item.Driver?.split(":")?.[0]);
+      const id = Number(item.Driver);
       return id === driverId;
     });
 
@@ -311,7 +311,7 @@ const Driver = () => {
         if (check.TruckType === "รถใหญ่") {
           database
             .ref("truck/registration/")
-            .child(Number(check.Registration.split(":")[0]) - 1)
+            .child(Number(check.Registration) - 1)
             .update({
               Status: "ว่าง",
               RepairTruck: "00/00/0000:ยังไม่ตรวจสอบสภาพรถ",
@@ -326,7 +326,7 @@ const Driver = () => {
         } else if (check.TruckType === "รถเล็ก") {
           database
             .ref("truck/small/")
-            .child(Number(check.Registration.split(":")[0]) - 1)
+            .child(Number(check.Registration) - 1)
             .update({
               Status: "ว่าง",
               RepairTruck: "00/00/0000:ยังไม่ตรวจสอบสภาพรถ",
@@ -356,13 +356,13 @@ const Driver = () => {
 
     // ✅ หา trip
     const check = tripDetail.find((item) => {
-      const id = Number(item.Driver?.split(":")?.[0]);
+      const id = Number(item.Driver);
       return id === driverId;
     });
 
     // ✅ หา driver
     const driverName = drivers.find((item) => {
-      const id = Number(item.Driver?.split(":")?.[0]);
+      const id = Number(item.Driver);
       return id === driverId;
     });
 
@@ -705,7 +705,7 @@ const Driver = () => {
                 {driver.map((row) => (
                   <MenuItem
                     value={`${row.Driver}:${row.RegHead}:${row.RegTail}`}
-                  >{`${row.Driver ? row.Driver.split(":")[1] : ""} / ${row.RegHead}:${row.RegTail ? row.RegTail.split(":")[1] : ""}`}</MenuItem>
+                  >{`${row.Driver ? row.DriverName : ""} / ${row.RegHead}:${row.RegTail ? row.RegTailName : ""}`}</MenuItem>
                 ))}
               </Select>
             </FormControl>

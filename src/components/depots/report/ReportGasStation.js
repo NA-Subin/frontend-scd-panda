@@ -757,8 +757,8 @@ const ReportGasStation = ({ openNavbar }) => {
                             key={stock.id || idx}
                         >
                             {gasStationOil.map((row, index) => {
-                                if (Number(row.Stock.split(":")[0]) === stock.id) {
-                                    const filteredStocks = gasStationOil.filter(r => Number(r.Stock.split(":")[0]) === stock.id);
+                                if (Number(row.Stock) === stock.id) {
+                                    const filteredStocks = gasStationOil.filter(r => Number(r.Stock) === stock.id);
                                     const stockCount = filteredStocks.length;  // จำนวนปั้มที่ตรงกัน
                                     // ✔ หาลำดับปั้ม (0,1)
                                     const pumpOrder = filteredStocks.findIndex(p => p.id === row.id);
@@ -767,7 +767,7 @@ const ReportGasStation = ({ openNavbar }) => {
                                     const month = selectedDate.month() + 1;
 
                                     const pumpsInStock = gasStationOil.filter(
-                                        r => Number(r.Stock.split(":")[0]) === stock.id
+                                        r => Number(r.Stock) === stock.id
                                     );
 
                                     const stockSummary = pumpsInStock.reduce(
@@ -941,11 +941,11 @@ const ReportGasStation = ({ openNavbar }) => {
                                                     justifyContent: "space-between", // ชิดซ้าย-ขวา
                                                     alignItems: "center",
                                                     backgroundColor:
-                                                        row.Stock.split(":")[1] === "แม่โจ้" ? "#92D050"
-                                                            : row.Stock.split(":")[1] === "สันกลาง" ? "#B1A0C7"
-                                                                : row.Stock.split(":")[1] === "สันทราย" ? "#B7DEE8"
-                                                                    : row.Stock.split(":")[1] === "บ้านโฮ่ง" ? "#FABF8F"
-                                                                        : row.Stock.split(":")[1] === "ป่าแดด" ? "#B1A0C7"
+                                                        row.StockName === "แม่โจ้" ? "#92D050"
+                                                            : row.StockName === "สันกลาง" ? "#B1A0C7"
+                                                                : row.StockName === "สันทราย" ? "#B7DEE8"
+                                                                    : row.StockName === "บ้านโฮ่ง" ? "#FABF8F"
+                                                                        : row.StockName === "ป่าแดด" ? "#B1A0C7"
                                                                             : "lightgray"
                                                     ,
                                                     paddingLeft: 2,
@@ -1205,11 +1205,11 @@ const ReportGasStation = ({ openNavbar }) => {
                                                                 justifyContent: "space-between", // ชิดซ้าย-ขวา
                                                                 alignItems: "center",
                                                                 backgroundColor:
-                                                                    row.Stock.split(":")[1] === "แม่โจ้" ? "#92D050"
-                                                                        : row.Stock.split(":")[1] === "สันกลาง" ? "#B1A0C7"
-                                                                            : row.Stock.split(":")[1] === "สันทราย" ? "#B7DEE8"
-                                                                                : row.Stock.split(":")[1] === "บ้านโฮ่ง" ? "#FABF8F"
-                                                                                    : row.Stock.split(":")[1] === "ป่าแดด" ? "#B1A0C7"
+                                                                    row.StockName === "แม่โจ้" ? "#92D050"
+                                                                        : row.StockName === "สันกลาง" ? "#B1A0C7"
+                                                                            : row.StockName === "สันทราย" ? "#B7DEE8"
+                                                                                : row.StockName === "บ้านโฮ่ง" ? "#FABF8F"
+                                                                                    : row.StockName === "ป่าแดด" ? "#B1A0C7"
                                                                                         : "lightgray"
                                                                 ,
                                                                 paddingLeft: 2,

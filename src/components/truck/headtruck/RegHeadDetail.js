@@ -296,7 +296,7 @@ const RegHeadDetail = (props) => {
                   <SettingsIcon color="warning" fontSize="12px" />
                 </IconButton>
               ) : (
-                truck.RegTail.split(":")[1]
+                truck.RegTailName
               )}
             </Box>
           </TableCell>
@@ -359,7 +359,7 @@ const RegHeadDetail = (props) => {
           {truck.Company.split(":")[1]}
         </TableCell>
         <TableCell sx={{ textAlign: "center" }}>
-          {truck.Driver === "ไม่มี" ? truck.Driver : truck.Driver.split(":")[1]}
+          {truck.Driver === "ไม่มี" ? truck.Driver : truck.DriverName}
         </TableCell>
         <TableCell
           sx={{

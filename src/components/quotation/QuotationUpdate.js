@@ -183,7 +183,7 @@ const QuotationUpdate = ({ setOpen }) => {
         return quotations.filter(q => {
             // เอาเฉพาะข้อความหลัง ":"
             const codeText = q.Code.split(":")[1] || q.Code;
-            const companyText = q.Company.split(":")[1] || q.Company;
+            const companyText = q.CompanyName || q.Company;
             const customerText = q.Customer.split(":")[1] || q.Customer;
 
             // กรองตาม search
@@ -210,16 +210,16 @@ const QuotationUpdate = ({ setOpen }) => {
                     bValue = dayjs(b.Date, "DD/MM/YYYY").toDate();
                     break;
                 case "Company":
-                    aValue = a.Company?.split(":")[1] || "";
-                    bValue = b.Company?.split(":")[1] || "";
+                    aValue = a.CompanyName || "";
+                    bValue = b.CompanyName || "";
                     break;
                 case "Customer":
                     aValue = a.Customer?.split(":")[1] || "";
                     bValue = b.Customer?.split(":")[1] || "";
                     break;
                 case "Employee":
-                    aValue = a.Employee?.split(":")[1] || "";
-                    bValue = b.Employee?.split(":")[1] || "";
+                    aValue = a.EmployeeName || "";
+                    bValue = b.EmployeeName || "";
                     break;
                 default:
                     return 0;
@@ -672,7 +672,7 @@ const QuotationUpdate = ({ setOpen }) => {
                                                     }}
                                                 >
                                                     <Box sx={{ marginLeft: 1 }}>
-                                                        {row.Company ? row.Company.split(":")[1] : ""}
+                                                        {row.CompanyName || ""}
                                                     </Box>
                                                 </TableCell>
                                                 <TableCell
@@ -694,7 +694,7 @@ const QuotationUpdate = ({ setOpen }) => {
                                                     }}
                                                 >
                                                     <Box sx={{ marginLeft: 1 }}>
-                                                        {row.Employee ? row.Employee.split(":")[1] : ""}
+                                                        {row.EmployeeName || ""}
                                                     </Box>
                                                 </TableCell>
                                                 <TableCell

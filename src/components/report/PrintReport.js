@@ -1583,7 +1583,7 @@ const PrintReport = () => {
                             rowSpan={rowSpan}
                             sx={{ textAlign: "center", height: '30px', verticalAlign: "middle" }}
                           >
-                            <Typography variant="subtitle2" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>{row.Driver.split(":")[1]} : {row.Registration.split(":")[1]}</Typography>
+                            <Typography variant="subtitle2" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>{row.DriverName} : {row.RegistrationName}</Typography>
                           </TableCell>
                         )}
                         <TableCell sx={{ textAlign: "center", borderLeft: "2px solid black" }}>

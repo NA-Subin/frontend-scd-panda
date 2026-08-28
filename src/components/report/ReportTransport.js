@@ -435,7 +435,7 @@ const ReportTransports = ({ openNavbar }) => {
     //         isRegistration = registration.some(
     //             (customer) =>
     //                 customer.Company.split(":")[0] === check.split(":")[0] &&
-    //                 customer.id === Number(item.Registration?.split(":")[0] || 0)
+    //                 customer.id === Number(item.Registration || 0)
     //         );
     //     }
 
@@ -462,14 +462,14 @@ const ReportTransports = ({ openNavbar }) => {
       if (check === "0:ทั้งหมด") {
         isRegistration = true;
       } else if (check === "4:รถรับจ้างขนส่ง") {
-        isRegistration = item.Registration === "1:ไม่มี";
+        isRegistration = item.RegistrationName === "ไม่มี";
       } else {
         isRegistration =
           registration.some(
             (customer) =>
               customer.Company.split(":")[0] === check.split(":")[0] &&
-              customer.id === Number(item.Registration?.split(":")[0] || 0),
-          ) && item.Registration !== "1:ไม่มี";
+              customer.id === Number(item.Registration || 0),
+          ) && item.RegistrationName !== "ไม่มี";
       }
 
       const isValidCustomerType =
@@ -502,7 +502,7 @@ const ReportTransports = ({ openNavbar }) => {
         if (!item.Product) return null;
 
         const company = registration.find(
-          (com) => com.id === Number(item.Registration?.split(":")[0] || 0),
+          (com) => com.id === Number(item.Registration || 0),
         );
 
         const tripdetail = trips.find((trip) => trip.id - 1 === item.Trip);
@@ -562,7 +562,7 @@ const ReportTransports = ({ openNavbar }) => {
 
             if (check === "0:ทั้งหมด") return baseCondition;
             if (check === "4:รถรับจ้างขนส่ง")
-              return baseCondition && item.Registration === "1:ไม่มี";
+              return baseCondition && item.RegistrationName === "ไม่มี";
             return (
               baseCondition && t.Transport.split(":")[0] === check.split(":")[0]
             );
@@ -598,7 +598,7 @@ const ReportTransports = ({ openNavbar }) => {
           TotalAmount: totalAmount,
           RateOil: parseFloat(Rate),
           Company:
-            item.Registration !== "1:ไม่มี"
+            item.RegistrationName !== "ไม่มี"
               ? company?.Company
               : "4:รถรับจ้างขนส่ง",
           RegistrationHead: company?.RegHead,

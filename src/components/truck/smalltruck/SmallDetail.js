@@ -204,7 +204,7 @@ const SmallDetail = (props) => {
         </TableCell>
         <TableCell sx={{ textAlign: "center" }}>{truck.Status}</TableCell>
         <TableCell sx={{ textAlign: "center" }}>{truck.Company.split(":")[1]}</TableCell>
-        <TableCell sx={{ textAlign: "center" }}>{truck.Driver === "ไม่มี" ? truck.Driver : truck.Driver.split(":")[1]}</TableCell>
+        <TableCell sx={{ textAlign: "center" }}>{truck.Driver === "ไม่มี" ? truck.Driver : truck.DriverName}</TableCell>
         <TableCell
           sx={{
             backgroundColor: "white",

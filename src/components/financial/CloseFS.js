@@ -539,7 +539,7 @@ const CloseFS = ({ openNavbar }) => {
   //             let group = acc.find(g => g.key === key);
 
   //             const ticketname = normalOrders.filter(tk => {
-  //                 const regMatch = (tk.Registration ? Number(tk.Registration.split(":")[0]) : null) === curr.id;
+  //                 const regMatch = (tk.Registration ? Number(tk.Registration) : null) === curr.id;
 
   //                 const rowDate = dayjs(tk.DateReceive, "DD/MM/YYYY", true);
   //                 const selectedMonth = dayjs(months);
@@ -634,7 +634,7 @@ const CloseFS = ({ openNavbar }) => {
   // const transportTruckGroups = registrationT
   //     .filter(reg => companyName === "0:ทั้งหมด" ? true : reg.Company === companyName)
   //     .reduce((acc, curr) => {
-  //         const Driver = transportTruckOrders.find((r) => r.Registration.split(":")[1] === curr.Registration)?.Driver;
+  //         const Driver = transportTruckOrders.find((r) => r.RegistrationName === curr.Registration)?.Driver;
   //         console.log("Driver : ", Driver);
   //         const key = `${Driver}-${curr.id}:${curr.Registration}`;
   //         let group = acc.find(g => g.key === key);
@@ -708,8 +708,8 @@ const CloseFS = ({ openNavbar }) => {
   //         if (typeDiff !== 0) return typeDiff;
 
   //         // 2️⃣ ถ้า TruckType เท่ากัน → เรียงตามชื่อ Driver (ภาษาไทย)
-  //         const nameA = (a.Driver?.split(":")[1] || "").trim();
-  //         const nameB = (b.Driver?.split(":")[1] || "").trim();
+  //         const nameA = (a.DriverName || "").trim();
+  //         const nameB = (b.DriverName || "").trim();
 
   //         return nameA.localeCompare(nameB, "th");
   //     });
@@ -813,10 +813,10 @@ const CloseFS = ({ openNavbar }) => {
   return groups.sort((a, b) => {
 
     const nameA =
-      (a.Driver?.split(":")[1] || "").trim();
+      (a.DriverName || "").trim();
 
     const nameB =
-      (b.Driver?.split(":")[1] || "").trim();
+      (b.DriverName || "").trim();
 
     return nameA.localeCompare(nameB, "th");
   });
@@ -905,11 +905,11 @@ const CloseFS = ({ openNavbar }) => {
         const regMatch =
           ex.TruckType === "หัวรถใหญ่"
             ? registrationH.find(
-                (h) => h.id === Number(ex.Registration.split(":")[0]),
+                (h) => h.id === Number(ex.Registration),
               )
             : ex.TruckType === "หางรถใหญ่"
               ? registrationS.find(
-                  (h) => h.id === Number(ex.Registration.split(":")[0]),
+                  (h) => h.id === Number(ex.Registration),
                 )
               : false;
 
@@ -978,7 +978,7 @@ const CloseFS = ({ openNavbar }) => {
         const selectedMonth = dayjs(months);
         const selectedYear = dayjs(years);
         const truck = registrationH.find(
-          (h) => h.id === Number(r.RegHead.split(":")[0]),
+          (h) => h.id === Number(r.RegHead),
         );
         const companyCheck =
           companyName === "0:ทั้งหมด" ? true : companyName === truck?.Company;
@@ -1063,7 +1063,7 @@ const CloseFS = ({ openNavbar }) => {
           : rowDate.format("YYYY") === selectedYear.format("YYYY");
 
         const truck = registrationH.find(
-          (h) => h.id === Number(tr.Registration.split(":")[0]),
+          (h) => h.id === Number(tr.Registration),
         );
         const companyCheck =
           companyName === "0:ทั้งหมด" ? true : companyName === truck?.Company;
@@ -1087,12 +1087,12 @@ const CloseFS = ({ openNavbar }) => {
         let registration = "";
         if (curr.TruckType === "รถใหญ่") {
           const regHead = registrationH.find(
-            (rg) => rg.id === Number(curr.Registration.split(":")[0]),
+            (rg) => rg.id === Number(curr.Registration),
           );
           registration = `${regHead?.id}:${regHead?.RegHead}`;
         } else if (curr.TruckType === "รถรับจ้างขนส่ง") {
           const regHead = registrationT.find(
-            (rg) => rg.id === Number(curr.Registration.split(":")[0]),
+            (rg) => rg.id === Number(curr.Registration),
           );
           registration = `${regHead?.id}:${regHead?.Name}`;
         }
@@ -1477,7 +1477,7 @@ const driverTotals = useMemo(() => {
   // console.log("tripdetail : ", tripdetail.Depot);
 
   // const detail = filtered.map((row) => {
-  //     const regId = Number(row.Registration.split(":")[0]); // สมมติว่า Registration = "123:1กข1234"
+  //     const regId = Number(row.Registration); // สมมติว่า Registration = "123:1กข1234"
   //     const regInfo = registration.find((r) => r.id === regId && (formatmonth(row.Date) === dayjs(months).format("MMMM")));
 
   //     return {
@@ -1528,7 +1528,7 @@ const driverTotals = useMemo(() => {
     const filteredsDetail = orders
       .map((row) => {
         if (row.Trip !== "ยกเลิก" && row.CustomerType === "ตั๋วรับจ้างขนส่ง") {
-          const regId = Number(row.Registration.split(":")[0]);
+          const regId = Number(row.Registration);
           const companyId = Number(data.split(":")[0]);
 
           const found = registration.find(
@@ -1590,7 +1590,7 @@ const driverTotals = useMemo(() => {
     const details = filtereds
       .map((row) => {
         // แยก id ออกจาก Registration และ Company เพื่อนำไปเทียบ
-        const regId = Number(row.Registration.split(":")[0]);
+        const regId = Number(row.Registration);
         const companyId = Number(data.split(":")[0]);
 
         // หาข้อมูลทะเบียนที่ตรงกับ regId และ companyId
@@ -1654,13 +1654,13 @@ const driverTotals = useMemo(() => {
       ...driverGroups.map((dg) => ({
         header:
           dg.TruckType === "รถเล็ก"
-            ? `${dg.Driver.split(":")[1]}/${dg.RegistrationTail}/${dg.Registration.split(":")[1]}`
+            ? `${dg.DriverName}/${dg.RegistrationTail}/${dg.RegistrationName}`
             : dg.TruckType === "รถรับจ้างขนส่ง"
               ? dg.Driver
-                ? dg.Driver.split(":")[1]
+                ? dg.DriverName
                 : ""
-              : `${dg.Driver.split(":")[1]}/${dg.Registration.split(":")[1]}${dg.RegistrationTail !== "0:ไม่มี" ? `/${dg.RegistrationTail.split(":")[1]}` : ""}`,
-        key: `driver_${dg.Registration.split(":")[0]}`,
+              : `${dg.DriverName}/${dg.RegistrationName}${dg.RegistrationTail !== "0:ไม่มี" ? `/${dg.RegistrationTail.split(":")[1]}` : ""}`,
+        key: `driver_${dg.Registration}`,
         width: 32, // 250px
       })),
     ];
@@ -1888,7 +1888,7 @@ const total = driverTotals[key] || { Volume: 0, Amount: 0 };
       "",
       grandTotalReport?.TotalPrice || 0,
       ...driverGroups.map((dg) => {
-        // const regis = Number(dg.Registration.split(":")[0]);
+        // const regis = Number(dg.Registration);
         // const total = driverReportTotals[regis] || { TotalAmount: 0, TotalPrice: 0, TotalVat: 0 };
         const regis = normalizeReg(dg.Registration);
         const regisTail = normalizeReg(dg.RegistrationTail);
@@ -1934,7 +1934,7 @@ const total = driverTotals[key] || { Volume: 0, Amount: 0 };
         grandTotalReport?.TotalPrice || 0,
       ...driverGroups.map((dg) => {
         const key = `${clean(dg.Registration)}`;
-        // const regis = Number(dg.Registration.split(":")[0]);
+        // const regis = Number(dg.Registration);
         // const total1 = driverReportTotals[regis] || { TotalAmount: 0, TotalPrice: 0, TotalVat: 0 };
         const regis = normalizeReg(dg.Registration);
         const regisTail = normalizeReg(dg.RegistrationTail);
@@ -2366,7 +2366,7 @@ const total = driverTotals[key] || { Volume: 0, Amount: 0 };
                       sx={{ whiteSpace: "nowrap", lineHeight: 1, marginTop: 1 }}
                       gutterBottom
                     >
-                      {row.Driver.split(":")[1]}
+                      {row.DriverName}
                     </Typography>
                     <Typography
                       variant="subtitle2"
@@ -2376,10 +2376,10 @@ const total = driverTotals[key] || { Volume: 0, Amount: 0 };
                       gutterBottom
                     >
                       {row.TruckType === "รถเล็ก"
-                        ? `${row.RegistrationTail}/${row.Registration.split(":")[1]}`
+                        ? `${row.RegistrationTail}/${row.RegistrationName}`
                         : row.TruckType === "รถรับจ้างขนส่ง"
                           ? ``
-                          : `${row.Registration.split(":")[1]}${row.RegistrationTail !== "0:ไม่มี" ? `/${row.RegistrationTail.split(":")[1]}` : ""}`}
+                          : `${row.RegistrationName}${row.RegistrationTail !== "0:ไม่มี" ? `/${row.RegistrationTail.split(":")[1]}` : ""}`}
                     </Typography>
                   </TablecellSelling>
                 ))}
@@ -2843,8 +2843,8 @@ const total = driverTotals[key] || { Volume: 0, Amount: 0 };
                           ? regNum === driverReg
                           : regNum === driverReg || regNum === driverTail;
 
-                      // const regNum = reg.Registration.split(":")[0];
-                      // const driverReg = driver.Registration.split(":")[0];
+                      // const regNum = reg.Registration;
+                      // const driverReg = driver.Registration;
                       // const driverTail = driver.TruckType === "รถเล็ก" ? driver.RegistrationTail : driver.RegistrationTail.split(":")[0];
 
                       // const check = driver.TruckType === "รถเล็ก" ? Number(regNum) === Number(driverReg) : Number(regNum) === Number(driverReg) || Number(regNum) === Number(driverTail)
@@ -3049,7 +3049,7 @@ const total = driverTotals[key] || { Volume: 0, Amount: 0 };
                 </TableCell>
                 {driverGroups.map((row,index) => {
                   const key = `${clean(row.Registration)}`;
-                  // const regis = Number(row.Registration.split(":")[0]);
+                  // const regis = Number(row.Registration);
                   // const total1 = driverReportTotals[regis] || { TotalAmount: 0, TotalPrice: 0, TotalVat: 0 };
                   const regis = normalizeReg(row.Registration);
                   const regisTail = normalizeReg(row.RegistrationTail);

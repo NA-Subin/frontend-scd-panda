@@ -206,8 +206,8 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                 aValue = dayjs(a.Date, "DD/MM/YYYY");
                 bValue = dayjs(b.Date, "DD/MM/YYYY");
             } else if (key === 'Driver') {
-                aValue = a.Driver?.split(":")[1] || '';
-                bValue = b.Driver?.split(":")[1] || '';
+                aValue = a.DriverName || '';
+                bValue = b.DriverName || '';
             } else if (key === 'TicketName') {
                 aValue = a.TicketName?.split(":")[1] || '';
                 bValue = b.TicketName?.split(":")[1] || '';
@@ -305,7 +305,7 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
             const dataRow = {
                 no: index + 1,
                 date: formatThaiSlash(dayjs(row.Date, "DD/MM/YYYY")),
-                driverReg: `${row.Driver.split(":")[1]}/${row.Registration.split(":")[1]}`,
+                driverReg: `${row.DriverName}/${row.RegistrationName}`,
                 ticket: row.TicketName.split(":")[1],
                 product: row.ProductName,
                 volume: Number(row.VolumeProduct),
@@ -482,7 +482,7 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                         })
                                         .map((row) => (
                                             <MenuItem key={row.id} value={row.id}>
-                                                {`${row.Name}/${row.Registration.split(":")[1]} (${row.TruckType})`}
+                                                {`${row.Name}/${row.RegistrationName} (${row.TruckType})`}
                                             </MenuItem>
                                         ))}
 
@@ -700,7 +700,7 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                         })
                                         .map((row) => (
                                             <MenuItem key={row.id} value={row.id}>
-                                                {`${row.Name}/${row.Registration.split(":")[1]} (${row.TruckType})`}
+                                                {`${row.Name}/${row.RegistrationName} (${row.TruckType})`}
                                             </MenuItem>
                                         ))}
 
@@ -891,7 +891,7 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                             <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#f8f0f7fa" }} >
                                                 <TableCell sx={{ textAlign: "center" }}>{index + 1}</TableCell>
                                                 <TableCell sx={{ textAlign: "center" }}>{formatThaiSlash(dayjs(row.Date, "DD/MM/YYYY"))}</TableCell>
-                                                <TableCell sx={{ textAlign: "center" }}>{`${row.Driver.split(":")[1]}/${row.Registration.split(":")[1]}`}</TableCell>
+                                                <TableCell sx={{ textAlign: "center" }}>{`${row.DriverName}/${row.RegistrationName}`}</TableCell>
                                                 <TableCell sx={{ textAlign: "center" }}>{row.TicketName.split(":")[1]}</TableCell>
                                                 <TableCell sx={{ textAlign: "center" }}>{row.ProductName}</TableCell>
                                                 <TableCell

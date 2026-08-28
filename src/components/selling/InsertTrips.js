@@ -1665,9 +1665,9 @@ const InsertTrips = () => {
                                             options={getDriver()}
                                             getOptionLabel={(option) =>
                                                 option.Type === "รถบริษัท" ?
-                                                    `${option.Driver ? option.Driver.split(":")[1] : ""} : ${option.RegHead ? option.RegHead : ""}${option.RegTail &&
+                                                    `${option.Driver ? option.DriverName : ""} : ${option.RegHead ? option.RegHead : ""}${option.RegTail &&
                                                         option.RegTail !== "0:ไม่มี"
-                                                        ? `/${option.RegTail.split(":")[1]}`
+                                                        ? `/${option.RegTailName}`
                                                         : ""
                                                     }`
                                                     :
@@ -1712,9 +1712,9 @@ const InsertTrips = () => {
                                                 <li {...props}>
                                                     {
                                                         option.Type === "รถบริษัท" ?
-                                                            <Typography fontSize="16px">{`${option.Driver.split(":")[1]} : ${option.RegHead}${option.RegTail &&
+                                                            <Typography fontSize="16px">{`${option.DriverName} : ${option.RegHead}${option.RegTail &&
                                                                 option.RegTail !== "0:ไม่มี"
-                                                                ? `/${option.RegTail.split(":")[1]}`
+                                                                ? `/${option.RegTailName}`
                                                                 : ""
                                                                 }`}</Typography>
                                                             :
@@ -2400,9 +2400,9 @@ const InsertTrips = () => {
                                                         (`${item.id}:${item.Registration}:${item.id}:${item.Name}:${item.Type}` === registration)
                                                 );
                                                 return selectedItem && selectedItem.Type === "รถบริษัท"
-                                                    ? `${selectedItem.Driver ? selectedItem.Driver.split(":")[1] : ""} : ${selectedItem.RegHead ? selectedItem.RegHead : ""}${selectedItem.RegTail &&
+                                                    ? `${selectedItem.Driver ? selectedItem.DriverName : ""} : ${selectedItem.RegHead ? selectedItem.RegHead : ""}${selectedItem.RegTail &&
                                                         selectedItem.RegTail !== "0:ไม่มี"
-                                                        ? `/${selectedItem.RegTail.split(":")[1]}`
+                                                        ? `/${selectedItem.RegTailName}`
                                                         : ""
                                                     }`
                                                     : selectedItem && selectedItem.Type === "รถรับจ้างขนส่ง"

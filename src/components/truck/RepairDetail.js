@@ -164,12 +164,12 @@ const RepairDetail = ({}) => {
                   }}
                 >
                   {row.Type === "รถใหญ่"
-                    ? `${row.RegHead}/${row.RegTail && row.RegTail.split(":")[1] ? row.RegTail.split(":")[1] : "-"}`
+                    ? `${row.RegHead}/${row.RegTail && row.RegTailName ? row.RegTailName : "-"}`
                     : `${row.Shortname ? row.Shortname : ""})/${row.RegHead}`}
                 </TableCell>
                 <TableCell sx={{ textAlign: "center", fontSize: 14 }}>
-                  {row.Driver && row.Driver.split(":")[1]
-                    ? row.Driver.split(":")[1]
+                  {row.Driver && row.DriverName
+                    ? row.DriverName
                     : "-"}
                 </TableCell>
                 <TableCell sx={{ textAlign: "center", fontSize: 14 }}>

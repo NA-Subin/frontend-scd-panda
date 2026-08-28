@@ -442,7 +442,7 @@ const UpdateReport = (props) => {
 
       const isSmallTruck = matchedTrip?.TruckType?.trim() === "รถเล็ก";
 
-      const regId = Number(safeSplit(matchedTrip?.Registration, 0));
+      const regId = Number(matchedTrip?.Registration);
       const companyObj = isSmallTruck
         ? regSmallMap.get(regId)
         : regHeadMap.get(regId);
@@ -1562,7 +1562,7 @@ const UpdateReport = (props) => {
                                                     sx={{ textAlign: "center", height: '30px', width: 150, verticalAlign: "middle" }}
                                                 >
                                                     <Typography variant="subtitle2" fontSize="14px" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>
-                                                        {row.Registration.split(":")[1]}
+                                                        {row.RegistrationName}
                                                     </Typography>
                                                 </TableCell>
                                             )}
@@ -1700,9 +1700,9 @@ const UpdateReport = (props) => {
                               gutterBottom
                             >
                               {row.TruckType === "รถใหญ่"
-                                ? ` ${row.Registration.split(":")[1]} / ${row.RegTail !== "0:ไม่มี" ? row.RegTail.split(":")[1] : ""}`
+                                ? ` ${row.RegistrationName} / ${row.RegTail !== "0:ไม่มี" ? row.RegTailName : ""}`
                                 : row.TruckType === "รถเล็ก"
-                                  ? `${row.ShortName}${row.Registration.split(":")[1]}`
+                                  ? `${row.ShortName}${row.RegistrationName}`
                                   : "รถรับจ้างขนส่ง"}
                             </Typography>
                           </TableCell>
@@ -2675,9 +2675,9 @@ const UpdateReport = (props) => {
                               gutterBottom
                             >
                               {row.TruckType === "รถใหญ่"
-                                ? ` ${row.Registration.split(":")[1]} / ${row.RegTail !== "0:ไม่มี" ? row.RegTail.split(":")[1] : ""}`
+                                ? ` ${row.RegistrationName} / ${row.RegTail !== "0:ไม่มี" ? row.RegTailName : ""}`
                                 : row.TruckType === "รถเล็ก"
-                                  ? `${row.ShortName}${row.Registration.split(":")[1]}`
+                                  ? `${row.ShortName}${row.RegistrationName}`
                                   : "รถรับจ้างขนส่ง"}
                             </Typography>
                           </TableCell>
@@ -3456,7 +3456,7 @@ const UpdateReport = (props) => {
                           }}
                         >
                           {!updateTranfer || row.id !== tranferID ? (
-                            row.BankName.split(":")[1]
+                            row.BankNameName
                           ) : (
                             <Paper component="form" sx={{ width: "100%" }}>
                               <FormControl

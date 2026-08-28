@@ -112,10 +112,10 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
     //const reportTypeDetail = Object.values(reportType);
     // const sortByDriver = (a, b) => {
     //     const driverA = a?.Driver?.includes(":")
-    //         ? a.Driver.split(":")[1]
+    //         ? a.DriverName
     //         : a?.Driver || "";
     //     const driverB = b?.Driver?.includes(":")
-    //         ? b.Driver.split(":")[1]
+    //         ? b.DriverName
     //         : b?.Driver || "";
 
     //     return driverA.localeCompare(driverB, "th");
@@ -141,7 +141,7 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
     const regheadSorted = Object.values(drivers)
         .filter((item) => item.TruckType === "รถใหญ่")
         .map((item) => {
-            const tail = Object.values(reghead).find((t) => t.id === Number(item.Registration.split(":")[0]));
+            const tail = Object.values(reghead).find((t) => t.id === Number(item.Registration));
             return {
                 ...item,
                 RegTail: tail ? tail.RegTail : ""  // ถ้าเจอใน reghead → ดึงค่า RegTail จริง, ถ้าไม่เจอ → ค่าว่าง
@@ -152,7 +152,7 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
     const smallSorted = Object.values(drivers)
         .filter((item) => item.TruckType === "รถเล็ก")
         .map((item) => {
-            const smallD = Object.values(small).find((t) => t.id === Number(item.Registration.split(":")[0]));
+            const smallD = Object.values(small).find((t) => t.id === Number(item.Registration));
             return {
                 ...item,
                 RegTail: smallD ? smallD.RegTail : "",  // ถ้าเจอใน reghead → ดึงค่า RegTail จริง, ถ้าไม่เจอ → ค่าว่าง
@@ -490,7 +490,7 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
                                             let regHead = "";
                                             if (option?.Registration !== "0:ไม่มี") {
                                                 regHead = option?.Registration?.includes(":")
-                                                    ? option.Registration.split(":")[1]
+                                                    ? option.RegistrationName
                                                     : option?.Registration || "";
                                             } else {
                                                 regHead = "( ไม่ได้ผูกทะเบียนรถ )";
@@ -500,7 +500,7 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
                                             if (option?.TruckType === "รถใหญ่") {
                                                 if (option?.RegTail !== "0:ไม่มี") {
                                                     regTail = option.RegTail.includes(":")
-                                                        ? `/${option.RegTail.split(":")[1]}`
+                                                        ? `/${option.RegTailName}`
                                                         : `/${option.RegTail}`;
                                                 } else {
                                                     regTail = "( ไม่ได้ผูกทะเบียนหาง )"
@@ -542,7 +542,7 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
                                             let regHead = "";
                                             if (option?.Registration !== "0:ไม่มี") {
                                                 regHead = option?.Registration?.includes(":")
-                                                    ? option.Registration.split(":")[1]
+                                                    ? option.RegistrationName
                                                     : option?.Registration || "";
                                             } else {
                                                 regHead = "( ไม่ได้ผูกทะเบียนรถ )";
@@ -553,7 +553,7 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
                                             if (option?.TruckType === "รถใหญ่") {
                                                 if (option?.RegTail !== "0:ไม่มี") {
                                                     regTail = option.RegTail.includes(":")
-                                                        ? `/${option.RegTail.split(":")[1]}`
+                                                        ? `/${option.RegTailName}`
                                                         : `/${option.RegTail}`;
                                                 } else {
                                                     regTail = "( ไม่ได้ผูกทะเบียนหาง )"

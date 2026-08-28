@@ -178,7 +178,7 @@ const ReportTrip = ({ openNavbar }) => {
                 const isValidStatus = item.StatusTrip === "จบทริป";
                 const isTruckType = item.TruckType === "รถใหญ่";
                 const isInDateRange = itemDate.isBetween(selectedDateStart, selectedDateEnd, null, "[]");
-                const matchDrivers = Number(item.Driver.split(":")[0]) === selectDriver?.id;
+                const matchDrivers = Number(item.Driver) === selectDriver?.id;
                 return isValidStatus && isInDateRange && matchDrivers && isTruckType;
             })
             .sort((a, b) => {
@@ -187,7 +187,7 @@ const ReportTrip = ({ openNavbar }) => {
                 if (!dateA.isSame(dateB)) {
                     return dateA - dateB;
                 }
-                return (a.Driver?.split(":")[1] || '').localeCompare(b.Driver?.split(":")[1] || '');
+                return (a.DriverName || '').localeCompare(b.DriverName || '');
             })
             .map((trip) => ({
                 ...trip,
@@ -455,7 +455,7 @@ const ReportTrip = ({ openNavbar }) => {
                                         })
                                         .map((row) => (
                                             <MenuItem key={row.id} value={row.id}>
-                                                {`${row.Name}/${row.Registration.split(":")[1]} (${row.TruckType})`}
+                                                {`${row.Name}/${row.RegistrationName} (${row.TruckType})`}
                                             </MenuItem>
                                         ))}
 

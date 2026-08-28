@@ -100,14 +100,14 @@ const TripsDetail = (props) => {
         <TableCell sx={{ textAlign: "center" }}>
           {(() => {
             const driverName =
-              trips.Driver?.split(":")[1] || trips.Driver || "";
+              trips.DriverName || trips.Driver || "";
             const regHead = trips.RegistrationHead || "";
             const regTail =
               trips.RegistrationTail?.split(":")[1] ||
               trips.RegistrationTail ||
               "";
             const regName =
-              trips.Registration?.split(":")[1] || trips.Registration || "";
+              trips.RegistrationName || trips.Registration || "";
 
             if (trips.TruckType !== "รถรับจ้างขนส่ง") {
               return `${driverName}/${regHead}${

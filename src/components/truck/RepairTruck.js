@@ -396,7 +396,7 @@ const RepairTruck = ({ selectDriver, driverDetail, setRepairTruck, trip }) => {
                     <MenuItem
                       value={row.id - 1 + ":" + row.RegHead + ":รถใหญ่"}
                     >
-                      {row.RegHead} : {row.Driver.split(":")[1]}
+                      {row.RegHead} : {row.DriverName}
                     </MenuItem>
                   ),
               )}

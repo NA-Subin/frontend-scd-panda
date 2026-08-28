@@ -113,7 +113,7 @@ console.log("🚀 drivers", drivers);
                                     <TableCell sx={{ textAlign: "center" }}>{Number(index) + 1}</TableCell>
                                     <TableCell sx={{ textAlign: "center" }}>{row.Name || "-"}</TableCell>
                                     <TableCell sx={{ textAlign: "center" }}>{row.IDCard || "-"}</TableCell>
-                                    <TableCell sx={{ textAlign: "center" }}>{/* {row.Registration.split(":")[1]} */}
+                                    <TableCell sx={{ textAlign: "center" }}>{/* {row.RegistrationName} */}
                                     </TableCell>
                                     <TableCell sx={{ textAlign: "center" }}>{row.TruckType || "-"}</TableCell>
                                     <TableCell sx={{ textAlign: "center" }}>{row.BankID || "-"}</TableCell>

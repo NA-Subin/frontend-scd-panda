@@ -118,7 +118,7 @@ const UpdateInvoice = (props) => {
   const { company, reghead, customerbigtruck } = useBasicData();
   const companies = Object.values(company || {});
   const customerB = Object.values(customerbigtruck || {}).map((cust) => {
-    const compId = cust.Company?.split(":")[0]; // ตัด id ด้านหน้า
+    const compId = cust.Company; // เป็น id อยู่แล้ว
     const company = companies.find((c) => String(c.id) === String(compId));
 
     return {
@@ -190,7 +190,7 @@ const UpdateInvoice = (props) => {
     .map((item) => {
       // ✅ หา registration ที่ id ตรงกับ Registration.split(":")[0]
       const regMatch = registrationHead.find(
-        (reg) => reg.id === Number(item.Registration.split(":")[0]),
+        (reg) => reg.id === Number(item.Registration),
       );
 
       const company = customerB.find(
@@ -453,11 +453,8 @@ const UpdateInvoice = (props) => {
     (row, index) => row.id === Number(ticket.TicketName.split(":")[0]),
   );
   const invoiceC = companies.find((row) => {
-    const companyIdStr = customer?.Company;
-    if (!companyIdStr || companyIdStr === "ไม่มี") return false;
-
-    const companyId = Number(companyIdStr.split(":")[0]);
-    return row.id === companyId;
+    if (!customer?.Company) return false;
+    return row.id === Number(customer.Company);
   });
 
   const generatePDF = () => {
@@ -511,9 +508,9 @@ const UpdateInvoice = (props) => {
               RateOil: Volume.RateOil || 0,
               Amount: Volume.Amount || 0,
               Date: row.Date,
-              Driver: row.Driver.split(":")[1],
-              Registration: row.Registration.split(":")[1],
-              RegTail: row.RegTail.split(":")[1] || "",
+              Driver: row.DriverName,
+              Registration: row.RegistrationName,
+              RegTail: row.RegTailName || "",
               ProductName: productName,
               Volume: Volume.Volume * 1000,
               DateDelivery: row.DateDelivery,
@@ -551,8 +548,8 @@ const UpdateInvoice = (props) => {
         ticket.CreditTime === "-" ? "0" : ticket.CreditTime,
       ),
       Company:
-        customer?.Company && customer.Company !== "ไม่มี"
-          ? (customer.Company.split(":")[1] ?? companyName.Name)
+        customer?.Company
+          ? (customer.CompanyRefName ?? companyName.Name)
           : companyName.Name,
       Address:
         customer?.Company && customer?.Company !== "ไม่มี"
@@ -951,9 +948,9 @@ const UpdateInvoice = (props) => {
             />
             <Tooltip
               title={
-                customer?.Company === "ไม่มี" || customer?.Company === undefined
+                !customer?.Company
                   ? companyName.Name
-                  : customer?.Company.split(":")[1]
+                  : customer?.CompanyRefName
               }
               placement="top"
             >
@@ -978,10 +975,9 @@ const UpdateInvoice = (props) => {
                   width: "1000px",
                 }}
                 value={
-                  customer?.Company === "ไม่มี" ||
-                  customer?.Company === undefined
+                  !customer?.Company
                     ? companyName.Name
-                    : customer?.Company.split(":")[1]
+                    : customer?.CompanyRefName
                 }
               />
             </Tooltip>
@@ -1270,13 +1266,13 @@ const UpdateInvoice = (props) => {
                                   gutterBottom
                                 >
                                   {report[row.uniqueRowId]?.Driver ||
-                                    row.Driver.split(":")[1]}{" "}
+                                    row.DriverName}{" "}
                                   :{" "}
                                   {report[row.uniqueRowId]?.Registration ||
-                                    row.Registration.split(":")[1]}{" "}
+                                    row.RegistrationName}{" "}
                                   /{" "}
                                   {report[row.uniqueRowId]?.RegTail ||
-                                    row.RegTail.split(":")[1]}
+                                    row.RegTailName}
                                 </Typography>
                               </TableCell>
                             </>
@@ -1449,8 +1445,8 @@ const UpdateInvoice = (props) => {
                                                 };
                                             });
 
-                                        const displayDriver = row.Driver.split(":")[1];
-                                        const displayRegis = row.Registration.split(":")[1];
+                                        const displayDriver = row.DriverName;
+                                        const displayRegis = row.RegistrationName;
 
                                         return (
                                             <TableRow key={`row-${row.No}`}>
@@ -1900,7 +1896,7 @@ const UpdateInvoice = (props) => {
                         sx={{ textAlign: "center", height: "30px", width: 350 }}
                       >
                         {!updateTranfer || row.id !== tranferID ? (
-                          row.BankName.split(":")[1]
+                          row.BankNameName
                         ) : (
                           <Paper component="form" sx={{ width: "100%" }}>
                             <FormControl

@@ -182,7 +182,7 @@ const ReportSmallTruck = () => {
     { id: "0", RegHead: "แสดงทั้งหมด", ShortName: "" }, // allOption
     ...registration,
     // ...customerB.filter((cust) => cust.StatusCompany === "อยู่บริษัทในเครือ" && cust.Name.split(".")[0] === "S").map((item) => {
-    //         const regHeadId = Number(item.Registration?.split(":")[0]); // แยก id ก่อน :
+    //         const regHeadId = Number(item.Registration); // แยก id ก่อน :
 
     //         const regHead = registration.find((row) => row.id === regHeadId);
 
@@ -232,7 +232,7 @@ const ReportSmallTruck = () => {
         return true; // ✅ "แสดงทั้งหมด"
       }
 
-      const orderid = Number(order.Registration?.split(":")[0] ?? "");
+      const orderid = Number(order.Registration ?? "");
       const selectedid = Number(selectOrder?.id);
 
       return orderid && selectedid && orderid === selectedid;
@@ -267,10 +267,10 @@ const ReportSmallTruck = () => {
       const travel = Number(trip.Travel) || 0;
 
       const dv = driver.find(
-        (item) => item.id === Number(trip.Driver.split(":")[0]),
+        (item) => item.id === Number(trip.Driver),
       );
       const rg = registration.find(
-        (item) => item.id === Number(trip.Registration.split(":")[0]),
+        (item) => item.id === Number(trip.Registration),
       );
 
       const key = `${dv?.Name}_${rg?.RegHead}`;
@@ -335,7 +335,7 @@ const ReportSmallTruck = () => {
         const tripReg =
           typeof trip?.Registration === "string" &&
           trip.Registration.includes(":")
-            ? trip.Registration.split(":")[1].trim()
+            ? trip.RegistrationName.trim()
             : "";
 
         let type = "รับเข้า";
@@ -356,7 +356,7 @@ const ReportSmallTruck = () => {
               const customerReg =
                 typeof customer.Registration === "string" &&
                 customer.Registration.includes(":")
-                  ? customer.Registration.split(":")[1].trim()
+                  ? customer.RegistrationName.trim()
                   : "";
 
               if (customerReg !== selectedRegHead) return null;
@@ -365,7 +365,7 @@ const ReportSmallTruck = () => {
               const ticketReg = ticket?.Registration
                 ? typeof ticket.Registration === "string" &&
                   ticket.Registration.includes(":")
-                  ? ticket.Registration.split(":")[1].trim()
+                  ? ticket.RegistrationName.trim()
                   : ""
                 : "";
 
@@ -375,7 +375,7 @@ const ReportSmallTruck = () => {
             }
           } else {
             type = "รับเข้า";
-            if (ticket.Registration.split(":")[1].trim() !== selectedRegHead)
+            if (ticket.RegistrationName.trim() !== selectedRegHead)
               return null;
           }
         }
@@ -427,7 +427,7 @@ const ReportSmallTruck = () => {
           const orderReg =
             typeof order.Registration === "string" &&
             order.Registration.includes(":")
-              ? order.Registration.split(":")[1].trim()
+              ? order.RegistrationName.trim()
               : "";
 
           if (orderReg === selectedRegHead) return true;
@@ -435,7 +435,7 @@ const ReportSmallTruck = () => {
           const customerReg =
             typeof customer.Registration === "string" &&
             customer.Registration.includes(":")
-              ? customer.Registration.split(":")[1].trim()
+              ? customer.RegistrationName.trim()
               : "";
 
           return customerReg === selectedRegHead;
@@ -468,7 +468,7 @@ const ReportSmallTruck = () => {
           const orderReg =
             typeof order.Registration === "string" &&
             order.Registration.includes(":")
-              ? order.Registration.split(":")[1].trim()
+              ? order.RegistrationName.trim()
               : "";
 
           // if (orderReg === selectedRegHead) return true;
@@ -476,7 +476,7 @@ const ReportSmallTruck = () => {
           const customerReg =
             typeof customer.Registration === "string" &&
             customer.Registration.includes(":")
-              ? customer.Registration.split(":")[1].trim()
+              ? customer.RegistrationName.trim()
               : "";
 
           return customerReg === selectedRegHead;
@@ -622,7 +622,7 @@ const ReportSmallTruck = () => {
   // console.log("tripdetail : ", tripdetail.Depot);
 
   const detail = filtered.map((row) => {
-    const regId = Number(row.Registration.split(":")[0]); // สมมติว่า Registration = "123:1กข1234"
+    const regId = Number(row.Registration); // สมมติว่า Registration = "123:1กข1234"
     const regInfo = registration.find((r) => r.id === regId);
 
     return {
@@ -900,7 +900,7 @@ const ReportSmallTruck = () => {
               }}
               rowSpan={3}
             >
-              {`${row.Driver.split(":")[1]} ${row.Registration.split(":")[1]}`}
+              {`${row.DriverName} ${row.RegistrationName}`}
             </TablecellFinancial>
           ))
         ) : (
@@ -1508,8 +1508,8 @@ const ReportSmallTruck = () => {
                 {/* {
                   summarizedList.map((row) => (
                     <TablecellFinancial sx={{ textAlign: "center", fontSize: 16, width: 200 }}>
-                      <Typography variant="subtitle2" fontSize="16px" fontWeight="bold" sx={{ whiteSpace: "nowrap", lineHeight: 1, marginTop: 1 }} gutterBottom>ค่าเที่ยว {row.Driver.split(":")[1]}</Typography>
-                      <Typography variant="subtitle2" fontSize="16px" fontWeight="bold" sx={{ whiteSpace: "nowrap", lineHeight: 1 }} gutterBottom>{row.Registration.split(":")[1]}</Typography>
+                      <Typography variant="subtitle2" fontSize="16px" fontWeight="bold" sx={{ whiteSpace: "nowrap", lineHeight: 1, marginTop: 1 }} gutterBottom>ค่าเที่ยว {row.DriverName}</Typography>
+                      <Typography variant="subtitle2" fontSize="16px" fontWeight="bold" sx={{ whiteSpace: "nowrap", lineHeight: 1 }} gutterBottom>{row.RegistrationName}</Typography>
                     </TablecellFinancial>
                   ))
                 } */}
@@ -1579,7 +1579,7 @@ const ReportSmallTruck = () => {
                         <Typography
                           variant="subtitle2"
                           sx={{ marginLeft: 2 }}
-                        >{`${row.Driver ? row.Driver.split(":")[1] : row.Driver} / ${row.Registration ? row.Registration.split(":")[1] : row.Registration}`}</Typography>
+                        >{`${row.Driver ? row.DriverName : row.Driver} / ${row.Registration ? row.RegistrationName : row.Registration}`}</Typography>
                       </TableCell>
                       {/* ✅ ตรงกับ column ที่หัว */}
                       {productTypes.map((productKey) => {

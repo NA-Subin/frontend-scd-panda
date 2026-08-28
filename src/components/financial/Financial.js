@@ -130,13 +130,9 @@ const Financial = () => {
 
     const reportDetail = reports.filter((item) => {
         const itemDate = dayjs(item.SelectedDateInvoice, "DD/MM/YYYY");
-        const registrations = item?.Registration?.includes(":")
-            ? item.Registration.split(":")[1]
-            : item?.Registration || "";
-        const company = item?.Company?.includes(":")
-            ? item.Company.split(":")[1]
-            : item?.Company || "";
-        const bank = item?.Bank || "";
+        const registrations = item?.RegistrationName || item?.Registration || "";
+        const company = item?.CompanyName || item?.Company || "";
+        const bank = item?.BankName || item?.Bank || "";
 
         return (
             itemDate.isBetween(selectedDateStart, selectedDateEnd, null, "[]") &&
@@ -316,9 +312,9 @@ const Financial = () => {
                 invoice: row.InvoiceID,
                 dateInvoice: formatThaiSlash(dayjs(row.SelectedDateInvoice, "DD/MM/YYYY")),
                 dateTransfer: formatThaiSlash(dayjs(row.SelectedDateTransfer, "DD/MM/YYYY")),
-                registration: `${row.Registration.split(":")[1]} (${row.TruckType})`,
-                company: row.Company.split(":")[1],
-                bank: row.Bank.split(":")[1],
+                registration: `${row.RegistrationName} (${row.TruckType})`,
+                company: row.CompanyName,
+                bank: row.BankName,
                 price: row.Price,
                 vat: row.Vat,
                 total: row.Total,
@@ -411,10 +407,10 @@ const Financial = () => {
         setInvoiceID(row.InvoiceID);
         setSelectedDateInvoice(row.SelectedDateInvoice);
         setSelectedDateTransfer(row.SelectedDateTransfer);
-        setRegistration(`${row.Registration.split(":")[0]}:${row.Registration.split(":")[1]}`);
-        setRegID(Number(row.Registration.split(":")[0]));
+        setRegistration(`${row.Registration}:${row.RegistrationName}`);
+        setRegID(Number(row.Registration));
         setCompany(row.Company);
-        setCompanyID(Number(row.Company.split(":")[0]));
+        setCompanyID(Number(row.Company));
         setBank(row.Bank);
         setPrice(row.Price);
         setVat(row.Vat);
@@ -1194,9 +1190,9 @@ const Financial = () => {
                                             }}>
                                                 {
                                                     row.Group !== "กลุ่ม" &&
-                                                    <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{`${row.Registration.split(":")[1]} (${row.TruckType})`}</Typography>
+                                                    <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{`${row.RegistrationName} (${row.TruckType})`}</Typography>
                                                     // (billID !== row.id ?
-                                                    //     <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{`${row.Registration.split(":")[1]} (${row.TruckType})`}</Typography>
+                                                    //     <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{`${row.RegistrationName} (${row.TruckType})`}</Typography>
                                                     //     :
                                                     //     <Paper sx={{ width: "100%" }}>
                                                     //         <Autocomplete
@@ -1250,10 +1246,10 @@ const Financial = () => {
                                             </TableCell>
                                         }
                                         <TableCell sx={{ textAlign: "left" }}>
-                                            <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{row.Company.split(":")[1]}</Typography>
+                                            <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{row.CompanyName}</Typography>
                                             {/* {
                                                 billID !== row.id ?
-                                                    <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{row.Company.split(":")[1]}</Typography>
+                                                    <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{row.CompanyName}</Typography>
                                                     :
                                                     <Paper sx={{ width: "100%" }}>
                                                         <Autocomplete
@@ -1294,10 +1290,10 @@ const Financial = () => {
                                             } */}
                                         </TableCell>
                                         <TableCell sx={{ textAlign: "left" }}>
-                                            <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{row.Bank.split(":")[1]}</Typography>
+                                            <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{row.BankName}</Typography>
                                             {/* {
                                                 billID !== row.id ?
-                                                    <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{row.Bank.split(":")[1]}</Typography>
+                                                    <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{row.BankName}</Typography>
                                                     :
                                                     <Paper sx={{ width: "100%" }}>
                                                         <Autocomplete

@@ -144,7 +144,7 @@ const TripsBigTruck = ({ openNavbar }) => {
         );
     })
         .map((item) => {
-            const regHeadId = Number(item.Registration?.split(":")[0]); // แยก id ก่อน :
+            const regHeadId = Number(item.Registration); // แยก id ก่อน :
 
             const regHead = registrations.find((row) => row.id === regHeadId);
 

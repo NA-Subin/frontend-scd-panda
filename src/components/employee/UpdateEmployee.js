@@ -101,7 +101,7 @@ const UpdateEmployee = (props) => {
             >
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{index + 1}</TableCell>
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{row.Name}</TableCell>
-                <TableCell sx={{ textAlign: "center", height: "35px" }}>{row.Position.split(":")[1]}</TableCell>
+                <TableCell sx={{ textAlign: "center", height: "35px" }}>{row.PositionName}</TableCell>
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{row.Phone}</TableCell>
                 {/* <TableCell sx={{ textAlign: "center", height: "35px" }}>{row.Rights}</TableCell> */}
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{row.User}</TableCell>

@@ -333,7 +333,7 @@ const UpdateGasStations = (props) => {
 
     const truckDriver = registration.filter((item => item.Driver !== "0:ไม่มี" && item.StatusTruck !== "ยกเลิก"));
     // console.log("1.truckDriver : ", truckDriver);
-    // console.log("2.truckDriver : ", truckDriver.map((row) => row.Driver.split(":")[1]?.split(" ")[0]));
+    // console.log("2.truckDriver : ", truckDriver.map((row) => row.DriverName?.split(" ")[0]));
 
     const calculatePeriod = (row) => {
         const estimateSell = parseFloat(row.EstimateSell) || 0;
@@ -444,11 +444,11 @@ const UpdateGasStations = (props) => {
                     justifyContent: "space-between", // ชิดซ้าย-ขวา
                     alignItems: "center",
                     backgroundColor:
-                        gasStation.Stock.split(":")[1] === "แม่โจ้" ? "#92D050"
-                            : gasStation.Stock.split(":")[1] === "สันกลาง" ? "#B1A0C7"
-                                : gasStation.Stock.split(":")[1] === "สันทราย" ? "#B7DEE8"
-                                    : gasStation.Stock.split(":")[1] === "บ้านโฮ่ง" ? "#FABF8F"
-                                        : gasStation.Stock.split(":")[1] === "ป่าแดด" ? "#B1A0C7"
+                        gasStation.StockName === "แม่โจ้" ? "#92D050"
+                            : gasStation.StockName === "สันกลาง" ? "#B1A0C7"
+                                : gasStation.StockName === "สันทราย" ? "#B7DEE8"
+                                    : gasStation.StockName === "บ้านโฮ่ง" ? "#FABF8F"
+                                        : gasStation.StockName === "ป่าแดด" ? "#B1A0C7"
                                             : "lightgray"
                     ,
                     paddingLeft: 2,

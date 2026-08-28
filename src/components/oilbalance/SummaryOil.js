@@ -247,8 +247,8 @@ const SummaryOilBalance = ({ openNavbar }) => {
           const dateB = dayjs(b.Date, "DD/MM/YYYY");
 
           if (!dateA.isSame(dateB)) return dateA - dateB;
-          return (a.Driver?.split(":")[1] || "").localeCompare(
-            b.Driver?.split(":")[1] || "",
+          return (a.DriverName || "").localeCompare(
+            b.DriverName || "",
           );
         })
     );
@@ -277,8 +277,8 @@ const SummaryOilBalance = ({ openNavbar }) => {
         aValue = dayjs(a.Date, "DD/MM/YYYY");
         bValue = dayjs(b.Date, "DD/MM/YYYY");
       } else if (key === "Driver") {
-        aValue = a.Driver?.split(":")[1] || "";
-        bValue = b.Driver?.split(":")[1] || "";
+        aValue = a.DriverName || "";
+        bValue = b.DriverName || "";
       } else if (key === "TicketName") {
         aValue = a.TicketName?.split(":")[1] || "";
         bValue = b.TicketName?.split(":")[1] || "";
@@ -397,7 +397,7 @@ const SummaryOilBalance = ({ openNavbar }) => {
       const dataRow = {
         no: index + 1,
         date: formatThaiSlash(dayjs(row.Date, "DD/MM/YYYY")),
-        driverReg: `${row.Driver.split(":")[1]}/${row.Registration.split(":")[1]}`,
+        driverReg: `${row.DriverName}/${row.RegistrationName}`,
         ticket: row.TicketName.split(":")[1],
         product: row.ProductName,
         volume: Number(row.VolumeProduct) * 1000,
@@ -624,7 +624,7 @@ const SummaryOilBalance = ({ openNavbar }) => {
                                         })
                                         .map((row) => (
                                             <MenuItem key={row.id} value={row.id}>
-                                                {`${row.Name}/${row.Registration.split(":")[1]} (${row.TruckType})`}
+                                                {`${row.Name}/${row.RegistrationName} (${row.TruckType})`}
                                             </MenuItem>
                                         ))}
 
@@ -1061,7 +1061,7 @@ const SummaryOilBalance = ({ openNavbar }) => {
                     const dateKey = formatThaiSlash(
                       dayjs(row.Date, "DD/MM/YYYY"),
                     );
-                    const driverKey = `${row.Driver.split(":")[1]}/${row.Registration.split(":")[1]}`;
+                    const driverKey = `${row.DriverName}/${row.RegistrationName}`;
                     const ticketKey = row.TicketName.split(":")[1];
                     const groupKey = `${dateKey}_${driverKey}`;
                     const subGroupKey = `${groupKey}_${ticketKey}`;
@@ -1073,7 +1073,7 @@ const SummaryOilBalance = ({ openNavbar }) => {
                         match:
                           formatThaiSlash(dayjs(r.Date, "DD/MM/YYYY")) ===
                             dateKey &&
-                          `${r.Driver.split(":")[1]}/${r.Registration.split(":")[1]}` ===
+                          `${r.DriverName}/${r.RegistrationName}` ===
                             driverKey,
                       }))
                       .filter((x) => x.match)
@@ -1085,7 +1085,7 @@ const SummaryOilBalance = ({ openNavbar }) => {
                         match:
                           formatThaiSlash(dayjs(r.Date, "DD/MM/YYYY")) ===
                             dateKey &&
-                          `${r.Driver.split(":")[1]}/${r.Registration.split(":")[1]}` ===
+                          `${r.DriverName}/${r.RegistrationName}` ===
                             driverKey &&
                           r.TicketName.split(":")[1] === ticketKey,
                       }))

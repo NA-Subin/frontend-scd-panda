@@ -135,7 +135,7 @@ const GasStationsDetail = (props) => {
     };
 
     const calculateStockDownHole = (stockId) => {
-        const stations = gasStationOil.filter(r => Number(r.Stock.split(":")[0]) === stockId);
+        const stations = gasStationOil.filter(r => Number(r.Stock) === stockId);
         const grouped = {};
 
         stations.forEach(station => {
@@ -181,7 +181,7 @@ const GasStationsDetail = (props) => {
     };
 
     const calculateTotalDownHole = (stockId) => {
-        const stations = gasStationOil.filter(r => Number(r.Stock.split(":")[0]) === stockId);
+        const stations = gasStationOil.filter(r => Number(r.Stock) === stockId);
 
         const grouped = {};
 
@@ -303,7 +303,7 @@ const GasStationsDetail = (props) => {
         return gasStationOil.map((station, stationIndex) => {
             // console.log(`--- stationIndex ${stationIndex} id:${station?.id} Stock:${station?.Stock}`);
 
-            const stockId = Number((station?.Stock || "").toString().split(":")[0]);
+            const stockId = Number(station?.Stock);
             const stock = stocks.find((s) => s.id === stockId);
 
             const isFirst = !firstStationOfStock.has(stockId);
@@ -1147,7 +1147,7 @@ const GasStationsDetail = (props) => {
                                     key={stock.id || idx}
                                 >
                                     {/* {
-                                        gasStationOil.filter((g) => Number(g.Stock.split(":")[0]) === stock.id).length > 1 && (
+                                        gasStationOil.filter((g) => Number(g.Stock) === stock.id).length > 1 && (
                                             <Grid container spacing={1} marginBottom={1} pr={1} pl={1}>
                                                 <Grid item xl={1.5} md={2} sm={3} xs={4}>
                                                     <Typography variant="subtitle1" sx={{ fontWeight: 'bold', fontsize: "18px", mt: 1 }}>
@@ -1289,8 +1289,8 @@ const GasStationsDetail = (props) => {
                                         )
                                     } */}
                                     {gasStationOil.map((row, index) => {
-                                        if (Number(row.Stock.split(":")[0]) === stock.id) {
-                                            const filteredStocks = gasStationOil.filter(r => Number(r.Stock.split(":")[0]) === stock.id);
+                                        if (Number(row.Stock) === stock.id) {
+                                            const filteredStocks = gasStationOil.filter(r => Number(r.Stock) === stock.id);
                                             const stockCount = filteredStocks.length;  // จำนวนปั้มที่ตรงกัน
                                             // ✔ หาลำดับปั้ม (0,1)
                                             const pumpOrder = filteredStocks.findIndex(p => p.id === row.id);

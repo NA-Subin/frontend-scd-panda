@@ -86,8 +86,8 @@ const TicketsBigTruck = ({ openNavbar }) => {
 
         const companies = Object.values(company || {}).find((c) =>
             c.id === (
-                item.Company && item.Company !== "0:ไม่มี"
-                    ? Number(item.Company.split(":")[0])
+                item.Company
+                    ? Number(item.Company)
                     : null
             )
         );
@@ -336,7 +336,7 @@ const TicketsBigTruck = ({ openNavbar }) => {
         setRegistrationChecked(row.RegistrationCheck ?? false);
         setRegistration(row.Registration ?? "ไม่มี");
         setType(row.Type);
-        setCompanies((row.Company && row.Company !== "0:ไม่มี") ? `${row.Company.split(":")[0]}:${row.CompanyTicket}` : "ไม่มี");
+        setCompanies(row.Company ? `${row.Company}:${row.CompanyTicket}` : "ไม่มี");
         if (row.StatusCompany === "อยู่บริษัทในเครือ") {
             setTicketCheckedC(true);
         } else {
@@ -1367,7 +1367,7 @@ const TicketsBigTruck = ({ openNavbar }) => {
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         {
                                                             !setting || row.id !== selectedRowId ?
-                                                                row.Company ? row.Company.split(":")[1] : "ไม่มี"
+                                                                row.Company ? row.CompanyRefName : "ไม่มี"
                                                                 :
                                                                 <Paper sx={{ width: "100%" }}>
                                                                     <TextField

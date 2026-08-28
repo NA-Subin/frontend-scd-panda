@@ -80,7 +80,7 @@ const TripsDetail = (props) => {
             });
     };
 
-    const ShortName = smalls.find((t) => t.id === Number(trips.Registration.split(":")[0]))?.ShortName || "-";
+    const ShortName = smalls.find((t) => t.id === Number(trips.Registration))?.ShortName || "-";
 
     console.log("trips:", trips);
 
@@ -93,8 +93,8 @@ const TripsDetail = (props) => {
                 <TableCell sx={{ textAlign: "left" }}>
                     <Box sx={{ marginLeft: 2 }}>
                         {
-                            trips.Driver?.split(":")[1] !== undefined
-                                ? trips.Driver.split(":")[1]
+                            trips.DriverName !== undefined
+                                ? trips.DriverName
                                 : trips.Driver
                         }
                         {" / "}

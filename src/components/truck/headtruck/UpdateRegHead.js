@@ -88,7 +88,7 @@ const UpdateRegHead = (props) => {
   const [regTail, setRegTail] = React.useState(() => {
     if (truck.RegTail === "0:ไม่มี") return "0:ไม่มี:0:0";
     const match = dataregtail.find(
-      (item) => item.id === Number(truck.RegTail.split(":")[0]),
+      (item) => item.id === Number(truck.RegTail),
     );
     return match
       ? `${match.id}:${match.RegTail}:${match.Cap}:${match.Weight}`
@@ -126,7 +126,7 @@ const UpdateRegHead = (props) => {
   const [file, setFile] = useState(initialFile);
   const [fileType, setFileType] = useState(initialFileType);
 
-  console.log("show truck", Number(truck.Driver.split(":")[0]) - 1);
+  console.log("show truck", Number(truck.Driver) - 1);
   console.log("show Driver : ", driver);
 
   const handleCancle = () => {
@@ -134,7 +134,7 @@ const UpdateRegHead = (props) => {
     setDriver(truck.Driver);
     setRegHead(truck.RegHead);
     const match = dataregtail.find(
-      (item) => item.id === Number(truck.RegTail.split(":")[0]),
+      (item) => item.id === Number(truck.RegTail),
     );
 
     setRegTail(

@@ -421,8 +421,8 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
             totalProfitLoss += row.ProfitLoss || 0;
 
             (row.Registration || []).forEach((d) => {
-                // const driverName = d.Driver?.split(":")[1] || "";
-                const regis = d.Registration?.split(":")[1] || "";
+                // const driverName = d.DriverName || "";
+                const regis = d.RegistrationName || "";
                 const key = regis;
 
                 if (!driverTransport[key]) {
@@ -474,8 +474,8 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
             totalVolume += row.Volume || 0;
 
             (row.Registration || []).forEach((d) => {
-                // const driverName = d.Driver?.split(":")[1] || "";
-                const regis = d.Registration?.split(":")[1] || "";
+                // const driverName = d.DriverName || "";
+                const regis = d.RegistrationName || "";
                 const key = regis;
 
                 if (!driverTotals[key]) {
@@ -804,7 +804,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
         // merge reports
         reports
             .filter((ex) => {
-                const regMatch = registrationSm.find((h) => h.id === Number(ex.Registration.split(":")[0]));
+                const regMatch = registrationSm.find((h) => h.id === Number(ex.Registration));
 
                 const rowDate = dayjs(ex.SelectedDateInvoice, "DD/MM/YYYY");
                 const selectedMonth = dayjs(months);
@@ -939,7 +939,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
                 // if (curr.TruckType === "รถเล็ก") {
                 //     const dv = driver
                 //         .filter((d) => d.TruckType === "รถเล็ก")
-                //         .find((rg) => rg.id === Number(curr.Driver?.split(":")[0]));
+                //         .find((rg) => rg.id === Number(curr.Driver));
 
                 //     driverName = `${dv?.id || ""}:${dv?.Name || ""}`;
                 // }
@@ -1129,7 +1129,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
 
             const getName = (item) => {
                 const name =
-                    item.Driver?.split(":")[1]?.trim();
+                    item.DriverName?.trim();
                 return name;
             };
 
@@ -1243,10 +1243,10 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
             ...driverGroups.map(dg => ({
                 header:
                     dg.TruckType === "รถเล็ก" ?
-                        `${dg.Driver?.split(":")[1] || ""}${dg.ShortName ? dg.ShortName + "/" : ""}${dg.Registration.split(":")[1]}`
+                        `${dg.DriverName || ""}${dg.ShortName ? dg.ShortName + "/" : ""}${dg.RegistrationName}`
                         : ""
                 ,
-                key: `driver_${dg.Registration.split(":")[0]}`,
+                key: `driver_${dg.Registration}`,
                 width: 32, // 250px
             })),
         ];
@@ -1318,8 +1318,8 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
                 // "",
                 total,
                 ...driverGroups.map((row) => {
-                    // const driverName = row.Driver?.split(":")[1] || "";
-                    const regis = row.Registration?.split(":")[1] || "";
+                    // const driverName = row.DriverName || "";
+                    const regis = row.RegistrationName || "";
                     const key = regis;
 
                     const found = driverTotals[key];
@@ -1345,8 +1345,8 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
             // "",
             (grandTotal?.Transport + grandTotal?.ProfitLoss),
             ...driverGroups.map((row) => {
-                // const driverName = row.Driver?.split(":")[1] || "";
-                const regis = row.Registration?.split(":")[1] || "";
+                // const driverName = row.DriverName || "";
+                const regis = row.RegistrationName || "";
                 const key = regis;
 
                 const total = grandTotal.driverTotals[key];
@@ -1448,8 +1448,8 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
             ...driverGroups.map((row) => {
                 const key = row._key; // ✅ ใช้อันเดียว
 
-                // const driverName = row.Driver?.split(":")[1] || "";
-                const regis = row.Registration?.split(":")[1] || "";
+                // const driverName = row.DriverName || "";
+                const regis = row.RegistrationName || "";
                 const keys = regis;
 
                 const total1 = grandTotal.driverTotals[keys];
@@ -1764,12 +1764,12 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
                                     driverGroups.map((row) => (
                                         <TablecellPink sx={{ textAlign: "center", fontSize: 16, width: 250 }}>
                                             {/* <Typography variant="subtitle2" fontSize="16px" fontWeight="bold" sx={{ whiteSpace: "nowrap", lineHeight: 1, marginTop: 1 }} gutterBottom>
-                                                {row.Driver.split(":")[1]}
+                                                {row.DriverName}
                                             </Typography> */}
                                             <Typography variant="subtitle2" fontSize="16px" fontWeight="bold" sx={{ whiteSpace: "nowrap", lineHeight: 1 }} gutterBottom>
                                                 {
                                                     row.TruckType === "รถเล็ก" ?
-                                                        `${row.ShortName ? row.ShortName + "/" : ""}${row.Registration.split(":")[1]}`
+                                                        `${row.ShortName ? row.ShortName + "/" : ""}${row.RegistrationName}`
                                                         : ""
                                                 }
                                             </Typography>
@@ -1954,8 +1954,8 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
                                             }).format(total || 0)}
                                         </TableCell>
                                         {driverGroups.map((row) => {
-                                            // const driverName = row.Driver?.split(":")[1] || "";
-                                            const regis = row.Registration?.split(":")[1] || "";
+                                            // const driverName = row.DriverName || "";
+                                            const regis = row.RegistrationName || "";
                                             // const key = driverName + regis;
                                             const key = regis;
 
@@ -2039,8 +2039,8 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
                                 </TableCell>
 
                                 {driverGroups.map((row) => {
-                                    // const driverName = row.Driver?.split(":")[1] || "";
-                                    const regis = row.Registration?.split(":")[1] || "";
+                                    // const driverName = row.DriverName || "";
+                                    const regis = row.RegistrationName || "";
                                     // const key = `${driverName}_${regis}`;
                                     const key = regis;
 
@@ -2319,8 +2319,8 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
                                 {driverGroups.map((row) => {
                                     const key = row._key; // ✅ ใช้อันเดียว
 
-                                    // const driverName = row.Driver?.split(":")[1] || "";
-                                    const regis = row.Registration?.split(":")[1] || "";
+                                    // const driverName = row.DriverName || "";
+                                    const regis = row.RegistrationName || "";
                                     const keys = `${regis}`;
 
                                     const total1 = grandTotal.driverTotals[keys];

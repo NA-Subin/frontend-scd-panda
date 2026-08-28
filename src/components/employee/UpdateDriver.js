@@ -143,7 +143,7 @@ const UpdateDriver = (props) => {
         getRegitration();
     }, []);
 
-    console.log("registartion : ", driver.Registration.split(":")[0] - 1)
+    console.log("registartion : ", driver.Registration - 1)
 
     const handleUpdate = async () => {
         try {
@@ -242,7 +242,7 @@ const UpdateDriver = (props) => {
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{index + 1}</TableCell>
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{driver.Name}</TableCell>
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{driver.IDCard}</TableCell>
-                <TableCell sx={{ textAlign: "center", height: "35px" }}>{driver.Registration?.split(":")[1]}</TableCell>
+                <TableCell sx={{ textAlign: "center", height: "35px" }}>{driver.RegistrationName}</TableCell>
                 {/* {renderSettingCell(driver)} */}
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{driver.TruckType}</TableCell>
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{driver.BankID}</TableCell>

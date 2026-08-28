@@ -298,7 +298,7 @@ const DriverDetail = () => {
       if (truckPath) {
         await database
           .ref(truckPath)
-          .child(Number(trip.Registration.split(":")[0]) - 1)
+          .child(Number(trip.Registration) - 1)
           .update({
             Status: "ว่าง",
             RepairTruck: "00/00/0000:ยังไม่ตรวจสอบสภาพรถ",
@@ -896,7 +896,7 @@ const DriverDetail = () => {
             justifyContent="center"
             alignItems="center"
           >
-            {/* <Typography variant="subtitle1" fontWeight="bold" textAlign="right" sx={{ whiteSpace: 'nowrap' }} gutterBottom>ชื่อพนักงานขับรถ/ทะเบียนรถ : {`${registrationDetail.Driver.split(":")[1]}:${registrationDetail.RegHead}:${registrationDetail.RegTail}`} </Typography>
+            {/* <Typography variant="subtitle1" fontWeight="bold" textAlign="right" sx={{ whiteSpace: 'nowrap' }} gutterBottom>ชื่อพนักงานขับรถ/ทะเบียนรถ : {`${registrationDetail.DriverName}:${registrationDetail.RegHead}:${registrationDetail.RegTail}`} </Typography>
                         <FormControl variant="standard" sx={{ m: 1, width: "100%" }}>
                             <Select
                                 labelId="demo-simple-select-standard-label"
@@ -919,7 +919,7 @@ const DriverDetail = () => {
                                 <MenuItem value={"0:0:0"}>กรุณาเลือกรถบรรทุก</MenuItem>
                                 {
                                     driver.map((row) => (
-                                        <MenuItem value={`${row.Driver}:${row.RegHead}:${row.RegTail}`}>{`${row.Driver.split(":")[1]} / ${row.RegHead}:${row.RegTail}`}</MenuItem>
+                                        <MenuItem value={`${row.Driver}:${row.RegHead}:${row.RegTail}`}>{`${row.DriverName} / ${row.RegHead}:${row.RegTail}`}</MenuItem>
                                     ))
                                 }
                             </Select>

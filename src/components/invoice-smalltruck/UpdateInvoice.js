@@ -113,7 +113,7 @@ const UpdateInvoice = (props) => {
   const { company, small, customersmalltruck } = useBasicData();
   const companies = Object.values(company || {});
   const customerS = Object.values(customersmalltruck || {}).map((cust) => {
-    const compId = cust.Company?.split(":")[0]; // ตัด id ด้านหน้า
+    const compId = cust.Company; // เป็น id อยู่แล้ว
     const company = companies.find((c) => String(c.id) === String(compId));
 
     return {
@@ -179,7 +179,7 @@ const UpdateInvoice = (props) => {
     )
     .map((item) => {
       const matchedSmall = smalls.find(
-        (s) => s.id === Number(item.Registration.split(":")[0]),
+        (s) => s.id === Number(item.Registration),
       );
 
       const company = customerS.find(
@@ -269,11 +269,8 @@ const UpdateInvoice = (props) => {
     (row, index) => row.id === Number(ticket.TicketName.split(":")[0]),
   );
   const invoiceC = companies.find((row) => {
-    const companyIdStr = customer?.Company;
-    if (!companyIdStr || companyIdStr === "ไม่มี") return false;
-
-    const companyId = Number(companyIdStr.split(":")[0]);
-    return row.id === companyId;
+    if (!customer?.Company) return false;
+    return row.id === Number(customer.Company);
   });
 
   console.log("customer : ", customer);
@@ -543,8 +540,8 @@ const UpdateInvoice = (props) => {
               : numberFormat.format(Volume.RateOil),
             Amount: Volume.Amount || 0,
             Date: row.Date,
-            Driver: row.Driver.split(":")[1],
-            Registration: row.Registration.split(":")[1],
+            Driver: row.DriverName,
+            Registration: row.RegistrationName,
             ProductName: productName,
             Volume: Volume.Volume,
             uniqueRowId: `${index}:${productName}`, // 🟢 สร้าง ID ที่ไม่ซ้ำกัน
@@ -570,8 +567,8 @@ const UpdateInvoice = (props) => {
         Number(ticket.CreditTime) > 0 ? ticket.CreditTime : 0,
       ),
       Company:
-        customer?.Company && customer.Company !== "ไม่มี"
-          ? (customer.Company.split(":")[1] ?? companyName?.Name)
+        customer?.Company
+          ? (customer.CompanyRefName ?? companyName?.Name)
           : companyName?.Name,
       Address:
         customer?.Company && customer?.Company !== "ไม่มี"
@@ -982,9 +979,9 @@ const UpdateInvoice = (props) => {
             />
             <Tooltip
               title={
-                customer?.Company === "ไม่มี" || customer?.Company === undefined
+                !customer?.Company
                   ? companyName.Name
-                  : customer?.Company.split(":")[1]
+                  : customer?.CompanyRefName
               }
               placement="top"
             >
@@ -1009,10 +1006,9 @@ const UpdateInvoice = (props) => {
                   width: "1000px",
                 }}
                 value={
-                  customer?.Company === "ไม่มี" ||
-                  customer?.Company === undefined
+                  !customer?.Company
                     ? companyName.Name
-                    : customer?.Company.split(":")[1]
+                    : customer?.CompanyRefName
                 }
               />
             </Tooltip>
@@ -1263,10 +1259,10 @@ const UpdateInvoice = (props) => {
                           gutterBottom
                         >
                           {report[row.uniqueRowId]?.Driver ||
-                            row.Driver.split(":")[1]}{" "}
+                            row.DriverName}{" "}
                           : {trimShortName(row.ShortName)}{" "}
                           {report[row.uniqueRowId]?.Registration ||
-                            row.Registration.split(":")[1]}
+                            row.RegistrationName}
                         </Typography>
                       </TableCell>
                       <TableCell
@@ -1784,7 +1780,7 @@ const UpdateInvoice = (props) => {
                         <TableCell sx={{ textAlign: "left", height: "30px" }}>
                           {!updateTranfer || row.id !== tranferID ? (
                             <Box sx={{ marginLeft: 2 }}>
-                              {row.BankName.split(":")[1]}
+                              {row.BankNameName}
                             </Box>
                           ) : (
                             <Paper component="form" sx={{ width: "100%" }}>

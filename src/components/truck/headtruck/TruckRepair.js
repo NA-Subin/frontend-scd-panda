@@ -382,9 +382,9 @@ const TruckRepair = (props) => {
               {"จัดการซ่อมทะเบียน " +
                 row.RegHead +
                 ":" +
-                (row.RegTail && row.RegTail.split(":")[1]) +
+                (row.RegTail && row.RegTailName) +
                 " ของ" +
-                (row.Driver && row.Driver.split(":")[1])}
+                (row.Driver && row.DriverName)}
             </Grid>
             <Grid item xs={2} textAlign="right">
               <IconButtonError size="small" onClick={handleClose}>
@@ -442,7 +442,7 @@ const TruckRepair = (props) => {
                       px: 1,
                     }}
                   >
-                    {row.Driver && row.Driver.split(":")[1]}
+                    {row.Driver && row.DriverName}
                   </Box>
 
                   <span>ทะเบียนหัว</span>
@@ -472,7 +472,7 @@ const TruckRepair = (props) => {
                       textAlign: "center",
                     }}
                   >
-                    {row.RegTail && row.RegTail.split(":")[1]}
+                    {row.RegTail && row.RegTailName}
                   </Box>
                 </Box>
               </Typography>

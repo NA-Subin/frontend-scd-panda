@@ -80,8 +80,8 @@ const TicketsSmallTruck = ({ openNavbar }) => {
 
         const companies = Object.values(company || {}).find((c) =>
             c.id === (
-                item.Company && item.Company !== "0:ไม่มี"
-                    ? Number(item.Company.split(":")[0])
+                item.Company
+                    ? Number(item.Company)
                     : null
             )
         );
@@ -367,7 +367,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
         setCredit(row.Credit);
         setBill(row.Bill);
         setType(row.Type);
-        setCompanies((row.Company && row.Company !== "0:ไม่มี") ? `${row.Company.split(":")[0]}:${row.CompanyTicket}` : "ไม่มี");
+        setCompanies(row.Company ? `${row.Company}:${row.CompanyTicket}` : "ไม่มี");
         setRegistrationChecked(row.RegistrationCheck ?? false);
         setRegistration(row.Registration ?? "ไม่มี");
         if (row.StatusCompany === "อยู่บริษัทในเครือ") {

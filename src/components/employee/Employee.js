@@ -257,7 +257,7 @@ const Employee = ({ openNavbar }) => {
 
   const renderSettingCell = (row) => {
     const rowName = row.Name;
-    const regText = row.Registration?.split(":")[1] || "";
+    const regText = row.RegistrationName || "";
 
     if (!setting || setting === "") {
       return (

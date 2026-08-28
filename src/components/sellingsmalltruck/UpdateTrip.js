@@ -143,15 +143,15 @@ const UpdateTrip = (props) => {
 
     const handleSaveAsImage = () => {
         const driverName = trip.Driver?.includes(":")
-            ? trip.Driver.split(":")[1]
+            ? trip.DriverName
             : trip.Driver || "";
 
         const registrationId = trip.Registration?.includes(":")
-            ? Number(trip.Registration.split(":")[0])
+            ? Number(trip.Registration)
             : null;
 
         const plate = trip.Registration?.includes(":")
-            ? trip.Registration.split(":")[1]
+            ? trip.RegistrationName
             : trip.Registration || "";
 
         const shortName = registrationTruck.find(
@@ -1798,7 +1798,7 @@ const UpdateTrip = (props) => {
                                                     >
                                                         {(() => {
                                                             const driverName = trip.Driver?.includes(":")
-                                                                ? trip.Driver.split(":")[1]
+                                                                ? trip.DriverName
                                                                 : trip.Driver || "";
 
                                                             const registrationParts = trip.Registration?.includes(":")
@@ -1839,15 +1839,15 @@ const UpdateTrip = (props) => {
                                             <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginTop: 1 }} gutterBottom>ผู้ขับ/ป้ายทะเบียน :
                                                 {
                                                     trip.Driver !== undefined &&
-                                                        trip.Driver.split(":")[1] !== undefined ?
-                                                        trip.Driver.split(":")[1]
+                                                        trip.DriverName !== undefined ?
+                                                        trip.DriverName
                                                         :
                                                         trip.Driver
                                                 }/
                                                 {
                                                     trip.Registration !== undefined &&
-                                                        trip.Registration.split(":")[1] !== undefined ?
-                                                        trip.Registration.split(":")[1]
+                                                        trip.RegistrationName !== undefined ?
+                                                        trip.RegistrationName
                                                         :
                                                         trip.Registration
                                                 }
@@ -2534,7 +2534,7 @@ const UpdateTrip = (props) => {
                                                                     `${item.Driver}:${item.id}:${item.RegHead}` === registration
                                                                 );
                                                                 return selectedItem && selectedItem.Driver !== "ไม่มี" &&
-                                                                    `${selectedItem.Driver ? selectedItem.Driver.split(":")[1] : ""} : ${selectedItem.RegHead ? selectedItem.RegHead : ""}/${selectedItem.RegTail ? selectedItem.RegTail : ""} (รถเล็ก)`;
+                                                                    `${selectedItem.Driver ? selectedItem.DriverName : ""} : ${selectedItem.RegHead ? selectedItem.RegHead : ""}/${selectedItem.RegTail ? selectedItem.RegTail : ""} (รถเล็ก)`;
                                                             })()}
                                                         /> */}
                                                         <TextField size="small" fullWidth disabled
@@ -2592,7 +2592,7 @@ const UpdateTrip = (props) => {
                                                     >
                                                         {(() => {
                                                             const driverName = trip.Driver?.includes(":")
-                                                                ? trip.Driver.split(":")[1]
+                                                                ? trip.DriverName
                                                                 : trip.Driver || "";
 
                                                             const registrationParts = trip.Registration?.includes(":")
@@ -2635,15 +2635,15 @@ const UpdateTrip = (props) => {
                                     // <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginTop: 1 }} gutterBottom>ผู้ขับ/ป้ายทะเบียน :
                                     //     {
                                     //         trip.Driver !== undefined &&
-                                    //             trip.Driver.split(":")[1] !== undefined ?
-                                    //             trip.Driver.split(":")[1]
+                                    //             trip.DriverName !== undefined ?
+                                    //             trip.DriverName
                                     //             :
                                     //             trip.Driver
                                     //     }/
                                     //     {
                                     //         trip.Registration !== undefined &&
-                                    //             trip.Registration.split(":")[1] !== undefined ?
-                                    //             trip.Registration.split(":")[1]
+                                    //             trip.RegistrationName !== undefined ?
+                                    //             trip.RegistrationName
                                     //             :
                                     //             trip.Registration
                                     //     }

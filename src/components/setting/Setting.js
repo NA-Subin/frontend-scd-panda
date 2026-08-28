@@ -407,25 +407,25 @@ const Setting = () => {
                     <Grid item xs={6}>
                       <Box display="flex" textAlign="center" justifyContent="left" alignItems="center">
                         <Typography variant="subtitle1" fontWeight="bold" sx={{ whiteSpace: "nowrap", marginRight: 2 }} gutterBottom>ชื่อ-สกุล : </Typography>
-                        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>{userDetail.Name}</Typography>
+                        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>{userDetail?.Name}</Typography>
                       </Box>
                     </Grid>
                     <Grid item xs={6}>
                       <Box display="flex" textAlign="center" justifyContent="left" alignItems="center">
                         <Typography variant="subtitle1" fontWeight="bold" sx={{ whiteSpace: "nowrap", marginRight: 2 }} gutterBottom>ตำแหน่ง : </Typography>
-                        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>{userDetail.Position.split(":")[1]}</Typography>
+                        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>{userDetail?.PositionName}</Typography>
                       </Box>
                     </Grid>
                     <Grid item xs={6}>
                       <Box display="flex" textAlign="center" justifyContent="left" alignItems="center">
                         <Typography variant="subtitle1" fontWeight="bold" sx={{ whiteSpace: "nowrap", marginRight: 2 }} gutterBottom>User : </Typography>
-                        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>{userDetail.User}</Typography>
+                        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>{userDetail?.User}</Typography>
                       </Box>
                     </Grid>
                     <Grid item xs={6}>
                       <Box display="flex" textAlign="center" justifyContent="left" alignItems="center">
                         <Typography variant="subtitle1" fontWeight="bold" sx={{ whiteSpace: "nowrap", marginRight: 2 }} gutterBottom>เบอร์โทร : </Typography>
-                        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>{userDetail.Phone}</Typography>
+                        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>{userDetail?.Phone}</Typography>
                       </Box>
                     </Grid>
                     {

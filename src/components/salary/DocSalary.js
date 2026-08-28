@@ -178,12 +178,12 @@ const DocSalary = ({ openNavbar }) => {
             let Registration = "";
             if (item.TruckType === "รถใหญ่") {
                 const Registrations = registrationH.find(
-                    (row) => row.id === Number(item.Registration.split(":")[0])
+                    (row) => row.id === Number(item.Registration)
                 );
                 Registration = `${Registrations?.RegHead}/${Registrations?.RegTail.split(":")[1]}`;
             } else if (item.TruckType === "รถเล็ก") {
                 const Registrations = smalls.find(
-                    (row) => row.id === Number(item.Registration.split(":")[0])
+                    (row) => row.id === Number(item.Registration)
                 );
                 Registration = Registrations?.RegHead;
             }
@@ -265,9 +265,9 @@ const DocSalary = ({ openNavbar }) => {
 
     // ✅ กรองก่อน group
     const filteredReportDetail = reportDetail.filter((row) => {
-        const driverName = row.Driver.split(":")[1]?.trim() || "";
-        const regHead = row.RegHead.split(":")[1]?.trim() || "";
-        const regTail = row.RegTail.split(":")[1]?.trim() || "";
+        const driverName = row.DriverName?.trim() || "";
+        const regHead = row.RegHeadName?.trim() || "";
+        const regTail = row.RegTailName?.trim() || "";
 
         // คุณจะใช้แค่ driverName filter หรือรวมก็ได้
         return (
@@ -279,9 +279,9 @@ const DocSalary = ({ openNavbar }) => {
 
     // ✅ Group
     const groupedData = filteredReportDetail.reduce((acc, row) => {
-        const driverName = row.Driver.split(":")[1]?.trim() || "";
-        const regHead = row.RegHead.split(":")[1]?.trim() || "";
-        const regTail = row.RegTail.split(":")[1]?.trim() || "";
+        const driverName = row.DriverName?.trim() || "";
+        const regHead = row.RegHeadName?.trim() || "";
+        const regTail = row.RegTailName?.trim() || "";
         const shortName = row.ShortName || "";
 
         // ✅ รวมเป็น key เดียว เช่น "ชื่อนามสกุล | หัว | หาง"
@@ -329,7 +329,7 @@ const DocSalary = ({ openNavbar }) => {
         const costrip = tripsDetails
             .filter(
                 (item) =>
-                    Number(item.Driver.split(":")[0]) === row.id &&
+                    Number(item.Driver) === row.id &&
                     item.TruckType === row.TruckType
             )
             .reduce((acc, cos) => acc + Number(cos.CostTrip || 0), 0);

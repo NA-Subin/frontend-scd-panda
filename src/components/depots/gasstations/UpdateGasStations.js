@@ -618,7 +618,7 @@ const UpdateGasStations = (props) => {
         }));
 
     //console.log("driversData : ", driversData);
-    console.log("truckDriver : ", truckDriver.map((row) => row.Driver.split(":")[1]?.split("นาย")[1]?.split(" ")[0]));
+    console.log("truckDriver : ", truckDriver.map((row) => row.DriverName?.split("นาย")[1]?.split(" ")[0]));
     // console.log("totalVolumes : ", totalVolumes);
 
     return (
@@ -840,7 +840,7 @@ const UpdateGasStations = (props) => {
                                             }}>
                                             <Autocomplete
                                                 freeSolo // อนุญาตให้พิมพ์เองได้
-                                                options={truckDriver.map((row) => row.Driver.split(":")[1]?.split("นาย")[1]?.split(" ")[0])}
+                                                options={truckDriver.map((row) => row.DriverName?.split("นาย")[1]?.split(" ")[0])}
                                                 filterOptions={filterOptions} // ใช้ฟังก์ชันกรองตัวเลือก
                                                 value={driver1}
                                                 onChange={(event, newValue) => setDriver1(newValue)}
@@ -877,7 +877,7 @@ const UpdateGasStations = (props) => {
                                             }}>
                                             <Autocomplete
                                                 freeSolo // อนุญาตให้พิมพ์เองได้
-                                                options={truckDriver.map((row) => row.Driver.split(":")[1]?.split("นาย")[1]?.split(" ")[0])} // เอาเฉพาะชื่อ
+                                                options={truckDriver.map((row) => row.DriverName?.split("นาย")[1]?.split(" ")[0])} // เอาเฉพาะชื่อ
                                                 filterOptions={filterOptions} // ใช้ฟังก์ชันกรองตัวเลือก
                                                 value={driver2}
                                                 onChange={(event, newValue) => setDriver2(newValue)}
