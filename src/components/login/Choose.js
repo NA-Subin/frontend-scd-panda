@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
+  CircularProgress,
   Container,
   Divider,
   Grid,
@@ -14,7 +15,9 @@ import theme from "../../theme/theme";
 import { Link, useNavigate } from "react-router-dom";
 import EmailIcon from "@mui/icons-material/Email";
 import PasswordIcon from "@mui/icons-material/Password";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
 import {
+  ShowConfirm,
   ShowError,
   ShowInfo,
   ShowSuccess,
@@ -34,10 +37,11 @@ import SummarizeIcon from '@mui/icons-material/Summarize';
 import Cookies from 'js-cookie';
 import UpdateDatabase from "../dashboard/test";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
+import { apiPost } from "../../server/apiClient";
 
 const Choose = () => {
   const navigate = useNavigate();
-  const { positions, officers, drivers, creditors } = useBasicData();
+  const { positions, officers, drivers, creditors, refetch } = useBasicData();
   const creditorsDetail = Object.values(creditors || {});
   const driversDetail = Object.values(drivers || {});
   const officersDetail = Object.values(officers || {});
@@ -53,6 +57,9 @@ const Choose = () => {
   const [showFinancial, setShowFinancial] = useState(false);
   const [showReport, setShowReport] = useState(false);
   const [showSmallTruck, setShowSmallTruck] = useState(false);
+
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef(null);
 
 
 
@@ -81,6 +88,47 @@ const Choose = () => {
 
   const handleChooseQuotation = () => {
     window.location.href = "/quotation";
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelected = (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = ""; // allow re-selecting the same file next time
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      let data;
+      try {
+        data = JSON.parse(reader.result);
+      } catch (err) {
+        ShowError("ไฟล์ไม่ถูกต้อง", "อ่านไฟล์ JSON ไม่สำเร็จ กรุณาตรวจสอบไฟล์อีกครั้ง");
+        return;
+      }
+
+      ShowConfirm(
+        `นำเข้าข้อมูลจาก "${file.name}" ใช่หรือไม่? ข้อมูลเดิมทั้งหมดในฐานข้อมูลจะถูกทับ`,
+        async () => {
+          setImporting(true);
+          try {
+            const result = await apiPost("/api/admin/import", { data });
+            ShowSuccess(`นำเข้าข้อมูลสำเร็จ (${result.tables} ตาราง, ${result.totalRows} แถว)`);
+            refetch?.();
+          } catch (err) {
+            ShowError("นำเข้าข้อมูลไม่สำเร็จ", err?.data?.error || err.message);
+          } finally {
+            setImporting(false);
+          }
+        }
+      );
+    };
+    reader.onerror = () => {
+      ShowError("อ่านไฟล์ไม่สำเร็จ", "");
+    };
+    reader.readAsText(file);
   };
 
   useEffect(() => {
@@ -202,6 +250,35 @@ const Choose = () => {
               ใบเสนอราคาลูกค้า
             </Button>
           </Grid>
+        }
+        <Grid item xs={12} sm={3}></Grid>
+        {
+          showBasic && (
+            <Grid item xs={12} sm={6}>
+              <input
+                type="file"
+                accept="application/json,.json"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                onChange={handleFileSelected}
+              />
+              <Button variant="contained"
+                color="secondary"
+                fullWidth
+                disabled={importing}
+                sx={{ height: "20vh", borderRadius: 5, fontSize: 26, fontWeight: "bold" }}
+                onClick={handleImportClick}
+                startIcon={
+                  importing ? (
+                    <CircularProgress color="inherit" size={40} />
+                  ) : (
+                    <UploadFileIcon sx={{ width: 80, height: 80 }} />
+                  )
+                }>
+                {importing ? "กำลังนำเข้าข้อมูล..." : "นำเข้าข้อมูล JSON"}
+              </Button>
+            </Grid>
+          )
         }
         <Grid item xs={12} sm={3}></Grid>
       </Grid>
