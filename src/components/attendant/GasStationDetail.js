@@ -21,7 +21,8 @@ import {
     ShowSuccess,
     ShowWarning,
 } from "../sweetalert/sweetalert";
-import { auth, database, googleProvider } from "../../server/firebase";
+import { apiPut } from "../../server/apiClient";
+import { useGasStationData } from "../../server/provider/GasStationProvider";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
@@ -34,6 +35,7 @@ const customOrder = ["G95", "B95", "B7", "B7(1)", "B7(2)", "G91", "E20", "PWD"];
 
 const GasStationDetail = (props) => {
     const { stock, gasStationID, selectedDate, gas, gasID, first, last, reportOilBalance, oilBalance, status } = props;
+    const { refetch: refetchGasStationData } = useGasStationData();
     // const [selectedDates, setSelectedDates] = React.useState(dayjs(selectedDate));
     const [product, setProduct] = React.useState([]);
     const [notReport, setNotReport] = React.useState([]);
@@ -64,36 +66,24 @@ const GasStationDetail = (props) => {
     console.log("Status : ", save);
 
     const getGasStations = async () => {
-        database.ref("/depot/gasStations/" + (gas.id - 1)).on("value", (snapshot) => {
-            const datas = snapshot.val();
-            setProduct(datas.Products);
-            if (datas && datas.Products) {
-                const sortedProducts = Object.entries(datas.Products)
-                    .map(([key, value]) => ({
-                        ProductName: key,
-                        Volume: value
-                    }))
-                    .sort((a, b) => {
-                        return customOrder.indexOf(a.ProductName) - customOrder.indexOf(b.ProductName);
-                    });
+        // gas.Products is a JSONB array of {Name, Color, Capacity, Volume,
+        // CheckBox} (same shape every other module reads it as) - no separate
+        // fetch needed, the prop already has it.
+        const productsArray = Array.isArray(gas?.Products) ? gas.Products.filter(Boolean) : [];
+        setProduct(productsArray);
 
-                setNotReport(sortedProducts);
-            } else {
-                setNotReport([]);
-            }
-        });
+        const sortedProducts = productsArray
+            .map((p) => ({
+                ProductName: p.Name,
+                Volume: p.Volume,
+            }))
+            .sort((a, b) => customOrder.indexOf(a.ProductName) - customOrder.indexOf(b.ProductName));
+        setNotReport(sortedProducts);
 
-        database.ref("/depot/gasStations/" + (gas.id - 1) + "/Report/" + dayjs(selectedDate).format('DD-MM-YYYY')).on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataReport = [];
-
-            for (let id in datas) {
-                dataReport.push({ id, ...datas[id] });
-            }
-
-            setReports(dataReport);
-        });
-
+        // Report is a plain JSONB object keyed by date string - read it
+        // directly off the prop instead of a separate Firebase listener.
+        const reportForDate = gas?.Report?.[dayjs(selectedDate).format('DD-MM-YYYY')];
+        setReports(Array.isArray(reportForDate) ? reportForDate : Object.values(reportForDate || {}));
 
         const yesterdayDate = dayjs(selectedDate).subtract(1, "day").format("DD-MM-YYYY");
         const twoDaysAgoDate = dayjs(selectedDate).subtract(2, "day").format("DD-MM-YYYY");
@@ -198,7 +188,7 @@ const GasStationDetail = (props) => {
     // const dataReport = gas.Report ? gas.Report[formattedDate] : [];
     // console.log("report: ", dataReport);
 
-    const saveProduct = () => {
+    const saveProduct = async () => {
         const updatedProducts = notReport
             .map(({ ProductName, Volume }) => { // ✅ ใช้ destructuring ถูกต้อง
                 const matchingStock = stock.find((s) => s.ProductName === ProductName);
@@ -234,49 +224,46 @@ const GasStationDetail = (props) => {
             })
             .filter(Boolean); // กรองค่าที่เป็น null ออกไป
 
-        const updatedVolume = notReport.reduce((acc, { ProductName, Volume }) => { // ✅ ใช้ destructuring ถูกต้อง
-            const matchingStock = stock.find((s) => s.ProductName === ProductName);
-            if (matchingStock) {
-                acc[ProductName] = Number(matchingStock.Volume || 0);
-            }
-            return acc;
-        }, {}); // เริ่มต้นเป็น object ว่าง
+        // Products is a JSONB array of {Name, Color, Capacity, Volume,
+        // CheckBox}, not a plain {ProductName: number} map - update Volume in
+        // place on each matching entry so the shape every other consumer
+        // expects (InsertGasStations.js, Detail.js, etc.) doesn't break.
+        const updatedProductsArray = (Array.isArray(gas?.Products) ? gas.Products : []).map((p) => {
+            const matchingStock = stock.find((s) => s.ProductName === p.Name);
+            return matchingStock ? { ...p, Volume: Number(matchingStock.Volume || 0) } : p;
+        });
 
         console.log("Update : ", updatedProducts)
 
         setSave(true);
 
-        //อัปเดตข้อมูลในฐานข้อมูล
-        database
-            .ref("/depot/gasStations/" + (gas.id - 1) + "/Report")
-            .child(dayjs(selectedDate).format("DD-MM-YYYY"))
-            .update(updatedProducts)
-            .then(() => {
-                ShowSuccess("บันทึกข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
-            });
+        if (!gas?.uuid) {
+            ShowError("ไม่พบข้อมูลปั้ม");
+            return;
+        }
 
-        database
-            .ref("/depot/gasStations/" + (gas.id - 1))
-            .child("/Products")
-            .update(updatedVolume)
-            .then(() => {
-                ShowSuccess("บันทึกข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
+        // Report is a plain JSONB column, not a real nested Firebase path -
+        // read, merge in just this date's entry, and write the whole column
+        // back so other dates already saved aren't lost.
+        const mergedReport = structuredClone(gas.Report || {});
+        mergedReport[dayjs(selectedDate).format("DD-MM-YYYY")] = updatedProducts;
+
+        try {
+            await apiPut(`/api/depot_gas_stations/${gas.uuid}`, {
+                Report: mergedReport,
+                Products: updatedProductsArray,
             });
+            ShowSuccess("บันทึกข้อมูลสำเร็จ");
+            refetchGasStationData?.();
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
 
         console.log("Update Difference : ", difference);
     };
 
-    const updateProduct = () => {
+    const updateProduct = async () => {
         const updatedProducts =
             reports.length !== 0 // ตรวจสอบว่ามีข้อมูลใน gasStationReport หรือไม่
                 ? reports.map((row) => {
@@ -306,71 +293,67 @@ const GasStationDetail = (props) => {
                 })
                 : []
 
-        const updatedVolumes =
-            reports.length !== 0 // ตรวจสอบว่ามีข้อมูลใน gasStationReport หรือไม่
-                ? reports.reduce((acc, row) => {
-                    const updatedVolume =
-                        Number(updateStocks[row.ProductName] || row.OilBalance);
+        // Products is a JSONB array, not a plain {ProductName: number} map -
+        // update Volume in place on each matching entry.
+        const updatedProductsArray = (Array.isArray(gas?.Products) ? gas.Products : []).map((p) => {
+            const row = reports.find((r) => r.ProductName === p.Name);
+            if (!row) return p;
+            return { ...p, Volume: Number(updateStocks[row.ProductName] || row.OilBalance) };
+        });
 
-                    acc[row.ProductName] = updatedVolume; // เก็บค่าใน key ที่ตรงกับ ProductName
-                    return acc;
-                }, {})
-                : []
+        if (!gas?.uuid) {
+            ShowError("ไม่พบข้อมูลปั้ม");
+            return;
+        }
 
-        // อัปเดตข้อมูลในฐานข้อมูล Firebase
-        database
-            .ref("/depot/gasStations/" + (gas.id - 1) + "/Report")
-            .child(dayjs(selectedDate).format("DD-MM-YYYY"))
-            .update(updatedProducts)
-            .then(() => {
-                ShowSuccess("บันทึกข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
+        // Report is a plain JSONB column - read, merge in this date's entry,
+        // and write the whole column back.
+        const mergedReport = structuredClone(gas.Report || {});
+        mergedReport[dayjs(selectedDate).format("DD-MM-YYYY")] = updatedProducts;
+
+        try {
+            await apiPut(`/api/depot_gas_stations/${gas.uuid}`, {
+                Report: mergedReport,
+                Products: updatedProductsArray,
             });
-
-        database
-            .ref("/depot/gasStations/" + (gas.id - 1))
-            .child("/Products")
-            .update(updatedVolumes)
-            .then(() => {
-                ShowSuccess("บันทึกข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
-            });
+            ShowSuccess("บันทึกข้อมูลสำเร็จ");
+            refetchGasStationData?.();
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
 
         setSetting(true);
         setSave(true);
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         console.log("latestGas ::::::: ", first.id);
         console.log("✅ reportOilBalance " + `${gasID}:`, oilBalance);
-        database
-            .ref("/depot/gasStations/" + (first.id - 1) + "/Report")
-            .child(dayjs(selectedDate).format("DD-MM-YYYY"))
-            .update(oilBalance)
-            .then(() => {
-                ShowSuccess("บันทึกข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setSave(false);
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
-            });
 
+        if (!first?.uuid) {
+            ShowError("ไม่พบข้อมูลปั้ม");
+            return;
+        }
+
+        const mergedReport = structuredClone(first.Report || {});
+        mergedReport[dayjs(selectedDate).format("DD-MM-YYYY")] = oilBalance;
+
+        try {
+            await apiPut(`/api/depot_gas_stations/${first.uuid}`, { Report: mergedReport });
+            ShowSuccess("บันทึกข้อมูลสำเร็จ");
+            refetchGasStationData?.();
+            setSave(false);
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     }
 
-    // สร้าง `gasStationNotReports` โดยใช้ `ProductName`
-    const gasStationNotReports = Object.entries(product).map(([key, value]) => ({
-        ProductName: key,  // ใช้ key เป็นชื่อของสินค้า
-        Volume: value      // ใช้ value เป็นค่าของสินค้า
+    // สร้าง `gasStationNotReports` โดยใช้ Name/Volume ของ Products (array)
+    const gasStationNotReports = (Array.isArray(product) ? product : []).map((p) => ({
+        ProductName: p.Name,
+        Volume: p.Volume
     }));
 
     // ✅ เรียงลำดับ `gasStationNotReports` ตาม `customOrder`
