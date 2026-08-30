@@ -911,12 +911,12 @@ const UpdateTrip = (props) => {
         const driverss = [
             ...[...truckH]
                 .filter((item) => item.Driver !== "0:ไม่มี" && (item.Status === "ว่าง" || item.id === Number(registrations.split(":")[0])))
-                .sort((a, b) => a.Driver.localeCompare(b.Driver, undefined, { sensitivity: 'base' }))
+                .sort((a, b) => (a.Driver || "").localeCompare(b.Driver || "", undefined, { sensitivity: 'base' }))
                 .map((item) => ({ ...item, Type: "รถบริษัท" })),
 
             ...[...truckT]
                 .filter((item) => item.TruckType === "รถใหญ่" && (item.Status === "ว่าง" || item.id === Number(registrations.split(":")[0])))
-                .sort((a, b) => a.Name.localeCompare(b.Name, undefined, { sensitivity: 'base' }))
+                .sort((a, b) => (a.Name || "").localeCompare(b.Name || "", undefined, { sensitivity: 'base' }))
                 .map((item) => ({ ...item, Type: "รถรับจ้างขนส่ง" })),
         ];
 
@@ -931,16 +931,16 @@ const UpdateTrip = (props) => {
             ...[...ticketsA]
                 .filter((item) => item.SystemStatus !== "ไม่อยู่ในระบบ")
                 .map((item) => ({ ...item, CustomerType: "ตั๋วน้ำมัน" }))
-                .sort((a, b) => a.Name.localeCompare(b.Name, undefined, { sensitivity: 'base' })),
+                .sort((a, b) => (a.Name || "").localeCompare(b.Name || "", undefined, { sensitivity: 'base' })),
 
             ...[...ticketsPS]
                 .filter((item) => item.SystemStatus !== "ไม่อยู่ในระบบ")
                 .map((item) => ({ ...item, CustomerType: "ตั๋วปั้ม" }))
-                .sort((a, b) => a.Name.localeCompare(b.Name, undefined, { sensitivity: 'base' })),
+                .sort((a, b) => (a.Name || "").localeCompare(b.Name || "", undefined, { sensitivity: 'base' })),
 
             ...[...ticketsT]
                 .filter((item) => (item.Status === "ตั๋ว" || item.Status === "ตั๋ว/ผู้รับ") && item.SystemStatus !== "ไม่อยู่ในระบบ")
-                .sort((a, b) => a.Name.localeCompare(b.Name, undefined, { sensitivity: 'base' }))
+                .sort((a, b) => (a.Name || "").localeCompare(b.Name || "", undefined, { sensitivity: 'base' }))
                 .map((item) => ({ ...item, CustomerType: "ตั๋วรับจ้างขนส่ง" })),
         ];
 
@@ -951,16 +951,16 @@ const UpdateTrip = (props) => {
         const customers = [
             ...[...ticketsPS].map((item) => ({ ...item, CustomerType: "ตั๋วปั้ม" }))
                 .filter((item) => item.SystemStatus !== "ไม่อยู่ในระบบ")
-                .sort((a, b) => a.Name.localeCompare(b.Name, undefined, { sensitivity: 'base' })),
+                .sort((a, b) => (a.Name || "").localeCompare(b.Name || "", undefined, { sensitivity: 'base' })),
 
             ...[...ticketsT]
                 .filter((item) => (item.Status === "ผู้รับ" || item.Status === "ตั๋ว/ผู้รับ") && item.SystemStatus !== "ไม่อยู่ในระบบ")
-                .sort((a, b) => a.Name.localeCompare(b.Name, undefined, { sensitivity: 'base' }))
+                .sort((a, b) => (a.Name || "").localeCompare(b.Name || "", undefined, { sensitivity: 'base' }))
                 .map((item) => ({ ...item, CustomerType: "ตั๋วรับจ้างขนส่ง" })),
 
             ...[...ticketsB]
                 .filter((item) => item.Status === "ลูกค้าประจำ" && item.SystemStatus !== "ไม่อยู่ในระบบ")
-                .sort((a, b) => a.Name.localeCompare(b.Name, undefined, { sensitivity: 'base' }))
+                .sort((a, b) => (a.Name || "").localeCompare(b.Name || "", undefined, { sensitivity: 'base' }))
                 .map((item) => ({ ...item, CustomerType: "ตั๋วรถใหญ่" }))
         ];
 

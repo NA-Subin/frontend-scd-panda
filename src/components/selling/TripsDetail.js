@@ -95,7 +95,7 @@ const TripsDetail = (props) => {
           {formatThaiSlash(dayjs(trips.DateDelivery, "DD/MM/YYYY"))}
         </TableCell>
         <TableCell sx={{ textAlign: "center" }}>
-          {trips.Depot.split(":")[0]}
+          {trips.Depot?.split(":")[0] ?? "-"}
         </TableCell>
         <TableCell sx={{ textAlign: "center" }}>
           {(() => {
@@ -119,7 +119,7 @@ const TripsDetail = (props) => {
           })()}
         </TableCell>
         <TableCell sx={{ textAlign: "center" }}>
-          {trips.Order1 === undefined
+          {trips.Order1 == null
             ? "-"
             : trips.Order1.split(":")[1] !== undefined
               ? trips.Order1.split(":")[1]
@@ -163,7 +163,7 @@ const TripsDetail = (props) => {
           })()}
         </TableCell>
         <TableCell sx={{ textAlign: "center" }}>
-          {trips.Order2 === undefined
+          {trips.Order2 == null
             ? "-"
             : trips.Order2.split(":")[1] !== undefined
               ? trips.Order2.split(":")[1]
@@ -207,7 +207,7 @@ const TripsDetail = (props) => {
           })()}
         </TableCell>
         <TableCell sx={{ textAlign: "center" }}>
-          {trips.Order3 === undefined
+          {trips.Order3 == null
             ? "-"
             : trips.Order3.split(":")[1] !== undefined
               ? trips.Order3.split(":")[1]
@@ -251,7 +251,7 @@ const TripsDetail = (props) => {
           })()}
         </TableCell>
         <TableCell sx={{ textAlign: "center" }}>
-          {trips.Order4 === undefined
+          {trips.Order4 == null
             ? "-"
             : trips.Order4.split(":")[1] !== undefined
               ? trips.Order4.split(":")[1]
@@ -295,7 +295,7 @@ const TripsDetail = (props) => {
           })()}
         </TableCell>
         <TableCell sx={{ textAlign: "center" }}>
-          {trips.Order5 === undefined
+          {trips.Order5 == null
             ? "-"
             : trips.Order5.split(":")[1] !== undefined
               ? trips.Order5.split(":")[1]
@@ -339,7 +339,7 @@ const TripsDetail = (props) => {
           })()}
         </TableCell>
         <TableCell sx={{ textAlign: "center" }}>
-          {trips.Order6 === undefined
+          {trips.Order6 == null
             ? "-"
             : trips.Order6.split(":")[1] !== undefined
               ? trips.Order6.split(":")[1]
@@ -383,7 +383,7 @@ const TripsDetail = (props) => {
           })()}
         </TableCell>
         <TableCell sx={{ textAlign: "center" }}>
-          {trips.Order7 === undefined
+          {trips.Order7 == null
             ? "-"
             : trips.Order7.split(":")[1] !== undefined
               ? trips.Order7.split(":")[1]
@@ -427,7 +427,7 @@ const TripsDetail = (props) => {
           })()}
         </TableCell>
         <TableCell sx={{ textAlign: "center" }}>
-          {trips.Order8 === undefined
+          {trips.Order8 == null
             ? "-"
             : trips.Order8.split(":")[1] !== undefined
               ? trips.Order8.split(":")[1]
