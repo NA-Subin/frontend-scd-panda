@@ -280,13 +280,17 @@ const GasStationsDetail = (props) => {
             if (!reportObj) return null;
             const dates = [];
 
-            Object.keys(reportObj).forEach((y) =>
-                Object.keys(reportObj[y]).forEach((m) =>
-                    Object.keys(reportObj[y][m]).forEach((d) =>
+            Object.keys(reportObj).forEach((y) => {
+                const yearObj = reportObj[y];
+                if (!yearObj) return;
+                Object.keys(yearObj).forEach((m) => {
+                    const monthObj = yearObj[m];
+                    if (!monthObj) return;
+                    Object.keys(monthObj).forEach((d) =>
                         dates.push(dayjs(`${y}-${m}-${d}`, "YYYY-M-D"))
-                    )
-                )
-            );
+                    );
+                });
+            });
 
             // ✅ fix no plugin error
             return dates.length ? dayjs(Math.max(...dates.map(d => d.valueOf()))) : null;
@@ -604,7 +608,9 @@ const GasStationsDetail = (props) => {
             let latest = [];
 
             for (const yr of Object.keys(report).sort((a, b) => b - a)) {
+                if (!report[yr]) continue;
                 for (const mon of Object.keys(report[yr]).sort((a, b) => b - a)) {
+                    if (!report[yr][mon]) continue;
                     for (const day of Object.keys(report[yr][mon]).sort((a, b) => b - a)) {
 
                         const currDate = dayjs(`${day}/${mon}/${yr}`, "D/M/YYYY");
