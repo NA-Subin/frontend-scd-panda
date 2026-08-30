@@ -29,7 +29,7 @@ import {
 import { IconButtonError, TablecellHeader } from "../../theme/style";
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import BookOnlineIcon from '@mui/icons-material/BookOnline';
-import { database } from "../../server/firebase";
+import { apiPut } from "../../server/apiClient";
 import theme from "../../theme/theme";
 import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
@@ -75,7 +75,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
     //const [ticketR, setTicketR] = React.useState([]);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-    const { customersmalltruck, company, small } = useBasicData();
+    const { customersmalltruck, company, small, refetch } = useBasicData();
     const ticket = Object.values(customersmalltruck || {}).map((item) => {
 
         const companies = Object.values(company || {}).find((c) =>
@@ -139,46 +139,6 @@ const TicketsSmallTruck = ({ openNavbar }) => {
         setOpen(true);
     };
 
-    // const getTicket = async () => {
-    //     database.ref("/customers/smalltruck").on("value", (snapshot) => {
-    //         const datas = snapshot.val();
-    //         if (datas === null || datas === undefined) {
-    //             setTicketM([]);
-    //             setTicketR([]);
-    //         } else {
-    //             const dataList = [];
-    //             for (let id in datas) {
-    //                 dataList.push({ id, ...datas[id] });
-    //             }
-
-    //             // กรองข้อมูลตาม type
-    //             const ticketM = dataList.filter((item) => item.Type === "เชียงใหม่");
-    //             const ticketR = dataList.filter((item) => item.Type === "บ้านโฮ่ง");
-
-    //             // เรียงลำดับข้อมูล (สามารถปรับเปลี่ยนเงื่อนไขการเรียงได้ตามต้องการ)
-    //             // ตัวอย่าง: เรียงตาม id (หรือ key อื่นๆ ที่เหมาะสม)
-    //             ticketM.sort((a, b) => a.id - b.id);
-    //             ticketR.sort((a, b) => a.id - b.id);
-
-    //             // เพิ่มลำดับโดยใช้ property "No"
-    //             ticketM.forEach((item, index) => {
-    //                 item.No = index + 1;
-    //             });
-    //             ticketR.forEach((item, index) => {
-    //                 item.No = index + 1;
-    //             });
-
-    //             // บันทึกข้อมูลเข้า state
-    //             setTicketM(ticketM);
-    //             setTicketR(ticketR);
-    //         }
-    //     });
-    // };
-
-    // useEffect(() => {
-    //     getTicket();
-    // }, []);
-
     // State สำหรับเก็บค่าแก้ไข Rate
     // const [rate1Edit, setRate1Edit] = useState("");
     // const [rate2Edit, setRate2Edit] = useState("");
@@ -224,47 +184,23 @@ const TicketsSmallTruck = ({ openNavbar }) => {
 
     // บันทึกข้อมูลที่แก้ไขแล้ว
     const handleSave = async () => {
-        const newStatus =
-            (ticketChecked && !recipientChecked ? "ลูกค้าประจำ" :
-                !ticketChecked && recipientChecked ? "ลูกค้าไม่ประจำ" : "ยกเลิก")
-
-        console.log("Status : ", newStatus);
-
-        // บันทึกสถานะใหม่ไปยัง Firebase
-        // await database.ref(`/customers/smalltruck/${selectedRowId - 1}`).update({
-        //     Status: newStatus,
-        //     CreditTime: creditTimeEdit,
-        //     Name: name
-        //     // Rate1: rate1Edit,
-        //     // Rate2: rate2Edit,
-        //     // Rate3: rate3Edit,
-        // });
-        // setSetting(false);
-        // setSelectedRowId(null);
-        database
-            .ref("/customers/smalltruck/")
-            .child(selectedRowId - 1)
-            .update({
+        try {
+            await apiPut(`/api/customers/${selectedRowId}`, {
                 Status: ticketChecked ? "ลูกค้าประจำ" : "ลูกค้าไม่ประจำ",
                 StatusCompany: ticketCheckedC ? "อยู่บริษัทในเครือ" : "ไม่อยู่บริษัทในเครือ",
                 CreditTime: creditTimeEdit,
                 Name: name,
                 Company: companies,
-                // Rate1: rate1Edit,
-                // Rate2: rate2Edit,
-                // Rate3: rate3Edit,
-            }) // อัพเดท values ทั้งหมด
-            .then(() => {
-                ShowSuccess("แก้ไขข้อมูลสำเร็จ");
-                console.log("Data updated successfully");
-                setSetting(false);
-                setSelectedRowId(null);
-                setRowId(null);
-            })
-            .catch((error) => {
-                ShowError("แก้ไขข้อมูลไม่สำเร็จ");
-                console.error("Error updating data:", error);
             });
+            ShowSuccess("แก้ไขข้อมูลสำเร็จ");
+            refetch?.();
+            setSetting(false);
+            setSelectedRowId(null);
+            setRowId(null);
+        } catch (error) {
+            ShowError("แก้ไขข้อมูลไม่สำเร็จ");
+            console.error("Error updating data:", error);
+        }
     };
 
     const handleCancel = () => {
@@ -274,7 +210,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
         setOpenCustomer("");
     };
 
-    const handleSaveCustomer = () => {
+    const handleSaveCustomer = async () => {
         const address = {
             no: no?.trim() || "",
             village: village?.trim() || "",
@@ -284,10 +220,8 @@ const TicketsSmallTruck = ({ openNavbar }) => {
             zipCode: zipCode?.trim() || ""
         };
 
-        database
-            .ref("/customers/smalltruck")
-            .child(Number(openCustomer) - 1)
-            .update({
+        try {
+            await apiPut(`/api/customers/${openCustomer}`, {
                 Name: name,
                 Status: ticketChecked === true ? "ลูกค้าประจำ" : "ลูกค้าไม่ประจำ",
                 StatusCompany: companyChecked === true ? "อยู่บริษัทในเครือ" : "ไม่อยู่บริษัทในเครือ",
@@ -302,16 +236,14 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                 Phone: phone,
                 RegistrationCheck: registrantionCheck,
                 Registration: registration
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setUpdateCustomer(true);
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("แก้ไขข้อมูลสำเร็จ");
+            refetch?.();
+            setUpdateCustomer(true);
+        } catch (error) {
+            ShowError("แก้ไขข้อมูลไม่สำเร็จ");
+            console.error("Error updating data:", error);
+        }
     }
 
     const normalizeAddress = (address) => {
@@ -353,7 +285,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
     };
 
     const handleCustomer = (row) => {
-        setOpenCustomer(row.id);
+        setOpenCustomer(row.uuid);
         setName(row.Name)
         setTicketsName(row.Name)
         setRate1(row.Rate1)
@@ -429,28 +361,24 @@ const TicketsSmallTruck = ({ openNavbar }) => {
 
     const handleDelete = () => {
         ShowConfirm(
-            `ต้องการยกเลิกตั๋วรถเล็กที่ ${selectedRowId} ใช่หรือไม่`,
-            () => {
-                database
-                    .ref("/customers/smalltruck/")
-                    .child(selectedRowId - 1)
-                    .update({
+            `ต้องการยกเลิกตั๋วรถเล็กที่ ${rowId} ใช่หรือไม่`,
+            async () => {
+                try {
+                    await apiPut(`/api/customers/${selectedRowId}`, {
                         SystemStatus: "ไม่อยู่ในระบบ",
-                    }) // อัพเดท values ทั้งหมด
-                    .then(() => {
-                        ShowSuccess("แก้ไขข้อมูลสำเร็จ");
-                        console.log("Data updated successfully");
-                        setSetting(false);
-                        setSelectedRowId(null);
-                        setRowId(null);
-                    })
-                    .catch((error) => {
-                        ShowError("แก้ไขข้อมูลไม่สำเร็จ");
-                        console.error("Error updating data:", error);
                     });
+                    ShowSuccess("แก้ไขข้อมูลสำเร็จ");
+                    refetch?.();
+                    setSetting(false);
+                    setSelectedRowId(null);
+                    setRowId(null);
+                } catch (error) {
+                    ShowError("แก้ไขข้อมูลไม่สำเร็จ");
+                    console.error("Error updating data:", error);
+                }
             },
             () => {
-                console.log(`ยกเลิกลบตั๋วรถเล็กที่ ${selectedRowId}`);
+                console.log(`ยกเลิกลบตั๋วรถเล็กที่ ${rowId}`);
             }
         )
     }
@@ -581,13 +509,13 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                             </TableRow>
                                             :
                                             filtered.sort((a, b) => a.Name.localeCompare(b.Name)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
-                                                <TableRow key={index} sx={{ backgroundColor: !setting || row.id !== selectedRowId ? "" : "#fff59d" }}>
+                                                <TableRow key={row.uuid} sx={{ backgroundColor: !setting || row.uuid !== selectedRowId ? "" : "#fff59d" }}>
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
                                                             {index + page * rowsPerPage + 1}
                                                         </Typography>
                                                     </TableCell>
-                                                    {/* <TableCell sx={{ textAlign: "center", fontWeight: !setting || row.id !== selectedRowId ? "" : "bold" }}>{row.Name}</TableCell> */}
+                                                    {/* <TableCell sx={{ textAlign: "center", fontWeight: !setting || row.uuid !== selectedRowId ? "" : "bold" }}>{row.Name}</TableCell> */}
                                                     <TableCell
                                                         sx={{
                                                             textAlign: "left",
@@ -600,7 +528,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                     >
                                                         {
                                                             // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
-                                                            !setting || row.id !== selectedRowId ?
+                                                            !setting || row.uuid !== selectedRowId ?
                                                                 <Typography variant="subtitle2" sx={{ marginLeft: 3 }} gutterBottom>
                                                                     {row.Name}
                                                                 </Typography>
@@ -635,7 +563,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         {
                                                             // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
-                                                            !setting || row.id !== selectedRowId ?
+                                                            !setting || row.uuid !== selectedRowId ?
                                                                 row.CreditTime
                                                                 :
                                                                 <Paper sx={{ width: "100%" }}>
@@ -669,7 +597,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                     {/* <TableCell sx={{ textAlign: "center" }}>
                                                         {
                                                             // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
-                                                            !setting || row.id !== selectedRowId ?
+                                                            !setting || row.uuid !== selectedRowId ?
                                                                 row.Rate1
                                                                 :
                                                                 <TextField
@@ -700,7 +628,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         {
                                                             // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
-                                                            !setting || row.id !== selectedRowId ?
+                                                            !setting || row.uuid !== selectedRowId ?
                                                                 row.Rate2
                                                                 :
                                                                 <TextField
@@ -731,7 +659,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         {
                                                             // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
-                                                            !setting || row.id !== selectedRowId ?
+                                                            !setting || row.uuid !== selectedRowId ?
                                                                 row.Rate3
                                                                 :
                                                                 <TextField
@@ -762,7 +690,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         <Box>
                                                             {
-                                                                !setting || row.id !== selectedRowId ?
+                                                                !setting || row.uuid !== selectedRowId ?
                                                                     <Tooltip title={row.StatusCompany} placement="right">
                                                                         <FormControlLabel
                                                                             control={
@@ -822,7 +750,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                     </TableCell>
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         {
-                                                            !setting || row.id !== selectedRowId ?
+                                                            !setting || row.uuid !== selectedRowId ?
                                                                 <Tooltip title={row.Status} placement="right">
                                                                     <FormControlLabel
                                                                         control={
@@ -884,7 +812,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                     {/* <TableCell width={70} sx={{ position: "sticky", right: 0, backgroundColor: "white" }}>
                                                         <Box sx={{ marginTop: -0.5 }}>
                                                             {
-                                                                !setting || row.id !== selectedRowId ?
+                                                                !setting || row.uuid !== selectedRowId ?
                                                                     <Button variant="contained" color="warning" startIcon={<EditNoteIcon />} sx={{ height: "25px", marginTop: 1.5, marginBottom: 1 }} size="small" onClick={() => handleSetting(row.id, row.Status, row.CreditTime, row.Name)} fullWidth>แก้ไข</Button>
                                                                     :
                                                                     <>
@@ -896,7 +824,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                     </TableCell> */}
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         {
-                                                            !setting || row.id !== selectedRowId ?
+                                                            !setting || row.uuid !== selectedRowId ?
                                                                 ((row.Company) ? (row.Company === "ไม่มี") ? "ไม่มี" : row.CompanyTicket : "ไม่มี")
                                                                 :
                                                                 <Paper sx={{ width: "100%" }}>
@@ -941,16 +869,16 @@ const TicketsSmallTruck = ({ openNavbar }) => {
 
                                                         }
                                                     </TableCell>
-                                                    <TableCell sx={{ width: !setting || row.id !== selectedRowId ? 30 : 70, height: "30px", position: "sticky", right: !setting || row.id !== selectedRowId ? 0 : 60, backgroundColor: "white", textAlign: "center" }}>
+                                                    <TableCell sx={{ width: !setting || row.uuid !== selectedRowId ? 30 : 70, height: "30px", position: "sticky", right: !setting || row.uuid !== selectedRowId ? 0 : 60, backgroundColor: "white", textAlign: "center" }}>
                                                         {
-                                                            !setting || row.id !== selectedRowId ?
+                                                            !setting || row.uuid !== selectedRowId ?
                                                                 <Button
                                                                     variant="contained"
                                                                     color="warning"
                                                                     startIcon={<EditNoteIcon />}
                                                                     size="small"
                                                                     sx={{ height: "25px" }}
-                                                                    onClick={() => handleSetting(index, row.id, row.StatusCompany, row.Status, row.CreditTime, row.Name, row.Company, row.RegistrationCheck, row.Registration, row.CompanyTicket)}
+                                                                    onClick={() => handleSetting(index, row.uuid, row.StatusCompany, row.Status, row.CreditTime, row.Name, row.Company, row.RegistrationCheck, row.Registration, row.CompanyTicket)}
                                                                 >
                                                                     แก้ไข
                                                                 </Button>
@@ -989,7 +917,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                         }
                                                     </TableCell>
                                                     {
-                                                        !setting || row.id !== selectedRowId ?
+                                                        !setting || row.uuid !== selectedRowId ?
                                                             ""
                                                             :
                                                             <TableCell sx={{ width: 50, height: "30px", position: "sticky", right: 0, backgroundColor: "white", textAlign: "center" }}>
@@ -1019,13 +947,13 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                             </TableRow>
                                             :
                                             filtered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
-                                                <TableRow key={row.id} sx={{ backgroundColor: !setting || row.id !== selectedRowId ? "" : "#fff59d" }}>
+                                                <TableRow key={row.uuid} sx={{ backgroundColor: !setting || row.uuid !== selectedRowId ? "" : "#fff59d" }}>
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
                                                             {index + page * rowsPerPage + 1}
                                                         </Typography>
                                                     </TableCell>
-                                                    {/* <TableCell sx={{ textAlign: "center", fontWeight: !setting || row.id !== selectedRowId ? "" : "bold" }}>{row.TicketsName}</TableCell> */}
+                                                    {/* <TableCell sx={{ textAlign: "center", fontWeight: !setting || row.uuid !== selectedRowId ? "" : "bold" }}>{row.TicketsName}</TableCell> */}
                                                     <TableCell
                                                         sx={{
                                                             textAlign: "left",
@@ -1038,7 +966,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                     >
                                                         {
                                                             // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
-                                                            !setting || row.id !== selectedRowId ?
+                                                            !setting || row.uuid !== selectedRowId ?
                                                                 <Typography variant="subtitle2" sx={{ marginLeft: 3 }} gutterBottom>
                                                                     {row.Name}
                                                                 </Typography>
@@ -1073,7 +1001,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         {
                                                             // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
-                                                            !setting || row.id !== selectedRowId ?
+                                                            !setting || row.uuid !== selectedRowId ?
                                                                 row.CreditTime
                                                                 :
                                                                 <Paper sx={{ width: "100%" }}>
@@ -1107,7 +1035,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                     {/* <TableCell sx={{ textAlign: "center" }}>
                                                     {
                                                             // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
-                                                            !setting || row.id !== selectedRowId ?
+                                                            !setting || row.uuid !== selectedRowId ?
                                                                 row.Rate1
                                                                 :
                                                                 <TextField
@@ -1138,7 +1066,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                     {
                                                             // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
-                                                            !setting || row.id !== selectedRowId ?
+                                                            !setting || row.uuid !== selectedRowId ?
                                                                 row.Rate2
                                                                 :
                                                                 <TextField
@@ -1169,7 +1097,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                     {
                                                             // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
-                                                            !setting || row.id !== selectedRowId ?
+                                                            !setting || row.uuid !== selectedRowId ?
                                                                 row.Rate3
                                                                 :
                                                                 <TextField
@@ -1200,7 +1128,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         <Box>
                                                             {
-                                                                !setting || row.id !== selectedRowId ?
+                                                                !setting || row.uuid !== selectedRowId ?
                                                                     <Tooltip title={row.StatusCompany} placement="right">
                                                                         <FormControlLabel
                                                                             control={
@@ -1260,7 +1188,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                     </TableCell>
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         {
-                                                            !setting || row.id !== selectedRowId ?
+                                                            !setting || row.uuid !== selectedRowId ?
                                                                 <Tooltip title={row.Status} placement="right">
                                                                     <FormControlLabel
                                                                         control={
@@ -1322,7 +1250,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                     {/* <TableCell width={70} sx={{ backgroundColor: "white",position: "sticky", right: 0 }}>
                                                         <Box sx={{ marginTop: -0.5 }}>
                                                             {
-                                                                !setting || row.id !== selectedRowId ?
+                                                                !setting || row.uuid !== selectedRowId ?
                                                                     <Button variant="contained" color="warning" startIcon={<EditNoteIcon />} sx={{ height: "25px", marginTop: 1.5, marginBottom: 1 }} size="small" onClick={() => handleSetting(row.id, row.Status, row.CreditTime, row.Name)} fullWidth>แก้ไข</Button>
                                                                     :
                                                                     <>
@@ -1334,7 +1262,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                     </TableCell> */}
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         {
-                                                            !setting || row.id !== selectedRowId ?
+                                                            !setting || row.uuid !== selectedRowId ?
                                                                 row.Company ? row.CompanyTicket : "ไม่มี"
                                                                 :
                                                                 <Paper sx={{ width: "100%" }}>
@@ -1379,16 +1307,16 @@ const TicketsSmallTruck = ({ openNavbar }) => {
 
                                                         }
                                                     </TableCell>
-                                                    <TableCell sx={{ width: !setting || row.id !== selectedRowId ? 30 : 70, height: "30px", position: "sticky", right: !setting || row.id !== selectedRowId ? 0 : 60, backgroundColor: "white", textAlign: "center" }}>
+                                                    <TableCell sx={{ width: !setting || row.uuid !== selectedRowId ? 30 : 70, height: "30px", position: "sticky", right: !setting || row.uuid !== selectedRowId ? 0 : 60, backgroundColor: "white", textAlign: "center" }}>
                                                         {
-                                                            !setting || row.id !== selectedRowId ?
+                                                            !setting || row.uuid !== selectedRowId ?
                                                                 <Button
                                                                     variant="contained"
                                                                     color="warning"
                                                                     startIcon={<EditNoteIcon />}
                                                                     size="small"
                                                                     sx={{ height: "25px" }}
-                                                                    onClick={() => handleSetting(index, row.id, row.StatusCompany, row.Status, row.CreditTime, row.Name, row.Company, row.RegistrationCheck, row.Registration, row.CompanyTicket)}
+                                                                    onClick={() => handleSetting(index, row.uuid, row.StatusCompany, row.Status, row.CreditTime, row.Name, row.Company, row.RegistrationCheck, row.Registration, row.CompanyTicket)}
                                                                 >
                                                                     แก้ไข
                                                                 </Button>
@@ -1427,7 +1355,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                         }
                                                     </TableCell>
                                                     {
-                                                        !setting || row.id !== selectedRowId ?
+                                                        !setting || row.uuid !== selectedRowId ?
                                                             ""
                                                             :
                                                             <TableCell sx={{ width: 50, height: "30px", position: "sticky", right: 0, backgroundColor: "white", textAlign: "center" }}>
@@ -1556,7 +1484,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                         <Grid item xs={10}>
                             <Typography variant="h6" fontWeight="bold" color="white">
                                 ชื่อลูกค้า :{" "}
-                                {filtered.find((r) => r.id === openCustomer)?.Name || ""}
+                                {filtered.find((r) => r.uuid === openCustomer)?.Name || ""}
                             </Typography>
                         </Grid>
                         <Grid item xs={2} textAlign="right">

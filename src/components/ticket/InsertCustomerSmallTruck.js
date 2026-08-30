@@ -26,7 +26,7 @@ import {
 import { IconButtonError, TablecellHeader } from "../../theme/style";
 import CancelIcon from '@mui/icons-material/Cancel';
 import BookOnlineIcon from '@mui/icons-material/BookOnline';
-import { database } from "../../server/firebase";
+import { apiPost } from "../../server/apiClient";
 import theme from "../../theme/theme";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
@@ -38,7 +38,7 @@ const InsertCustomerBigTruck = (props) => {
     const [check, setCheck] = React.useState(true);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-    const { company, small } = useBasicData();
+    const { customersmalltruck, company, small, refetch } = useBasicData();
     const companyDetail = Object.values(company || {});
     const registrations = Object.values(small || {});
 
@@ -93,24 +93,7 @@ const InsertCustomerBigTruck = (props) => {
     const [registrantionCheck, setRegistrationChecked] = React.useState(false);
     const [registration, setRegistration] = React.useState("ไม่มี");
 
-    const getTicket = async () => {
-        database.ref("/customers/smalltruck").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            if (datas === null || datas === undefined) {
-                setTicket(0);
-            } else {
-                setTicket(datas.length);
-            }
-        });
-    };
-
-    useEffect(() => {
-        getTicket();
-    }, []);
-
-    console.log("tickket:", ticket);
-
-    const handlePost = () => {
+    const handlePost = async () => {
         const address = {
             no: no?.trim() || "",
             village: village?.trim() || "",
@@ -120,11 +103,13 @@ const InsertCustomerBigTruck = (props) => {
             zipCode: zipCode?.trim() || ""
         };
 
-        database
-            .ref("/customers/smalltruck")
-            .child(ticket)
-            .update({
-                id: ticket + 1,
+        const existing = Object.values(customersmalltruck || {});
+        const nextId = existing.reduce((max, row) => Math.max(max, row.id || 0), 0) + 1;
+
+        try {
+            await apiPost("/api/customers", {
+                Category: "smalltruck",
+                id: nextId,
                 Name: ticketsName,
                 TicketsName: ticketsName,
                 Status: ticketChecked === true ? "ลูกค้าประจำ" : "ลูกค้าไม่ประจำ",
@@ -146,35 +131,30 @@ const InsertCustomerBigTruck = (props) => {
                 Phone: phone,
                 RegistrationCheck: registrantionCheck,
                 Registration: registration
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setTicketsName("")
-                // setRate1("")
-                // setRate2("")
-                // setRate3("")
-                setCredit("")
-                setCreditTime("")
-                setBill("")
-                setCode("")
-                setCompanyName("")
-                setCodeID("")
-                setNo("")
-                setVillage("")
-                setSubDistrict("")
-                setDistrict("")
-                setProvince("")
-                setZipCode("")
-                setLat("")
-                setLng("")
-                setRegistrationChecked(false)
-                setRegistration("ไม่มี")
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetch?.();
+            setTicketsName("")
+            setCredit("")
+            setCreditTime("")
+            setBill("")
+            setCode("")
+            setCompanyName("")
+            setCodeID("")
+            setNo("")
+            setVillage("")
+            setSubDistrict("")
+            setDistrict("")
+            setProvince("")
+            setZipCode("")
+            setLat("")
+            setLng("")
+            setRegistrationChecked(false)
+            setRegistration("ไม่มี")
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error posting data:", error);
+        }
     };
 
     return (

@@ -32,7 +32,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import DeleteIcon from '@mui/icons-material/Delete';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
-import { database } from "../../server/firebase";
+import { apiPut } from "../../server/apiClient";
 import theme from "../../theme/theme";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
@@ -51,7 +51,7 @@ const TicketsGasStation = (props) => {
     const [status, setStatus] = React.useState(row.Status);
     const [open, setOpen] = useState(false);
 
-    const { gasstation } = useBasicData();
+    const { gasstation, refetch } = useBasicData();
     const gasStation = Object.values(gasstation || {});
 
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -131,7 +131,7 @@ const TicketsGasStation = (props) => {
     const [type, setType] = React.useState("");
     const [bill, setBill] = React.useState(row.Bill);
 
-    const handleSaveCustomer = () => {
+    const handleSaveCustomer = async () => {
         const address = {
             no: no?.trim() || "",
             village: village?.trim() || "",
@@ -141,10 +141,8 @@ const TicketsGasStation = (props) => {
             zipCode: zipCode?.trim() || ""
         };
 
-        database
-            .ref("/customers/gasstations/")
-            .child(Number(row.id) - 1)
-            .update({
+        try {
+            await apiPut(`/api/customers/${row.uuid}`, {
                 Name: ticketsName,
                 ShortName: shortName,
                 LastName: lastName,
@@ -157,23 +155,19 @@ const TicketsGasStation = (props) => {
                 CompanyName: companyName,
                 CodeID: codeID,
                 Address: address,
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setUpdateCustomer(true)
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetch?.();
+            setUpdateCustomer(true)
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error updating data:", error);
+        }
     }
 
-    const handleUpdate = () => {
-        database
-            .ref("/customers/gasstations/")
-            .child(row.id - 1)
-            .update({
+    const handleUpdate = async () => {
+        try {
+            await apiPut(`/api/customers/${row.uuid}`, {
                 Rate1: rate1,
                 Rate2: rate2,
                 Rate3: rate3,
@@ -181,37 +175,31 @@ const TicketsGasStation = (props) => {
                 Name: shortName + lastName,
                 ShortName: shortName,
                 LastName: lastName
-            }) // อัพเดท values ทั้งหมด
-            .then(() => {
-                ShowSuccess("แก้ไขข้อมูลสำเร็จ");
-                console.log("Data updated successfully");
-                setOpen(false);
-            })
-            .catch((error) => {
-                ShowError("แก้ไขข้อมูลไม่สำเร็จ");
-                console.error("Error updating data:", error);
             });
+            ShowSuccess("แก้ไขข้อมูลสำเร็จ");
+            refetch?.();
+            setOpen(false);
+        } catch (error) {
+            ShowError("แก้ไขข้อมูลไม่สำเร็จ");
+            console.error("Error updating data:", error);
+        }
     };
 
     const handleDelete = () => {
         ShowConfirm(
             `ต้องการยกเลิกตั๋วปั้มที่ ${row.id} ใช่หรือไม่`,
-            () => {
-                database
-                    .ref("/customers/gasstations/")
-                    .child(row.id - 1)
-                    .update({
+            async () => {
+                try {
+                    await apiPut(`/api/customers/${row.uuid}`, {
                         SystemStatus: "ไม่อยู่ในระบบ"
-                    }) // อัพเดท values ทั้งหมด
-                    .then(() => {
-                        ShowSuccess(`ลบข้อตั๋วปั้มลำดับที่ ${row.id} สำเร็จ`);
-                        console.log("Data updated successfully");
-                        setOpen(false);
-                    })
-                    .catch((error) => {
-                        ShowError("แก้ไขข้อมูลไม่สำเร็จ");
-                        console.error("Error updating data:", error);
                     });
+                    ShowSuccess(`ลบข้อตั๋วปั้มลำดับที่ ${row.id} สำเร็จ`);
+                    refetch?.();
+                    setOpen(false);
+                } catch (error) {
+                    ShowError("แก้ไขข้อมูลไม่สำเร็จ");
+                    console.error("Error updating data:", error);
+                }
             },
             () => {
                 console.log(`ยกเลิกลบตั๋วปั้มที่ ${row.id}`);

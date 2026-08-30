@@ -27,7 +27,7 @@ import {
 import { IconButtonError, TablecellHeader } from "../../theme/style";
 import CancelIcon from '@mui/icons-material/Cancel';
 import BookOnlineIcon from '@mui/icons-material/BookOnline';
-import { database } from "../../server/firebase";
+import { apiPost } from "../../server/apiClient";
 import theme from "../../theme/theme";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
@@ -36,8 +36,7 @@ const InsertTicketsGasStations = (props) => {
     const [update, setUpdate] = React.useState(true);
     const [open, setOpen] = React.useState(false);
     const [check, setCheck] = React.useState(true);
-    //const [gasStation, setGasStation] = React.useState([]);
-    const { gasstation } = useBasicData();
+    const { gasstation, customergasstations, refetch } = useBasicData();
     const gasStation = Object.values(gasstation || {});
 
     const handleClickOpen = () => {
@@ -84,40 +83,7 @@ const InsertTicketsGasStations = (props) => {
     const [companyName, setCompanyName] = React.useState("");
     const [codeID, setCodeID] = React.useState("");
 
-    const getTicket = async () => {
-        database.ref("/customers/gasstations/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            if (datas === null || datas === undefined) {
-                setTicket(0);
-            } else {
-                setTicket(datas.length);
-            }
-        });
-    };
-
-    // const getGasStation = async () => {
-    //     database.ref("/depot/gasStations/").on("value", (snapshot) => {
-    //         const datas = snapshot.val();
-    //         if (datas === null || datas === undefined) {
-    //             setGasStation([]);
-    //         } else {
-    //             const dataList = [];
-    //             for (let id in datas) {
-    //                 dataList.push({ id, ...datas[id] })
-    //             }
-    //             setGasStation(dataList);
-    //         }
-    //     });
-    // };
-
-    useEffect(() => {
-        getTicket();
-        //getGasStation();
-    }, []);
-
-    console.log("tickket:", ticket);
-
-    const handlePost = () => {
+    const handlePost = async () => {
         const address = {
             no: no?.trim() || "",
             village: village?.trim() || "",
@@ -127,11 +93,13 @@ const InsertTicketsGasStations = (props) => {
             zipCode: zipCode?.trim() || ""
         };
 
-        database
-            .ref("/customers/gasstations/")
-            .child(ticket)
-            .update({
-                id: ticket + 1,
+        const existing = Object.values(customergasstations || {});
+        const nextId = existing.reduce((max, row) => Math.max(max, row.id || 0), 0) + 1;
+
+        try {
+            await apiPost("/api/customers", {
+                Category: "gasstations",
+                id: nextId,
                 Name: shortName + name,
                 ShortName: shortName,
                 LastName: name,
@@ -147,31 +115,29 @@ const InsertTicketsGasStations = (props) => {
                 Address: address,
                 lat: lat,
                 lng: lng,
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setTicketsName("")
-                setRate1("")
-                setRate2("")
-                setRate3("")
-                setCreditTime("")
-                setCode("")
-                setCompanyName("")
-                setCodeID("")
-                setNo("")
-                setVillage("")
-                setSubDistrict("")
-                setDistrict("")
-                setProvince("")
-                setZipCode("")
-                setLat("")
-                setLng("")
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetch?.();
+            setTicketsName("")
+            setRate1("")
+            setRate2("")
+            setRate3("")
+            setCreditTime("")
+            setCode("")
+            setCompanyName("")
+            setCodeID("")
+            setNo("")
+            setVillage("")
+            setSubDistrict("")
+            setDistrict("")
+            setProvince("")
+            setZipCode("")
+            setLat("")
+            setLng("")
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error posting data:", error);
+        }
     };
 
     console.log("ticketsName : ", ticketsName);

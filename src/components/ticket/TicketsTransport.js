@@ -24,7 +24,7 @@ import {
     Typography,
 } from "@mui/material";
 import EditNoteIcon from '@mui/icons-material/EditNote';
-import { database } from "../../server/firebase";
+import { apiPut } from "../../server/apiClient";
 import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -69,7 +69,7 @@ const TicketsTransport = ({ openNavbar }) => {
     const [type, setType] = React.useState("");
     const [bill, setBill] = React.useState("");
 
-    const { customertransports, customergasstations } = useBasicData();
+    const { customertransports, customergasstations, refetch } = useBasicData();
     const transports = Object.values(customertransports || {});
     const gasStations = Object.values(customergasstations || {});
 
@@ -118,43 +118,6 @@ const TicketsTransport = ({ openNavbar }) => {
         };
     }, [openNavbar]); // ✅ ทำงานใหม่ทุกครั้งที่ openNavbar เปลี่ยน
 
-    // ดึงข้อมูลจาก Firebase
-    // const getTransport = async () => {
-    //     database.ref("/customers/transports/").on("value", (snapshot) => {
-    //         const datas = snapshot.val();
-    //         if (datas === null || datas === undefined) {
-    //             setTransport([]);
-    //         } else {
-    //             const dataList = [];
-    //             for (let id in datas) {
-    //                 dataList.push({ id, ...datas[id] })
-    //             }
-    //             setTransport(dataList);
-    //         }
-    //     });
-    // };
-
-    // const getGasStation = async () => {
-    //     database.ref("/customers/gasstations/").on("value", (snapshot) => {
-    //         const datas = snapshot.val();
-    //         if (datas === null || datas === undefined) {
-    //             setGasStation([]);
-    //         } else {
-    //             const dataList = [];
-    //             for (let id in datas) {
-    //                 datas[id].SystemStatus !== "ไม่อยู่ในระบบ" &&
-    //                     dataList.push({ id, ...datas[id] })
-    //             }
-    //             setGasStation(dataList);
-    //         }
-    //     });
-    // };
-
-    // useEffect(() => {
-    //     getTransport();
-    //     getGasStation();
-    // }, []);
-
     // State สำหรับเก็บค่าแก้ไข Rate
     const [ticketCheckedC, setTicketCheckedC] = useState(true);
     const [rate1Edit, setRate1Edit] = useState("");
@@ -188,7 +151,7 @@ const TicketsTransport = ({ openNavbar }) => {
         setCreditTimeEdit(rowCreditTime);
     };
 
-    const handleSaveCustomer = () => {
+    const handleSaveCustomer = async () => {
         const address = {
             no: no?.trim() || "",
             village: village?.trim() || "",
@@ -198,10 +161,8 @@ const TicketsTransport = ({ openNavbar }) => {
             zipCode: zipCode?.trim() || ""
         };
 
-        database
-            .ref("/customers/transports/")
-            .child(Number(openCustomer) - 1)
-            .update({
+        try {
+            await apiPut(`/api/customers/${openCustomer}`, {
                 Name: name,
                 Status: ticketChecked === false && recipientChecked === true ? "ตั๋ว" : ticketChecked === true && recipientChecked === false ? "ผู้รับ" : ticketChecked === false && recipientChecked === false ? "ตั๋ว/ผู้รับ" : "-",
                 Rate1: rate1,
@@ -214,16 +175,14 @@ const TicketsTransport = ({ openNavbar }) => {
                 Address: address,
                 Phone: phone,
                 CreditTime: creditTime
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setUpdateCustomer(true)
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetch?.();
+            setUpdateCustomer(true)
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error updating data:", error);
+        }
     }
 
     // ฟังก์ชันสำหรับบันทึก
@@ -233,40 +192,24 @@ const TicketsTransport = ({ openNavbar }) => {
             recipientChecked ? "ผู้รับ" : ""
         ].filter((s) => s).join("/");
 
-        // Update ทั้ง Status และค่า Rate ไปยัง Firebase
-        // await database.ref(`/customers/transports/${selectedRowId - 1}`).update({
-        //     Status: newStatus,
-        //     Rate1: rate1Edit,
-        //     Rate2: rate2Edit,
-        //     Rate3: rate3Edit,
-        //     CreditTime: creditTimeEdit,
-        //     Name: name
-        // });
-        // // Reset state หลังบันทึก
-        // setSetting(false);
-        // setSelectedRowId(null);
-        database
-            .ref("/customers/transports/")
-            .child(selectedRowId - 1)
-            .update({
+        try {
+            await apiPut(`/api/customers/${selectedRowId}`, {
                 Status: newStatus,
                 Rate1: rate1Edit,
                 Rate2: rate2Edit,
                 Rate3: rate3Edit,
                 CreditTime: creditTimeEdit,
                 Name: name
-            }) // อัพเดท values ทั้งหมด
-            .then(() => {
-                ShowSuccess("แก้ไขข้อมูลสำเร็จ");
-                console.log("Data updated successfully");
-                setSetting(false);
-                setSelectedRowId(null);
-                setRowIndex(null);
-            })
-            .catch((error) => {
-                ShowError("แก้ไขข้อมูลไม่สำเร็จ");
-                console.error("Error updating data:", error);
             });
+            ShowSuccess("แก้ไขข้อมูลสำเร็จ");
+            refetch?.();
+            setSetting(false);
+            setSelectedRowId(null);
+            setRowIndex(null);
+        } catch (error) {
+            ShowError("แก้ไขข้อมูลไม่สำเร็จ");
+            console.error("Error updating data:", error);
+        }
     };
 
     const handleCancel = () => {
@@ -313,7 +256,7 @@ const TicketsTransport = ({ openNavbar }) => {
     };
 
     const handleCustomer = (row) => {
-        setOpenCustomer(row.id);
+        setOpenCustomer(row.uuid);
         setName(row.Name)
         setTicketsName(row.Name)
         setRate1(row.Rate1)
@@ -383,28 +326,24 @@ const TicketsTransport = ({ openNavbar }) => {
 
     const handleDelete = () => {
         ShowConfirm(
-            `ต้องการยกเลิกตั๋วรับจ้างขนส่งที่ ${selectedRowId} ใช่หรือไม่`,
-            () => {
-                database
-                    .ref("/customers/transports/")
-                    .child(selectedRowId - 1)
-                    .update({
+            `ต้องการยกเลิกตั๋วรับจ้างขนส่งที่ ${rowIndex} ใช่หรือไม่`,
+            async () => {
+                try {
+                    await apiPut(`/api/customers/${selectedRowId}`, {
                         SystemStatus: "ไม่อยู่ในระบบ"
-                    }) // อัพเดท values ทั้งหมด
-                    .then(() => {
-                        ShowSuccess("แก้ไขข้อมูลสำเร็จ");
-                        console.log("Data updated successfully");
-                        setSetting(false);
-                        setSelectedRowId(null);
-                        setRowIndex(null);
-                    })
-                    .catch((error) => {
-                        ShowError("แก้ไขข้อมูลไม่สำเร็จ");
-                        console.error("Error updating data:", error);
                     });
+                    ShowSuccess("แก้ไขข้อมูลสำเร็จ");
+                    refetch?.();
+                    setSetting(false);
+                    setSelectedRowId(null);
+                    setRowIndex(null);
+                } catch (error) {
+                    ShowError("แก้ไขข้อมูลไม่สำเร็จ");
+                    console.error("Error updating data:", error);
+                }
             },
             () => {
-                console.log(`ยกเลิกลบตั๋วรับจ้างขนส่งที่ ${selectedRowId}`);
+                console.log(`ยกเลิกลบตั๋วรับจ้างขนส่งที่ ${rowIndex}`);
             }
         );
     }
@@ -531,13 +470,13 @@ const TicketsTransport = ({ openNavbar }) => {
                                             </TableRow>
                                             :
                                             filtered.sort((a, b) => a.Name.localeCompare(b.Name)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
-                                                <TableRow key={index} sx={{ backgroundColor: !setting || row.id !== selectedRowId ? "" : "#fff59d" }}>
+                                                <TableRow key={row.uuid} sx={{ backgroundColor: !setting || row.uuid !== selectedRowId ? "" : "#fff59d" }}>
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
                                                             {index + page * rowsPerPage + 1}
                                                         </Typography>
                                                     </TableCell>
-                                                    {/* <TableCell sx={{ textAlign: "center", fontWeight: !setting || row.id !== selectedRowId ? "" : "bold" }}>{row.Name}</TableCell> */}
+                                                    {/* <TableCell sx={{ textAlign: "center", fontWeight: !setting || row.uuid !== selectedRowId ? "" : "bold" }}>{row.Name}</TableCell> */}
                                                     <TableCell
                                                         sx={{
                                                             textAlign: "left",
@@ -550,7 +489,7 @@ const TicketsTransport = ({ openNavbar }) => {
                                                     >
                                                         {
                                                             // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
-                                                            !setting || row.id !== selectedRowId ?
+                                                            !setting || row.uuid !== selectedRowId ?
                                                                 <Typography variant="subtitle2" sx={{ marginLeft: 3 }} gutterBottom>
                                                                     {row.Name}
                                                                 </Typography>
@@ -585,7 +524,7 @@ const TicketsTransport = ({ openNavbar }) => {
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         {
                                                             // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
-                                                            !setting || row.id !== selectedRowId ?
+                                                            !setting || row.uuid !== selectedRowId ?
                                                                 row.CreditTime
                                                                 :
                                                                 <Paper sx={{ width: "100%" }}>
@@ -618,7 +557,7 @@ const TicketsTransport = ({ openNavbar }) => {
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         {
                                                             // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
-                                                            !setting || row.id !== selectedRowId ?
+                                                            !setting || row.uuid !== selectedRowId ?
                                                                 row.Rate1
                                                                 :
                                                                 <Paper sx={{ width: "100%" }}>
@@ -654,7 +593,7 @@ const TicketsTransport = ({ openNavbar }) => {
                                                     </TableCell>
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         {
-                                                            !setting || row.id !== selectedRowId ?
+                                                            !setting || row.uuid !== selectedRowId ?
                                                                 row.Rate2
                                                                 :
                                                                 <Paper sx={{ width: "100%" }}>
@@ -690,7 +629,7 @@ const TicketsTransport = ({ openNavbar }) => {
                                                     </TableCell>
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         {
-                                                            !setting || row.id !== selectedRowId ?
+                                                            !setting || row.uuid !== selectedRowId ?
                                                                 row.Rate3
                                                                 :
                                                                 <Paper sx={{ width: "100%" }}>
@@ -727,7 +666,7 @@ const TicketsTransport = ({ openNavbar }) => {
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                                                             {
-                                                                !setting || row.id !== selectedRowId ?
+                                                                !setting || row.uuid !== selectedRowId ?
                                                                     <Typography variant="subtitle2" gutterBottom>{row.Status}</Typography>
                                                                     :
                                                                     <>
@@ -766,7 +705,7 @@ const TicketsTransport = ({ openNavbar }) => {
                                                     {/* <TableCell width={70} sx={{ position: "sticky", right: 0, backgroundColor: "white" }}>
                                                         <Box sx={{ marginTop: -0.5 }}>
                                                             {
-                                                                !setting || row.id !== selectedRowId ?
+                                                                !setting || row.uuid !== selectedRowId ?
                                                                     <Button
                                                                         variant="contained"
                                                                         color="warning"
@@ -786,16 +725,16 @@ const TicketsTransport = ({ openNavbar }) => {
                                                             }
                                                         </Box>
                                                     </TableCell> */}
-                                                    <TableCell sx={{ width: !setting || row.id !== selectedRowId ? 50 : 100, height: "30px", position: "sticky", right: !setting || row.id !== selectedRowId ? 0 : 60, backgroundColor: "white", textAlign: "center" }}>
+                                                    <TableCell sx={{ width: !setting || row.uuid !== selectedRowId ? 50 : 100, height: "30px", position: "sticky", right: !setting || row.uuid !== selectedRowId ? 0 : 60, backgroundColor: "white", textAlign: "center" }}>
                                                         {
-                                                            !setting || row.id !== selectedRowId ?
+                                                            !setting || row.uuid !== selectedRowId ?
                                                                 <Button
                                                                     variant="contained"
                                                                     color="warning"
                                                                     startIcon={<EditNoteIcon />}
                                                                     size="small"
                                                                     sx={{ height: "25px" }}
-                                                                    onClick={() => handleSetting(index, row.id, row.StatusCompany, row.Status, row.Rate1, row.Rate2, row.Rate3, row.CreditTime, row.Name)}
+                                                                    onClick={() => handleSetting(index, row.uuid, row.StatusCompany, row.Status, row.Rate1, row.Rate2, row.Rate3, row.CreditTime, row.Name)}
                                                                 >
                                                                     แก้ไข
                                                                 </Button>
@@ -834,7 +773,7 @@ const TicketsTransport = ({ openNavbar }) => {
                                                         }
                                                     </TableCell>
                                                     {
-                                                        !setting || row.id !== selectedRowId ?
+                                                        !setting || row.uuid !== selectedRowId ?
                                                             ""
                                                             :
                                                             <TableCell sx={{ width: 50, height: "30px", position: "sticky", right: 0, backgroundColor: "white", textAlign: "center" }}>
@@ -1009,7 +948,7 @@ const TicketsTransport = ({ openNavbar }) => {
                         <Grid item xs={10}>
                             <Typography variant="h6" fontWeight="bold" color="white">
                                 ชื่อลูกค้า :{" "}
-                                {filtered.find((r) => r.id === openCustomer)?.Name || ""}
+                                {filtered.find((r) => r.uuid === openCustomer)?.Name || ""}
                             </Typography>
                         </Grid>
                         <Grid item xs={2} textAlign="right">

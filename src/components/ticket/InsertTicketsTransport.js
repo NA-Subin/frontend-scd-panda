@@ -28,11 +28,13 @@ import {
 import { IconButtonError, TablecellHeader } from "../../theme/style";
 import CancelIcon from '@mui/icons-material/Cancel';
 import BookOnlineIcon from '@mui/icons-material/BookOnline';
-import { database } from "../../server/firebase";
+import { apiPost } from "../../server/apiClient";
 import theme from "../../theme/theme";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
+import { useBasicData } from "../../server/provider/BasicDataProvider";
 
 const InsertTicketsTransport = () => {
+    const { customertransports, refetch } = useBasicData();
     const [update, setUpdate] = React.useState(true);
     const [open, setOpen] = React.useState(false);
     const [check, setCheck] = React.useState(true);
@@ -85,24 +87,7 @@ const InsertTicketsTransport = () => {
     const [codeID, setCodeID] = React.useState("");
     const [zone, setZone] = React.useState("-");
 
-    const getTicket = async () => {
-        database.ref("/customers/transports/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            if (datas === null || datas === undefined) {
-                setTicket(0);
-            } else {
-                setTicket(datas.length);
-            }
-        });
-    };
-
-    useEffect(() => {
-        getTicket();
-    }, []);
-
-    console.log("tickket:", ticket);
-
-    const handlePost = () => {
+    const handlePost = async () => {
         const address = {
             no: no?.trim() || "",
             village: village?.trim() || "",
@@ -112,11 +97,13 @@ const InsertTicketsTransport = () => {
             zipCode: zipCode?.trim() || ""
         };
 
-        database
-            .ref("/customers/transports/")
-            .child(ticket)
-            .update({
-                id: ticket + 1,
+        const existing = Object.values(customertransports || {});
+        const nextId = existing.reduce((max, row) => Math.max(max, row.id || 0), 0) + 1;
+
+        try {
+            await apiPost("/api/customers", {
+                Category: "transports",
+                id: nextId,
                 Name: ticketsName,
                 TicketsName: ticketsName,
                 Status: ticketChecked1 === false && ticketChecked2 === true ? "ตั๋ว" : ticketChecked1 === true && ticketChecked2 === false ? "ผู้รับ" : ticketChecked1 === false && ticketChecked2 === false ? "ตั๋ว/ผู้รับ" : "-",
@@ -132,34 +119,32 @@ const InsertTicketsTransport = () => {
                 lng: lng,
                 Phone: phone,
                 CreditTime: creditTime
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setTicketsName("")
-                setRate1("")
-                setRate2("")
-                setRate3("")
-                setBill("")
-                setPhone("")
-                setCreditTime("")
-                setCode("")
-                setCompanyName("")
-                setCodeID("")
-                setNo("")
-                setVillage("")
-                setSubDistrict("")
-                setDistrict("")
-                setProvince("")
-                setZipCode("")
-                setLat("")
-                setLng("")
-                setZone("-")
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetch?.();
+            setTicketsName("")
+            setRate1("")
+            setRate2("")
+            setRate3("")
+            setBill("")
+            setPhone("")
+            setCreditTime("")
+            setCode("")
+            setCompanyName("")
+            setCodeID("")
+            setNo("")
+            setVillage("")
+            setSubDistrict("")
+            setDistrict("")
+            setProvince("")
+            setZipCode("")
+            setLat("")
+            setLng("")
+            setZone("-")
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error posting data:", error);
+        }
     };
 
     return (
