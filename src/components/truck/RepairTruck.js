@@ -33,7 +33,8 @@ import dayjs from "dayjs";
 import "dayjs/locale/th";
 import Cookies from "js-cookie";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
-import { database } from "../../server/firebase";
+import { apiPost, apiPut } from "../../server/apiClient";
+import { useBasicData } from "../../server/provider/BasicDataProvider";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -128,47 +129,27 @@ const RepairTruck = ({ selectDriver, driverDetail, setRepairTruck, trip }) => {
     repairRegHead,
   );
 
-  const getTruck = async () => {
-    database.ref("/truck/registration/").on("value", (snapshot) => {
-      const datas = snapshot.val();
-      const dataRepair = [];
-      for (let id in datas) {
-        if (datas[id].RepairTruck.split(":")[1] === "ยังไม่ตรวจสอบสภาพรถ") {
-          dataRepair.push({ id, ...datas[id], TruckType: "รถใหญ่" });
-        }
-      }
-      setRepairRegHead(dataRepair);
-    });
-
-    database.ref("/truck/small/").on("value", (snapshot) => {
-      const datas = snapshot.val();
-      const dataRepair = [];
-      for (let id in datas) {
-        if (datas[id].RepairTruck.split(":")[1] === "ยังไม่ตรวจสอบสภาพรถ") {
-          dataRepair.push({ id, ...datas[id], TruckType: "รถเล็ก" });
-        }
-      }
-      setRepairSmallTruck(dataRepair);
-    });
-  };
-
-  const getInspection = async () => {
-    database.ref("/inspection").on("value", (snapshot) => {
-      const datas = snapshot.val();
-      const dataList = [];
-      for (let id in datas) {
-        dataList.push({ id, ...datas[id] });
-      }
-      setInspection(dataList);
-    });
-  };
+  const { reghead, small, inspection: inspectionBasicData, drivers, refetch: refetchBasicData } = useBasicData();
+  const regheadList = Object.values(reghead || {});
+  const smallList = Object.values(small || {});
+  const driversList = Object.values(drivers || {});
 
   useEffect(() => {
     setRegHead(selectDriver || "");
     setEmployee(driverDetail || "...");
-    getTruck();
-    getInspection();
-  }, [selectDriver, driverDetail]);
+
+    setRepairRegHead(
+      regheadList
+        .filter((row) => row.RepairTruck?.split(":")[1] === "ยังไม่ตรวจสอบสภาพรถ")
+        .map((row) => ({ ...row, TruckType: "รถใหญ่" })),
+    );
+    setRepairSmallTruck(
+      smallList
+        .filter((row) => row.RepairTruck?.split(":")[1] === "ยังไม่ตรวจสอบสภาพรถ")
+        .map((row) => ({ ...row, TruckType: "รถเล็ก" })),
+    );
+    setInspection(Object.values(inspectionBasicData || {}));
+  }, [selectDriver, driverDetail, reghead, small, inspectionBasicData]);
 
   const resetForm = () => {
     // Brake
@@ -241,10 +222,16 @@ const RepairTruck = ({ selectDriver, driverDetail, setRepairTruck, trip }) => {
 
   const handlePost = async () => {
     try {
-      const newRef = database.ref("inspection").push();
-      const newId = newRef.key;
+      const newId = crypto.randomUUID();
 
       const today = dayjs(new Date()).locale("th").format("DD/MM/YYYY");
+
+      const truckType = regHead.split(":")[2];
+      const truckId = Number(regHead.split(":")[0]) + 1; // composite carries id-1, see selectDriver/repairRegHead
+      const truckRow = truckType === "รถใหญ่"
+        ? regheadList.find((r) => r.id === truckId)
+        : smallList.find((r) => r.id === truckId);
+      const employeeRow = driversList.find((d) => d.uuid === employee);
 
       const baseData = {
         id: newId,
@@ -252,8 +239,10 @@ const RepairTruck = ({ selectDriver, driverDetail, setRepairTruck, trip }) => {
         RegHeadID: regHead.split(":")[0],
         RegHead: regHead.split(":")[1],
         RegTail: regTail,
-        Type: regHead.split(":")[2],
+        Type: truckType,
         Employee: employee,
+        EmployeeName: employeeRow?.Name || "",
+        employeeName: employeeRow?.Name || "",
       };
 
       // 🔥 รวมทุกอย่างเป็น object เดียว
@@ -347,26 +336,23 @@ const RepairTruck = ({ selectDriver, driverDetail, setRepairTruck, trip }) => {
       };
 
       // ✅ ยิงครั้งเดียวจบ
-      await newRef.set(data);
+      await apiPost("/api/inspection", data);
 
       // ✅ update truck
-      if (regHead.split(":")[2] === "รถใหญ่") {
-        await database
-          .ref("truck/registration/")
-          .child(regHead.split(":")[0])
-          .update({
+      if (truckRow?.uuid) {
+        if (truckType === "รถใหญ่") {
+          await apiPut(`/api/truck_registration/${truckRow.uuid}`, {
             RepairTruck: `${today}:ตรวจสอบสภาพรถแล้ว`,
           });
-      } else if (regHead.split(":")[2] === "รถเล็ก") {
-        await database
-          .ref("truck/small/")
-          .child(regHead.split(":")[0])
-          .update({
+        } else if (truckType === "รถเล็ก") {
+          await apiPut(`/api/truck_small/${truckRow.uuid}`, {
             RepairTruck: `${today}:ตรวจสอบสภาพรถแล้ว`,
           });
+        }
       }
 
       ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+      refetchBasicData?.();
       setRegHead("");
       setRepairTruck(true);
       resetForm();

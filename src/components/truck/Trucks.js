@@ -37,7 +37,6 @@ import ReplyAllIcon from "@mui/icons-material/ReplyAll";
 import theme from "../../theme/theme";
 import { RateOils, TablecellHeader } from "../../theme/style";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { database } from "../../server/firebase";
 import SmallTruck from "./smalltruck/SmallTruck";
 import InsertTruck from "./InsertTruck";
 import BigTruckRegHead from "./headtruck/BigTruckRegHead";
@@ -50,9 +49,6 @@ import {
   TruckIconBlack,
   TruckIconWhite,
 } from "../../theme/icon";
-import RepairTruck from "./RepairTruck";
-import { fetchRealtimeData } from "../../server/data";
-import { useData } from "../../server/path";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import RepairDetail from "./RepairDetail";
 
@@ -66,7 +62,6 @@ const Trucks = ({ openNavbar }) => {
     setOpenTab(newOpen);
   };
 
-  // const { reghead,regtail,small } = useData();
   const { reghead, regtail, small } = useBasicData();
   const datareghead = Object.values(reghead || {}).filter(
     (item) => item.StatusTruck !== "ยกเลิก",

@@ -42,7 +42,7 @@ import {
   TablecellHeader,
 } from "../../../theme/style";
 import { HTTP } from "../../../server/axios";
-import { database } from "../../../server/firebase";
+import { useBasicData } from "../../../server/provider/BasicDataProvider";
 import { ShowError, ShowSuccess } from "../../sweetalert/sweetalert";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
@@ -67,19 +67,14 @@ const TruckRepair = (props) => {
   const { row, type } = props;
   const [truck, setTruck] = useState("");
 
-  const getTruck = async () => {
-    database
-      .ref("/truck")
-      .orderByChild("RegHead")
-      .equalTo(row.RegHead)
-      .on("value", (snapshot) => {
-        const datas = snapshot.val();
-        const dataList = [];
-        for (let id in datas) {
-          setTruck(datas[id].RepairTruck);
-        }
-      });
-  };
+  const { reghead, small, inspection: inspectionBasicData } = useBasicData();
+  const matchedTruck = [
+    ...Object.values(reghead || {}),
+    ...Object.values(small || {}),
+  ].find((t) => t.RegHead === row.RegHead);
+  const matchedInspection = Object.values(inspectionBasicData || {}).find(
+    (item) => item.RegHead === row.RegHead,
+  );
 
   const [open, setOpen] = useState(false);
 
@@ -104,133 +99,17 @@ const TruckRepair = (props) => {
   const [noise, setNoise] = useState("");
   const [inspection, setInspection] = useState("");
 
-  const getBrake = async () => {
-    database.ref("/inspection").on("value", (snapshot) => {
-      const datas = snapshot.val();
-      for (let id in datas) {
-        if (datas[id].RegHead === row.RegHead) {
-          database
-            .ref("/inspection/" + id + "/Brake")
-            .on("value", (snapshot) => {
-              setBrake(snapshot.val());
-            });
-        }
-      }
-    });
-  };
-
-  const getElectricity = async () => {
-    database.ref("/inspection").on("value", (snapshot) => {
-      const datas = snapshot.val();
-      for (let id in datas) {
-        if (datas[id].RegHead === row.RegHead) {
-          database
-            .ref("/inspection/" + id + "/Electricity")
-            .on("value", (snapshot) => {
-              setElectricity(snapshot.val());
-            });
-        }
-      }
-    });
-  };
-
-  const getWater = async () => {
-    database.ref("/inspection").on("value", (snapshot) => {
-      const datas = snapshot.val();
-      for (let id in datas) {
-        if (datas[id].RegHead === row.RegHead) {
-          database
-            .ref("/inspection/" + id + "/Water")
-            .on("value", (snapshot) => {
-              setWater(snapshot.val());
-            });
-        }
-      }
-    });
-  };
-
-  const getAir = async () => {
-    database.ref("/inspection").on("value", (snapshot) => {
-      const datas = snapshot.val();
-      for (let id in datas) {
-        if (datas[id].RegHead === row.RegHead) {
-          database.ref("/inspection/" + id + "/Air").on("value", (snapshot) => {
-            setAir(snapshot.val());
-          });
-        }
-      }
-    });
-  };
-
-  const getGasoline = async () => {
-    database.ref("/inspection").on("value", (snapshot) => {
-      const datas = snapshot.val();
-      for (let id in datas) {
-        if (datas[id].RegHead === row.RegHead) {
-          database
-            .ref("/inspection/" + id + "/Gasoline")
-            .on("value", (snapshot) => {
-              setGasoline(snapshot.val());
-            });
-        }
-      }
-    });
-  };
-
-  const getOils = async () => {
-    database.ref("/inspection").on("value", (snapshot) => {
-      const datas = snapshot.val();
-      for (let id in datas) {
-        if (datas[id].RegHead === row.RegHead) {
-          database
-            .ref("/inspection/" + id + "/Oils")
-            .on("value", (snapshot) => {
-              setOils(snapshot.val());
-            });
-        }
-      }
-    });
-  };
-
-  const getNoise = async () => {
-    database.ref("/inspection").on("value", (snapshot) => {
-      const datas = snapshot.val();
-      for (let id in datas) {
-        if (datas[id].RegHead === row.RegHead) {
-          database
-            .ref("/inspection/" + id + "/Noise")
-            .on("value", (snapshot) => {
-              setNoise(snapshot.val());
-            });
-        }
-      }
-    });
-  };
-
-  const getInspection = async () => {
-    database.ref("/inspection").on("value", (snapshot) => {
-      const datas = snapshot.val();
-      for (let id in datas) {
-        if (datas[id].RegHead === row.RegHead) {
-          database.ref("/inspection/" + id).on("value", (snapshot) => {
-            setInspection(snapshot.val());
-          });
-        }
-      }
-    });
-  };
-
   useEffect(() => {
-    getInspection();
-    getTruck();
-    getBrake();
-    getElectricity();
-    getWater();
-    getAir();
-    getGasoline();
-    getOils();
-    getNoise();
-  }, []);
+    setTruck(matchedTruck?.RepairTruck || "");
+    setInspection(matchedInspection || "");
+    setBrake(matchedInspection?.Brake);
+    setElectricity(matchedInspection?.Electricity);
+    setWater(matchedInspection?.Water);
+    setAir(matchedInspection?.Air);
+    setGasoline(matchedInspection?.Gasoline);
+    setOils(matchedInspection?.Oils);
+    setNoise(matchedInspection?.Noise);
+  }, [matchedTruck, matchedInspection]);
 
   const tableRef = useRef();
 

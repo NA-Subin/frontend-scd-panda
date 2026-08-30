@@ -33,7 +33,6 @@ import dayjs from "dayjs";
 import "dayjs/locale/th";
 import Cookies from "js-cookie";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
-import { database } from "../../server/firebase";
 import { TablecellHeader, TablecellTickets } from "../../theme/style";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import TruckRepair from "./headtruck/TruckRepair";
