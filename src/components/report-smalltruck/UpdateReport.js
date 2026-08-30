@@ -39,10 +39,8 @@ import AddBoxIcon from '@mui/icons-material/AddBox';
 import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
 import PrintIcon from '@mui/icons-material/Print';
-import { database } from "../../server/firebase";
-import { useData } from "../../server/path";
 import theme from "../../theme/theme";
-import { ref, update } from "firebase/database";
+import { apiPost, apiPut } from "../../server/apiClient";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import dayjs from "dayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -103,7 +101,8 @@ const UpdateReport = (props) => {
         trip,
         banks,
         transferMoney,
-        invoiceReport
+        invoiceReport,
+        refetch: refetchTripData,
     } = useTripData();
 
     const { reghead, company } = useBasicData();
@@ -140,13 +139,18 @@ const UpdateReport = (props) => {
     let CountCompany1 = 0;
     let CountCompany2 = 0;
 
+    // Transport is now a real company uuid, not a legacy "id:Name" composite -
+    // compare against the two hardcoded transport companies (id 2 and 3) by
+    // uuid instead of a split numeric prefix.
+    const transportCompany2Uuid = companies.find((c) => c.id === 2)?.uuid;
+    const transportCompany3Uuid = companies.find((c) => c.id === 3)?.uuid;
+
     transfer.forEach(row => {
-        const transportType = row.Transport.split(":")[0]; // แยกเอาเลขหน้ามาก่อน
         const incoming = Number(row.IncomingMoney) || 0; // แปลงเป็นตัวเลข เผื่อเจอ undefined
 
-        if (transportType === "2") {
+        if (row.Transport === transportCompany2Uuid) {
             CountCompany1 += incoming;
-        } else if (transportType === "3") {
+        } else if (row.Transport === transportCompany3Uuid) {
             CountCompany2 += incoming;
         }
     });
@@ -420,8 +424,14 @@ const UpdateReport = (props) => {
 
     console.log("processedTickets : ", processedTickets);
 
-    const invoices1 = invoiceDetail.filter((row) => row.TicketNo === ticket.No && row.TicketName === ticket.TicketName && row.Transport === company1Tickets[0].Company);
-    const invoices2 = invoiceDetail.filter((row) => row.TicketNo === ticket.No && row.TicketName === ticket.TicketName && row.Transport === company2Tickets[0].Company);
+    // company1Tickets[0].Company / company2Tickets[0].Company are locally
+    // reconstructed "id:Name" composites; invoice.Transport is a real company
+    // uuid - resolve both sides to the same uuid to compare.
+    const company1TransportUuid = companies.find((c) => c.id === Number(company1Tickets[0]?.Company?.split(":")[0]))?.uuid;
+    const company2TransportUuid = companies.find((c) => c.id === Number(company2Tickets[0]?.Company?.split(":")[0]))?.uuid;
+
+    const invoices1 = invoiceDetail.filter((row) => row.TicketNo === ticket.No && row.TicketName === ticket.TicketName && row.Transport === company1TransportUuid);
+    const invoices2 = invoiceDetail.filter((row) => row.TicketNo === ticket.No && row.TicketName === ticket.TicketName && row.Transport === company2TransportUuid);
 
     console.log("invoices1 : ", invoices1);
     console.log("invoices2 : ", invoices2);
@@ -440,21 +450,19 @@ const UpdateReport = (props) => {
 
             Code = `lV${currentCode}-${formattedNumberInvoice}`;
 
-            database
-                .ref("invoice/")
-                .child(invoiceDetail.length)
-                .update({
-                    id: invoiceDetail.length,
-                    Code: `lV${currentCode}`,
-                    Number: formattedNumberInvoice,
-                    DateStart: dayjs(new Date()).format("DD/MM/YYYY"),
-                    Transport: company1Tickets[0].Company,
-                    TicketName: ticket.TicketName,
-                    TicketNo: ticket.No,
-                    TicketType: ticket.CustomerType,
-                }) // ใช้ .set() แทน .update() เพื่อแทนที่ข้อมูลทั้งหมด
+            apiPost("/api/invoice", {
+                id: invoiceDetail.length,
+                Code: `lV${currentCode}`,
+                Number: formattedNumberInvoice,
+                DateStart: dayjs(new Date()).format("DD/MM/YYYY"),
+                Transport: company1TransportUuid || null,
+                TicketName: ticket.TicketName,
+                TicketNo: ticket.No,
+                TicketType: ticket.CustomerType,
+            })
                 .then(() => {
                     console.log("บันทึกข้อมูลเรียบร้อย ✅");
+                    refetchTripData?.();
                 })
                 .catch((error) => {
                     ShowError("ไม่สำเร็จ");
@@ -513,21 +521,22 @@ const UpdateReport = (props) => {
 
             Code = `lV${currentCode}-${formattedNumberInvoice}`;
 
-            database
-                .ref("invoice/")
-                .child(invoiceDetail.length)
-                .update({
-                    id: invoiceDetail.length,
-                    Code: `lV${currentCode}`,
-                    Number: formattedNumberInvoice,
-                    DateStart: dayjs(new Date()).format("DD/MM/YYYY"),
-                    Transport: company1Tickets[0].Company,
-                    TicketName: ticket.TicketName,
-                    TicketNo: ticket.No,
-                    TicketType: ticket.CustomerType,
-                }) // ใช้ .set() แทน .update() เพื่อแทนที่ข้อมูลทั้งหมด
+            // NOTE: previously wrote company1Tickets[0].Company here (a
+            // copy-paste bug) - a company-2 invoice would silently persist
+            // company 1's transport company. Fixed to use company2.
+            apiPost("/api/invoice", {
+                id: invoiceDetail.length,
+                Code: `lV${currentCode}`,
+                Number: formattedNumberInvoice,
+                DateStart: dayjs(new Date()).format("DD/MM/YYYY"),
+                Transport: company2TransportUuid || null,
+                TicketName: ticket.TicketName,
+                TicketNo: ticket.No,
+                TicketType: ticket.CustomerType,
+            })
                 .then(() => {
                     console.log("บันทึกข้อมูลเรียบร้อย ✅");
+                    refetchTripData?.();
                 })
                 .catch((error) => {
                     ShowError("ไม่สำเร็จ");
@@ -576,27 +585,49 @@ const UpdateReport = (props) => {
     console.log("tickets : ", ticket);
 
     const handleSave = () => {
-        Object.entries(report).forEach(([uniqueRowId, data]) => {
-            // ตรวจสอบว่า data.id และ data.ProductName ไม่ใช่ null หรือ undefined
-            if (data.No == null || data.ProductName == null || data.ProductName.trim() === "") {
-                console.log("ไม่พบ id หรือ ProductName");
-                return;
+        (async () => {
+            // Product is a single JSONB column, and several report rows can
+            // touch different products on the SAME ticket in one save -
+            // merge all of them per ticket first, then issue one PUT per
+            // ticket, so a later write in this loop never clobbers an
+            // earlier one against a stale Product value.
+            const mergedProductByTicketUuid = new Map();
+
+            for (const data of Object.values(report)) {
+                if (data.No == null || data.ProductName == null || data.ProductName.trim() === "") {
+                    console.log("ไม่พบ id หรือ ProductName");
+                    continue;
+                }
+
+                const ticketRow = showTickets.find((t) => t.No === data.No);
+                if (!ticketRow?.uuid) {
+                    console.log("ไม่พบตั๋วที่ No", data.No);
+                    continue;
+                }
+
+                if (!mergedProductByTicketUuid.has(ticketRow.uuid)) {
+                    mergedProductByTicketUuid.set(ticketRow.uuid, structuredClone(ticketRow.Product || {}));
+                }
+                const mergedProduct = mergedProductByTicketUuid.get(ticketRow.uuid);
+                mergedProduct[data.ProductName] = {
+                    ...mergedProduct[data.ProductName],
+                    RateOil: data.Price,
+                    Amount: data.Amount,
+                    OverdueTransfer: data.Amount,
+                };
             }
 
-            const path = `tickets/${data.No}/Product/${data.ProductName}`;
-            update(ref(database, path), {
-                RateOil: data.Price,
-                Amount: data.Amount,
-                OverdueTransfer: data.Amount
-            })
-                .then(() => {
-                    console.log("บันทึกข้อมูลเรียบร้อย ✅");
-                })
-                .catch((error) => {
-                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                    console.error("Error pushing data:", error);
-                });
-        });
+            try {
+                for (const [uuid, mergedProduct] of mergedProductByTicketUuid) {
+                    await apiPut(`/api/tickets/${uuid}`, { Product: mergedProduct });
+                }
+                console.log("บันทึกข้อมูลเรียบร้อย ✅");
+                refetchTripData?.();
+            } catch (error) {
+                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+                console.error("Error pushing data:", error);
+            }
+        })();
     };
 
     const handlePost = () => {
@@ -633,15 +664,15 @@ const UpdateReport = (props) => {
     };
 
     const handleNewInvoice1 = () => {
-        database
-            .ref("invoice/")
-            .child(invoices1[0].id)
-            .update({
-                TicketNo: "ยกเลิก"
-            })
+        if (!invoices1[0]?.uuid) {
+            ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+            return;
+        }
+        apiPut(`/api/invoice/${invoices1[0].uuid}`, { TicketNo: "ยกเลิก" })
             .then(() => {
                 ShowSuccess("บันทึกข้อมูลเรียบร้อย");
                 console.log("บันทึกข้อมูลเรียบร้อย ✅");
+                refetchTripData?.();
             })
             .catch((error) => {
                 ShowError("ไม่สำเร็จ");
@@ -650,15 +681,15 @@ const UpdateReport = (props) => {
     }
 
     const handleNewInvoice2 = () => {
-        database
-            .ref("invoice/")
-            .child(invoices2[0].id)
-            .update({
-                TicketNo: "ยกเลิก"
-            })
+        if (!invoices2[0]?.uuid) {
+            ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+            return;
+        }
+        apiPut(`/api/invoice/${invoices2[0].uuid}`, { TicketNo: "ยกเลิก" })
             .then(() => {
                 ShowSuccess("บันทึกข้อมูลเรียบร้อย");
                 console.log("บันทึกข้อมูลเรียบร้อย ✅");
+                refetchTripData?.();
             })
             .catch((error) => {
                 ShowError("ไม่สำเร็จ");
@@ -699,21 +730,17 @@ const UpdateReport = (props) => {
     const handleSubmit = () => {
         const newId = transferMoneyDetail.length;
         const total = Number(newNumber) + 1;
-        //const formattedNumber = String(total).padStart(4, "0");
 
         const newPrice = {
             ...price,
             id: newId,
-            //Number: formattedNumber,
         };
 
-        database
-            .ref("transfermoney/")
-            .child(newId)
-            .set(newPrice)
+        apiPost("/api/transfermoney", newPrice)
             .then(() => {
                 ShowSuccess("บันทึกข้อมูลเรียบร้อย");
                 console.log("บันทึกข้อมูลเรียบร้อย ✅");
+                refetchTripData?.();
 
                 // เตรียมค่าใหม่สำหรับ price หลังบันทึก
                 const nextFormattedNumber = String(total).padStart(4, "0");
@@ -1931,8 +1958,8 @@ const UpdateReport = (props) => {
                                                     <TableCell sx={{ textAlign: "center", height: '30px', width: 50 }}>{index + 1}</TableCell>
                                                     <TableCell sx={{ textAlign: "center", height: '30px', width: 120 }}>{`${row.Code} - ${row.Number}`}</TableCell>
                                                     <TableCell sx={{ textAlign: "center", height: '30px', width: 100 }}>{row.DateStart}</TableCell>
-                                                    <TableCell sx={{ textAlign: "center", height: '30px', width: 250 }}>{row.BankName}</TableCell>
-                                                    <TableCell sx={{ textAlign: "center", height: '30px', width: 250 }}>{row.Transport.split(":")[1]}</TableCell>
+                                                    <TableCell sx={{ textAlign: "center", height: '30px', width: 250 }}>{row.BankNameName}</TableCell>
+                                                    <TableCell sx={{ textAlign: "center", height: '30px', width: 250 }}>{companies.find((c) => c.uuid === row.Transport)?.Name || ""}</TableCell>
                                                     <TableCell sx={{ textAlign: "center", height: '30px', width: 130 }}>{new Intl.NumberFormat("en-US").format(row.IncomingMoney)}</TableCell>
                                                     <TableCell sx={{ textAlign: "center", height: '30px', width: 150 }}>{row.Note}</TableCell>
                                                 </TableRow>
@@ -2086,7 +2113,7 @@ const UpdateReport = (props) => {
                                                     {
                                                         companies.map((row) => (
                                                             row.id !== 1 &&
-                                                            <MenuItem value={`${row.id}:${row.Name}`} sx={{ fontSize: "14px", }}>{row.Name}</MenuItem>
+                                                            <MenuItem key={row.uuid} value={row.uuid} sx={{ fontSize: "14px", }}>{row.Name}</MenuItem>
                                                         ))
                                                     }
                                                     {/* <MenuItem value="บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)" sx={{ fontSize: "14px", }}>บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)</MenuItem>
@@ -2138,7 +2165,7 @@ const UpdateReport = (props) => {
                                                             .map((row) => (
                                                                 <MenuItem
                                                                     key={row.id}
-                                                                    value={`${row.id}:${row.BankName} - ${row.BankShortName}`}
+                                                                    value={row.uuid}
                                                                     sx={{ fontSize: "14px" }}
                                                                 >
                                                                     {`${row.BankName}....${row.BankShortName}..${row.BankID}`}

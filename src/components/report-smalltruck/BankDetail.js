@@ -43,8 +43,6 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import AddCardIcon from '@mui/icons-material/AddCard';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
-import { auth, database } from "../../server/firebase";
-import { useData } from "../../server/path";
 import { useTripData } from "../../server/provider/TripProvider";
 
 const BankDetail = () => {

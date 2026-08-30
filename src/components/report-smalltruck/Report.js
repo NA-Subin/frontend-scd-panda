@@ -45,8 +45,6 @@ import {
   TableCellPWD,
 } from "../../theme/style";
 import InfoIcon from "@mui/icons-material/Info";
-import { database } from "../../server/firebase";
-import { useData } from "../../server/path";
 import UpdateReport from "./UpdateReport";
 import theme from "../../theme/theme";
 import * as XLSX from "xlsx";
