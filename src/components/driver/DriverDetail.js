@@ -39,12 +39,6 @@ import {
   ShowWarning,
 } from "../sweetalert/sweetalert";
 import Logo from "../../theme/img/logoPanda.jpg";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  signOut,
-} from "firebase/auth";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
@@ -56,8 +50,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import dayjs from "dayjs";
 import Cookies from "js-cookie";
 import "dayjs/locale/th";
-import { auth, database } from "../../server/firebase";
-import { API_BASE } from "../../server/apiClient";
+import { API_BASE, apiPut } from "../../server/apiClient";
 import {
   TableCellB7,
   TableCellB95,
@@ -114,11 +107,11 @@ const DriverDetail = () => {
   const [repairTruck, setRepairTruck] = useState(true);
   const [check, setCheck] = useState({});
 
-  // const { reghead, trip, order, depots, drivers } = useData();
-  const { reghead, drivers, depots, inspection } = useBasicData();
-  const { trip, order } = useTripData();
+  const { reghead, small, drivers, depots, inspection } = useBasicData();
+  const { trip, order, refetch: refetchTripData } = useTripData();
   const inspectionList = Object.values(inspection || {})
   const regheads = Object.values(reghead || {});
+  const smalls = Object.values(small || {});
   // const trips = Object.values(trip || {});
   const trips = Object.values(trip || {}).filter((item) => {
     const deliveryDate = dayjs(item.DateDelivery, "DD/MM/YYYY");
@@ -229,12 +222,6 @@ const DriverDetail = () => {
     `${registrationDetail?.Driver}:${registrationDetail?.RegHead}:${registrationDetail?.RegTail}`,
   );
 
-  const getTruckPath = (type) => {
-    if (type === "รถใหญ่") return "truck/registration/";
-    if (type === "รถเล็ก") return "truck/small/";
-    return null;
-  };
-
   useEffect(() => {
     if (!truck || !orders.length || !tripDetail.length) return;
 
@@ -286,28 +273,31 @@ const DriverDetail = () => {
 
   const completeTrip = async (trip, orders) => {
     try {
-      await database
-        .ref("trip/")
-        .child(trip.id - 1)
-        .update({
-          StatusTrip: "จบทริป",
-          DateEnd: dayjs().format("DD/MM/YYYY"),
+      if (!trip?.uuid) return;
+
+      await apiPut(`/api/trip/${trip.uuid}`, {
+        StatusTrip: "จบทริป",
+        DateEnd: dayjs().format("DD/MM/YYYY"),
+      });
+
+      const truckTable = trip.TruckType === "รถใหญ่"
+        ? "truck_registration"
+        : trip.TruckType === "รถเล็ก"
+          ? "truck_small"
+          : null;
+      const truckMatch = trip.TruckType === "รถเล็ก"
+        ? smalls.find((r) => r.uuid === trip.Registration)
+        : regheads.find((r) => r.uuid === trip.Registration);
+
+      if (truckTable && truckMatch?.uuid) {
+        await apiPut(`/api/${truckTable}/${truckMatch.uuid}`, {
+          Status: "ว่าง",
+          RepairTruck: "00/00/0000:ยังไม่ตรวจสอบสภาพรถ",
         });
-
-      const truckPath = getTruckPath(trip.TruckType);
-      const regheadMatch = regheads.find((r) => r.uuid === trip.Registration);
-
-      if (truckPath && regheadMatch) {
-        await database
-          .ref(truckPath)
-          .child(regheadMatch.id - 1)
-          .update({
-            Status: "ว่าง",
-            RepairTruck: "00/00/0000:ยังไม่ตรวจสอบสภาพรถ",
-          });
       }
 
       console.log("Trip completed");
+      refetchTripData?.();
     } catch (error) {
       ShowError("เพิ่มข้อมูลไม่สำเร็จ");
       console.error(error);
@@ -387,20 +377,7 @@ const DriverDetail = () => {
       checkOrder.every((item) => item.Status === "จัดส่งสำเร็จ");
 
     if (isAllDone) {
-      database
-        .ref("trip/")
-        .child(tripId)
-        .update({
-          StatusTrip: "จบทริป", // ❗ แก้ key
-          DateEnd: dayjs().format("DD/MM/YYYY"),
-        })
-        .then(() => {
-          console.log("✅ Trip completed");
-        })
-        .catch((error) => {
-          ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-          console.error(error);
-        });
+      completeTrip(check, checkOrder);
     }
   };
 
@@ -442,14 +419,17 @@ const DriverDetail = () => {
     }
 
     try {
-      await database
-        .ref("order")
-        .child(String(no)) // ✅ แปลงเป็น string ชัวร์
-        .update({
-          Status: "จัดส่งสำเร็จ",
-          file_path: img,
-        });
+      const orderRow = orders.find((item) => item.No === no);
+      if (!orderRow?.uuid) {
+        throw new Error("ไม่พบข้อมูลที่ต้องการอัปเดต");
+      }
 
+      await apiPut(`/api/order/${orderRow.uuid}`, {
+        Status: "จัดส่งสำเร็จ",
+        file_path: img,
+      });
+
+      refetchTripData?.();
       setDialogOpen(false);
       setFile(null);
       setPreview(null);
@@ -497,17 +477,11 @@ const DriverDetail = () => {
       })
       .then((result) => {
         if (result.isConfirmed) {
-          signOut(auth)
-            .then(() => {
-              Cookies.remove("user");
-              Cookies.remove("sessionToken");
-              Cookies.remove("password");
-              navigate("/");
-              Swal.fire("ออกจากระบบเรียบร้อย", "", "success");
-            })
-            .catch((error) => {
-              Swal.fire("ไม่สามารถออกจากระบบได้", "", "error");
-            });
+          Cookies.remove("user");
+          Cookies.remove("sessionToken");
+          Cookies.remove("token");
+          navigate("/");
+          Swal.fire("ออกจากระบบเรียบร้อย", "", "success");
         } else if (result.isDenied) {
           Swal.fire("ออกจากระบบล้มเหลว", "", "error");
         }
