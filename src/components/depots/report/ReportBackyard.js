@@ -43,7 +43,7 @@ import { ShowError, ShowSuccess, ShowWarning } from "../../sweetalert/sweetalert
 import { formatThaiMonth, formatThaiSlash } from "../../../theme/DateTH";
 import { TablecellHeader } from "../../../theme/style";
 import FullPageLoading from "../../navbar/Loading";
-import { database } from "../../../server/firebase";
+import { apiPut } from "../../../server/apiClient";
 
 const ReportBackyard = (props) => {
     const {
@@ -67,7 +67,7 @@ const ReportBackyard = (props) => {
     const [openMenu, setOpenMenu] = React.useState(1);
 
     const { depots } = useBasicData();
-    const { gasstationDetail, stockDetail } = useGasStationData();
+    const { gasstationDetail, stockDetail, refetch: refetchGasStationData } = useGasStationData();
     const [isEditingBackyard, setIsEditingBackyard] = useState(false);
 
     const formatNumber = (value) => {
@@ -102,29 +102,26 @@ const ReportBackyard = (props) => {
     const m = selectedDate ? selectedDate.month() + 1 : null; // month เริ่มต้นที่ 0
 
     const handleSaveCBP = async (row) => {
-        if (!selectedDate) return;
+        if (!selectedDate || !row?.uuid) return;
 
         const year = selectedDate.year();
         const month = selectedDate.month() + 1;
-        const monthKey = `${year}-${month}`;
-
-        const gasStationIndex = Number(row.id) - 1;
 
         const payload = backyardData?.[row.id]?.[year]?.[month] ?? {};
 
-        // console.log("🚀 ~ file: ReportDetail.js:256 ~ handleSaveBackyard ~ backyardData:", backyardData?.[row.id]?.[year]?.[month]);
-        // console.log("🚀 ~ file: ReportDetail.js:256 ~ handleSaveBackyard ~ row:", row);
-        // console.log("🚀 ~ file: ReportDetail.js:263 ~ handleSaveBackyard ~ payload:", payload);
+        // Backyard is a plain JSONB column, not a real nested Firebase path -
+        // read, merge the year/month entry, and write the whole column back.
+        const mergedBackyard = structuredClone(row.Backyard || {});
+        mergedBackyard[year] = mergedBackyard[year] || {};
+        mergedBackyard[year][month] = payload;
 
-        await database
-            .ref(`/depot/gasStations/${gasStationIndex}/Backyard/${year}/${month}`)
-            .set(payload)
-            .then(() => {
-                ShowSuccess("✅ บันทึก Backyard สำเร็จ", payload);
-            })
-            .catch((err) => {
-                ShowError("❌ บันทึก Backyard ล้มเหลว", err);
-            });
+        try {
+            await apiPut(`/api/depot_gas_stations/${row.uuid}`, { Backyard: mergedBackyard });
+            ShowSuccess("✅ บันทึก Backyard สำเร็จ", payload);
+            refetchGasStationData?.();
+        } catch (err) {
+            ShowError("❌ บันทึก Backyard ล้มเหลว", err);
+        }
     };
 
     console.log("stockSummary.total + summary.total : ", stockSummary.total, summary.total, stockSummary.total + summary.total);

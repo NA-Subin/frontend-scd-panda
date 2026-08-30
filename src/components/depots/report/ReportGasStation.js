@@ -43,7 +43,6 @@ import { ShowError, ShowSuccess, ShowWarning } from "../../sweetalert/sweetalert
 import { formatThaiMonth, formatThaiSlash } from "../../../theme/DateTH";
 import { TablecellHeader } from "../../../theme/style";
 import FullPageLoading from "../../navbar/Loading";
-import { database } from "../../../server/firebase";
 import ReportDetail from "./ReportDetail";
 import ReportBackyard from "./ReportBackyard";
 

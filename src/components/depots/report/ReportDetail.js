@@ -43,7 +43,7 @@ import { ShowError, ShowSuccess, ShowWarning } from "../../sweetalert/sweetalert
 import { formatThaiMonth, formatThaiSlash } from "../../../theme/DateTH";
 import { TablecellHeader } from "../../../theme/style";
 import FullPageLoading from "../../navbar/Loading";
-import { database } from "../../../server/firebase";
+import { apiPut } from "../../../server/apiClient";
 
 const ReportDetail = (props) => {
     const {
@@ -69,7 +69,7 @@ const ReportDetail = (props) => {
     console.log("🚀 ~ file: ReportDetail.js:55 ~ ReportDetail ~ cbpItem:", cbpItem);
 
     const { depots } = useBasicData();
-    const { gasstationDetail, stockDetail } = useGasStationData();
+    const { gasstationDetail, stockDetail, refetch: refetchGasStationData } = useGasStationData();
     const [isEditingCBP, setIsEditingCBP] = useState(false);
 
     const to2Decimal = v => Number(Number(v ?? 0).toFixed(2));
@@ -106,29 +106,26 @@ const ReportDetail = (props) => {
     const m = selectedDate ? selectedDate.month() + 1 : null; // month เริ่มต้นที่ 0
 
     const handleSaveCBP = async (row) => {
-        if (!selectedDate) return;
+        if (!selectedDate || !row?.uuid) return;
 
         const year = selectedDate.year();
         const month = selectedDate.month() + 1;
-        const monthKey = `${year}-${month}`;
-
-        const gasStationIndex = Number(row.id) - 1;
 
         const payload = cbpData?.[row.id]?.[year]?.[month] ?? {};
 
-        // console.log("🚀 ~ file: ReportDetail.js:256 ~ handleSaveCBP ~ cbpData:", cbpData?.[row.id]?.[year]?.[month]);
-        // console.log("🚀 ~ file: ReportDetail.js:256 ~ handleSaveCBP ~ row:", row);
-        // console.log("🚀 ~ file: ReportDetail.js:263 ~ handleSaveCBP ~ payload:", payload);
+        // CBP is a plain JSONB column, not a real nested Firebase path - read,
+        // merge the year/month entry, and write the whole column back.
+        const mergedCBP = structuredClone(row.CBP || {});
+        mergedCBP[year] = mergedCBP[year] || {};
+        mergedCBP[year][month] = payload;
 
-        await database
-            .ref(`/depot/gasStations/${gasStationIndex}/CBP/${year}/${month}`)
-            .set(payload)
-            .then(() => {
-                ShowSuccess("✅ บันทึก CBP สำเร็จ", payload);
-            })
-            .catch((err) => {
-                ShowError("❌ บันทึก CBP ล้มเหลว", err);
-            });
+        try {
+            await apiPut(`/api/depot_gas_stations/${row.uuid}`, { CBP: mergedCBP });
+            ShowSuccess("✅ บันทึก CBP สำเร็จ", payload);
+            refetchGasStationData?.();
+        } catch (err) {
+            ShowError("❌ บันทึก CBP ล้มเหลว", err);
+        }
     };
 
     return (
