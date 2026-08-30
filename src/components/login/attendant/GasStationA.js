@@ -27,13 +27,6 @@ import {
     ShowWarning,
 } from "../../sweetalert/sweetalert";
 import Logo from "../../../theme/img/logoPanda.jpg";
-import {
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    signInWithPopup,
-    signOut,
-} from "firebase/auth";
-import { auth, database, googleProvider } from "../../../server/firebase";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
@@ -48,10 +41,14 @@ import ReceiveOil from "./ReceiveOil";
 import OilBalance from "./OilBalance";
 import GasStationDetail from "./GasStationDetail";
 import { formatThaiSlash } from "../../../theme/DateTH";
+import { useGasStationData } from "../../../server/provider/GasStationProvider";
 
 const GasStationAdmin = () => {
 
     const navigate = useNavigate();
+    const { gasstationDetail, stockDetail } = useGasStationData();
+    const gasstations = Object.values(gasstationDetail || {});
+    const stocks = Object.values(stockDetail || {});
     const [open, setOpen] = React.useState(true);
     const [openOil, setOpenOil] = React.useState(true);
     const [gasStationOil, setGasStationsOil] = useState([]);
@@ -59,7 +56,6 @@ const GasStationAdmin = () => {
     const [statusSave, setStatusSave] = useState(true);
     const [newVolume, setNewVolume] = React.useState(0);
     const [gasStation, setGasStation] = React.useState(0);
-    const [gasStations, setGasStations] = React.useState([]);
     const [selectedDate, setSelectedDate] = useState(dayjs(new Date()));
     const today = dayjs(new Date());
     const isToday = selectedDate.isSame(today, "day"); // เปรียบเทียบเฉพาะวันที่
@@ -75,69 +71,42 @@ const GasStationAdmin = () => {
 
     const handleDateChange = (newValue) => {
         if (newValue) {
-            const formattedDate = dayjs(newValue); // แปลงวันที่เป็นฟอร์แมต
-            setSelectedDate(formattedDate);
-            database.ref("/depot/gasStations").on("value", (snapshot) => {
-                const datasG = snapshot.val();
-                const dataListG = [];
-                for (let idG in datasG) {
-                    if (datasG[idG].Name === gasStation) {
-                        dataListG.push({ idG, ...datasG[idG] });
-                        database.ref("/depot/stock").on("value", (snapshot) => {
-                            const datasS = snapshot.val();
-                            const productsList = [];
-                            const dataListReport = [];
-
-                            for (let idS in datasS) {
-                                if (datasS[idS].Name === datasG[idG].Stock) {
-                                    // ดึงเฉพาะ Products และบันทึกลง productsList
-                                    const products = datasS[idS].Products || {};
-                                    productsList.push(...Object.values(products)); // รวม Products ทั้งหมดเข้าใน array
-
-                                    const report = datasG[idG].Report || {};
-                                    dataListReport.push(...Object.values(report));
-
-                                    // ตั้งค่า GasStationID
-                                    setGasStationID(datasG[idG].id);
-                                    database.ref("depot/gasStations/" + (datasG[idG].id - 1) + "/Report/" + dayjs(formattedDate).format("DD-MM-YYYY")).on("value", (snapshot) => {
-                                        const datas = snapshot.val();
-                                        const dataList = [];
-                                        for (let id in datas) {
-                                            dataList.push({ id, ...datas[id] });
-                                        }
-                                        setGasStationReport(dataList);
-                                    });
-                                }
-                            }
-                            if (dataListReport.length === 0) {
-                                setReport(0); // ถ้าไม่มีข้อมูลใน dataListReport ให้ตั้งค่าเป็น 0
-                            } else {
-                                setReport(dataListReport); // ถ้ามีข้อมูลให้บันทึกลง state
-                            }
-                            setStock(productsList);
-                        })
-                    }
-                }
-                setGasStationsOil(dataListG);
-                setStatusSave(false);
-            });
+            setSelectedDate(dayjs(newValue));
         }
     };
 
-    const getGasStations = async () => {
-        database.ref("/depot/gasStations").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataList = [];
-            for (let id in datas) {
-                dataList.push({ id, ...datas[id] })
-            }
-            setGasStations(dataList);
-        });
-    };
-
+    // gasstationDetail/stockDetail already come from useGasStationData(), and
+    // each gas station row carries its own Report JSONB - no separate fetch
+    // per selected station/date is needed, just derive from context.
     useEffect(() => {
-        getGasStations();
-    }, []);
+        if (!gasStation || gasStation === 0) {
+            setGasStationsOil([]);
+            setStock([]);
+            setGasStationID(0);
+            setStatusSave(false);
+            return;
+        }
+
+        const matchedStation = gasstations.find((gas) => gas.Name === gasStation);
+
+        if (!matchedStation) {
+            setGasStationsOil([]);
+            setStock([]);
+            setGasStationID(0);
+            setStatusSave(false);
+            return;
+        }
+
+        setGasStationID(matchedStation.id);
+        setGasStationsOil([matchedStation]);
+
+        // depot_gas_stations.Stock is a real UUID FK into depot_stock now,
+        // not the stock's Name - match on uuid.
+        const matchedStock = stocks.find((s) => s.uuid === matchedStation.Stock);
+        setStock(Array.isArray(matchedStock?.Products) ? matchedStock.Products.filter(Boolean) : []);
+
+        setStatusSave(false);
+    }, [gasStation, gasstations, stocks]);
 
     const handleBack = () => {
         navigate("/choose");
@@ -145,51 +114,6 @@ const GasStationAdmin = () => {
 
     const handleGasStationChange = (e) => {
         setGasStation(e.target.value);
-        const DataGasStation = e.target.value;
-        database.ref("/depot/gasStations").on("value", (snapshot) => {
-            const datasG = snapshot.val();
-            const dataListG = [];
-            for (let idG in datasG) {
-                if (datasG[idG].Name === DataGasStation) {
-                    dataListG.push({ idG, ...datasG[idG] });
-                    database.ref("/depot/stock").on("value", (snapshot) => {
-                        const datasS = snapshot.val();
-                        const productsList = [];
-                        const dataListReport = [];
-
-                        for (let idS in datasS) {
-                            if (datasS[idS].Name === datasG[idG].Stock) {
-                                // ดึงเฉพาะ Products และบันทึกลง productsList
-                                const products = datasS[idS].Products || {};
-                                productsList.push(...Object.values(products)); // รวม Products ทั้งหมดเข้าใน array
-
-                                const report = datasG[idG].Report || {};
-                                dataListReport.push(...Object.values(report));
-
-                                // ตั้งค่า GasStationID
-                                setGasStationID(datasG[idG].id);
-                                database.ref("depot/gasStations/" + (datasG[idG].id - 1) + "/Report/" + dayjs(selectedDate).format("DD-MM-YYYY")).on("value", (snapshot) => {
-                                    const datas = snapshot.val();
-                                    const dataList = [];
-                                    for (let id in datas) {
-                                        dataList.push({ id, ...datas[id] });
-                                    }
-                                    setGasStationReport(dataList);
-                                });
-                            }
-                        }
-                        if (dataListReport.length === 0) {
-                            setReport(0); // ถ้าไม่มีข้อมูลใน dataListReport ให้ตั้งค่าเป็น 0
-                        } else {
-                            setReport(dataListReport); // ถ้ามีข้อมูลให้บันทึกลง state
-                        }
-                        setStock(productsList);
-                    })
-                }
-            }
-            setGasStationsOil(dataListG);
-            setStatusSave(false);
-        });
     };
 
     // const [showButton, setShowButton] = useState(false);
@@ -367,7 +291,7 @@ const GasStationAdmin = () => {
                                 >
                                     <MenuItem value={0}>กรุณาเลือกปั้ม</MenuItem>
                                     {
-                                        [...new Set(gasStations.map(row => row.Name))].map((name) => (
+                                        [...new Set(gasstations.map(row => row.Name))].map((name) => (
                                             <MenuItem key={name} value={name}>{name}</MenuItem>
                                         ))
                                     }
