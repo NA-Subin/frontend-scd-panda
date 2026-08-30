@@ -35,7 +35,7 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { TablecellSelling } from "../../theme/style";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
-import { database } from "../../server/firebase";
+import { apiPost, apiPut } from "../../server/apiClient";
 
 const ExpenseDetail = ({ openNavbar }) => {
     const [update, setUpdate] = React.useState(true);
@@ -74,8 +74,7 @@ const ExpenseDetail = ({ openNavbar }) => {
         };
     }, [openNavbar]); // ✅ ทำงานใหม่ทุกครั้งที่ openNavbar เปลี่ยน
 
-    //const { creditors } = useData();
-    const { expenseitems } = useBasicData();
+    const { expenseitems, refetch } = useBasicData();
     const expenseitem = Object.values(expenseitems || {});
 
     const [page, setPage] = useState(0);
@@ -91,74 +90,62 @@ const ExpenseDetail = ({ openNavbar }) => {
     };
 
     const handleUpdate = (data) => {
-        setID(data.id);
+        setID(data.uuid);
         setName(data.Name);
         setType(data.Type);
         setStatus(data.Status === "อยู่ในระบบ" ? true : false);
     }
 
-    const handleSave = () => {
-        database
-            .ref("/expenseitems/")
-            .child(expenseitem.length)
-            .update({
+    const handleSave = async () => {
+        try {
+            await apiPost("/api/expenseitems", {
                 id: expenseitem.length + 1,
                 Name: name,
                 Type: type,
                 Status: "อยู่ในระบบ"
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setName("");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            setName("");
+            refetch?.();
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
-    const handleUpdateData = (data) => {
-        database
-            .ref("/expenseitems/")
-            .child(Number(ID) - 1)
-            .update({
+    const handleUpdateData = async () => {
+        try {
+            await apiPut(`/api/expenseitems/${ID}`, {
                 Name: name,
                 Type: type,
                 Status: status ? "อยู่ในระบบ" : "ไม่อยู่ในระบบ"
-            })
-            .then(() => {
-                ShowSuccess("แก้ไขข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setID("");
-                setName("");
-                setType("");
-                setStatus("");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("แก้ไขข้อมูลสำเร็จ");
+            setID("");
+            setName("");
+            setType("");
+            setStatus("");
+            refetch?.();
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
     const handleDeleteData = (data) => {
         ShowConfirm(
             `ต้องการลบข้อมูล ${data.Name} ใช่หรือไม่`,
-            () => {
-                database
-                    .ref("/expenseitems/")
-                    .child(Number(data.id) - 1)
-                    .update({
+            async () => {
+                try {
+                    await apiPut(`/api/expenseitems/${data.uuid}`, {
                         Status: "ไม่อยู่ในระบบ"
-                    })
-                    .then(() => {
-                        ShowSuccess("ลบข้อมูลสำเร็จ");
-                        console.log("Data pushed successfully");
-                    })
-                    .catch((error) => {
-                        ShowError("ลบข้อมูลไม่สำเร็จ");
-                        console.error("Error pushing data:", error);
                     });
+                    ShowSuccess("ลบข้อมูลสำเร็จ");
+                    refetch?.();
+                } catch (error) {
+                    ShowError("ลบข้อมูลไม่สำเร็จ");
+                    console.error("Error pushing data:", error);
+                }
             },
             () => {
                 ShowError("ยกเลิกการลบข้อมูล");
@@ -169,21 +156,17 @@ const ExpenseDetail = ({ openNavbar }) => {
     const handleResetData = (data) => {
         ShowConfirm(
             `ต้องการกู้ข้อมูล ${data.Name} ใช่หรือไม่`,
-            () => {
-                database
-                    .ref("/expenseitems/")
-                    .child(Number(data.id) - 1)
-                    .update({
+            async () => {
+                try {
+                    await apiPut(`/api/expenseitems/${data.uuid}`, {
                         Status: "อยู่ในระบบ"
-                    })
-                    .then(() => {
-                        ShowSuccess("กู้ข้อมูลสำเร็จ");
-                        console.log("Data pushed successfully");
-                    })
-                    .catch((error) => {
-                        ShowError("กู้ข้อมูลไม่สำเร็จ");
-                        console.error("Error pushing data:", error);
                     });
+                    ShowSuccess("กู้ข้อมูลสำเร็จ");
+                    refetch?.();
+                } catch (error) {
+                    ShowError("กู้ข้อมูลไม่สำเร็จ");
+                    console.error("Error pushing data:", error);
+                }
             },
             () => {
                 ShowError("ยกเลิกการลบข้อมูล");
@@ -319,10 +302,10 @@ const ExpenseDetail = ({ openNavbar }) => {
                                             // .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                             .map((row, index) => (
                                                 <TableRow>
-                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.id && "#c5cae9" }}>
-                                                        <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.id && "bold" }} gutterBottom>{index + 1}</Typography>
+                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
+                                                        <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.uuid && "bold" }} gutterBottom>{index + 1}</Typography>
                                                     </TableCell>
-                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.id && "#c5cae9" }}>
+                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
                                                         {
                                                             ID !== row.id ?
                                                                 <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5 }} gutterBottom>{row.Name}</Typography>
@@ -347,7 +330,7 @@ const ExpenseDetail = ({ openNavbar }) => {
                                                                 </Paper>
                                                         }
                                                     </TableCell>
-                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.id && "#c5cae9" }}>
+                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
                                                         {
                                                             ID !== row.id ?
                                                                 <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5 }} gutterBottom>{row.Type}</Typography>
@@ -375,7 +358,7 @@ const ExpenseDetail = ({ openNavbar }) => {
                                                                 </Paper>
                                                         }
                                                     </TableCell>
-                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.id && "#c5cae9" }}>
+                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
                                                         {
                                                             ID !== row.id ?
                                                                 <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5 }} gutterBottom>{row.Status}</Typography>
@@ -405,7 +388,7 @@ const ExpenseDetail = ({ openNavbar }) => {
                                                                 </Paper>
                                                         }
                                                     </TableCell>
-                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.id && "#c5cae9" }}>
+                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
                                                         {
                                                             ID !== row.id ?
                                                                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
