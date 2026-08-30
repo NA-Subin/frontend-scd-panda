@@ -38,13 +38,11 @@ import CloseIcon from '@mui/icons-material/Close';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import InfoIcon from '@mui/icons-material/Info';
 import { IconButtonError, IconButtonInfo, TablecellHeader, TablecellSetting, TablecellTickets } from "../../theme/style";
-import { database } from "../../server/firebase";
+import { apiPost, apiPut } from "../../server/apiClient";
 import InsertCompany from "./InsertCompany";
 import theme from "../../theme/theme";
 import Cookies from 'js-cookie';
-import { useData } from "../../server/path";
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { getAuth, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 
@@ -87,7 +85,7 @@ const Setting = () => {
   const userId = Cookies.get("sessionToken");
   // const { company, officers } = useData();
 
-  const { company, officers, positions } = useBasicData();
+  const { company, officers, positions, refetch } = useBasicData();
   const companyDetail = Object.values(company || {});
   const officersDetail = Object.values(officers || {});
   const positionsDetail = Object.values(positions || {});
@@ -109,56 +107,25 @@ const Setting = () => {
   const [message, setMessage] = useState('');
 
   const handleChangePassword = async () => {
-    const auth = getAuth();
-    const user = auth.currentUser;
-
-    console.log("Auth : ", auth);
-    console.log("User : ", user);
-
-    if (newPassword === newPasswordAgain) {
-      if (user && user.email) {
-        const credential = EmailAuthProvider.credential(user.email, currentPassword);
-
-        console.log("Credential : ", credential);
-
-        try {
-          // 1. ยืนยันตัวตนด้วยรหัสผ่านเดิม
-          await reauthenticateWithCredential(user, credential);
-
-          // 2. เปลี่ยนรหัสผ่านใหม่
-          await updatePassword(user, newPassword);
-
-          database
-            .ref("employee/officers/")
-            .child(userDetail.id - 1)
-            .update({
-              Password: newPassword,
-            })
-            .then(() => {
-              console.log("Data pushed successfully");
-              setOpenEditePassword(false)
-            })
-            .catch((error) => {
-              ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-              console.error("Error pushing data:", error);
-            });
-
-          ShowSuccess('เปลี่ยนรหัสผ่านเรียบร้อยแล้ว');
-        } catch (error) {
-          ShowError(`เกิดข้อผิดพลาด: ${error.message}`);
-        }
-      } else {
-        ShowError('ไม่พบผู้ใช้ที่เข้าสู่ระบบ');
-      }
-    } else {
+    if (newPassword !== newPasswordAgain) {
       ShowError('กรูณากรอกรหัสผ่านใหม่อีกครั้ง');
+      return;
     }
 
-
+    try {
+      await apiPost("/api/auth/change-password", { currentPassword, newPassword });
+      ShowSuccess('เปลี่ยนรหัสผ่านเรียบร้อยแล้ว');
+      setOpenEditePassword(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setNewPasswordAgian('');
+    } catch (error) {
+      ShowError(error?.data?.error || `เกิดข้อผิดพลาด: ${error.message}`);
+    }
   };
 
-  const handleUpdate = (newIndex, newID, newName, newBasicData, newOperationData, newFinancialData, newReportData, newBigTruckData, newSmallTruckData, newGasStationData, newDriverData) => {
-    setCheckID(newID - 1);
+  const handleUpdate = (newIndex, newUuid, newName, newBasicData, newOperationData, newFinancialData, newReportData, newBigTruckData, newSmallTruckData, newGasStationData, newDriverData) => {
+    setCheckID(newUuid);
     setCheckIndex(newIndex);
     setName(newName);
     setCheckBasicData(newBasicData === 0 ? false : true);
@@ -189,7 +156,7 @@ const Setting = () => {
 
   const handleEditCompany = (row) => {
     setOpenDetailCompany(row.id);
-    setCompanyID(row.id);
+    setCompanyID(row.uuid);
     setNewName(row.Name || "");
     setNewAddress({
       no: row.Address?.no || "",
@@ -215,11 +182,9 @@ const Setting = () => {
     setOpen(false);
   };
 
-  const handleSave = () => {
-    database
-      .ref("positions/")
-      .child(positionsDetail.length)
-      .update({
+  const handleSave = async () => {
+    try {
+      await apiPost("/api/positions", {
         id: (positionsDetail.length) + 1,
         Name: positionName,
         BasicData: 0,
@@ -230,17 +195,15 @@ const Setting = () => {
         SmallTruckData: 0,
         GasStationData: 0,
         DriverData: 0
-      })
-      .then(() => {
-        ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-        console.log("Data pushed successfully");
-        setInsertPositions(false);
-        setPositionName("");
-      })
-      .catch((error) => {
-        ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-        console.error("Error pushing data:", error);
       });
+      ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+      setInsertPositions(false);
+      setPositionName("");
+      refetch?.();
+    } catch (error) {
+      ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+      console.error("Error pushing data:", error);
+    }
   }
   // const [company, setCompany] = useState([]);
 
@@ -290,10 +253,7 @@ const Setting = () => {
 
   const handleSaveCompany = async () => {
     try {
-      const companyRef = database.ref("company").child(Number(companyID) - 1);
-
-      const snapshot = await companyRef.once("value");
-      const companyData = snapshot.val();
+      const companyData = companyDetail.find((c) => c.uuid === companyID) || {};
 
       const today = new Date();
       const dateStr = today.toLocaleDateString("en-GB");
@@ -325,13 +285,14 @@ const Setting = () => {
           DateEnd: dateStr,
         };
 
-        await companyRef.child("History").child(nextIndex).set(oldHistory);
+        updatedData.History = { ...history, [nextIndex]: oldHistory };
       }
 
-      await companyRef.update(updatedData);
+      await apiPut(`/api/company/${companyID}`, updatedData);
 
       ShowSuccess("อัปเดตข้อมูลสำเร็จ");
       setUpdate(true);
+      refetch?.();
 
     } catch (err) {
       ShowError("เกิดข้อผิดพลาดในการอัปเดต");
@@ -339,11 +300,9 @@ const Setting = () => {
     }
   };
 
-  const handleSavePosition = () => {
-    database
-      .ref("positions/")
-      .child(checkID)
-      .update({
+  const handleSavePosition = async () => {
+    try {
+      await apiPut(`/api/positions/${checkID}`, {
         Name: name,
         BasicData: checkBasicData === false ? 0 : 1,
         OprerationData: checkOrperationData === false ? 0 : 1,
@@ -353,16 +312,14 @@ const Setting = () => {
         SmallTruckData: checkSmallTruckData === false ? 0 : 1,
         GasStationData: checkGasStationData === false ? 0 : 1,
         DriverData: checkDriverData === false ? 0 : 1
-      })
-      .then(() => {
-        ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-        console.log("Data pushed successfully");
-        setUpdatePosition(true);
-      })
-      .catch((error) => {
-        ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-        console.error("Error pushing data:", error);
       });
+      ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+      setUpdatePosition(true);
+      refetch?.();
+    } catch (error) {
+      ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+      console.error("Error pushing data:", error);
+    }
   }
 
   console.log("Positon Detail : ", positionsDetail);
@@ -1201,7 +1158,7 @@ const Setting = () => {
                                             color="warning"
                                             size="small"
                                             fullWidth
-                                            onClick={() => handleUpdate(index, row.id, row.Name, row.BasicData, row.OprerationData, row.FinancialData, row.ReportData, row.BigTruckData, row.SmallTruckData, row.GasStationData, row.DriverData)}
+                                            onClick={() => handleUpdate(index, row.uuid, row.Name, row.BasicData, row.OprerationData, row.FinancialData, row.ReportData, row.BigTruckData, row.SmallTruckData, row.GasStationData, row.DriverData)}
                                           >
                                             แก้ไข
                                           </Button>

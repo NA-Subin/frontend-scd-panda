@@ -32,9 +32,8 @@ import "dayjs/locale/th";
 import theme from "../../theme/theme";
 import { IconButtonError, RateOils, TablecellHeader } from "../../theme/style";
 import CancelIcon from '@mui/icons-material/Cancel';
-import { database } from "../../server/firebase";
+import { apiPost } from "../../server/apiClient";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
-import { useData } from "../../server/path";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 
 const InsertCompany = () => {
@@ -42,8 +41,7 @@ const InsertCompany = () => {
     const [open, setOpen] = React.useState(false);
     const [depots, setDepots] = useState("");
 
-    // const { company } = useData();
-    const { company } = useBasicData();
+    const { company, refetch } = useBasicData();
     const companyDetail = Object.values(company || {});
 
     console.log("Company : ", companyDetail);
@@ -98,14 +96,12 @@ const InsertCompany = () => {
 
     console.log("Company : ", companyDetail);
 
-    const handlePost = () => {
+    const handlePost = async () => {
         const today = new Date();
         const dateStr = today.toLocaleDateString("en-GB");
 
-        database
-            .ref("company")
-            .child(companyDetail.length)
-            .update({
+        try {
+            await apiPost("/api/company", {
                 id: (companyDetail.length) + 1,
                 Name: name,
                 CardID: cardId,
@@ -121,27 +117,25 @@ const InsertCompany = () => {
                 DateStart: dateStr,
                 lat: lat,
                 lng: lng,
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setOpen(false);
-                setName("");
-                setCardID("");
-                setNo("");
-                setVillage("");
-                setRoad("");
-                setSubDistrict("");
-                setDistrict("");
-                setProvince("");
-                setZipCode("");
-                setLat("");
-                setLng("");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            setOpen(false);
+            setName("");
+            setCardID("");
+            setNo("");
+            setVillage("");
+            setRoad("");
+            setSubDistrict("");
+            setDistrict("");
+            setProvince("");
+            setZipCode("");
+            setLat("");
+            setLng("");
+            refetch?.();
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
 
