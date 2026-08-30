@@ -36,10 +36,12 @@ import theme from "../../../theme/theme";
 import { ShowError, ShowSuccess } from "../../sweetalert/sweetalert";
 import CancelIcon from '@mui/icons-material/Cancel';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { database } from "../../../server/firebase";
+import { apiPost } from "../../../server/apiClient";
+import { useGasStationData } from "../../../server/provider/GasStationProvider";
 
 const InsertStock = (props) => {
     const { stock, handleClose } = props;
+    const { refetch: refetchGasStationData } = useGasStationData();
     const [check, setCheck] = React.useState(true);
     const [open, setOpen] = React.useState(false);
     const [numberAdd, setNumberAdd] = React.useState(1);
@@ -109,21 +111,31 @@ const InsertStock = (props) => {
     //     setVolume(total);
     //   }, [G91, G95, B7, B95, B10, B20, E20, E85, PWD]);
 
-    const handlePost = () => {
+    const handlePost = async () => {
         const totalVolume = products.reduce((sum, row) => {
             return sum + (parseFloat(row.Capacity) || 0); // แปลง Capacity เป็นตัวเลขและรวม
         }, 0);
 
-        database
-            .ref("depot/stock/")
-            .child(stock)
-            .update({
+        // Products is stored as a JSONB array indexed by each row's id (matches
+        // the shape already in the DB, imported from Firebase's auto-array
+        // coercion for sequential integer keys) - a plain {id: row} object would
+        // read back fine from Firebase but not from Postgres, which stores
+        // exactly what it's given.
+        const productsArray = [];
+        products.forEach((row) => {
+            productsArray[row.id] = {
+                id: row.id,
+                ProductName: row.Product,
+                Capacity: row.Capacity,
+                Color: row.Color,
+            };
+        });
+
+        try {
+            await apiPost("/api/depot_stock", {
                 id: stock + 1,
                 Name: name,
-                // Products: products.reduce((acc, row) => {
-                //     acc[row.Product] = row.Capacity; // เพิ่ม key-value ในออบเจ็กต์
-                //     return acc;
-                // }, {}),
+                Products: productsArray,
                 Volume: totalVolume,
                 Address:
                     (no === "-" ? "-" : no) +
@@ -135,33 +147,14 @@ const InsertStock = (props) => {
                 ,
                 lat: lat,
                 lng: lng
-            })
-            .then(() => {
-                products.map((row) => {
-                    database
-                        .ref("depot/stock/" + stock)
-                        .child("/Products/" + row.id)
-                        .update({
-                            id: row.id,
-                            ProductName: row.Product,
-                            Capacity: row.Capacity,
-                            Color: row.Color
-                        })
-                        .then(() => {
-                            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                            console.log("Data pushed successfully");
-                            setOpen(false);
-                        })
-                        .catch((error) => {
-                            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                            console.error("Error pushing data:", error);
-                        });
-                })
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetchGasStationData?.();
+            setOpen(false);
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
     return (

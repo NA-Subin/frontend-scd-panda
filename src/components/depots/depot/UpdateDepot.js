@@ -31,13 +31,15 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import InfoIcon from '@mui/icons-material/Info';
 import theme from "../../../theme/theme";
 import { IconButtonError, RateOils, TablecellHeader } from "../../../theme/style";
-import { database } from "../../../server/firebase";
+import { apiPut } from "../../../server/apiClient";
 import { ShowError, ShowSuccess } from "../../sweetalert/sweetalert";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { useBasicData } from "../../../server/provider/BasicDataProvider";
 
 const UpdateDepot = (props) => {
     const { depot } = props;
+    const { refetch: refetchBasicData } = useBasicData();
     const [update, setUpdate] = React.useState(true);
     const [open, setOpen] = useState(false);
 
@@ -61,13 +63,16 @@ const UpdateDepot = (props) => {
     const [lat, setLat] = React.useState(depot.lat);
     const [lng, setLng] = React.useState(depot.lng);
 
-    const handleUpdate = () => {
-        database
-            .ref("/depot/oils/")
-            .child(depot.id - 1)
-            .update({
+    const handleUpdate = async () => {
+        if (!depot?.uuid) {
+            ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+            return;
+        }
+
+        try {
+            await apiPut(`/api/depot_oils/${depot.uuid}`, {
                 Name: name,
-                Address: 
+                Address:
                 (no === "-" ? "-" : no)+
                 (village === "-" ? "" : ","+village)+
                 (subDistrict === "-" ? "" : ","+subDistrict)+
@@ -77,16 +82,14 @@ const UpdateDepot = (props) => {
                 ,
                 lat: lat,
                 lng: lng
-            })
-            .then(() => {
-                ShowSuccess("แก้ไขข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setUpdate(true)
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("แก้ไขข้อมูลสำเร็จ");
+            refetchBasicData?.();
+            setUpdate(true)
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     }
 
     return (

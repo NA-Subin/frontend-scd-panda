@@ -31,18 +31,15 @@ import {
 } from "@mui/material";
 import "dayjs/locale/th";
 import { IconButtonError, RateOils, TablecellHeader, TablecellSelling } from "../../../theme/style";
-import { database } from "../../../server/firebase";
 import UpdateDepot from "./UpdateDepot";
 import { ShowError, ShowSuccess } from "../../sweetalert/sweetalert";
 import InserDepot from "./InsertDepot";
-import { useData } from "../../../server/path";
 import { useBasicData } from "../../../server/provider/BasicDataProvider";
 
 const Depots = ({openNavbar}) => {
   const [menu, setMenu] = React.useState(0);
   const [open, setOpen] = React.useState(false);
 
-  // const { depots } = useData();
   const { depots } = useBasicData();
   const depot = Object.values(depots || {});
 

@@ -34,13 +34,15 @@ import OilBarrelIcon from "@mui/icons-material/OilBarrel";
 
 
 
-import { database } from "../../../server/firebase";
+import { apiPost } from "../../../server/apiClient";
 import { ShowError, ShowSuccess } from "../../sweetalert/sweetalert";
 import { IconButtonError } from "../../../theme/style";
 import theme from "../../../theme/theme";
+import { useBasicData } from "../../../server/provider/BasicDataProvider";
 
 const InsertDepot = (props) => {
     const { depot } = props;
+    const { refetch: refetchBasicData } = useBasicData();
     const [menu, setMenu] = React.useState(0);
     const [open, setOpen] = React.useState(false);
 
@@ -81,11 +83,9 @@ const InsertDepot = (props) => {
 
     console.log("depot : ",depot);
 
-    const handlePost = () => {
-        database
-            .ref("depot/oils/")
-            .child(depot)
-            .update({
+    const handlePost = async () => {
+        try {
+            await apiPost("/api/depot_oils", {
                 id: depot + 1,
                 Name: name,
                 Address:
@@ -99,16 +99,14 @@ const InsertDepot = (props) => {
                 lat: lat,
                 lng: lng,
                 Zone: zone
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setOpen(false);
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetchBasicData?.();
+            setOpen(false);
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
     return (

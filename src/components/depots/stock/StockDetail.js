@@ -36,12 +36,14 @@ import BloodtypeIcon from '@mui/icons-material/Bloodtype';
 import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
 import SettingsIcon from '@mui/icons-material/Settings';
-import { database } from "../../../server/firebase";
+import { apiPut } from "../../../server/apiClient";
+import { useGasStationData } from "../../../server/provider/GasStationProvider";
 import { ShowError, ShowSuccess } from "../../sweetalert/sweetalert";
 import theme from "../../../theme/theme";
 
 const StockDetail = (props) => {
     const { stock } = props;
+    const { refetch: refetchGasStationData } = useGasStationData();
 
     const [update, setUpdate] = React.useState(true);
     const [edit, setEdit] = React.useState(true);
@@ -90,7 +92,20 @@ const StockDetail = (props) => {
 
     // console.log("stock : ", stock);
 
-    const handleUpdate = () => {
+    // Products is stored as a JSONB array indexed by each row's id (matches
+    // the shape already in the DB, imported from Firebase's auto-array
+    // coercion for sequential integer keys) - Postgres/JSONB stores exactly
+    // what it's given, unlike Firebase which re-coerces on read, so writes
+    // here have to rebuild that same array shape explicitly.
+    const toProductsArray = (products) =>
+        Array.isArray(products) ? [...products] : Object.values(products || {});
+
+    const handleUpdate = async () => {
+        if (!stock?.uuid) {
+            ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+            return;
+        }
+
         // 1️⃣ กรองเอาเฉพาะ product จริง ๆ ไม่เอา isEditingId
         const productsToSave = Object.fromEntries(
             Object.entries(editStates).filter(([key, value]) => key !== "isEditingId")
@@ -101,57 +116,64 @@ const StockDetail = (props) => {
             .filter(item => item && item.Capacity)
             .reduce((sum, item) => sum + Number(item.Capacity), 0);
 
-        // 3️⃣ push ลง Firebase
-        database
-            .ref("/depot/stock")
-            .child(stock.id - 1)
-            .update({
+        const productsArray = [];
+        for (const [key, value] of Object.entries(productsToSave)) {
+            productsArray[Number(key)] = value;
+        }
+
+        try {
+            await apiPut(`/api/depot_stock/${stock.uuid}`, {
                 Volume: totalVolume,
-                Products: productsToSave,
-            })
-            .then(() => {
-                ShowSuccess("แก้ไขข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
+                Products: productsArray,
             });
+            ShowSuccess("แก้ไขข้อมูลสำเร็จ");
+            refetchGasStationData?.();
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
-    const handlesave = () => {
-        database
-            .ref(`/depot/stock/${Number(stock.id) - 1}/Products`)
-            .child(editStates.length)
-            .update({
-                id: editStates.length,
-                ProductName: productnanme,
-                Capacity: Number(volumes),
-                Color: productnanme === "G91" ? "#92D050" :
-                    productnanme === "G95" ? "#FFC000" :
-                        productnanme === "B7" ? "#FFFF99" :
-                            productnanme === "B95" ? "#B7DEE8" :
-                                productnanme === "B10" ? "#32CD32" :
-                                    productnanme === "B20" ? "#228B22" :
-                                        productnanme === "E20" ? "#C4BD97" :
-                                            productnanme === "E85" ? "#0000FF" :
-                                                productnanme === "PWD" ? "#F141D8" :
-                                                    "#FFD700",
-            })
-            .then(() => {
+    const handlesave = async () => {
+        if (!stock?.uuid) {
+            ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+            return;
+        }
 
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setShow(false);
-                // รีเซ็ตฟิลด์หลังบันทึก
-                addProductname("");
-                addVolumes(0);
+        const productsArray = toProductsArray(stock.Products);
+        const existingIds = productsArray.map((p) => p?.id).filter((id) => id != null);
+        const newId = existingIds.length ? Math.max(...existingIds) + 1 : 1;
 
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
+        productsArray[newId] = {
+            id: newId,
+            ProductName: productnanme,
+            Capacity: Number(volumes),
+            Color: productnanme === "G91" ? "#92D050" :
+                productnanme === "G95" ? "#FFC000" :
+                    productnanme === "B7" ? "#FFFF99" :
+                        productnanme === "B95" ? "#B7DEE8" :
+                            productnanme === "B10" ? "#32CD32" :
+                                productnanme === "B20" ? "#228B22" :
+                                    productnanme === "E20" ? "#C4BD97" :
+                                        productnanme === "E85" ? "#0000FF" :
+                                            productnanme === "PWD" ? "#F141D8" :
+                                                "#FFD700",
+        };
+
+        try {
+            await apiPut(`/api/depot_stock/${stock.uuid}`, {
+                Products: productsArray,
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetchGasStationData?.();
+            setShow(false);
+            // รีเซ็ตฟิลด์หลังบันทึก
+            addProductname("");
+            addVolumes(0);
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     }
 
     return (
