@@ -28,7 +28,6 @@ import {
     Typography,
 } from "@mui/material";
 import { IconButtonError, RateOils, TableCellB20, TableCellB7, TableCellB95, TableCellE20, TableCellG91, TableCellG95, TablecellHeader, TableCellPWD } from "../../theme/style";
-import { database } from "../../server/firebase";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import theme from "../../theme/theme";
 
@@ -45,172 +44,12 @@ const SellingDetail = (props) => {
         depots
     } = props;
 
-    const [orderG91, setOrderG91] = React.useState([]);
-    const [orderG95, setOrderG95] = React.useState([]);
-    const [orderB7, setOrderB7] = React.useState([]);
-    const [orderB95, setOrderB95] = React.useState([]);
-    const [orderE20, setOrderE20] = React.useState([]);
-    const [orderPWD, setOrderPWD] = React.useState([]);
-    const [orderB20, setOrderB20] = React.useState([]);
-
-    // const getData = async () => {
-    //     database.ref("tickets/" + ticketsTrip + "/ticketOrder/").on("value", (snapshot) => {
-    //         const datas = snapshot.val();
-    //         for (let ticket in datas) {
-    //             if (datas[ticket].TicketName === customers && customers.split(":")[0] === "T") {
-    //                 setTicketsT(datas[ticket].id - 1);
-    //                 setTicketsNameT(customers);
-    //                 database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (datas[ticket].id - 1) + "/Product/G91").on("value", (snapshot) => {
-    //                     const datas = snapshot.val();
-    //                     setG91(datas);
-    //                     setVolumeG91(datas.Volume)
-    //                 });
-    //                 database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (datas[ticket].id - 1) + "/Product/G95").on("value", (snapshot) => {
-    //                     const datas = snapshot.val();
-    //                     setG95(datas);
-    //                     setVolumeG95(datas.Volume)
-    //                 });
-    //                 database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (datas[ticket].id - 1) + "/Product/B7").on("value", (snapshot) => {
-    //                     const datas = snapshot.val();
-    //                     setB7(datas);
-    //                     setVolumeB7(datas.Volume)
-    //                 });
-    //                 database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (datas[ticket].id - 1) + "/Product/B95").on("value", (snapshot) => {
-    //                     const datas = snapshot.val();
-    //                     setB95(datas);
-    //                     setVolumeB95(datas.Volume)
-    //                 });
-    //                 database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (datas[ticket].id - 1) + "/Product/E20").on("value", (snapshot) => {
-    //                     const datas = snapshot.val();
-    //                     setE20(datas);
-    //                     setVolumeE20(datas.Volume)
-    //                 });
-    //                 database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (datas[ticket].id - 1) + "/Product/PWD").on("value", (snapshot) => {
-    //                     const datas = snapshot.val();
-    //                     setPWD(datas);
-    //                     setVolumePWD(datas.Volume)
-    //                 });
-    //             }
-    //             else if (datas[ticket].TicketName.split(":")[0] === "PS" && customers.split(":")[0] === "PS") {
-    //                 setTicketsPS(datas[ticket].id - 1);
-    //                 setTicketsNamePS(datas[ticket].TicketName);
-    //                 database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (datas[ticket].id - 1) + "/Product/G91").on("value", (snapshot) => {
-    //                     const datas = snapshot.val();
-    //                     setG91(datas);
-    //                     setVolumeG91(datas.Volume)
-    //                 });
-    //                 database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (datas[ticket].id - 1) + "/Product/G95").on("value", (snapshot) => {
-    //                     const datas = snapshot.val();
-    //                     setG95(datas);
-    //                     setVolumeG95(datas.Volume)
-    //                 });
-    //                 database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (datas[ticket].id - 1) + "/Product/B7").on("value", (snapshot) => {
-    //                     const datas = snapshot.val();
-    //                     setB7(datas);
-    //                     setVolumeB7(datas.Volume)
-    //                 });
-    //                 database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (datas[ticket].id - 1) + "/Product/B95").on("value", (snapshot) => {
-    //                     const datas = snapshot.val();
-    //                     setB95(datas);
-    //                     setVolumeB95(datas.Volume)
-    //                 });
-    //                 database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (datas[ticket].id - 1) + "/Product/E20").on("value", (snapshot) => {
-    //                     const datas = snapshot.val();
-    //                     setE20(datas);
-    //                     setVolumeE20(datas.Volume)
-    //                 });
-    //                 database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (datas[ticket].id - 1) + "/Product/PWD").on("value", (snapshot) => {
-    //                     const datas = snapshot.val();
-    //                     setPWD(datas);
-    //                     setVolumePWD(datas.Volume)
-    //                 });
-    //             } else if (datas[ticket].TicketName.split(":")[0] === "A" && customers.split(":")[0] === "A") {
-    //                 setTicketsA(datas[ticket].id - 1);
-    //                 setTicketsNameA(datas[ticket].TicketName);
-    //                 database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (datas[ticket].id - 1) + "/Product/G91").on("value", (snapshot) => {
-    //                     const datas = snapshot.val();
-    //                     setG91(datas);
-    //                     setVolumeG91(datas.Volume)
-    //                 });
-    //                 database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (datas[ticket].id - 1) + "/Product/G95").on("value", (snapshot) => {
-    //                     const datas = snapshot.val();
-    //                     setG95(datas);
-    //                     setVolumeG95(datas.Volume)
-    //                 });
-    //                 database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (datas[ticket].id - 1) + "/Product/B7").on("value", (snapshot) => {
-    //                     const datas = snapshot.val();
-    //                     setB7(datas);
-    //                     setVolumeB7(datas.Volume)
-    //                 });
-    //                 database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (datas[ticket].id - 1) + "/Product/B95").on("value", (snapshot) => {
-    //                     const datas = snapshot.val();
-    //                     setB95(datas);
-    //                     setVolumeB95(datas.Volume)
-    //                 });
-    //                 database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (datas[ticket].id - 1) + "/Product/E20").on("value", (snapshot) => {
-    //                     const datas = snapshot.val();
-    //                     setE20(datas);
-    //                     setVolumeE20(datas.Volume)
-    //                 });
-    //                 database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (datas[ticket].id - 1) + "/Product/PWD").on("value", (snapshot) => {
-    //                     const datas = snapshot.val();
-    //                     setPWD(datas);
-    //                     setVolumePWD(datas.Volume)
-    //                 });
-    //             } else {
-
-    //             }
-
-    //         }
-    //     });
-    //     // database.ref("/order").on("value", (snapshot) => {
-    //     //             const datas = snapshot.val();
-    //     //             const dataOrder = [];
-    //     //             for (let id in datas) {
-    //     //                 datas[id].Trip === trips ?
-    //     //                 dataOrder.push({ id, ...datas[id] })
-    //     //                 : ""
-    //     //             }
-    //     //             setOrder(dataOrder);
-    //     //         });
-    // };
-
-    const getOrder = async () => {
-        database.ref("order/" + (detail.id - 1) + "/Product/G91").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            setOrderG91(datas);
-        });
-        database.ref("order/" + (detail.id - 1) + "/Product/G95").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            setOrderG95(datas);
-        });
-        database.ref("order/" + (detail.id - 1) + "/Product/B7").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            setOrderB7(datas);
-        });
-        database.ref("order/" + (detail.id - 1) + "/Product/B95").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            setOrderB95(datas);
-        });
-        database.ref("order/" + (detail.id - 1) + "/Product/E20").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            setOrderE20(datas);
-        });
-        database.ref("order/" + (detail.id - 1) + "/Product/PWD").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            setOrderPWD(datas);
-        });
-        database.ref("order/" + (detail.id - 1) + "/Product/B20").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            setOrderB20(datas);
-        });
-    };
-
-    useEffect(() => {
-        // getData();
-        getOrder();
-
-    }, []);
+    const orderG91 = detail.Product?.G91 || {};
+    const orderG95 = detail.Product?.G95 || {};
+    const orderB7 = detail.Product?.B7 || {};
+    const orderB95 = detail.Product?.B95 || {};
+    const orderE20 = detail.Product?.E20 || {};
+    const orderPWD = detail.Product?.PWD || {};
 
     console.log("Depot : ", depots);
 

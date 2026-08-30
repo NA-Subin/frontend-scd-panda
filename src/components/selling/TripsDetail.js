@@ -32,7 +32,7 @@ import "dayjs/locale/th";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import theme from "../../theme/theme";
 import { RateOils, TablecellHeader } from "../../theme/style";
-import { database } from "../../server/firebase";
+import { apiPut } from "../../server/apiClient";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import InfoIcon from "@mui/icons-material/Info";
 import UpdateTrip from "./UpdateTrip";
@@ -42,7 +42,7 @@ import { useTripData } from "../../server/provider/TripProvider";
 const TripsDetail = (props) => {
   const { trips, windowWidth, index } = props;
   const [approve, setApprove] = React.useState(false);
-  const { order } = useTripData();
+  const { order, refetch } = useTripData();
   const orderDetail = Object.values(order || {});
 
   const orders = orderDetail.find((item) => Number(item.Trip) === trips.id - 1);
@@ -50,38 +50,26 @@ const TripsDetail = (props) => {
   console.log("order : ", orders);
   console.log("orderName : ", orderName);
 
-  const handleApprove = () => {
-    database
-      .ref("trip/")
-      .child(trips.id - 1)
-      .update({
-        Status: "อนุมัติแล้ว",
-      })
-      .then(() => {
-        ShowSuccess("อนุมัติเที่ยววิ่งเรียบร้อย");
-        console.log("Data pushed successfully");
-      })
-      .catch((error) => {
-        ShowError("อนุมัติเที่ยววิ่งไม่สำเร็จ");
-        console.error("Error pushing data:", error);
-      });
+  const handleApprove = async () => {
+    try {
+      await apiPut(`/api/trip/${trips.uuid}`, { Status: "อนุมัติแล้ว" });
+      ShowSuccess("อนุมัติเที่ยววิ่งเรียบร้อย");
+      refetch?.();
+    } catch (error) {
+      ShowError("อนุมัติเที่ยววิ่งไม่สำเร็จ");
+      console.error("Error updating data:", error);
+    }
   };
 
-  const handleNonApprove = () => {
-    database
-      .ref("trip/")
-      .child(trips.id - 1)
-      .update({
-        Status: "ไม่อนุมัติ",
-      })
-      .then(() => {
-        ShowSuccess("ไม่อนุมัติเที่ยววิ่งเรียบร้อย");
-        console.log("Data pushed successfully");
-      })
-      .catch((error) => {
-        ShowError("ไม่อนุมัติเที่ยววิ่งไม่สำเร็จ");
-        console.error("Error pushing data:", error);
-      });
+  const handleNonApprove = async () => {
+    try {
+      await apiPut(`/api/trip/${trips.uuid}`, { Status: "ไม่อนุมัติ" });
+      ShowSuccess("ไม่อนุมัติเที่ยววิ่งเรียบร้อย");
+      refetch?.();
+    } catch (error) {
+      ShowError("ไม่อนุมัติเที่ยววิ่งไม่สำเร็จ");
+      console.error("Error updating data:", error);
+    }
   };
 
   return (

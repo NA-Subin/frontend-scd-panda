@@ -39,10 +39,8 @@ import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import theme from "../../theme/theme";
 import { RateOils, TablecellCustomers, TablecellHeader, TablecellTickets } from "../../theme/style";
-import { database } from "../../server/firebase";
 import TripsDetail from "./TripsDetail";
 import InsertTrips from "./InsertTrips";
-import { useData } from "../../server/path";
 import { useTripData } from "../../server/provider/TripProvider";
 import { formatThaiFull } from "../../theme/DateTH";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
@@ -77,7 +75,6 @@ const TripsBigTruck = ({ openNavbar }) => {
         setOpen(false);
     };
 
-    // const { trip } = useData();
     const { trip, order } = useTripData();
     const { reghead } = useBasicData();
     const registrations = Object.values(reghead || {}).filter((item) => item.StatusTruck !== "ยกเลิก");
@@ -185,28 +182,6 @@ const TripsBigTruck = ({ openNavbar }) => {
         });
 
     console.log("Trip Detail : ", tripDetail);
-
-    // const [trip, setTrip] = useState([]);
-
-    // const getTrip = async () => {
-    //     database.ref("/trip").on("value", (snapshot) => {
-    //         const datas = snapshot.val();
-    //         if (datas === null || datas === undefined) {
-    //             setTrip([]);
-    //         } else {
-    //             const dataTrip = [];
-    //             for (let id in datas) {
-    //                 datas[id].TruckType === "รถใหญ่" &&
-    //                 dataTrip.push({ id, ...datas[id] })
-    //             }
-    //             setTrip(dataTrip);
-    //         }
-    //     });
-    // };
-
-    // useEffect(() => {
-    //     getTrip();
-    // }, []);
 
     console.log("Trip : ", tripDetail);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);

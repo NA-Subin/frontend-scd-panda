@@ -45,14 +45,14 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
 import PlagiarismIcon from '@mui/icons-material/Plagiarism';
 import TaskIcon from '@mui/icons-material/Task';
-import { database } from "../../server/firebase";
+import { apiPost, apiPut } from "../../server/apiClient";
 import { ShowConfirm, ShowError, ShowSuccess, ShowWarning } from "../sweetalert/sweetalert";
 import InfoIcon from '@mui/icons-material/Info';
 import OrderDetail from "./OrderDetail";
 import SellingDetail from "./SellingDetail";
 import "../../theme/scrollbar.css"
-import { useData } from "../../server/path";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
+import { useTripData } from "../../server/provider/TripProvider";
 
 // const depotOptions = ["ลำปาง", "พิจิตร", "สระบุรี", "บางปะอิน", "IR"];
 
@@ -77,18 +77,7 @@ const UpdateTrip = (props) => {
     const dialogRef = useRef(null);
     const [html2canvasLoaded, setHtml2canvasLoaded] = useState(false);
     const [update, setUpdate] = useState(true);
-    const [order, setOrder] = React.useState([]);
-    const [customer, setCustomer] = React.useState([]);
-    const [ticket, setTicket] = React.useState([]);
-    //const [trip, setTrip] = React.useState([]);
     const [tickets, setTickets] = React.useState([]);
-    const [orderLength, setOrderLength] = React.useState(0);
-    const [ticketsT, setTicketsT] = React.useState([]);
-    const [ticketsPS, setTicketsPS] = React.useState([]);
-    const [ticketsA, setTicketsA] = React.useState([]);
-    const [ticketsB, setTicketsB] = React.useState([]);
-    const [ticketsS, setTicketsS] = React.useState([]);
-    const [ticketLength, setTicketLength] = React.useState(0);
     const [selectedDateReceive, setSelectedDateReceive] = useState(dateReceive);
     const [selectedDateDelivery, setSelectedDateDelivery] = useState(dateDelivery);
     const [windowWidths, setWindowWidth] = useState(window.innerWidth);
@@ -112,12 +101,27 @@ const UpdateTrip = (props) => {
         };
     }, []);
 
-    // const { depots, reghead } = useData();
-    const { depots, reghead, small, transport } = useBasicData();
+    const {
+        depots, reghead, small, transport,
+        customertransports, customergasstations, customertickets, customerbigtruck, customersmalltruck,
+        refetch: refetchBasicData,
+    } = useBasicData();
     const depotOptions = Object.values(depots || {});
     const truckH = Object.values(reghead || {}).filter((item) => item.StatusTruck !== "ยกเลิก");
     const truckS = Object.values(small || {}).filter((item) => item.StatusTruck !== "ยกเลิก");
     const truckT = Object.values(transport || {}).filter((item) => item.StatusTruck !== "ยกเลิก");
+
+    const { order: orderData, tickets: ticketsTableData, refetch: refetchTripData } = useTripData();
+    const orderLength = orderData ? Object.keys(orderData).length : 0;
+    const ticketLength = ticketsTableData ? Object.keys(ticketsTableData).length : 0;
+    const order = Object.values(orderData || {}).filter((item) => Number(item.Trip) === Number(tripID) - 1);
+    const ticket = Object.values(ticketsTableData || {}).filter((item) => Number(item.Trip) === Number(tripID) - 1);
+
+    const ticketsT = Object.values(customertransports || {}).filter((item) => item.Status === "ตั๋ว" || item.Status === "ตั๋ว/ผู้รับ");
+    const ticketsPS = Object.values(customergasstations || {});
+    const ticketsA = Object.values(customertickets || {});
+    const ticketsB = Object.values(customerbigtruck || {});
+    const ticketsS = Object.values(customersmalltruck || {});
 
     console.log("truckH : ", truckH);
 
@@ -211,111 +215,7 @@ const UpdateTrip = (props) => {
         setOpen(true);
     };
 
-    const getOrder = async () => {
-        database.ref("/order").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataOrder = [];
-            for (let id in datas) {
-                setOrderLength(datas.length);
-                if (datas[id].Trip === (Number(tripID) - 1)) {
-                    dataOrder.push({ id, ...datas[id] })
-                }
-            }
-            setOrder(dataOrder);
-        });
-    };
-
     console.log("Ticket Length : ", ticketLength);
-
-    const getTicket = async () => {
-        database.ref("/tickets").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataTicket = [];
-            for (let id in datas) {
-                setTicketLength(datas.length);
-                if (datas[id].Trip === (Number(tripID) - 1)) {
-                    dataTicket.push({ id, ...datas[id] })
-                }
-            }
-            setTicket(dataTicket);
-        });
-
-        database.ref("/customers/transports/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataTicket = [];
-            for (let id in datas) {
-                if (datas[id].Status === "ตั๋ว" || datas[id].Status === "ตั๋ว/ผู้รับ")
-                    dataTicket.push({ id, ...datas[id] })
-            }
-            setTicketsT(dataTicket);
-        });
-
-        database.ref("/customers/transports/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataCustomer = [];
-            for (let id in datas) {
-                if (datas[id].Status === "ผู้รับ" || datas[id].Status === "ตั๋ว/ผู้รับ")
-                    dataCustomer.push({ id, ...datas[id] })
-            }
-            setCustomer(dataCustomer);
-        });
-
-        database.ref("/customers/gasstations/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataGasStations = [];
-            for (let id in datas) {
-                dataGasStations.push({ id, ...datas[id] })
-            }
-            setTicketsPS(dataGasStations);
-        });
-
-        database.ref("/customers/tickets/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataGasStations = [];
-            for (let id in datas) {
-                dataGasStations.push({ id, ...datas[id] })
-            }
-            setTicketsA(dataGasStations);
-        });
-
-        database.ref("/customers/bigtruck/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataStock = [];
-            for (let id in datas) {
-                dataStock.push({ id, ...datas[id] })
-            }
-            setTicketsB(dataStock);
-        });
-
-        database.ref("/customers/smalltruck/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataStock = [];
-            for (let id in datas) {
-                dataStock.push({ id, ...datas[id] })
-            }
-            setTicketsS(dataStock);
-        });
-    };
-
-    // const getTrip = async () => {
-    //     database.ref("/trip/" + (Number(tripID) - 1)).on("value", (snapshot) => {
-    //         const datas = snapshot.val();
-    //         // const dataTrip = [];
-    //         // for (let id in datas) {
-    //         //     if (datas[id].id === tripID) {
-    //         //         setSelectedDateReceive(datas[id].DateReceive)
-    //         //         setSelectedDateDelivery(datas[id].DateDelivery)
-    //         //     }
-    //         // }
-    //         setTrip(datas);
-    //     });
-    // };
-
-    useEffect(() => {
-        getTicket();
-        getOrder();
-        //getTrip();
-    }, []);
 
     const handleCancle = () => {
         setOpen(false);
@@ -737,114 +637,95 @@ const UpdateTrip = (props) => {
         setCostTrip(Number(raw));
     };
 
-    const handleSave = () => {
-        const noCountTicket = {}; // เก็บจำนวนครั้งที่ No ปรากฏ
-        const noIdTrackerTicket = {}; // เก็บค่า id ที่ใช้ไปแล้วสำหรับ No แต่ละค่า
-        let newNoTicket = ticketLength + 1; // เริ่มนับ No ใหม่จากจำนวน ticket ที่มีอยู่
+    // ค่าที่ยังไม่เคยถูก resolve เป็น uuid จริงจะเป็นชื่อลูกค้า/ตั๋วดิบ ๆ (มาจากการเลือกแถวใหม่
+    // ระหว่างแก้ไข ผ่าน OrderDetail/SellingDetail) ส่วนแถวเดิมที่โหลดมาจาก Postgres จะเป็น uuid อยู่แล้ว
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-        editableTickets.forEach(ticket => {
-            const currentNo = ticket.No;
-            const currentId = ticket.id;
+    const resolveTruck = (registrationKey) => {
+        return getDriver().find((item) =>
+            item.Type === "รถบริษัท"
+                ? (`${item.id}:${item.RegHead}:${item.Driver}:${item.Type}` === registrationKey)
+                : (`${item.id}:${item.Registration}:${item.id}:${item.Name}:${item.Type}` === registrationKey)
+        );
+    };
 
-            console.log(" NO : ", currentNo);
-            console.log(" ID : ", currentId);
+    const handleSave = async () => {
+        const selectedTruck = resolveTruck(registration);
+        if (!selectedTruck) {
+            ShowError("กรุณาเลือกผู้ขับ/ป้ายทะเบียนก่อนบันทึก");
+            return;
+        }
+        const isCompanyTruck = selectedTruck.Type === "รถบริษัท";
+        const registrationUuid = selectedTruck.uuid;
+        const registrationName = isCompanyTruck ? selectedTruck.RegHead : selectedTruck.Registration;
+        const driverUuid = isCompanyTruck ? selectedTruck.Driver : null;
+        const driverName = isCompanyTruck ? selectedTruck.DriverName : selectedTruck.Name;
+        const tripSeq = Number(tripID) - 1;
 
-            // นับจำนวนครั้งที่ No ปรากฏ
-            if (!noCountTicket[currentNo]) {
-                noCountTicket[currentNo] = 1;
-                noIdTrackerTicket[currentNo] = new Set(); // ใช้ Set เก็บ id ที่ซ้ำ
-            } else {
-                noCountTicket[currentNo]++;
+        // ทุกแถว (เดิม/ใหม่) ต้องพกทะเบียน/คนขับของเที่ยววิ่งปัจจุบันเสมอ - ไม่พึ่งค่าใน
+        // state ของแต่ละแถว เพราะ handleRegistration เขียนทับด้วย composite key ดิบๆ ไว้
+        const currentTruckFields = {
+            Registration: registrationUuid,
+            RegistrationName: registrationName,
+            Driver: driverUuid,
+            DriverName: driverName,
+        };
+
+        try {
+            let ticketNoCounter = ticketLength;
+            for (const item of editableTickets) {
+                const { uuid, row_key, ...fields } = item;
+                const isRawSelection = fields.TicketName && !UUID_RE.test(fields.TicketName);
+                const resolvedTicket = isRawSelection ? getTickets().find((t) => t.Name === fields.TicketName) : null;
+                if (isRawSelection) {
+                    fields.TicketName = resolvedTicket?.uuid || null;
+                    fields.TicketNameName = resolvedTicket?.Name || item.TicketName;
+                }
+
+                if (uuid) {
+                    await apiPut(`/api/tickets/${uuid}`, { ...fields, ...currentTruckFields });
+                } else {
+                    ticketNoCounter += 1;
+                    await apiPost("/api/tickets", {
+                        ...fields,
+                        ...currentTruckFields,
+                        Trip: String(tripSeq),
+                        No: ticketNoCounter,
+                    });
+                }
             }
 
-            // ถ้า No ซ้ำกันและ id ไม่ซ้ำกัน
-            if (noCountTicket[currentNo] > 1 && !noIdTrackerTicket[currentNo].has(currentId)) {
-                ticket.No = newNoTicket; // เปลี่ยน No ใหม่
-                newNoTicket++; // เพิ่มค่า No ใหม่
+            let orderNoCounter = orderLength;
+            for (const item of editableOrders) {
+                const { uuid, row_key, ...fields } = item;
+                const isRawSelection = fields.TicketName && !UUID_RE.test(fields.TicketName);
+                const resolvedCustomer = isRawSelection ? getCustomers().find((t) => t.Name === fields.TicketName) : null;
+                if (isRawSelection) {
+                    fields.TicketName = resolvedCustomer?.uuid || null;
+                    fields.TicketNameName = resolvedCustomer?.Name || item.TicketName;
+                }
+
+                if (uuid) {
+                    await apiPut(`/api/order/${uuid}`, { ...fields, ...currentTruckFields });
+                } else {
+                    orderNoCounter += 1;
+                    await apiPost("/api/order", {
+                        ...fields,
+                        ...currentTruckFields,
+                        Trip: String(tripSeq),
+                        No: orderNoCounter,
+                    });
+                }
             }
 
-            // บันทึก id ที่เคยใช้สำหรับ No นี้
-            noIdTrackerTicket[currentNo].add(currentId);
-        });
-
-        // Loop ผ่านแต่ละ item ใน editableTickets
-        editableTickets.forEach(ticket => {
-            const ticketNo = ticket.No; // ใช้ No เพื่ออ้างอิง
-            console.log("Ticket NO : ", ticketNo);
-            console.log("Ticket Detail : ", ticket);
-
-            database
-                .ref("/tickets")
-                .child(ticketNo)  // ใช้ No ในการเลือก Child
-                .update(ticket)    // อัปเดตข้อมูลของแต่ละ ticket
-                .then(() => {
-                    ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                })
-                .catch((error) => {
-                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                    console.error("Error pushing data:", error);
-                });
-        });
-
-        const noCountOrder = {}; // เก็บจำนวนครั้งที่ No ปรากฏ
-        const noIdTrackerOrder = {}; // เก็บค่า id ที่ใช้ไปแล้วสำหรับ No แต่ละค่า
-        let newNoOrder = orderLength + 1; // เริ่มนับ No ใหม่จากจำนวน order ที่มีอยู่
-
-        editableOrders.forEach(order => {
-            const currentNo = order.No;
-            const currentId = order.id;
-
-            console.log(" NO : ", currentNo);
-            console.log(" ID : ", currentId);
-
-            // นับจำนวนครั้งที่ No ปรากฏ
-            if (!noCountOrder[currentNo]) {
-                noCountOrder[currentNo] = 1;
-                noIdTrackerOrder[currentNo] = new Set(); // ใช้ Set เก็บ id ที่ซ้ำ
-            } else {
-                noCountOrder[currentNo]++;
-            }
-
-            // ถ้า No ซ้ำกันและ id ไม่ซ้ำกัน
-            if (noCountOrder[currentNo] > 1 && !noIdTrackerOrder[currentNo].has(currentId)) {
-                order.No = newNoOrder; // เปลี่ยน No ใหม่
-                newNoOrder++; // เพิ่มค่า No ใหม่
-            }
-
-            // บันทึก id ที่เคยใช้สำหรับ No นี้
-            noIdTrackerOrder[currentNo].add(currentId);
-        });
-
-        console.log(" Order Update : ", editableOrders);
-
-        // Loop ผ่านแต่ละ item ใน editableOrders
-        editableOrders.forEach(order => {
-            const orderNo = order.No; // ใช้ No เพื่ออ้างอิง
-            console.log("Order NO : ", orderNo);
-            database
-                .ref("/order")
-                .child(orderNo)  // ใช้ No ในการเลือก Child
-                .update(order)    // อัปเดตข้อมูลของแต่ละ order
-                .then(() => {
-                    ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                })
-                .catch((error) => {
-                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                    console.error("Error pushing data:", error);
-                });
-        });
-
-        database
-            .ref("/trip")
-            .child(Number(tripID) - 1)  // ใช้ No ในการเลือก Child
-            .set({
-                id: tripID,
+            await apiPut(`/api/trip/${trip.uuid}`, {
                 DateReceive: selectedDateReceive,
                 DateDelivery: selectedDateDelivery,
-                DateStart: trip.DateStart,
                 DateEnd: trip.DateEnd || "-",
-                Registration: `${registration.split(":")[0]}:${registration.split(":")[1]}`,
-                Driver: `${registration.split(":")[2]}:${registration.split(":")[3]}`,
+                Registration: registrationUuid,
+                RegistrationName: registrationName,
+                Driver: driverUuid,
+                DriverName: driverName,
                 Depot: depot,
                 CostTrip: costTrip,
                 WeightHigh: totalVolumesTicket.oilHeavy,
@@ -853,51 +734,35 @@ const UpdateTrip = (props) => {
                 TotalWeight: totalVolumesTicket.totalWeight,
                 Status: status,
                 StatusTrip: trip.StatusTrip !== "จบทริป" ? "กำลังจัดเที่ยววิ่ง" : "จบทริป",
-                TruckType: registration.split(":")[4] === "รถบริษัท" ? "รถใหญ่" : "รถรับจ้างขนส่ง",
+                TruckType: isCompanyTruck ? "รถใหญ่" : "รถรับจ้างขนส่ง",
                 ...orderTrip,
                 ...ticketTrip
-            })    // อัปเดตข้อมูลของแต่ละ order
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
 
-        database
-            .ref(registrations.split(":")[4] === "รถบริษัท" ? "truck/registration/" : "truck/transport")
-            .child(Number(registrations.split(":")[0]) - 1)
-            .update({
-                Status: "ว่าง"
-            })
-            .then(() => {
-                setOpen(false);
-                console.log("Data pushed successfully");
+            // ปลดปล่อยรถ/ทะเบียนเดิมก่อนแก้ไข (เผื่อมีการเปลี่ยนรถระหว่างแก้ไข)
+            const originalTruck = resolveTruck(registrations);
+            if (originalTruck) {
+                await apiPut(
+                    originalTruck.Type === "รถบริษัท" ? `/api/truck_registration/${originalTruck.uuid}` : `/api/truck_transport/${originalTruck.uuid}`,
+                    { Status: "ว่าง" }
+                );
+            }
 
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
-            });
+            // ตั้งสถานะรถ/ทะเบียนที่เลือกอยู่ปัจจุบัน
+            await apiPut(
+                isCompanyTruck ? `/api/truck_registration/${registrationUuid}` : `/api/truck_transport/${registrationUuid}`,
+                { Status: trip.StatusTrip !== "จบทริป" ? `TR:${tripSeq}` : "ว่าง" }
+            );
 
-        database
-            .ref(registration.split(":")[4] === "รถบริษัท" ? "truck/registration/" : "truck/transport")
-            .child(Number(registration.split(":")[0]) - 1)
-            .update({
-                Status: trip.StatusTrip !== "จบทริป" ? `TR:${tripID - 1}` : "ว่าง"
-            })
-            .then(() => {
-                setOpen(false);
-                console.log("Data pushed successfully");
-
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
-            });
-
-        setEditMode(false);
+            ShowSuccess("บันทึกข้อมูลสำเร็จ");
+            refetchTripData?.();
+            refetchBasicData?.();
+            setOpen(false);
+            setEditMode(false);
+        } catch (error) {
+            ShowError("บันทึกข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
     console.log("registration : ", registration);
@@ -1002,7 +867,7 @@ const UpdateTrip = (props) => {
     const handleDeleteTickets = (indexToDelete, id) => {
         const ticketIndex = Number(id) - 1;
         const tickets = ticket[ticketIndex];
-        if (!tickets || tickets.No === undefined || tickets.No === null) {
+        if (!tickets || !tickets.uuid) {
             setEditableTickets((prev) => {
                 const newTicket = [];
                 let newIndex = 0;
@@ -1033,33 +898,20 @@ const UpdateTrip = (props) => {
             return;
         }
 
-        const ticketKey = tickets.No;
-
         ShowConfirm(
             `ต้องการยกเลิกออเดอร์ลำดับที่ ${id} ใช่หรือไม่`,
-            () => {
-                const ticketRef = database.ref("tickets/").child(ticketKey);
-
-                ticketRef.once("value").then((snapshot) => {
-                    const ticketData = snapshot.val();
-
-                    if (ticketData && ticketData.No === ticketKey) {
-                        ticketRef.update({
-                            Trip: "ยกเลิก",
-                            Status: "ยกเลิก",
-                        })
-                            .then(() => {
-                                console.log("Data pushed successfully");
-                                updateStateAfterTicketDelete(indexToDelete, id);
-                            })
-                            .catch((error) => {
-                                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                                console.error("Error pushing data:", error);
-                            });
-                    } else {
-                        updateStateAfterTicketDelete(indexToDelete, id);
-                    }
-                });
+            async () => {
+                try {
+                    await apiPut(`/api/tickets/${tickets.uuid}`, {
+                        Trip: "ยกเลิก",
+                        Status: "ยกเลิก",
+                    });
+                    refetchTripData?.();
+                    updateStateAfterTicketDelete(indexToDelete, id);
+                } catch (error) {
+                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+                    console.error("Error pushing data:", error);
+                }
             },
             () => {
                 console.log(`ยกเลิกลบตั๋วที่ ${id}`);
@@ -1102,10 +954,7 @@ const UpdateTrip = (props) => {
 
         console.log("Show Index Order : ", orders);
 
-        if (!orders || orders.No === undefined || orders.No === null) {
-            // console.error("ไม่พบข้อมูลออเดอร์หรือคีย์ไม่ถูกต้อง");
-            // ShowError("ไม่สามารถยกเลิกออเดอร์ได้ เนื่องจากข้อมูลผิดพลาด");
-
+        if (!orders || !orders.uuid) {
             // ลบจาก editableOrders
             setEditableOrders((prev) => {
                 const newOrder = [];
@@ -1137,44 +986,20 @@ const UpdateTrip = (props) => {
             return;
         }
 
-        const orderKey = orders.No;
-        // console.log("Show Order No : ", orderKey);
-        // console.log("Show Order No : ", orders.No);
-
-        // const orderRef = database.ref("order/").child(orderKey);
-        // console.log("Show Order Ref : ", orderRef);
-
-        // orderRef.once("value").then((snapshot) => {
-        //     const orderData = snapshot.val();
-        //     console.log("Show Order Data : ", orderData.No);
-        //  })
-
-
         ShowConfirm(
             `ต้องการยกเลิกออเดอร์ลำดับที่ ${id} ใช่หรือไม่`,
-            () => {
-                const orderRef = database.ref("order/").child(orderKey);
-
-                orderRef.once("value").then((snapshot) => {
-                    const orderData = snapshot.val();
-
-                    if (orderData && orderData.No === orderKey) {
-                        orderRef.update({
-                            Trip: "ยกเลิก",
-                            Status: "ยกเลิก",
-                        })
-                            .then(() => {
-                                console.log("Data pushed successfully");
-                                updateStateAfterOrderDelete(indexToDelete, id);
-                            })
-                            .catch((error) => {
-                                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                                console.error("Error pushing data:", error);
-                            });
-                    } else {
-                        updateStateAfterOrderDelete(indexToDelete, id);
-                    }
-                });
+            async () => {
+                try {
+                    await apiPut(`/api/order/${orders.uuid}`, {
+                        Trip: "ยกเลิก",
+                        Status: "ยกเลิก",
+                    });
+                    refetchTripData?.();
+                    updateStateAfterOrderDelete(indexToDelete, id);
+                } catch (error) {
+                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+                    console.error("Error pushing data:", error);
+                }
             },
             () => {
                 console.log(`ยกเลิกลบออเดอร์ที่ ${id}`);
@@ -1239,76 +1064,35 @@ const UpdateTrip = (props) => {
     // };
 
     const handleChangeStatus = () => {
-        // if (!registration || registration === "0:0:0:0" || registration === "0:0:0:ไม่มี") {
-        //     ShowError("กรุณาเพิ่มทะเบียนรถก่อน");
-        //     return;
-        // }
-
         ShowConfirm(
             `ต้องการจบเที่ยววิ่งใช่หรือไม่`,
-            () => {
-                database
-                    .ref(registration.split(":")[4] === "รถบริษัท" ? "truck/registration/" : "truck/transport/")
-                    .child(Number(registration.split(":")[0]) - 1)
-                    .update({
-                        Status: "ว่าง",
-                        RepairTruck: "00/00/0000:ยังไม่ตรวจสอบสภาพรถ"
-                    })
-                    .then(() => {
-                        setOpen(false);
-                        console.log("Data pushed successfully");
+            async () => {
+                try {
+                    const selectedTruck = resolveTruck(registration);
+                    if (selectedTruck) {
+                        await apiPut(
+                            selectedTruck.Type === "รถบริษัท" ? `/api/truck_registration/${selectedTruck.uuid}` : `/api/truck_transport/${selectedTruck.uuid}`,
+                            { Status: "ว่าง", RepairTruck: "00/00/0000:ยังไม่ตรวจสอบสภาพรถ" }
+                        );
+                    }
 
-                    })
-                    .catch((error) => {
-                        ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                        console.error("Error pushing data:", error);
-                    })
-
-                database
-                    .ref("trip/")
-                    .child(Number(tripID) - 1)
-                    .update({
+                    await apiPut(`/api/trip/${trip.uuid}`, {
                         StatusTrip: "จบทริป",
                         DateEnd: dayjs(new Date).format("DD/MM/YYYY")
-                    })
-                    .then(() => {
-                        order.map((row) => (
-                            database
-                                .ref("order/")
-                                .child(row.No)
-                                .update({
-                                    Status: "จัดส่งสำเร็จ"
-                                })
-                                .then(() => {
-                                    console.log("Data pushed successfully");
-                                })
-                                .catch((error) => {
-                                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                                    console.error("Error pushing data:", error);
-                                })
-                        ))
-                        ticket.map((row) => (
-                            database
-                                .ref("tickets/")
-                                .child(row.No)
-                                .update({
-                                    Status: "จัดส่งสำเร็จ"
-                                })
-                                .then(() => {
-                                    console.log("Data pushed successfully");
-                                })
-                                .catch((error) => {
-                                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                                    console.error("Error pushing data:", error);
-                                })
-                        ))
-                        console.log("Data pushed successfully");
-                        setOpen(false);
-                    })
-                    .catch((error) => {
-                        ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                        console.error("Error pushing data:", error);
-                    })
+                    });
+
+                    await Promise.all([
+                        ...order.map((row) => apiPut(`/api/order/${row.uuid}`, { Status: "จัดส่งสำเร็จ" })),
+                        ...ticket.map((row) => apiPut(`/api/tickets/${row.uuid}`, { Status: "จัดส่งสำเร็จ" })),
+                    ]);
+
+                    refetchTripData?.();
+                    refetchBasicData?.();
+                    setOpen(false);
+                } catch (error) {
+                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+                    console.error("Error pushing data:", error);
+                }
             },
             () => {
                 console.log("ยกเลิกลบตั๋ว");
@@ -1319,68 +1103,33 @@ const UpdateTrip = (props) => {
     const handleChangeCancelTrip = () => {
         ShowConfirm(
             `ต้องการยกเลิกเที่ยววิ่งใช่หรือไม่`,
-            () => {
-                database
-                    .ref(registration.split(":")[4] === "รถบริษัท" ? "truck/registration/" : "truck/transport/")
-                    .child(Number(registration.split(":")[0]) - 1)
-                    .update({
-                        Status: "ว่าง"
-                    })
-                    .then(() => {
-                        setOpen(false);
-                        console.log("Data pushed successfully");
+            async () => {
+                try {
+                    const selectedTruck = resolveTruck(registration);
+                    if (selectedTruck) {
+                        await apiPut(
+                            selectedTruck.Type === "รถบริษัท" ? `/api/truck_registration/${selectedTruck.uuid}` : `/api/truck_transport/${selectedTruck.uuid}`,
+                            { Status: "ว่าง" }
+                        );
+                    }
 
-                    })
-                    .catch((error) => {
-                        ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                        console.error("Error pushing data:", error);
-                    })
-
-                database
-                    .ref("trip/")
-                    .child(Number(tripID) - 1)
-                    .update({
+                    await apiPut(`/api/trip/${trip.uuid}`, {
                         StatusTrip: "ยกเลิก",
                         DateEnd: dayjs(new Date).format("DD/MM/YYYY")
-                    })
-                    .then(() => {
-                        order.map((row) => (
-                            database
-                                .ref("order/")
-                                .child(row.No)
-                                .update({
-                                    Status: "ยกเลิก"
-                                })
-                                .then(() => {
-                                    console.log("Data pushed successfully");
-                                })
-                                .catch((error) => {
-                                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                                    console.error("Error pushing data:", error);
-                                })
-                        ))
-                        ticket.map((row) => (
-                            database
-                                .ref("tickets/")
-                                .child(row.No)
-                                .update({
-                                    Status: "ยกเลิก"
-                                })
-                                .then(() => {
-                                    console.log("Data pushed successfully");
-                                })
-                                .catch((error) => {
-                                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                                    console.error("Error pushing data:", error);
-                                })
-                        ))
-                        console.log("Data pushed successfully");
-                        setOpen(false);
-                    })
-                    .catch((error) => {
-                        ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                        console.error("Error pushing data:", error);
-                    })
+                    });
+
+                    await Promise.all([
+                        ...order.map((row) => apiPut(`/api/order/${row.uuid}`, { Status: "ยกเลิก" })),
+                        ...ticket.map((row) => apiPut(`/api/tickets/${row.uuid}`, { Status: "ยกเลิก" })),
+                    ]);
+
+                    refetchTripData?.();
+                    refetchBasicData?.();
+                    setOpen(false);
+                } catch (error) {
+                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+                    console.error("Error pushing data:", error);
+                }
             },
             () => {
                 console.log("ยกเลิกลบตั๋ว");

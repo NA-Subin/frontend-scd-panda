@@ -29,72 +29,11 @@ import {
     Typography,
 } from "@mui/material";
 import { IconButtonError, RateOils, TableCellB20, TableCellB7, TableCellB95, TableCellE20, TableCellG91, TableCellG95, TablecellHeader, TableCellPWD, TablecellSelling } from "../../theme/style";
-import { database } from "../../server/firebase";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import theme from "../../theme/theme";
 
 const OrderDetail = (props) => {
     const { detail, ticketsTrip, onSendBack, total, onDelete, onAddProduct, onUpdateOrderID, editMode, tickets, depots, totalWeight } = props;
-    const [rate, setRate] = React.useState(0.75);
-    const [G91, setG91] = React.useState([]);
-    const [G95, setG95] = React.useState([]);
-    const [B7, setB7] = React.useState([]);
-    const [B95, setB95] = React.useState([]);
-    // const [B10, setB10] = React.useState([]);
-    // const [B20, setB20] = React.useState([]);
-    const [E20, setE20] = React.useState([]);
-    // const [E85, setE85] = React.useState([]);
-    const [PWD, setPWD] = React.useState([]);
-    const [B20, setB20] = React.useState([]);
-    const [weightOil, setWeightOil] = React.useState(0);
-    const [orderID, setOrderID] = React.useState("");
-
-    const getData = async () => {
-        database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (detail.id) + "/Product/G91").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            setG91(datas);
-        });
-        database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (detail.id) + "/Product/G95").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            setG95(datas);
-        });
-        database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (detail.id) + "/Product/B7").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            setB7(datas);
-        });
-        database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (detail.id) + "/Product/B95").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            setB95(datas);
-        });
-        // database.ref("tickets/"+ticketsTrip+"/ticketOrder/" + (detail.id) + "/Product/B10").on("value", (snapshot) => {
-        //     const datas = snapshot.val();
-        //     setB10(datas);
-        // });
-        // database.ref("tickets/"+ticketsTrip+"/ticketOrder/" + (detail.id) + "/Product/B20").on("value", (snapshot) => {
-        //     const datas = snapshot.val();
-        //     setB20(datas);
-        // });
-        database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (detail.id) + "/Product/E20").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            setE20(datas);
-        });
-        // database.ref("tickets/"+ticketsTrip+"/ticketOrder/" + (detail.id) + "/Product/E85").on("value", (snapshot) => {
-        //     const datas = snapshot.val();
-        //     setE85(datas);
-        // });
-        database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (detail.id) + "/Product/PWD").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            setPWD(datas);
-        });
-        database.ref("tickets/" + ticketsTrip + "/ticketOrder/" + (detail.id) + "/Product/B20").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            setB20(datas);
-        });
-    };
-
-    useEffect(() => {
-        getData();
-    }, []);
 
     return (
         <React.Fragment>
