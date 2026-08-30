@@ -32,9 +32,7 @@ import {
 } from "../../theme/style";
 import InsertCustomer from "./InsertData";
 import { Inventory } from "@mui/icons-material";
-import { database } from "../../server/firebase";
 import UpdateCustomer from "./UpdateCustomer";
-import { useData } from "../../server/path";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -42,23 +40,6 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const Customer = () => {
-  const [data, setData] = useState([]);
-  const getData = async () => {
-    database.ref("/customer").on("value", (snapshot) => {
-      const datas = snapshot.val();
-      const dataList = [];
-      for (let id in datas) {
-        dataList.push({ id, ...datas[id] });
-      }
-      console.log(dataList);
-      setData(dataList);
-    });
-  };
-  useEffect(() => {
-    getData();
-  }, []);
-
-  // const { customer } = useData();
   const { customer } = useBasicData();
       const customerList = Object.values(customer); 
       console.log("customer : ", customerList);

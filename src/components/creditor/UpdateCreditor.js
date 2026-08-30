@@ -34,11 +34,13 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import InfoIcon from '@mui/icons-material/Info';
 import theme from "../../theme/theme";
 import { IconButtonError, RateOils, TablecellHeader } from "../../theme/style";
-import { database } from "../../server/firebase";
+import { apiPut } from "../../server/apiClient";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
+import { useBasicData } from "../../server/provider/BasicDataProvider";
 
 const UpdateCreditor = (props) => {
     const { employee } = props;
+    const { refetch: refetchBasicData } = useBasicData();
     const [update, setUpdate] = React.useState(true);
     const [open, setOpen] = useState(false);
     const [name,setName] = React.useState(employee.Name);
@@ -63,13 +65,16 @@ const UpdateCreditor = (props) => {
         setOpen(false);
     };
 
-    const handleUpdate = () => {
-        database
-            .ref("/employee/creditors/")
-            .child(employee.id - 1)
-            .update({
+    const handleUpdate = async () => {
+        if (!employee?.uuid) {
+            ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+            return;
+        }
+
+        try {
+            await apiPut(`/api/employee_creditors/${employee.uuid}`, {
                 Name: name,
-                Address: 
+                Address:
                 (no === "-" ? "-" : no)+
                 (village === "-" ? "" : ","+village)+
                 (subDistrict === "-" ? "" : ","+subDistrict)+
@@ -81,18 +86,15 @@ const UpdateCreditor = (props) => {
                 lng: lng,
                 IDCard: idCard,
                 Credit: credit,
-                User: email,
                 Phone: phone
-            })
-            .then(() => {
-                ShowSuccess("แก้ไขข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setUpdate(true)
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("แก้ไขข้อมูลสำเร็จ");
+            refetchBasicData?.();
+            setUpdate(true)
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     }
 
 

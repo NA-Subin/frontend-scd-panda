@@ -40,10 +40,12 @@ import { IconButtonError, RateOils, TablecellHeader } from "../../theme/style";
 import CancelIcon from '@mui/icons-material/Cancel';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
-import { auth, database } from "../../server/firebase";
+import { apiPost } from "../../server/apiClient";
+import { useBasicData } from "../../server/provider/BasicDataProvider";
 
 const InsertCreditor = (props) => {
     const { creditor } = props;
+    const { refetch: refetchBasicData } = useBasicData();
     const [menu, setMenu] = React.useState(0);
     const [open, setOpen] = React.useState(false);
     const [prefix, setPrefix] = React.useState(0);
@@ -75,14 +77,12 @@ const InsertCreditor = (props) => {
 
     console.log("creditor : ", creditor);
 
-    const handlePost = () => {
-        database
-            .ref("employee/creditors/")
-            .child(creditor)
-            .update({
+    const handlePost = async () => {
+        try {
+            await apiPost("/api/employee_creditors", {
                 id: creditor + 1,
                 Name: prefix + name + " " + lastname,
-                Address: 
+                Address:
                 (no === "-" ? "-" : no)+
                 (village === "-" ? "" : ","+village)+
                 (subDistrict === "-" ? "" : ","+subDistrict)+
@@ -93,20 +93,16 @@ const InsertCreditor = (props) => {
                 lat: lat,
                 lng: lng,
                 Credit: creditTime,
-                User: user,
-                Password: "1234567",
                 IDCard: idCard,
                 Phone: phone
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setOpen(false);
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetchBasicData?.();
+            setOpen(false);
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
     return (

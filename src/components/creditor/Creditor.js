@@ -25,10 +25,8 @@ import {
   Typography,
 } from "@mui/material";
 import { IconButtonError, RateOils, TablecellGray, TablecellHeader, TablecellSelling } from "../../theme/style";
-import { database } from "../../server/firebase";
 import InsertCreditor from "./InsertCreditor";
 import UpdateCreditor from "./UpdateCreditor";
-import { useData } from "../../server/path";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 
 const Creditor = ({ openNavbar }) => {
@@ -70,7 +68,6 @@ const Creditor = ({ openNavbar }) => {
     };
   }, [openNavbar]); // ✅ ทำงานใหม่ทุกครั้งที่ openNavbar เปลี่ยน
 
-  //const { creditors } = useData();
   const { creditors } = useBasicData();
   const creditor = Object.values(creditors || {});
 
