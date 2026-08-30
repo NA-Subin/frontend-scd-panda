@@ -192,7 +192,7 @@ const TruckTransport = ({ openNavbar }) => {
                         <TableBody>
                             {
                                 dataTransport.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
-                                    <TableRow>
+                                    <TableRow key={row.uuid || index}>
                                         <TableCell sx={{ textAlign: "center" }}>{index + 1}</TableCell>
                                         <TableCell sx={{ textAlign: "center" }}>
                                             {
@@ -290,7 +290,7 @@ const TruckTransport = ({ openNavbar }) => {
                                         </TableCell>
                                         <TableCell sx={{ textAlign: "center" }}>
                                             {
-                                                !update || row.id !== rowID ? row.Company.split(":")[1]
+                                                !update || row.id !== rowID ? (row.Company ? row.Company.split(":")[1] : "-")
                                                     :
                                                     <Paper
                                                         component="form">
@@ -313,11 +313,11 @@ const TruckTransport = ({ openNavbar }) => {
                                                             fullWidth
                                                         >
                                                             <MenuItem value={companies}>
-                                                                {companies.split(":")[1]}
+                                                                {companies?.split(":")[1]}
                                                             </MenuItem>
                                                             {
                                                                 dataCompany.map((row) => (
-                                                                    row.id != 1 && Number(companies.split(":")[0]) !== row.id &&
+                                                                    row.id != 1 && Number(companies?.split(":")[0]) !== row.id &&
                                                                     <MenuItem value={`${row.id}:${row.Name}`}>{row.Name}</MenuItem>
                                                                 ))
                                                             }
