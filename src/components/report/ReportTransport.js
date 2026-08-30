@@ -56,8 +56,6 @@ import {
   TablecellSelling,
   TablecellTickets,
 } from "../../theme/style";
-import { database } from "../../server/firebase";
-import { useData } from "../../server/path";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";
@@ -339,17 +337,19 @@ const ReportTransports = ({ openNavbar }) => {
         let registrationTail = "";
         let truckCompany = "";
         if (tripDetail?.TruckType === "รถใหญ่") {
+          // trip.Registration is now a real UUID FK into truck_registration,
+          // not a "id:Name" composite string - match on uuid.
           const reg = registrationH.find(
-            (h) => h.id === Number(tripDetail?.Registration.split(":")[0]),
+            (h) => h.uuid === tripDetail?.Registration,
           );
-          registrationTail = reg?.RegTail || "";
-          truckCompany = reg?.Company || "";
+          registrationTail = reg?.RegTailName || "";
+          truckCompany = reg?.CompanyName || "";
         } else if (tripDetail?.TruckType === "รถเล็ก") {
           const reg = registrationSm.find(
-            (h) => h.id === Number(tripDetail?.Registration.split(":")[0]),
+            (h) => h.uuid === tripDetail?.Registration,
           );
           registrationTail = reg?.RegHead || "";
-          truckCompany = reg?.Company || "";
+          truckCompany = reg?.CompanyName || "";
         }
 
         const depot = normalizeDepotName(tripDetail?.Depot);
@@ -505,8 +505,10 @@ const ReportTransports = ({ openNavbar }) => {
       .map((item) => {
         if (!item.Product) return null;
 
+        // tickets.Registration is now a real UUID FK into truck_registration,
+        // not a legacy numeric id - match on uuid.
         const company = registration.find(
-          (com) => com.id === Number(item.Registration || 0),
+          (com) => com.uuid === item.Registration,
         );
 
         const tripdetail = trips.find((trip) => trip.id - 1 === Number(item.Trip));
@@ -605,8 +607,12 @@ const ReportTransports = ({ openNavbar }) => {
             item.RegistrationName !== "ไม่มี"
               ? company?.Company
               : "4:รถรับจ้างขนส่ง",
+          CompanyName:
+            item.RegistrationName !== "ไม่มี"
+              ? company?.CompanyName
+              : "รถรับจ้างขนส่ง",
           RegistrationHead: company?.RegHead,
-          RegistrationTail: company?.RegTail,
+          RegistrationTail: company?.RegTailName,
           TruckType: tripdetail?.TruckType || "",
         };
       })

@@ -63,10 +63,7 @@ import {
   TablecellSelling,
   TablecellTickets,
 } from "../../theme/style";
-import { database } from "../../server/firebase";
-import { useData } from "../../server/path";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
-import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";
 import html2canvas from "html2canvas";
 import html2pdf from "html2pdf.js";
@@ -419,11 +416,13 @@ const ReportDetail = (props) => {
   });
 
   // รวม transfers
-  allTransfers
-    .filter((r) => r.Transport.split(":")[0] === row.Company.split(":")[0])
-    .forEach((trans) => {
-      totals.incomingMoney += Number(trans.IncomingMoney || 0);
-    });
+  // allTransfers is already scoped correctly by the TicketName-based join in
+  // `grouped` above - no need (and, since row.Company is a real UUID and
+  // r.Transport is still a legacy "id:Name" string, no longer possible) to
+  // re-filter by company here.
+  allTransfers.forEach((trans) => {
+    totals.incomingMoney += Number(trans.IncomingMoney || 0);
+  });
 
   return (
     <React.Fragment>
@@ -472,7 +471,7 @@ const ReportDetail = (props) => {
             <Grid item xs={12}>
               <Typography variant="h6" gutterBottom>
                 <b>ชื่อบริษัท :</b>{" "}
-                {row.Company ? row.Company.split(":")[1] : "-"}
+                {row.CompanyName || "-"}
               </Typography>
             </Grid>
             <Grid item xs={12} marginTop={-3}>
@@ -675,15 +674,14 @@ const ReportDetail = (props) => {
                         const withholding = amount * 0.01;
                         const payment = amount - withholding;
                         const registration = (() => {
+                          // RegistrationName carries the "no truck" sentinel
+                          // now (Registration itself is a real UUID with no
+                          // meaningful text to split).
+                          if (item?.RegistrationName === "ไม่มี") return "รถรับจ้างขนส่ง";
                           if (!item?.Registration) return "-";
 
-                          const reg = String(item.Registration).split(":")[1];
-                          if (reg === "ไม่มี") return "รถรับจ้างขนส่ง";
-
                           const head = item?.RegistrationHead;
-                          const tail = item?.RegistrationTail
-                            ? String(item.RegistrationTail).split(":")[1]
-                            : null;
+                          const tail = item?.RegistrationTail || null;
 
                           return head && tail ? `${head}/${tail}` : "-";
                         })();
@@ -915,11 +913,6 @@ const ReportDetail = (props) => {
                         </TableCell>
                       </TableRow>
                       {value.transfers
-                        .filter(
-                          (r) =>
-                            r.Transport.split(":")[0] ===
-                            row.Company.split(":")[0],
-                        )
                         .map((trans, index) => (
                           <TableRow
                             key={`transfer-${key}-${trans.id ?? index}`}

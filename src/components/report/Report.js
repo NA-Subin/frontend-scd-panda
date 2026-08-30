@@ -31,8 +31,6 @@ import { IconButtonError, RateOils, TablecellYellow } from "../../theme/style";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import InfoIcon from "@mui/icons-material/Info";
-import { database } from "../../server/firebase";
-import { useData } from "../../server/path";
 import UpdateReport from "./UpdateReport";
 import theme from "../../theme/theme";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";

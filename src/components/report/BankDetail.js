@@ -46,8 +46,6 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
 import AddCardIcon from '@mui/icons-material/AddCard';
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
-import { auth, database } from "../../server/firebase";
-import { useData } from "../../server/path";
 import { useTripData } from "../../server/provider/TripProvider";
 
 const BankDetail = () => {

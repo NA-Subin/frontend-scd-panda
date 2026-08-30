@@ -54,10 +54,8 @@ import AddBoxIcon from "@mui/icons-material/AddBox";
 import AddIcon from "@mui/icons-material/Add";
 import SaveIcon from "@mui/icons-material/Save";
 import PrintIcon from "@mui/icons-material/Print";
-import { database } from "../../server/firebase";
-import { useData } from "../../server/path";
 import theme from "../../theme/theme";
-import { ref, update } from "firebase/database";
+import { apiPost, apiPut } from "../../server/apiClient";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import dayjs from "dayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -124,6 +122,7 @@ const UpdateReport = (props) => {
     banks,
     transferMoney,
     invoiceReport,
+    refetch: refetchTripData,
   } = useTripData();
 
   const { reghead, company, drivers, small } = useBasicData();
@@ -179,13 +178,18 @@ const UpdateReport = (props) => {
   let CountCompany1 = 0;
   let CountCompany2 = 0;
 
+  // Transport is now a real company uuid, not a legacy "id:Name" composite -
+  // compare against the two hardcoded transport companies (id 2 and 3) by
+  // uuid instead of a split numeric prefix.
+  const transportCompany2Uuid = companies.find((c) => c.id === 2)?.uuid;
+  const transportCompany3Uuid = companies.find((c) => c.id === 3)?.uuid;
+
   transfer.forEach((row) => {
-    const transportType = row.Transport.split(":")[0]; // แยกเอาเลขหน้ามาก่อน
     const incoming = Number(row.IncomingMoney) || 0; // แปลงเป็นตัวเลข เผื่อเจอ undefined
 
-    if (transportType === "2") {
+    if (row.Transport === transportCompany2Uuid) {
       CountCompany1 += incoming;
-    } else if (transportType === "3") {
+    } else if (row.Transport === transportCompany3Uuid) {
       CountCompany2 += incoming;
     }
   });
@@ -430,8 +434,10 @@ const UpdateReport = (props) => {
     };
 
     const tripMap = new Map(showTrips.map((t) => [t.id - 1, t]));
-    const regHeadMap = new Map(registrationHead.map((r) => [r.id, r]));
-    const regSmallMap = new Map(registrationSmall.map((r) => [r.id, r]));
+    // trip.Registration is a real UUID FK into truck_registration/truck_small
+    // now, not a legacy numeric id - key these maps by uuid instead.
+    const regHeadMap = new Map(registrationHead.map((r) => [r.uuid, r]));
+    const regSmallMap = new Map(registrationSmall.map((r) => [r.uuid, r]));
     const companyByUuid = new Map(companies.map((c) => [c.uuid, c]));
 
     const result = [];
@@ -442,10 +448,10 @@ const UpdateReport = (props) => {
 
       const isSmallTruck = matchedTrip?.TruckType?.trim() === "รถเล็ก";
 
-      const regId = Number(matchedTrip?.Registration);
+      const regUuid = matchedTrip?.Registration;
       const companyObj = isSmallTruck
-        ? regSmallMap.get(regId)
-        : regHeadMap.get(regId);
+        ? regSmallMap.get(regUuid)
+        : regHeadMap.get(regUuid);
 
       const companyAddress = companyByUuid.get(companyObj?.Company);
 
@@ -473,8 +479,10 @@ const UpdateReport = (props) => {
 
           Driver: matchedTrip?.Driver ?? row.Driver,
           Registration: matchedTrip?.Registration ?? row.Registration,
+          RegistrationName: matchedTrip?.RegistrationName ?? row.RegistrationName,
 
           RegTail: companyObj?.RegTail,
+          RegTailName: companyObj?.RegTailName,
           ProductName: productName,
 
           ShortName: isSmallTruck ? companyObj?.ShortName : "-",
@@ -567,12 +575,16 @@ const UpdateReport = (props) => {
   };
 
   const getInvoiceDate = (t) => {
+    // t.Company is a locally-reconstructed "id:Name" composite (see resetNo);
+    // invoice.Transport is a real company uuid - resolve to the same uuid.
+    const transportUuid = companies.find(
+      (c) => c.id === Number(t.Company?.split(":")[0]),
+    )?.uuid;
     const invoice = invoiceDetail.find(
       (row) =>
         String(row.TicketNo) === String(ticket?.No) &&
         String(row.TicketName) === String(ticket?.TicketName) &&
-        String(row.Transport.split(":")[0]) ===
-          String(t.Company.split(":")[0]) &&
+        row.Transport === transportUuid &&
         row.TicketType !== "ตั๋วรถใหญ่" &&
         row.TicketType !== "ตั๋วรถเล็ก",
     );
@@ -691,16 +703,22 @@ const UpdateReport = (props) => {
       String(row.TicketName) === String(ticket?.TicketName),
   );
 
+  // company1Tickets[0].Company / company2Tickets[0].Company are locally
+  // reconstructed "id:Name" composites (see resetNo above); invoice.Transport
+  // is a real company uuid - resolve both sides to the same uuid to compare.
+  const company1TransportUuid = companies.find(
+    (c) => c.id === Number(company1Tickets[0]?.Company?.split(":")[0]),
+  )?.uuid;
+  const company2TransportUuid = companies.find(
+    (c) => c.id === Number(company2Tickets[0]?.Company?.split(":")[0]),
+  )?.uuid;
+
   const invoices1 = invoices.filter(
-    (row) =>
-      row.Transport?.split(":")[0] ===
-      company1Tickets[0]?.Company.split(":")[0],
+    (row) => row.Transport === company1TransportUuid,
   );
 
   const invoices2 = invoices.filter(
-    (row) =>
-      row.Transport?.split(":")[0] ===
-      company2Tickets[0]?.Company.split(":")[0],
+    (row) => row.Transport === company2TransportUuid,
   );
 
   // const invoices1 = invoiceDetail.filter((row) =>
@@ -738,21 +756,29 @@ const UpdateReport = (props) => {
 
       Code = `lV${currentCode}-${formattedNumberInvoice}`;
 
-      database
-        .ref("invoice/")
-        .child(invoiceDetail.length)
-        .update({
-          id: invoiceDetail.length,
-          Code: `lV${currentCode}`,
-          Number: formattedNumberInvoice,
-          DateStart: dayjs(new Date()).format("DD/MM/YYYY"),
-          Transport: company1Tickets[0]?.Company,
-          TicketName: ticket.TicketName,
-          TicketNo: ticket.No,
-          TicketType: ticket.CustomerType,
-        }) // ใช้ .set() แทน .update() เพื่อแทนที่ข้อมูลทั้งหมด
+      // company1Tickets[0].Company is a locally-reconstructed "id:Name"
+      // composite (see resetNo above) - resolve it to the real company uuid
+      // invoice.Transport now expects.
+      const transportCompanyId1 = Number(
+        company1Tickets[0]?.Company?.split(":")[0],
+      );
+      const transportUuid1 = companies.find(
+        (c) => c.id === transportCompanyId1,
+      )?.uuid;
+
+      apiPost("/api/invoice", {
+        id: invoiceDetail.length,
+        Code: `lV${currentCode}`,
+        Number: formattedNumberInvoice,
+        DateStart: dayjs(new Date()).format("DD/MM/YYYY"),
+        Transport: transportUuid1 || null,
+        TicketName: ticket.TicketName,
+        TicketNo: ticket.No,
+        TicketType: ticket.CustomerType,
+      })
         .then(() => {
           console.log("บันทึกข้อมูลเรียบร้อย ✅");
+          refetchTripData?.();
         })
         .catch((error) => {
           ShowError("ไม่สำเร็จ");
@@ -823,21 +849,26 @@ const UpdateReport = (props) => {
 
       Code = `lV${currentCode}-${formattedNumberInvoice}`;
 
-      database
-        .ref("invoice/")
-        .child(invoiceDetail.length)
-        .update({
-          id: invoiceDetail.length,
-          Code: `lV${currentCode}`,
-          Number: formattedNumberInvoice,
-          DateStart: dayjs(new Date()).format("DD/MM/YYYY"),
-          Transport: company2Tickets[0]?.Company,
-          TicketName: ticket.TicketName,
-          TicketNo: ticket.No,
-          TicketType: ticket.CustomerType,
-        }) // ใช้ .set() แทน .update() เพื่อแทนที่ข้อมูลทั้งหมด
+      const transportCompanyId2 = Number(
+        company2Tickets[0]?.Company?.split(":")[0],
+      );
+      const transportUuid2 = companies.find(
+        (c) => c.id === transportCompanyId2,
+      )?.uuid;
+
+      apiPost("/api/invoice", {
+        id: invoiceDetail.length,
+        Code: `lV${currentCode}`,
+        Number: formattedNumberInvoice,
+        DateStart: dayjs(new Date()).format("DD/MM/YYYY"),
+        Transport: transportUuid2 || null,
+        TicketName: ticket.TicketName,
+        TicketNo: ticket.No,
+        TicketType: ticket.CustomerType,
+      })
         .then(() => {
           console.log("บันทึกข้อมูลเรียบร้อย ✅");
+          refetchTripData?.();
         })
         .catch((error) => {
           ShowError("ไม่สำเร็จ");
@@ -894,7 +925,7 @@ const UpdateReport = (props) => {
   console.log("price : ", price);
   console.log("tickets : ", ticket);
 
-  const handleSaveTranfer = () => {
+  const handleSaveTranfer = async () => {
     if (tranferID === null) {
       ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
       return;
@@ -908,25 +939,21 @@ const UpdateReport = (props) => {
       Note: tranferNote,
     };
 
-    database
-      .ref("transfermoney/")
-      .child(tranferID)
-      .update(updatedData)
-      .then(() => {
-        ShowSuccess("บันทึกข้อมูลเรียบร้อย");
-        console.log("บันทึกข้อมูลเรียบร้อย ✅");
-        setUpdateTranfer(false);
-        setTranferID(null);
-        setTranferDateStart("");
-        setTranferBankName("");
-        setTransport("");
-        setTranferIncomingMoney("");
-        setTranferNote("");
-      })
-      .catch((error) => {
-        ShowError("ไม่สำเร็จ");
-        console.error("Error updating data:", error);
-      });
+    try {
+      await apiPut(`/api/transfermoney/${tranferID}`, updatedData);
+      ShowSuccess("บันทึกข้อมูลเรียบร้อย");
+      refetchTripData?.();
+      setUpdateTranfer(false);
+      setTranferID(null);
+      setTranferDateStart("");
+      setTranferBankName("");
+      setTransport("");
+      setTranferIncomingMoney("");
+      setTranferNote("");
+    } catch (error) {
+      ShowError("ไม่สำเร็จ");
+      console.error("Error updating data:", error);
+    }
   };
 
   const handleDeleteReport = (newID) => {
@@ -937,20 +964,16 @@ const UpdateReport = (props) => {
 
     ShowConfirm(
       "คุณต้องการยกเลิกรายการนี้ใช่หรือไม่?",
-      () => {
+      async () => {
         // ✅ ถ้ากดยืนยัน
-        database
-          .ref("transfermoney/")
-          .child(newID)
-          .update({ Status: "ยกเลิก" })
-          .then(() => {
-            ShowSuccess("บันทึกข้อมูลเรียบร้อย");
-            console.log("บันทึกข้อมูลเรียบร้อย ✅");
-          })
-          .catch((error) => {
-            ShowError("ไม่สำเร็จ");
-            console.error("Error updating data:", error);
-          });
+        try {
+          await apiPut(`/api/transfermoney/${newID}`, { Status: "ยกเลิก" });
+          ShowSuccess("บันทึกข้อมูลเรียบร้อย");
+          refetchTripData?.();
+        } catch (error) {
+          ShowError("ไม่สำเร็จ");
+          console.error("Error updating data:", error);
+        }
       },
       () => {
         // ❌ ถ้ากดยกเลิก
@@ -959,32 +982,54 @@ const UpdateReport = (props) => {
     );
   };
 
-  const handleSave = () => {
-    Object.entries(report).forEach(([uniqueRowId, data]) => {
-      // ตรวจสอบว่า data.id และ data.ProductName ไม่ใช่ null หรือ undefined
+  const handleSave = async () => {
+    // Product is a single JSONB column, and several report rows can touch
+    // different products on the SAME ticket in one save - merge all of them
+    // per ticket first, then issue one PUT per ticket, so a later write in
+    // this loop never clobbers an earlier one against a stale Product value.
+    const mergedProductByTicketUuid = new Map();
+
+    for (const data of Object.values(report)) {
       if (
         data.No == null ||
         data.ProductName == null ||
         data.ProductName.trim() === ""
       ) {
         console.log("ไม่พบ id หรือ ProductName");
-        return;
+        continue;
       }
 
-      const path = `tickets/${data.No}/Product/${data.ProductName}`;
-      update(ref(database, path), {
+      const ticketRow = showTickets.find((t) => t.No === data.No);
+      if (!ticketRow?.uuid) {
+        console.log("ไม่พบตั๋วที่ No", data.No);
+        continue;
+      }
+
+      if (!mergedProductByTicketUuid.has(ticketRow.uuid)) {
+        mergedProductByTicketUuid.set(
+          ticketRow.uuid,
+          structuredClone(ticketRow.Product || {}),
+        );
+      }
+      const mergedProduct = mergedProductByTicketUuid.get(ticketRow.uuid);
+      mergedProduct[data.ProductName] = {
+        ...mergedProduct[data.ProductName],
         RateOil: data.Price,
         Amount: data.Amount,
         OverdueTransfer: data.Amount,
-      })
-        .then(() => {
-          console.log("บันทึกข้อมูลเรียบร้อย ✅");
-        })
-        .catch((error) => {
-          ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-          console.error("Error pushing data:", error);
-        });
-    });
+      };
+    }
+
+    try {
+      for (const [uuid, mergedProduct] of mergedProductByTicketUuid) {
+        await apiPut(`/api/tickets/${uuid}`, { Product: mergedProduct });
+      }
+      console.log("บันทึกข้อมูลเรียบร้อย ✅");
+      refetchTripData?.();
+    } catch (error) {
+      ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+      console.error("Error pushing data:", error);
+    }
   };
 
   const handlePost = () => {
@@ -1024,44 +1069,39 @@ const UpdateReport = (props) => {
     });
   };
 
-  const handleNewInvoice1 = () => {
-    database
-      .ref("invoice/")
-      .child(invoices1[0].id)
-      .update({
-        TicketNo: "ยกเลิก",
-      })
-      .then(() => {
-        ShowSuccess("บันทึกข้อมูลเรียบร้อย");
-        console.log("บันทึกข้อมูลเรียบร้อย ✅");
-      })
-      .catch((error) => {
-        ShowError("ไม่สำเร็จ");
-        console.error("Error updating data:", error);
-      });
+  const handleNewInvoice1 = async () => {
+    if (!invoices1[0]?.uuid) {
+      ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+      return;
+    }
+    try {
+      await apiPut(`/api/invoice/${invoices1[0].uuid}`, { TicketNo: "ยกเลิก" });
+      ShowSuccess("บันทึกข้อมูลเรียบร้อย");
+      refetchTripData?.();
+    } catch (error) {
+      ShowError("ไม่สำเร็จ");
+      console.error("Error updating data:", error);
+    }
   };
 
-  const handleNewInvoice2 = () => {
-    database
-      .ref("invoice/")
-      .child(invoices2[0].id)
-      .update({
-        TicketNo: "ยกเลิก",
-      })
-      .then(() => {
-        ShowSuccess("บันทึกข้อมูลเรียบร้อย");
-        console.log("บันทึกข้อมูลเรียบร้อย ✅");
-      })
-      .catch((error) => {
-        ShowError("ไม่สำเร็จ");
-        console.error("Error updating data:", error);
-      });
+  const handleNewInvoice2 = async () => {
+    if (!invoices2[0]?.uuid) {
+      ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+      return;
+    }
+    try {
+      await apiPut(`/api/invoice/${invoices2[0].uuid}`, { TicketNo: "ยกเลิก" });
+      ShowSuccess("บันทึกข้อมูลเรียบร้อย");
+      refetchTripData?.();
+    } catch (error) {
+      ShowError("ไม่สำเร็จ");
+      console.error("Error updating data:", error);
+    }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const newId = transferMoneyDetail.length;
     const total = Number(newNumber) + 1;
-    //const formattedNumber = String(total).padStart(4, "0");
 
     const newPrice = {
       ...price,
@@ -1070,29 +1110,25 @@ const UpdateReport = (props) => {
       Number: formattedNumber,
     };
 
-    database
-      .ref("transfermoney/")
-      .child(newId)
-      .set(newPrice)
-      .then(() => {
-        ShowSuccess("บันทึกข้อมูลเรียบร้อย");
-        console.log("บันทึกข้อมูลเรียบร้อย ✅");
+    try {
+      await apiPost("/api/transfermoney", newPrice);
+      ShowSuccess("บันทึกข้อมูลเรียบร้อย");
+      refetchTripData?.();
 
-        // เตรียมค่าใหม่สำหรับ price หลังบันทึก
-        const nextFormattedNumber = String(total).padStart(4, "0");
-        setPrice({
-          ...newPrice,
-          id: newId + 1,
-          Number: nextFormattedNumber,
-          IncomingMoney: "",
-          BankName: "",
-          Transport: "",
-        });
-      })
-      .catch((error) => {
-        ShowError("ไม่สำเร็จ");
-        console.error("Error updating data:", error);
+      // เตรียมค่าใหม่สำหรับ price หลังบันทึก
+      const nextFormattedNumber = String(total).padStart(4, "0");
+      setPrice({
+        ...newPrice,
+        id: newId + 1,
+        Number: nextFormattedNumber,
+        IncomingMoney: "",
+        BankName: "",
+        Transport: "",
       });
+    } catch (error) {
+      ShowError("ไม่สำเร็จ");
+      console.error("Error updating data:", error);
+    }
   };
 
   // const handleSubmit = () => {
@@ -1699,7 +1735,7 @@ const UpdateReport = (props) => {
                               gutterBottom
                             >
                               {row.TruckType === "รถใหญ่"
-                                ? ` ${row.RegistrationName} / ${row.RegTail !== "0:ไม่มี" ? row.RegTailName : ""}`
+                                ? ` ${row.RegistrationName} / ${row.RegTailName || ""}`
                                 : row.TruckType === "รถเล็ก"
                                   ? `${row.ShortName}${row.RegistrationName}`
                                   : "รถรับจ้างขนส่ง"}
@@ -2674,7 +2710,7 @@ const UpdateReport = (props) => {
                               gutterBottom
                             >
                               {row.TruckType === "รถใหญ่"
-                                ? ` ${row.RegistrationName} / ${row.RegTail !== "0:ไม่มี" ? row.RegTailName : ""}`
+                                ? ` ${row.RegistrationName} / ${row.RegTailName || ""}`
                                 : row.TruckType === "รถเล็ก"
                                   ? `${row.ShortName}${row.RegistrationName}`
                                   : "รถรับจ้างขนส่ง"}
@@ -3393,7 +3429,7 @@ const UpdateReport = (props) => {
                             width: 150,
                           }}
                         >
-                          {!updateTranfer || row.id !== tranferID ? (
+                          {!updateTranfer || row.uuid !== tranferID ? (
                             formatThaiSlash(dayjs(row.DateStart, "DD/MM/YYYY"))
                           ) : (
                             <LocalizationProvider
@@ -3454,7 +3490,7 @@ const UpdateReport = (props) => {
                             width: 350,
                           }}
                         >
-                          {!updateTranfer || row.id !== tranferID ? (
+                          {!updateTranfer || row.uuid !== tranferID ? (
                             row.BankNameName
                           ) : (
                             <Paper component="form" sx={{ width: "100%" }}>
@@ -3497,7 +3533,14 @@ const UpdateReport = (props) => {
                                     value={tranferBankName}
                                     sx={{ fontSize: "14px" }}
                                   >
-                                    {tranferBankName.split(":")[1]}
+                                    {(() => {
+                                      const selectedBank = bankDetail.find(
+                                        (b) => b.uuid === tranferBankName,
+                                      );
+                                      return selectedBank
+                                        ? `${selectedBank.BankName} - ${selectedBank.BankShortName}`
+                                        : "";
+                                    })()}
                                   </MenuItem>
                                   {bankDetail
                                     .slice() // 🔁 Clone ก่อนกัน side effect
@@ -3521,7 +3564,7 @@ const UpdateReport = (props) => {
                                     .map((row) => (
                                       <MenuItem
                                         key={row.id}
-                                        value={`${row.id}:${row.BankName} - ${row.BankShortName}`}
+                                        value={row.uuid}
                                         sx={{ fontSize: "14px" }}
                                       >
                                         {`${row.BankName}....${row.BankShortName}..${row.BankID}`}
@@ -3539,8 +3582,8 @@ const UpdateReport = (props) => {
                             width: 250,
                           }}
                         >
-                          {!updateTranfer || row.id !== tranferID ? (
-                            row.Transport.split(":")[1]
+                          {!updateTranfer || row.uuid !== tranferID ? (
+                            row.TransportName
                           ) : (
                             <Paper component="form" sx={{ width: "100%" }}>
                               <FormControl
@@ -3564,25 +3607,40 @@ const UpdateReport = (props) => {
                                     value={transport}
                                     sx={{ fontSize: "14px" }}
                                   >
-                                    {transport.split(":")[1]}
+                                    {companies.find((c) => c.uuid === transport)
+                                      ?.Name || ""}
                                   </MenuItem>
-                                  {Number(transport.split(":")[0]) !== 2 && (
-                                    <MenuItem
-                                      value="2:บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)"
-                                      sx={{ fontSize: "14px" }}
-                                    >
-                                      บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)
-                                    </MenuItem>
-                                  )}
-                                  {Number(transport.split(":")[0]) !== 3 && (
-                                    <MenuItem
-                                      value="3:บริษัท พิชยา ทรานสปอร์ต จำกัด (สำนักงานใหญ่)"
-                                      sx={{ fontSize: "14px" }}
-                                    >
-                                      บริษัท พิชยา ทรานสปอร์ต จำกัด
-                                      (สำนักงานใหญ่)
-                                    </MenuItem>
-                                  )}
+                                  {(() => {
+                                    const transportCompanyA = companies.find(
+                                      (c) => c.id === 2,
+                                    );
+                                    const transportCompanyB = companies.find(
+                                      (c) => c.id === 3,
+                                    );
+                                    return (
+                                      <>
+                                        {transportCompanyA &&
+                                          transportCompanyA.uuid !== transport && (
+                                            <MenuItem
+                                              value={transportCompanyA.uuid}
+                                              sx={{ fontSize: "14px" }}
+                                            >
+                                              บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)
+                                            </MenuItem>
+                                          )}
+                                        {transportCompanyB &&
+                                          transportCompanyB.uuid !== transport && (
+                                            <MenuItem
+                                              value={transportCompanyB.uuid}
+                                              sx={{ fontSize: "14px" }}
+                                            >
+                                              บริษัท พิชยา ทรานสปอร์ต จำกัด
+                                              (สำนักงานใหญ่)
+                                            </MenuItem>
+                                          )}
+                                      </>
+                                    );
+                                  })()}
                                 </Select>
                               </FormControl>
                             </Paper>
@@ -3595,7 +3653,7 @@ const UpdateReport = (props) => {
                             width: 150,
                           }}
                         >
-                          {!updateTranfer || row.id !== tranferID ? (
+                          {!updateTranfer || row.uuid !== tranferID ? (
                             new Intl.NumberFormat("th-TH", {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
@@ -3630,7 +3688,7 @@ const UpdateReport = (props) => {
                             width: 150,
                           }}
                         >
-                          {!updateTranfer || row.id !== tranferID ? (
+                          {!updateTranfer || row.uuid !== tranferID ? (
                             row.Note
                           ) : (
                             <Paper component="form" sx={{ width: "100%" }}>
@@ -3663,7 +3721,7 @@ const UpdateReport = (props) => {
                             backgroundColor: "white",
                           }}
                         >
-                          {!updateTranfer || row.id !== tranferID ? (
+                          {!updateTranfer || row.uuid !== tranferID ? (
                             <Box
                               sx={{
                                 display: "flex",
@@ -3676,7 +3734,7 @@ const UpdateReport = (props) => {
                                 size="small"
                                 onClick={() =>
                                   handleClickTranfer(
-                                    row.id,
+                                    row.uuid,
                                     row.DateStart,
                                     row.BankName,
                                     row.Transport,
@@ -3690,7 +3748,7 @@ const UpdateReport = (props) => {
                               </IconButton>
                               <IconButton
                                 color="error"
-                                onClick={() => handleDeleteReport(row.id)}
+                                onClick={() => handleDeleteReport(row.uuid)}
                                 size="small"
                               >
                                 <DeleteForeverIcon />
@@ -4051,18 +4109,34 @@ const UpdateReport = (props) => {
                                                             <MenuItem value={`${row.id}:${row.Name}`} sx={{ fontSize: "14px", }}>{row.Name}</MenuItem>
                                                         ))
                                                     } */}
-                          <MenuItem
-                            value="2:บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)"
-                            sx={{ fontSize: "14px" }}
-                          >
-                            บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)
-                          </MenuItem>
-                          <MenuItem
-                            value="3:บริษัท พิชยา ทรานสปอร์ต จำกัด (สำนักงานใหญ่)"
-                            sx={{ fontSize: "14px" }}
-                          >
-                            บริษัท พิชยา ทรานสปอร์ต จำกัด (สำนักงานใหญ่)
-                          </MenuItem>
+                          {(() => {
+                            const transportCompanyA = companies.find(
+                              (c) => c.id === 2,
+                            );
+                            const transportCompanyB = companies.find(
+                              (c) => c.id === 3,
+                            );
+                            return (
+                              <>
+                                {transportCompanyA && (
+                                  <MenuItem
+                                    value={transportCompanyA.uuid}
+                                    sx={{ fontSize: "14px" }}
+                                  >
+                                    บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)
+                                  </MenuItem>
+                                )}
+                                {transportCompanyB && (
+                                  <MenuItem
+                                    value={transportCompanyB.uuid}
+                                    sx={{ fontSize: "14px" }}
+                                  >
+                                    บริษัท พิชยา ทรานสปอร์ต จำกัด (สำนักงานใหญ่)
+                                  </MenuItem>
+                                )}
+                              </>
+                            );
+                          })()}
                         </Select>
                       </FormControl>
                     </Paper>
