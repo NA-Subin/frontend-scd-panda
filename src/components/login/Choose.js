@@ -24,12 +24,6 @@ import {
   ShowWarning,
 } from "../sweetalert/sweetalert";
 import Logo from "../../theme/img/logoPanda.jpg";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-} from "firebase/auth";
-import { auth, database, googleProvider } from "../../server/firebase";
 import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import DriveEtaIcon from '@mui/icons-material/DriveEta';
