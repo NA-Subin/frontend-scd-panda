@@ -70,25 +70,6 @@ const CloseFS = ({ openNavbar }) => {
   const [driverDetail, setDriver] = React.useState([]);
   const [companyName, setCompanyName] = React.useState("0:ทั้งหมด");
 
-  const companyDetail = [
-    {
-      id: 0,
-      Name: "ทั้งหมด",
-    },
-    {
-      id: 1,
-      Name: "บริษัท แพนด้า สตาร์ ออยล์  จำกัด  (สำนักงานใหญ่)",
-    },
-    {
-      id: 2,
-      Name: "บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)",
-    },
-    {
-      id: 3,
-      Name: "หจก.พิชยา ทรานสปอร์ต (สำนักงานใหญ่)",
-    },
-  ];
-
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
@@ -766,19 +747,25 @@ const CloseFS = ({ openNavbar }) => {
 
       // ✅ ถ้ามี order ใช้ driver จาก order
       // ✅ ไม่มี ใช้ driver จาก reg
-      const driver =
+      const driverUuid =
         orders.length > 0
           ? orders[orders.length - 1].Driver
           : reg.Driver;
 
+      const driverInfo = driver.find((d) => d.uuid === driverUuid);
+
       return {
         key: registrationKey,
 
-        Driver: driver || "",
+        Driver: driverUuid || "",
+
+        DriverName: driverInfo?.Name || "",
 
         Registration: registrationKey,
 
-        RegistrationTail: reg.RegTail,
+        RegistrationName: reg.RegHead,
+
+        RegistrationTail: reg.RegTailName,
 
         TicketName: orders,
 
@@ -1225,6 +1212,7 @@ const CloseFS = ({ openNavbar }) => {
           ticketGroup = {
             key: ticketGroupKey, // จับกลุ่ม TicketName
             TicketName: curr.TicketName,
+            TicketNameName: curr.TicketNameName,
             Rate: Rate,
             CustomerType: curr.CustomerType,
             TruckType: tripDetail?.TruckType,
@@ -1666,7 +1654,7 @@ const driverTotals = useMemo(() => {
     // 2️⃣ Title
     worksheet.mergeCells(1, 1, 1, columns.length);
     const titleCell = worksheet.getCell("A1");
-    titleCell.value = `รายงานน้ำมัน ประจำงวด ${date ? years : dayjs(months).format("MMMM YYYY")} ของบริษัท ${companyName === "0:ทั้งหมด" ? "ทุกบริษัท" : companyName.split(":")[1]}`;
+    titleCell.value = `รายงานน้ำมัน ประจำงวด ${date ? years : dayjs(months).format("MMMM YYYY")} ของบริษัท ${companyName === "0:ทั้งหมด" ? "ทุกบริษัท" : companies.find((c) => c.uuid === companyName)?.Name || ""}`;
     titleCell.font = { size: 16, bold: true };
     titleCell.alignment = { horizontal: "center", vertical: "middle" };
     titleCell.fill = {
@@ -2123,19 +2111,19 @@ const total = driverTotals[key] || { Volume: 0, Amount: 0 };
               sx={{ height: "35px", width: "100%", marginTop: -2 }}
             >
               <Autocomplete
-                options={companyDetail.filter((option) => option.id !== 1)}
+                options={companies.filter((option) => option.id !== 1)}
                 getOptionLabel={(option) => option.Name}
                 isOptionEqualToValue={(option, value) =>
-                  option.Name === value.Name
+                  option.uuid === value.uuid
                 }
                 value={
-                  companyDetail
+                  companies
                     .filter((option) => option.id !== 1)
-                    .find((c) => `${c.id}:${c.Name}` === companyName) || null
+                    .find((c) => c.uuid === companyName) || null
                 }
                 onChange={(event, newValue) => {
                   if (newValue) {
-                    setCompanyName(`${newValue.id}:${newValue.Name}`);
+                    setCompanyName(newValue.uuid);
                   } else {
                     setCompanyName("");
                   }
