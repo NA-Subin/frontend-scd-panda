@@ -34,7 +34,6 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { IconButtonWarning, TablecellSelling } from "../../theme/style";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import InsertDeductibleIncome from "./InsertDeductibleIncome";
-import { database } from "../../server/firebase";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 
 const DeductibleIncomeDetail = ({ openNavbar }) => {

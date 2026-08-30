@@ -69,8 +69,6 @@ import {
   ShowSuccess,
   showWelcome,
 } from "../sweetalert/sweetalert";
-import { auth, database } from "../../server/firebase";
-import { signOut } from "firebase/auth";
 import ReplyAllIcon from '@mui/icons-material/ReplyAll';
 import ListIcon from '@mui/icons-material/List';
 import PaidIcon from '@mui/icons-material/Paid';
@@ -298,15 +296,7 @@ export default function Navbar({ open, onOpenChange }) {
   };
 
   const handleLogout = () => {
-    signOut(auth)
-      .then(() => {
-        console.log("User logged out");
-        // Cookies.remove('token');
-        navigate("/"); // นำผู้ใช้ไปยังหน้า login
-      })
-      .catch(() => {
-        console.error("Error logging out:");
-      });
+    navigate("/"); // นำผู้ใช้ไปยังหน้า login
   };
 
   // const handleLogout = () => {
@@ -335,17 +325,11 @@ export default function Navbar({ open, onOpenChange }) {
       })
       .then((result) => {
         if (result.isConfirmed) {
-          signOut(auth)
-            .then(() => {
-              Cookies.remove('user');
-              Cookies.remove('sessionToken');
-              Cookies.remove('token');
-              navigate("/");
-              Swal.fire("ออกจากระบบเรียบร้อย", "", "success");
-            })
-            .catch((error) => {
-              Swal.fire("ไม่สามารถออกจากระบบได้", "", "error");
-            });
+          Cookies.remove('user');
+          Cookies.remove('sessionToken');
+          Cookies.remove('token');
+          navigate("/");
+          Swal.fire("ออกจากระบบเรียบร้อย", "", "success");
         } else if (result.isDenied) {
           Swal.fire("ออกจากระบบล้มเหลว", "", "error");
         }

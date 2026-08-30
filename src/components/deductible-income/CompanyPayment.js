@@ -34,7 +34,6 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { TablecellSelling } from "../../theme/style";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
-import { database } from "../../server/firebase";
 import ImportExcel from "./ExportExcel";
 
 const CompanyPayment = ({ openNavbar }) => {
