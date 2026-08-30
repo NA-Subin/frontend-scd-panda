@@ -41,7 +41,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const Customer = () => {
   const { customer } = useBasicData();
-      const customerList = Object.values(customer); 
+      const customerList = Object.values(customer || {});
       console.log("customer : ", customerList);
 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
