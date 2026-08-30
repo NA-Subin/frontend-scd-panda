@@ -173,9 +173,7 @@ const RepairDetail = ({}) => {
                     : "-"}
                 </TableCell>
                 <TableCell sx={{ textAlign: "center", fontSize: 14 }}>
-                  {row.Company && row.Company.split(":")[1]
-                    ? row.Company.split(":")[1]
-                    : "-"}
+                  {row.CompanyName || "-"}
                 </TableCell>
                 <TableCell sx={{ textAlign: "center", fontSize: 14 }}>
                   {row.Status}

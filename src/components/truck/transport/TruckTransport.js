@@ -290,7 +290,7 @@ const TruckTransport = ({ openNavbar }) => {
                                         </TableCell>
                                         <TableCell sx={{ textAlign: "center" }}>
                                             {
-                                                !update || row.id !== rowID ? (row.Company ? row.Company.split(":")[1] : "-")
+                                                !update || row.id !== rowID ? (row.CompanyName || "-")
                                                     :
                                                     <Paper
                                                         component="form">
@@ -313,7 +313,7 @@ const TruckTransport = ({ openNavbar }) => {
                                                             fullWidth
                                                         >
                                                             <MenuItem value={companies}>
-                                                                {companies?.split(":")[1]}
+                                                                {companies?.includes(":") ? companies.split(":")[1] : (dataCompany.find((c) => c.uuid === companies)?.Name || "-")}
                                                             </MenuItem>
                                                             {
                                                                 dataCompany.map((row) => (

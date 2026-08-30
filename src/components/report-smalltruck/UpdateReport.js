@@ -312,7 +312,7 @@ const UpdateReport = (props) => {
             // console.log("Company (trim):", `"${company.Company.trim()}"`);
             // console.log("Company (length):", company.Company.length);
 
-            const companyAddress = companies.find(com => com.id === Number(company.Company.split(":")[0]));
+            const companyAddress = companies.find(com => com.uuid === company.Company);
 
             // console.log("Address (raw):", `"${companyAddress.Name}"`);
             // console.log("Address (trim):", `"${companyAddress.Name.trim()}"`);

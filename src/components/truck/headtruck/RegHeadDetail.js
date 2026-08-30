@@ -356,7 +356,7 @@ const RegHeadDetail = (props) => {
           {truck.Status}
         </TableCell>
         <TableCell sx={{ textAlign: "center" }}>
-          {truck.Company.split(":")[1]}
+          {truck.CompanyName || "-"}
         </TableCell>
         <TableCell sx={{ textAlign: "center" }}>
           {truck.Driver === "ไม่มี" ? truck.Driver : truck.DriverName}

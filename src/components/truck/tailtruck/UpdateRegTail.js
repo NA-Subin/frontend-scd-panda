@@ -214,7 +214,7 @@ const UpdateRegTail = (props) => {
                             <Grid item xs={11}>
                                 {
                                     update ?
-                                        <TextField fullWidth variant="standard" value={companies.split(":")[1]} disabled />
+                                        <TextField fullWidth variant="standard" value={companies?.includes(":") ? companies.split(":")[1] : (dataCompany.find((c) => c.uuid === companies)?.Name || "-")} disabled />
                                         :
                                         // <FormControl variant="standard" fullWidth>
                                         //     <Select
@@ -245,7 +245,7 @@ const UpdateRegTail = (props) => {
                                                 value={companies}
                                                 onChange={(e) => setCompanies(e.target.value)}
                                             >
-                                                <MenuItem value={companies} sx={{ fontSize: "14px", }}>{companies.split(":")[1]}</MenuItem>
+                                                <MenuItem value={companies} sx={{ fontSize: "14px", }}>{companies?.includes(":") ? companies.split(":")[1] : (dataCompany.find((c) => c.uuid === companies)?.Name || "-")}</MenuItem>
                                                 {Number(companies.split(":")[0]) !== 2 && <MenuItem value="2:บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)" sx={{ fontSize: "14px", }}>บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)</MenuItem>}
                                                 {Number(companies.split(":")[0]) !== 3 && <MenuItem value="3:หจก.พิชยา ทรานสปอร์ต (สำนักงานใหญ่)" sx={{ fontSize: "14px", }}>หจก.พิชยา ทรานสปอร์ต (สำนักงานใหญ่)</MenuItem>}
                                             </Select>

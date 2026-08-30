@@ -432,7 +432,7 @@ const UpdateReport = (props) => {
     const tripMap = new Map(showTrips.map((t) => [t.id - 1, t]));
     const regHeadMap = new Map(registrationHead.map((r) => [r.id, r]));
     const regSmallMap = new Map(registrationSmall.map((r) => [r.id, r]));
-    const companyMap = new Map(companies.map((c) => [c.id, c]));
+    const companyByUuid = new Map(companies.map((c) => [c.uuid, c]));
 
     const result = [];
 
@@ -447,8 +447,7 @@ const UpdateReport = (props) => {
         ? regSmallMap.get(regId)
         : regHeadMap.get(regId);
 
-      const companyId = Number(safeSplit(companyObj?.Company, 0));
-      const companyAddress = companyMap.get(companyId);
+      const companyAddress = companyByUuid.get(companyObj?.Company);
 
       const depotName = safeSplit(matchedTrip?.Depot, 1);
 

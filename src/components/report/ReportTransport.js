@@ -189,8 +189,9 @@ const ReportTransports = ({ openNavbar }) => {
   };
 
   // const { reportFinancial, drivers } = useData();
-  const { drivers, customertransports, reghead, regtail, small, transport } =
+  const { drivers, customertransports, reghead, regtail, small, transport, company } =
     useBasicData();
+  const dataCompany = Object.values(company || {});
   const { tickets, transferMoney, trip } = useTripData();
 
   const registrationH = Object.values(reghead).filter(
@@ -464,10 +465,13 @@ const ReportTransports = ({ openNavbar }) => {
       } else if (check === "4:รถรับจ้างขนส่ง") {
         isRegistration = item.RegistrationName === "ไม่มี";
       } else {
+        const checkCompanyUuid = dataCompany.find(
+          (c) => c.id === Number(check.split(":")[0]),
+        )?.uuid;
         isRegistration =
           registration.some(
             (customer) =>
-              customer.Company.split(":")[0] === check.split(":")[0] &&
+              customer.Company === checkCompanyUuid &&
               customer.id === Number(item.Registration || 0),
           ) && item.RegistrationName !== "ไม่มี";
       }

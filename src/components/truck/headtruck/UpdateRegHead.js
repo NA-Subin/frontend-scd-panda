@@ -530,7 +530,7 @@ database.ref("/report/invoice").once("value", (snapshot) => {
                   <TextField
                     fullWidth
                     variant="standard"
-                    value={companies.split(":")[1]}
+                    value={companies?.includes(":") ? companies.split(":")[1] : (dataCompany.find((c) => c.uuid === companies)?.Name || "-")}
                     disabled
                   />
                 ) : (
@@ -567,7 +567,7 @@ database.ref("/report/invoice").once("value", (snapshot) => {
                       onChange={(e) => setCompanies(e.target.value)}
                     >
                       <MenuItem value={companies} sx={{ fontSize: "14px" }}>
-                        {companies.split(":")[1]}
+                        {companies?.includes(":") ? companies.split(":")[1] : (dataCompany.find((c) => c.uuid === companies)?.Name || "-")}
                       </MenuItem>
                       {Number(companies.split(":")[0]) !== 2 && (
                         <MenuItem
