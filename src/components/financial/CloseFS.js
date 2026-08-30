@@ -1534,7 +1534,7 @@ const driverTotals = useMemo(() => {
               formatmonth(row.Date) === dayjs(months).format("MMMM"),
           );
 
-          const matchedTrip = trips.find((trip) => trip.id - 1 === row.Trip);
+          const matchedTrip = trips.find((trip) => trip.id - 1 === Number(row.Trip));
           console.log("matchedTrip : ", matchedTrip);
           const depot = matchedTrip ? matchedTrip.Depot : null;
 

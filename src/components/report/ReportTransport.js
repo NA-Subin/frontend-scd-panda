@@ -509,7 +509,7 @@ const ReportTransports = ({ openNavbar }) => {
           (com) => com.id === Number(item.Registration || 0),
         );
 
-        const tripdetail = trips.find((trip) => trip.id - 1 === item.Trip);
+        const tripdetail = trips.find((trip) => trip.id - 1 === Number(item.Trip));
 
         if (!tripdetail) return null; // ไม่ใช่รถใหญ่ → ตัดทิ้ง
 

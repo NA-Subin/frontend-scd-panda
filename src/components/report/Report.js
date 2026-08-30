@@ -230,7 +230,7 @@ const Report = ({ openNavbar }) => {
           totalOverdue += parseFloat(value.IncomingMoney || 0);
         });
       }
-      const tripdetail = trips.find((trip) => trip.id - 1 === item.Trip);
+      const tripdetail = trips.find((trip) => trip.id - 1 === Number(item.Trip));
       const depotName = tripdetail?.Depot?.split(":")[1] || "";
       let Rate = "";
 
@@ -322,7 +322,7 @@ const Report = ({ openNavbar }) => {
         });
       }
 
-      const tripdetail = trips.find((trip) => trip.id - 1 === item.Trip);
+      const tripdetail = trips.find((trip) => trip.id - 1 === Number(item.Trip));
       const depotName = tripdetail?.Depot?.split(":")[1] || "";
       let Rate = "";
 
@@ -417,7 +417,7 @@ const Report = ({ openNavbar }) => {
         });
       }
 
-      const tripdetail = trips.find((trip) => trip.id - 1 === item.Trip);
+      const tripdetail = trips.find((trip) => trip.id - 1 === Number(item.Trip));
       const depotName = tripdetail?.Depot?.split(":")[1] || "";
       let Rate = "";
 

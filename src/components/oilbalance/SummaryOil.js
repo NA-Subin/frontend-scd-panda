@@ -203,7 +203,7 @@ const SummaryOilBalance = ({ openNavbar }) => {
             selectTickets === "0:แสดงทั้งหมด" ||
             item.TicketName === selectTickets;
 
-          const TruckType = trips.find((t) => Number(t.id) - 1 === item.Trip);
+          const TruckType = trips.find((t) => Number(t.id) - 1 === Number(item.Trip));
 
           return (
             isValidStatus &&

@@ -45,7 +45,7 @@ const TripsDetail = (props) => {
   const { order } = useTripData();
   const orderDetail = Object.values(order || {});
 
-  const orders = orderDetail.find((item) => item.Trip === trips.id - 1);
+  const orders = orderDetail.find((item) => Number(item.Trip) === trips.id - 1);
   const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
   console.log("order : ", orders);
   console.log("orderName : ", orderName);
@@ -126,7 +126,7 @@ const TripsDetail = (props) => {
               : trips.Order1}
           {(() => {
             const order = orderDetail.find(
-              (item) => item.Trip === trips.id - 1,
+              (item) => Number(item.Trip) === trips.id - 1,
             );
 
             // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
@@ -170,7 +170,7 @@ const TripsDetail = (props) => {
               : trips.Order2}
           {(() => {
             const order = orderDetail.find(
-              (item) => item.Trip === trips.id - 1,
+              (item) => Number(item.Trip) === trips.id - 1,
             );
 
             // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
@@ -214,7 +214,7 @@ const TripsDetail = (props) => {
               : trips.Order3}
           {(() => {
             const order = orderDetail.find(
-              (item) => item.Trip === trips.id - 1,
+              (item) => Number(item.Trip) === trips.id - 1,
             );
 
             // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
@@ -258,7 +258,7 @@ const TripsDetail = (props) => {
               : trips.Order4}
           {(() => {
             const order = orderDetail.find(
-              (item) => item.Trip === trips.id - 1,
+              (item) => Number(item.Trip) === trips.id - 1,
             );
 
             // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
@@ -302,7 +302,7 @@ const TripsDetail = (props) => {
               : trips.Order5}
           {(() => {
             const order = orderDetail.find(
-              (item) => item.Trip === trips.id - 1,
+              (item) => Number(item.Trip) === trips.id - 1,
             );
 
             // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
@@ -346,7 +346,7 @@ const TripsDetail = (props) => {
               : trips.Order6}
           {(() => {
             const order = orderDetail.find(
-              (item) => item.Trip === trips.id - 1,
+              (item) => Number(item.Trip) === trips.id - 1,
             );
 
             // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
@@ -390,7 +390,7 @@ const TripsDetail = (props) => {
               : trips.Order7}
           {(() => {
             const order = orderDetail.find(
-              (item) => item.Trip === trips.id - 1,
+              (item) => Number(item.Trip) === trips.id - 1,
             );
 
             // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
@@ -434,7 +434,7 @@ const TripsDetail = (props) => {
               : trips.Order8}
           {(() => {
             const order = orderDetail.find(
-              (item) => item.Trip === trips.id - 1,
+              (item) => Number(item.Trip) === trips.id - 1,
             );
 
             // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;

@@ -163,7 +163,7 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                 // ตรวจสอบเงื่อนไขของ driver ตาม selectDriver
                 const matchTickets = selectTickets === "0:แสดงทั้งหมด" || item.TicketName === selectTickets;
 
-                const TruckType = trips.find((t) => (Number(t.id) - 1) === item.Trip)
+                const TruckType = trips.find((t) => (Number(t.id) - 1) === Number(item.Trip))
 
                 return isValidStatus && isInDateRange && matchTickets && TruckType?.TruckType === "รถเล็ก" && TruckType?.Status !== "ยกเลิก";
             })
