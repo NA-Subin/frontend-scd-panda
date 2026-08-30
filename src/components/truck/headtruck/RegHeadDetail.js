@@ -48,7 +48,7 @@ import {
 } from "../../../theme/style";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
-import { database } from "../../../server/firebase";
+import { apiPut } from "../../../server/apiClient";
 import {
   ShowConfirm,
   ShowError,
@@ -56,15 +56,13 @@ import {
 } from "../../sweetalert/sweetalert";
 import UpdateRegHead from "./UpdateRegHead";
 import TruckRepair from "./TruckRepair";
-import { fetchRealtimeData } from "../../../server/data";
-import { useData } from "../../../server/path";
 import { useBasicData } from "../../../server/provider/BasicDataProvider";
 
 const RegHeadDetail = (props) => {
   const { truck, index } = props;
 
   const [openTab, setOpenTab] = React.useState(true);
-  const [setting, setSetting] = React.useState("0:0");
+  const [setting, setSetting] = React.useState(null);
   const [tail, setTail] = React.useState("ไม่มี:0:0:0");
   const [openDialog, setOpenDialog] = useState(null);
   const [selectedTruck, setSelectedTruck] = useState(null);
@@ -102,8 +100,7 @@ const RegHeadDetail = (props) => {
   //   });
   // };
 
-  // const { regtail } = useData();
-  const { regtail } = useBasicData();
+  const { regtail, refetch: refetchBasicData } = useBasicData();
   const dataregtail = Object.values(regtail || {}).filter(
     (item) => item.StatusTruck !== "ยกเลิก",
   );
@@ -115,39 +112,38 @@ const RegHeadDetail = (props) => {
   //   getRegitrationTail();
   // }, []);
 
-  const handlePost = () => {
-    database
-      .ref("/truck/registration/")
-      .child(setting.split(":")[0] - 1)
-      .update({
-        RegTail: tail.split(":")[1],
-        TotalWeight: parseFloat(truck.Weight) + parseFloat(tail.split(":")[3]),
-      })
-      .then(() => {
-        database
-          .ref("/truck/registrationTail/")
-          .child(tail.split(":")[0] - 1)
-          .update({
-            Status: "เชื่อมทะเบียนหัวแล้ว",
-          })
-          .then(() => {
-            ShowSuccess("เชื่อมทะเบียนหางสำเร็จ");
-            console.log("Data pushed successfully");
-            setSetting("");
-          })
-          .catch((error) => {
-            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-            console.error("Error pushing data:", error);
-          });
-      })
-      .catch((error) => {
-        ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-        console.error("Error pushing data:", error);
+  const handlePost = async () => {
+    if (!truck?.uuid) {
+      ShowError("ไม่พบข้อมูลรถ");
+      return;
+    }
+
+    const tailRow = registrationTail.find((row) => row.id === Number(tail.split(":")[0]));
+    if (!tailRow?.uuid) {
+      ShowError("ไม่พบข้อมูลทะเบียนหาง");
+      return;
+    }
+
+    try {
+      await apiPut(`/api/truck_registration/${truck.uuid}`, {
+        RegTail: tailRow.uuid,
+        RegTailName: tailRow.RegTail,
+        TotalWeight: parseFloat(truck.Weight) + parseFloat(tailRow.Weight),
       });
+      await apiPut(`/api/truck_registration_tail/${tailRow.uuid}`, {
+        Status: "เชื่อมทะเบียนหัวแล้ว",
+      });
+      ShowSuccess("เชื่อมทะเบียนหางสำเร็จ");
+      refetchBasicData?.();
+      setSetting(null);
+    } catch (error) {
+      ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+      console.error("Error pushing data:", error);
+    }
   };
 
   const handleDelete = (t) => {
-    if (!t?.id) {
+    if (!t?.uuid) {
       ShowError("ไม่พบข้อมูลรถ");
       return;
     }
@@ -157,27 +153,24 @@ const RegHeadDetail = (props) => {
       return;
     }
 
-    if (t.RegTail !== "0:ไม่มี") {
+    if (t.RegTail) {
       ShowError("ไม่สามารถลบได้ เนื่องจากรถมีการเชื่อมทะเบียนหางอยู่");
       return;
     }
 
     ShowConfirm(
       `ต้องการลบทะเบียนรถ ${t.RegHead} ใช่หรือไม่`,
-      () => {
-        database
-          .ref("/truck/registration/")
-          .child(t.id - 1)
-          .update({
+      async () => {
+        try {
+          await apiPut(`/api/truck_registration/${t.uuid}`, {
             StatusTruck: "ยกเลิก",
-          })
-          .then(() => {
-            ShowSuccess("ลบทะเบียนรถเรียบร้อย");
-          })
-          .catch((error) => {
-            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-            console.error("Error pushing data:", error);
           });
+          ShowSuccess("ลบทะเบียนรถเรียบร้อย");
+          refetchBasicData?.();
+        } catch (error) {
+          ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+          console.error("Error pushing data:", error);
+        }
       },
       () => {
         console.log(`ยกเลิกลบทะเบียนรถ ${t.RegHead}`);
@@ -209,7 +202,7 @@ const RegHeadDetail = (props) => {
         >
           <Box sx={{ backgroundColor: "white" }}>{truck.RegHead}</Box>
         </TableCell>
-        {setting.split(":")[1] === truck.RegTail ? (
+        {setting === truck.id ? (
           <TableCell
             sx={{
               textAlign: "center",
@@ -261,7 +254,7 @@ const RegHeadDetail = (props) => {
                   <IconButton
                     size="small"
                     sx={{ marginTop: -0.5 }}
-                    onClick={() => setSetting("")}
+                    onClick={() => setSetting(null)}
                   >
                     <CancelIcon color="error" fontSize="12px" />
                   </IconButton>
@@ -287,11 +280,11 @@ const RegHeadDetail = (props) => {
             }}
           >
             <Box sx={{ backgroundColor: "white" }}>
-              {truck.RegTail === "0:ไม่มี" || truck.RegTail === "ไม่มี" ? (
+              {!truck.RegTail ? (
                 <IconButton
                   size="small"
                   sx={{ marginTop: -0.5 }}
-                  onClick={() => setSetting(truck.RegTail)}
+                  onClick={() => setSetting(truck.id)}
                 >
                   <SettingsIcon color="warning" fontSize="12px" />
                 </IconButton>

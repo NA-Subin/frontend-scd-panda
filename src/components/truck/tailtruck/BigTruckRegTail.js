@@ -41,9 +41,7 @@ import theme from "../../../theme/theme";
 import { IconButtonError, RateOils, TablecellHeader } from "../../../theme/style";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
-import { database } from "../../../server/firebase";
 import UpdateRegTail from "./UpdateRegTail";
-import { useData } from "../../../server/path";
 import { useBasicData } from "../../../server/provider/BasicDataProvider";
 import RegTailDetail from "./RegTailDetail";
 
@@ -52,7 +50,6 @@ const BigTruckRegTail = (props) => {
   const [openTab, setOpenTab] = React.useState(true);
   const [open, setOpen] = useState(false);
 
-  // const { regtail } = useData();
   const { regtail } = useBasicData();
   const truck = Object.values(regtail || {}).filter((item) => item.StatusTruck !== "ยกเลิก");
 

@@ -54,10 +54,8 @@ import {
 } from "../../../theme/style";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
-import { database } from "../../../server/firebase";
-import { API_BASE } from "../../../server/apiClient";
+import { API_BASE, apiPut } from "../../../server/apiClient";
 import { ShowError, ShowSuccess } from "../../sweetalert/sweetalert";
-import { useData } from "../../../server/path";
 import { useBasicData } from "../../../server/provider/BasicDataProvider";
 import TruckRepair from "./TruckRepair";
 import FilePreview from "../UploadButton";
@@ -66,8 +64,7 @@ const UpdateRegHead = (props) => {
   const { truck, open, onClose, type } = props;
   const [update, setUpdate] = React.useState(true);
 
-  // const { regtail, company, drivers } = useData();
-  const { regtail, company, drivers } = useBasicData();
+  const { regtail, company, drivers, refetch: refetchBasicData } = useBasicData();
   const dataregtail = Object.values(regtail || {}).filter(
     (item) => item.StatusTruck !== "ยกเลิก",
   );
@@ -78,10 +75,19 @@ const UpdateRegHead = (props) => {
   );
   const employees = dataDrivers.filter(
     (row) =>
-      row.Registration &&
-      row.Registration === "0:ไม่มี" &&
+      !row.Registration &&
       (row.TruckType === "รถใหญ่" || row.TruckType === "รถใหญ่/รถเล็ก"),
   );
+
+  const resolveCompanyDisplay = (value) =>
+    value?.includes(":")
+      ? value.split(":")[1]
+      : dataCompany.find((c) => c.uuid === value)?.Name || "-";
+
+  const resolveDriverDisplay = (value) =>
+    value?.includes(":")
+      ? value.split(":")[1]
+      : dataDrivers.find((d) => d.uuid === value)?.Name || truck.DriverName || "ไม่มี";
 
   const [companies, setCompanies] = React.useState(truck.Company);
   const [driver, setDriver] = React.useState(truck.Driver);
@@ -176,167 +182,79 @@ const UpdateRegHead = (props) => {
         console.error("Upload failed:", err);
       }
     }
-    const oldRegistration = "1:71-1639";
-const newRegistration = `${truck.id}:${regHead}`;
-
-// // =========================
-// // ORDER
-// // =========================
-// database.ref("/order").once("value", (snapshot) => {
-//   snapshot.forEach((child) => {
-//     const data = child.val();
-
-//     if (data?.Registration === oldRegistration) {
-//       database
-//         .ref(`/order/${child.key}`)
-//         .update({
-//           Registration: newRegistration,
-//         });
-//     }
-//   });
-// });
-
-// // =========================
-// // TRIP
-// // =========================
-// database.ref("/trip").once("value", (snapshot) => {
-//   snapshot.forEach((child) => {
-//     const data = child.val();
-
-//     if (data?.Registration === oldRegistration) {
-//       database
-//         .ref(`/trip/${child.key}`)
-//         .update({
-//           Registration: newRegistration,
-//         });
-//     }
-//   });
-// });
-
-// // =========================
-// // TICKET
-// // =========================
-// database.ref("/tickets").once("value", (snapshot) => {
-//   snapshot.forEach((child) => {
-//     const data = child.val();
-
-//     if (data?.Registration === oldRegistration) {
-//       database
-//         .ref(`/tickets/${child.key}`)
-//         .update({
-//           Registration: newRegistration,
-//         });
-//     }
-//   });
-// });
-
-database.ref("/report/invoice").once("value", (snapshot) => {
-  snapshot.forEach((child) => {
-    const data = child.val();
-
-    if (data?.Registration === oldRegistration) {
-      database
-        .ref(`/report/invoice/${child.key}`)
-        .update({
-          Registration: newRegistration,
-        });
+    if (!truck?.uuid) {
+      ShowError("ไม่พบข้อมูลรถ");
+      return;
     }
-  });
-});
 
-    database
-      .ref("/truck/registration/")
-      .child(truck.id - 1)
-      .update({
+    const companyRow = companies?.includes(":")
+      ? dataCompany.find((c) => c.id === Number(companies.split(":")[0]))
+      : dataCompany.find((c) => c.uuid === companies);
+
+    const driverRow = driver === "0:ไม่มี"
+      ? null
+      : driver?.includes(":")
+        ? employees.find((e) => e.id === Number(driver.split(":")[0]))
+        : dataDrivers.find((d) => d.uuid === driver);
+
+    const oldDriverRow = dataDrivers.find((d) => d.uuid === truck.Driver);
+
+    const newTailRow = regTail === "0:ไม่มี:0:0"
+      ? null
+      : registrationTail.find((r) => r.id === Number(regTail.split(":")[0]));
+    const oldTailRow = dataregtail.find((r) => r.uuid === truck.RegTail);
+
+    try {
+      await apiPut(`/api/truck_registration/${truck.uuid}`, {
         RegHead: regHead,
-        RegTail: `${regTail.split(":")[0]}:${regTail.split(":")[1]}`,
+        RegTail: newTailRow?.uuid || null,
+        RegTailName: newTailRow?.RegTail || "ไม่มี",
         Weight: weight,
-        TotalWeight: parseFloat(weight) + parseFloat(regTail.split(":")[3]),
+        TotalWeight: parseFloat(weight) + parseFloat(newTailRow?.Weight || 0),
         Insurance: insurance,
         VehicleRegistration: vehicleRegistration ? "มี" : "ไม่มี",
         VehExpirationDate: vehExpirationDate || "-",
-        Company: companies,
-        Driver: driver,
+        Company: companyRow?.uuid || null,
+        CompanyName: companyRow?.Name || "",
+        Driver: driverRow?.uuid || null,
+        DriverName: driverRow?.Name || "ไม่มี",
         Path: vehicleRegistration ? img : "ไม่แนบไฟล์",
         Status: statusTruck,
-      })
-      .then(() => {
-        const newDriverId = Number(driver?.split?.(":")[0] || 0);
-        const oldDriverId = Number(truck?.Driver?.split?.(":")[0] || 0);
-
-        const updates = [];
-
-        // ✅ 1. ล้างของเก่า (ถ้ามี)
-        if (oldDriverId !== 0) {
-          updates.push(
-            database
-              .ref("/employee/drivers/")
-              .child(oldDriverId - 1)
-              .update({
-                Registration: "0:ไม่มี",
-              }),
-          );
-        }
-
-        // ✅ 2. ถ้าเลือกใหม่ไม่ใช่ 0 → ใส่ค่าใหม่
-        if (newDriverId !== 0) {
-          updates.push(
-            database
-              .ref("/employee/drivers/")
-              .child(newDriverId - 1)
-              .update({
-                Registration: `${truck.id}:${regHead}`,
-              }),
-          );
-        }
-
-        Promise.all(updates)
-          .then(() => {
-            ShowSuccess("แก้ไขข้อมูลสำเร็จ");
-            setUpdate(true);
-          })
-          .catch((err) => {
-            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-            console.error(err);
-          });
-
-        const newRegId = Number(regTail?.split?.(":")[0] || 0);
-        const oldRegId = Number(truck?.RegTail?.split?.(":")[0] || 0);
-
-        const regUpdates = [];
-
-        // ล้างของเก่า
-        if (oldRegId !== 0) {
-          regUpdates.push(
-            database
-              .ref("/truck/registrationTail/")
-              .child(oldRegId - 1)
-              .update({
-                Status: "ยังไม่ได้เชื่อมต่อทะเบียนหัว",
-              }),
-          );
-        }
-
-        // ใส่ของใหม่
-        if (newRegId !== 0) {
-          regUpdates.push(
-            database
-              .ref("/truck/registrationTail/")
-              .child(newRegId - 1)
-              .update({
-                Status: "เชื่อมทะเบียนหัวแล้ว",
-              }),
-          );
-        }
-
-        Promise.all(regUpdates)
-          .then(() => console.log("Registration updated"))
-          .catch((err) => console.error(err));
-      })
-      .catch((error) => {
-        ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-        console.error("Error pushing data:", error);
       });
+
+      // ล้าง/ตั้งค่า Registration ของพนักงานขับรถที่เปลี่ยนไป
+      if (oldDriverRow?.uuid && oldDriverRow.uuid !== driverRow?.uuid) {
+        await apiPut(`/api/employee_drivers/${oldDriverRow.uuid}`, {
+          Registration: null,
+          RegistrationName: "ไม่มี",
+        });
+      }
+      if (driverRow?.uuid && driverRow.uuid !== oldDriverRow?.uuid) {
+        await apiPut(`/api/employee_drivers/${driverRow.uuid}`, {
+          Registration: truck.uuid,
+          RegistrationName: regHead,
+        });
+      }
+
+      // ล้าง/ตั้งค่าสถานะทะเบียนหางที่เปลี่ยนไป
+      if (oldTailRow?.uuid && oldTailRow.uuid !== newTailRow?.uuid) {
+        await apiPut(`/api/truck_registration_tail/${oldTailRow.uuid}`, {
+          Status: "ยังไม่ได้เชื่อมต่อทะเบียนหัว",
+        });
+      }
+      if (newTailRow?.uuid && newTailRow.uuid !== oldTailRow?.uuid) {
+        await apiPut(`/api/truck_registration_tail/${newTailRow.uuid}`, {
+          Status: "เชื่อมทะเบียนหัวแล้ว",
+        });
+      }
+
+      ShowSuccess("แก้ไขข้อมูลสำเร็จ");
+      refetchBasicData?.();
+      setUpdate(true);
+    } catch (error) {
+      ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+      console.error("Error pushing data:", error);
+    }
   };
 
   console.log("registrationTail :", registrationTail);
@@ -418,7 +336,7 @@ database.ref("/report/invoice").once("value", (snapshot) => {
                   <TextField
                     fullWidth
                     variant="standard"
-                    value={driver.split(":")[1]}
+                    value={resolveDriverDisplay(driver)}
                     disabled
                   />
                 ) : (
@@ -429,7 +347,7 @@ database.ref("/report/invoice").once("value", (snapshot) => {
                       value={driver}
                       onChange={(e) => setDriver(e.target.value)}
                     >
-                      <MenuItem value={driver}>{driver.split(":")[1]}</MenuItem>
+                      <MenuItem value={driver}>{resolveDriverDisplay(driver)}</MenuItem>
                       {driver !== "0:ไม่มี" && (
                         <MenuItem value={"0:ไม่มี"}>ไม่มี</MenuItem>
                       )}
@@ -530,7 +448,7 @@ database.ref("/report/invoice").once("value", (snapshot) => {
                   <TextField
                     fullWidth
                     variant="standard"
-                    value={companies?.includes(":") ? companies.split(":")[1] : (dataCompany.find((c) => c.uuid === companies)?.Name || "-")}
+                    value={resolveCompanyDisplay(companies)}
                     disabled
                   />
                 ) : (
@@ -567,9 +485,9 @@ database.ref("/report/invoice").once("value", (snapshot) => {
                       onChange={(e) => setCompanies(e.target.value)}
                     >
                       <MenuItem value={companies} sx={{ fontSize: "14px" }}>
-                        {companies?.includes(":") ? companies.split(":")[1] : (dataCompany.find((c) => c.uuid === companies)?.Name || "-")}
+                        {resolveCompanyDisplay(companies)}
                       </MenuItem>
-                      {Number(companies.split(":")[0]) !== 2 && (
+                      {(!companies?.includes(":") || Number(companies.split(":")[0]) !== 2) && (
                         <MenuItem
                           value="2:บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)"
                           sx={{ fontSize: "14px" }}
@@ -577,7 +495,7 @@ database.ref("/report/invoice").once("value", (snapshot) => {
                           บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)
                         </MenuItem>
                       )}
-                      {Number(companies.split(":")[0]) !== 3 && (
+                      {(!companies?.includes(":") || Number(companies.split(":")[0]) !== 3) && (
                         <MenuItem
                           value="3:หจก.พิชยา ทรานสปอร์ต (สำนักงานใหญ่)"
                           sx={{ fontSize: "14px" }}

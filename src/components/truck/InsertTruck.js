@@ -40,10 +40,8 @@ import ImageIcon from "@mui/icons-material/Image";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import UploadButton from "./UploadButton";
-import { database } from "../../server/firebase";
-import { API_BASE } from "../../server/apiClient";
+import { API_BASE, apiPost, apiPut } from "../../server/apiClient";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
-import { useData } from "../../server/path";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import FilePreview from "./UploadButton";
 
@@ -137,8 +135,7 @@ const InsertTruck = (props) => {
         });
     };
 
-    // const { company, drivers, reghead, regtail, small } = useData();
-    const { company, drivers, reghead, regtail, small } = useBasicData();
+    const { company, drivers, reghead, regtail, small, refetch: refetchBasicData } = useBasicData();
     const dataCompany = Object.values(company || {});
     const dataDrivers = Object.values(drivers || {});
     const regheads = Object.values(reghead || {});
@@ -173,73 +170,69 @@ const InsertTruck = (props) => {
                 console.error("Upload failed:", err);
             }
         }
+        const companyRow = dataCompany.find((c) => c.id === Number(String(companies).split(":")[0]));
+
         if (menu === 1) {
-            database
-                .ref("/truck/registration/")
-                .child(regheads.length)
-                .update({
+            const tailRow = tail && tail.split(":")[1] !== "ไม่มี"
+                ? regtailsDetail.find((t) => t.id === Number(tail.split(":")[0]))
+                : null;
+
+            try {
+                await apiPost("/api/truck_registration", {
                     id: regheads.length + 1,
-                    Company: companies,
+                    Company: companyRow?.uuid || null,
+                    CompanyName: companyRow?.Name || "",
                     RegHead: regHead,
-                    RegTail: tail? `${tail.split(":")[0]}:${tail.split(":")[1]}` : "0:ไม่มี",
+                    RegTail: tailRow?.uuid || null,
+                    RegTailName: tailRow?.RegTail || "ไม่มี",
                     RepairTruck: "00/00/0000:ยังไม่ตรวจสอบสภาพรถ",
                     Weight: weight,
-                    TotalWeight: (parseFloat(weight) + parseFloat(tail.split(":")[3])),
+                    TotalWeight: (parseFloat(weight) + parseFloat(tail.split(":")[3] || 0)),
                     Insurance: "-",
                     Act: "-",
                     Status: "ว่าง",
-                    Driver: "0:ไม่มี",
+                    Driver: null,
+                    DriverName: "ไม่มี",
                     VehicleRegistration: licenseRegHead === "มี" ? vehicleRegistration : "ไม่มี",
                     DateEndTax: licenseRegHead === "มี" ? dateEndTax : "ไม่มี",
                     DateEndInsurance: licenseRegHead === "มี" ? dateEndInsurance : "ไม่มี",
                     VehPicture: "ไม่มี",
                     Path: img
-                })
-                .then(() => {
-                    if (tail.split(":")[1] !== "ไม่มี") {
-                        database
-                            .ref("/truck/registrationTail/")
-                            .child(Number(tail.split(":")[0]) - 1)
-                            .update({
-                                Status: "เชื่อมทะเบียนหัวแล้ว",
-                            })
-                            .then(() => {
-                                console.log("Data pushed successfully");
-                            })
-                            .catch((error) => {
-                                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                                console.error("Error pushing data:", error);
-                            });
-                    }
-                    ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                    console.log("Data pushed successfully");
-                    setCompanies("");
-                    setRegHead("");
-                    setTail("");
-                    setWeight("");
-                    setLicenseRegHead("");
-                    setVehicleRegistration("");
-                    setDateEndTax("");
-                    setDateEndInsurance("");
-                    setFile("ไม่แนบไฟล์");
-                    setFileType(1);
-                })
-                .catch((error) => {
-                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                    console.error("Error pushing data:", error);
                 });
+
+                if (tailRow?.uuid) {
+                    await apiPut(`/api/truck_registration_tail/${tailRow.uuid}`, {
+                        Status: "เชื่อมทะเบียนหัวแล้ว",
+                    });
+                }
+
+                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+                refetchBasicData?.();
+                setCompanies("");
+                setRegHead("");
+                setTail("");
+                setWeight("");
+                setLicenseRegHead("");
+                setVehicleRegistration("");
+                setDateEndTax("");
+                setDateEndInsurance("");
+                setFile("ไม่แนบไฟล์");
+                setFileType(1);
+            } catch (error) {
+                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+                console.error("Error pushing data:", error);
+            }
         } else if (menu === 2) {
             const capFields = fields.reduce((acc, field) => {
                 acc[`Cap${field.id}`] = field.value || 0; // หากไม่มีค่าให้ใส่เป็น 0
                 return acc;
             }, {});
 
-            database
-                .ref("/truck/registrationTail/")
-                .child(regtails.length)
-                .update({
+            try {
+                await apiPost("/api/truck_registration_tail", {
                     id: regtails.length + 1,
-                    Company: companies,
+                    Company: companyRow?.uuid || null,
+                    CompanyName: companyRow?.Name || "",
                     RegTail: regTail,
                     Weight: tailWeight,
                     Cap: cap,
@@ -251,33 +244,31 @@ const InsertTruck = (props) => {
                     DateEndInsurance: licenseRegTail === "มี" ? dateEndInsurance : "ไม่มี",
                     VehPicture: "ไม่มี",
                     Path: img
-                })
-                .then(() => {
-                    ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                    console.log("Data pushed successfully");
-                    setCompanies("");
-                    setRegTail("");
-                    setWeight("");
-                    setCap("");
-                    setTailWeight(0);
-                    setLicenseRegTail("");
-                    setVehicleRegistration("");
-                    setDateEndTax("");
-                    setDateEndInsurance("");
-                    setFile("ไม่แนบไฟล์");
-                    setFileType(1);
-                })
-                .catch((error) => {
-                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                    console.error("Error pushing data:", error);
                 });
+
+                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+                refetchBasicData?.();
+                setCompanies("");
+                setRegTail("");
+                setWeight("");
+                setCap("");
+                setTailWeight(0);
+                setLicenseRegTail("");
+                setVehicleRegistration("");
+                setDateEndTax("");
+                setDateEndInsurance("");
+                setFile("ไม่แนบไฟล์");
+                setFileType(1);
+            } catch (error) {
+                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+                console.error("Error pushing data:", error);
+            }
         } else {
-            database
-                .ref("/truck/small/")
-                .child(smalls.length)
-                .update({
+            try {
+                await apiPost("/api/truck_small", {
                     id: smalls.length + 1,
-                    Company: companies,
+                    Company: companyRow?.uuid || null,
+                    CompanyName: companyRow?.Name || "",
                     ShortName: shortName,
                     RegHead: registration,
                     RepairTruck: "00/00/0000:ยังไม่ตรวจสอบสภาพรถ",
@@ -291,24 +282,23 @@ const InsertTruck = (props) => {
                     DateEndInsurance: licenseSmallTruck === "มี" ? dateEndInsurance : "ไม่มี",
                     VehPicture: "ไม่มี",
                     Path: img
-                })
-                .then(() => {
-                    ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                    console.log("Data pushed successfully");
-                    setCompanies("");
-                    setWeight("");
-                    setRegistration("");
-                    setLicenseSmallTruck("");
-                    setVehicleRegistration("");
-                    setDateEndTax("");
-                    setDateEndInsurance("");
-                    setFile("ไม่แนบไฟล์");
-                    setFileType(1);
-                })
-                .catch((error) => {
-                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                    console.error("Error pushing data:", error);
                 });
+
+                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+                refetchBasicData?.();
+                setCompanies("");
+                setWeight("");
+                setRegistration("");
+                setLicenseSmallTruck("");
+                setVehicleRegistration("");
+                setDateEndTax("");
+                setDateEndInsurance("");
+                setFile("ไม่แนบไฟล์");
+                setFileType(1);
+            } catch (error) {
+                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+                console.error("Error pushing data:", error);
+            }
         }
     };
 

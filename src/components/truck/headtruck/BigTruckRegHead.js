@@ -51,21 +51,16 @@ import {
 } from "../../../theme/style";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
-import { database } from "../../../server/firebase";
 import { ShowError, ShowSuccess } from "../../sweetalert/sweetalert";
 import RegHeadDetail from "./RegHeadDetail";
-import { useData } from "../../../server/path";
 import { useBasicData } from "../../../server/provider/BasicDataProvider";
 
 const BigTruckRegHead = (props) => {
   const { repair, loading } = props;
 
   const [openTab, setOpenTab] = React.useState(true);
-  const [setting, setSetting] = React.useState("0:0");
-  const [tail, setTail] = React.useState(0);
   const [showSoldTruck, setShowSoldTruck] = useState(false);
 
-  // const { reghead } = useData();
   const { reghead } = useBasicData();
   const truck = Object.values(reghead || {}).filter((item) => {
   return showSoldTruck
@@ -93,36 +88,6 @@ const BigTruckRegHead = (props) => {
       // จอไม่เท่ากับโทรศัพท์
       setOpenTab((prevOpen) => !prevOpen);
     }
-  };
-
-  const handlePost = () => {
-    database
-      .ref("/truck/registration/")
-      .child(setting.split(":")[0] - 1)
-      .update({
-        RegTail: tail.split(":")[1],
-      })
-      .then(() => {
-        database
-          .ref("/truck/registrationTail/")
-          .child(tail.split(":")[0] - 1)
-          .update({
-            Status: "เชื่อมทะเบียนหัวแล้ว",
-          })
-          .then(() => {
-            ShowSuccess("เชื่อมทะเบียนหางสำเร็จ");
-            console.log("Data pushed successfully");
-            setSetting("");
-          })
-          .catch((error) => {
-            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-            console.error("Error pushing data:", error);
-          });
-      })
-      .catch((error) => {
-        ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-        console.error("Error pushing data:", error);
-      });
   };
 
   const [page, setPage] = useState(0);

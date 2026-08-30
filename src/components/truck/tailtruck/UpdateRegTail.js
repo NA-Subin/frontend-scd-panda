@@ -47,10 +47,8 @@ import theme from "../../../theme/theme";
 import { IconButtonError, IconButtonSuccess, IconButtonWarning, RateOils, TablecellHeader } from "../../../theme/style";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
-import { database } from "../../../server/firebase";
-import { API_BASE } from "../../../server/apiClient";
+import { API_BASE, apiPut } from "../../../server/apiClient";
 import { ShowError, ShowSuccess } from "../../sweetalert/sweetalert";
-import { useData } from "../../../server/path";
 import { useBasicData } from "../../../server/provider/BasicDataProvider";
 import FilePreview from "../UploadButton";
 
@@ -67,9 +65,13 @@ const UpdateRegTail = (props) => {
         setOpenTab(newOpen);
     };
 
-    // const { company } = useData();
-    const { company } = useBasicData();
+    const { company, refetch: refetchBasicData } = useBasicData();
     const dataCompany = Object.values(company || {});
+
+    const resolveCompanyDisplay = (value) =>
+        value?.includes(":")
+            ? value.split(":")[1]
+            : dataCompany.find((c) => c.uuid === value)?.Name || "-";
 
     const [companies, setCompanies] = React.useState(truck.Company);
     const [regTail, setRegTail] = React.useState(truck.RegTail);
@@ -132,27 +134,33 @@ const UpdateRegTail = (props) => {
                 console.error("Upload failed:", err);
             }
         }
-        database
-            .ref("/truck/registrationTail/")
-            .child(truck.id - 1)
-            .update({
+        if (!truck?.uuid) {
+            ShowError("ไม่พบข้อมูลรถ");
+            return;
+        }
+
+        const companyRow = companies?.includes(":")
+            ? dataCompany.find((c) => c.id === Number(companies.split(":")[0]))
+            : dataCompany.find((c) => c.uuid === companies);
+
+        try {
+            await apiPut(`/api/truck_registration_tail/${truck.uuid}`, {
                 RegTail: regTail,
                 Weight: weight,
                 Insurance: insurance,
                 VehicleRegistration: vehicleRegistration ? "มี" : "ไม่มี",
                 VehExpirationDate: vehExpirationDate,
-                Company: companies,
+                Company: companyRow?.uuid || null,
+                CompanyName: companyRow?.Name || "",
                 Path: vehicleRegistration ? img : "ไม่แนบไฟล์"
-            })
-            .then(() => {
-                ShowSuccess("แก้ไขข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setUpdate(true)
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("แก้ไขข้อมูลสำเร็จ");
+            refetchBasicData?.();
+            setUpdate(true)
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     }
 
     console.log("Company : ", companies);
@@ -214,7 +222,7 @@ const UpdateRegTail = (props) => {
                             <Grid item xs={11}>
                                 {
                                     update ?
-                                        <TextField fullWidth variant="standard" value={companies?.includes(":") ? companies.split(":")[1] : (dataCompany.find((c) => c.uuid === companies)?.Name || "-")} disabled />
+                                        <TextField fullWidth variant="standard" value={resolveCompanyDisplay(companies)} disabled />
                                         :
                                         // <FormControl variant="standard" fullWidth>
                                         //     <Select
@@ -245,9 +253,9 @@ const UpdateRegTail = (props) => {
                                                 value={companies}
                                                 onChange={(e) => setCompanies(e.target.value)}
                                             >
-                                                <MenuItem value={companies} sx={{ fontSize: "14px", }}>{companies?.includes(":") ? companies.split(":")[1] : (dataCompany.find((c) => c.uuid === companies)?.Name || "-")}</MenuItem>
-                                                {Number(companies.split(":")[0]) !== 2 && <MenuItem value="2:บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)" sx={{ fontSize: "14px", }}>บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)</MenuItem>}
-                                                {Number(companies.split(":")[0]) !== 3 && <MenuItem value="3:หจก.พิชยา ทรานสปอร์ต (สำนักงานใหญ่)" sx={{ fontSize: "14px", }}>หจก.พิชยา ทรานสปอร์ต (สำนักงานใหญ่)</MenuItem>}
+                                                <MenuItem value={companies} sx={{ fontSize: "14px", }}>{resolveCompanyDisplay(companies)}</MenuItem>
+                                                {(!companies?.includes(":") || Number(companies.split(":")[0]) !== 2) && <MenuItem value="2:บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)" sx={{ fontSize: "14px", }}>บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)</MenuItem>}
+                                                {(!companies?.includes(":") || Number(companies.split(":")[0]) !== 3) && <MenuItem value="3:หจก.พิชยา ทรานสปอร์ต (สำนักงานใหญ่)" sx={{ fontSize: "14px", }}>หจก.พิชยา ทรานสปอร์ต (สำนักงานใหญ่)</MenuItem>}
                                             </Select>
                                         </FormControl>
                                 }
