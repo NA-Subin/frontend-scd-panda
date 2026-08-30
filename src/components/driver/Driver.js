@@ -37,12 +37,6 @@ import {
   ShowWarning,
 } from "../sweetalert/sweetalert";
 import Logo from "../../theme/img/logoPanda.jpg";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  signOut,
-} from "firebase/auth";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
@@ -54,8 +48,7 @@ import dayjs from "dayjs";
 import ImageIcon from "@mui/icons-material/Image";
 import Cookies from "js-cookie";
 import "dayjs/locale/th";
-import { database } from "../../server/firebase";
-import { API_BASE } from "../../server/apiClient";
+import { API_BASE, apiPut } from "../../server/apiClient";
 import {
   TableCellB7,
   TableCellB95,
@@ -193,7 +186,7 @@ const Driver = () => {
 
   // const { reghead, trip, order, depots } = useData();
   const { reghead, small, depots, inspection } = useBasicData();
-  const { trip, order } = useTripData();
+  const { trip, order, refetch: refetchTripData } = useTripData();
   const regheadsForUpdate = Object.values(reghead || {});
   const smallsForUpdate = Object.values(small || {});
 
@@ -301,56 +294,41 @@ const Driver = () => {
 
     if (!isAllDone) return;
 
-    database
-      .ref("trip/")
-      .child(check.id - 1)
-      .update({
-        StatusTrip: "จบทริป",
-        DateEnd: dayjs().format("DD/MM/YYYY"),
-      })
-      .then(() => {
-        if (!check || !orderNew?.length) return;
+    const tripRow = trips.find((t) => t.id === check.id);
+    if (!tripRow?.uuid) return;
+
+    (async () => {
+      try {
+        await apiPut(`/api/trip/${tripRow.uuid}`, {
+          StatusTrip: "จบทริป",
+          DateEnd: dayjs().format("DD/MM/YYYY"),
+        });
 
         if (check.TruckType === "รถใหญ่") {
           const regheadMatch = regheadsForUpdate.find((r) => r.uuid === check.Registration);
-          database
-            .ref("truck/registration/")
-            .child((regheadMatch?.id ?? 0) - 1)
-            .update({
+          if (regheadMatch?.uuid) {
+            await apiPut(`/api/truck_registration/${regheadMatch.uuid}`, {
               Status: "ว่าง",
               RepairTruck: "00/00/0000:ยังไม่ตรวจสอบสภาพรถ",
-            })
-            .then(() => {
-              console.log("Trip completed");
-            })
-            .catch((error) => {
-              ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-              console.error(error);
             });
+          }
         } else if (check.TruckType === "รถเล็ก") {
           const smallMatch = smallsForUpdate.find((r) => r.uuid === check.Registration);
-          database
-            .ref("truck/small/")
-            .child((smallMatch?.id ?? 0) - 1)
-            .update({
+          if (smallMatch?.uuid) {
+            await apiPut(`/api/truck_small/${smallMatch.uuid}`, {
               Status: "ว่าง",
               RepairTruck: "00/00/0000:ยังไม่ตรวจสอบสภาพรถ",
-            })
-            .then(() => {
-              console.log("Trip completed");
-            })
-            .catch((error) => {
-              ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-              console.error(error);
             });
+          }
         }
 
         console.log("Trip completed");
-      })
-      .catch((error) => {
+        refetchTripData?.();
+      } catch (error) {
         ShowError("เพิ่มข้อมูลไม่สำเร็จ");
         console.error(error);
-      });
+      }
+    })();
   }, [orderNew, check]);
 
   const handleChangeDriver = (e) => {
@@ -428,20 +406,21 @@ const Driver = () => {
       checkOrder.every((item) => item.Status === "จัดส่งสำเร็จ");
 
     if (isAllDone) {
-      database
-        .ref("trip/")
-        .child(tripId)
-        .update({
+      const tripRow = trips.find((t) => t.id === check.id);
+      if (tripRow?.uuid) {
+        apiPut(`/api/trip/${tripRow.uuid}`, {
           StatusTrip: "จบทริป",
           DateEnd: dayjs().format("DD/MM/YYYY"),
         })
-        .then(() => {
-          console.log("✅ Trip completed");
-        })
-        .catch((error) => {
-          ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-          console.error(error);
-        });
+          .then(() => {
+            console.log("✅ Trip completed");
+            refetchTripData?.();
+          })
+          .catch((error) => {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error(error);
+          });
+      }
     }
   };
 
@@ -508,14 +487,17 @@ const Driver = () => {
     }
 
     try {
-      await database
-        .ref("order")
-        .child(String(no)) // ✅ แปลงเป็น string ชัวร์
-        .update({
-          Status: "จัดส่งสำเร็จ",
-          file_path: img,
-        });
+      const orderRow = orders.find((item) => item.No === no);
+      if (!orderRow?.uuid) {
+        throw new Error("ไม่พบข้อมูลที่ต้องการอัปเดต");
+      }
 
+      await apiPut(`/api/order/${orderRow.uuid}`, {
+        Status: "จัดส่งสำเร็จ",
+        file_path: img,
+      });
+
+      refetchTripData?.();
       setDialogOpen(false);
       setFile(null);
       setPreview(null);
