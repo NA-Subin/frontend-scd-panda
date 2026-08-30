@@ -37,7 +37,7 @@ import { IconButtonError, IconButtonSuccess, TablecellSelling } from "../../them
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";
 import theme from "../../theme/theme";
-import { database } from "../../server/firebase";
+import { apiPut } from "../../server/apiClient";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 
 const Profit = ({ openNavbar }) => {
@@ -71,7 +71,7 @@ const Profit = ({ openNavbar }) => {
     };
 
     const { drivers, customertransports, customergasstations, customerbigtruck, customersmalltruck, customertickets } = useBasicData();
-    const { order, transferMoney, trip } = useTripData();
+    const { order, transferMoney, trip, refetch: refetchTripData } = useTripData();
     // const orders = Object.values(order || {});
     const orders = Object.values(order || {}).filter(item => {
         const itemDate = dayjs(item.Date, "DD/MM/YYYY");
@@ -294,25 +294,34 @@ const Profit = ({ openNavbar }) => {
         setCheckCostPrice(true); // ต้องปิดการแสดงผล
     }
 
-    const handleSave = () => {
-        database
-            .ref(`order/${costNo}/Product/`)
-            .child(costProductName)
-            .update({
+    const handleSave = async () => {
+        const orderRow = orders.find((o) => o.No === costNo);
+        if (!orderRow?.uuid) {
+            ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+            return;
+        }
+
+        const updatedProduct = {
+            ...orderRow.Product,
+            [costProductName]: {
+                ...(orderRow.Product?.[costProductName] || {}),
                 CostPrice: costPrice,
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                setCostIndex(null);
-                setCostNo(null);
-                setCostProductName(null);
-                setCheckCostPrice(false);
-                setCostPrice("");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
-            });
+            },
+        };
+
+        try {
+            await apiPut(`/api/order/${orderRow.uuid}`, { Product: updatedProduct });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetchTripData?.();
+            setCostIndex(null);
+            setCostNo(null);
+            setCostProductName(null);
+            setCheckCostPrice(false);
+            setCostPrice("");
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     }
 
     const handleCancel = () => {

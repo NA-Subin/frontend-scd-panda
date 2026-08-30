@@ -51,9 +51,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import EditIcon from '@mui/icons-material/Edit';
 import theme from "../../theme/theme";
 import { RateOils, TablecellFinancial, TablecellFinancialHead, TablecellHeader, TablecellSelling, TablecellTickets } from "../../theme/style";
-import { database } from "../../server/firebase";
-import { API_BASE } from "../../server/apiClient";
-import { useData } from "../../server/path";
+import { API_BASE, apiPost, apiPut } from "../../server/apiClient";
 import InsertFinancial from "./InsertFinancial";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useTripData } from "../../server/provider/TripProvider";
@@ -86,7 +84,7 @@ const Financial = () => {
 
     // const { report } = useData();
     const { reghead, regtail, small, companypayment, expenseitems } = useBasicData();
-    const { report } = useTripData();
+    const { report, refetch: refetchTripData } = useTripData();
     const reports = Object.values(report || {});
     const registrationH = Object.values(reghead);
     const registrationT = Object.values(regtail);
@@ -108,6 +106,17 @@ const Financial = () => {
     };
 
     console.log("getRegistration : ", getRegistration());
+
+    // Registration on report_invoice is stored as the legacy "id:PlateText"
+    // composite (never split into a real FK column), so the plate has to be
+    // resolved back from the numeric id every time it's displayed.
+    const resolveRegistrationDisplay = (composite) => {
+        if (!composite) return "";
+        const [idPart, ...rest] = String(composite).split(":");
+        const fallback = rest.join(":") || composite;
+        const found = getRegistration().find((item) => item.id === Number(idPart));
+        return found ? found.Registration : fallback;
+    };
 
     const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
@@ -131,7 +140,7 @@ const Financial = () => {
 
     const reportDetail = reports.filter((item) => {
         const itemDate = dayjs(item.SelectedDateInvoice, "DD/MM/YYYY");
-        const registrations = item?.RegistrationName || item?.Registration || "";
+        const registrations = resolveRegistrationDisplay(item?.Registration);
         const company = item?.CompanyName || item?.Company || "";
         const bank = item?.BankName || item?.Bank || "";
 
@@ -313,7 +322,7 @@ const Financial = () => {
                 invoice: row.InvoiceID,
                 dateInvoice: formatThaiSlash(dayjs(row.SelectedDateInvoice, "DD/MM/YYYY")),
                 dateTransfer: formatThaiSlash(dayjs(row.SelectedDateTransfer, "DD/MM/YYYY")),
-                registration: `${row.RegistrationName} (${row.TruckType})`,
+                registration: `${resolveRegistrationDisplay(row.Registration)} (${row.TruckType})`,
                 company: row.CompanyName,
                 bank: row.BankName,
                 price: row.Price,
@@ -359,21 +368,21 @@ const Financial = () => {
     const handleChangDelete = (id) => {
         ShowConfirm(
             `ต้องการลบบิลลำดับที่ ${id} ใช่หรือไม่`,
-            () => {
-                database
-                    .ref("report/invoice")
-                    .child(id)
-                    .update({
-                        Status: "ยกเลิก"
-                    })
-                    .then(() => {
-                        ShowSuccess("ลบข้อมูลสำเร็จ");
-                        console.log("Data pushed successfully");
-                    })
-                    .catch((error) => {
-                        ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                        console.error("Error pushing data:", error);
-                    });
+            async () => {
+                const targetRow = reportDetail.find((row) => row.id === id);
+                if (!targetRow?.uuid) {
+                    ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+                    return;
+                }
+
+                try {
+                    await apiPut(`/api/report_invoice/${targetRow.uuid}`, { Status: "ยกเลิก" });
+                    ShowSuccess("ลบข้อมูลสำเร็จ");
+                    refetchTripData?.();
+                } catch (error) {
+                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+                    console.error("Error pushing data:", error);
+                }
             },
             () => {
                 console.log(`ยกเลิกการลบบิลลำดับที่ ${id + 1}`);
@@ -590,46 +599,56 @@ const Financial = () => {
             }
         }
 
-        database.ref("report/invoice")
-            .child(billID)
-            .update({
+        const targetRow = reportDetail.find((row) => row.id === billID);
+        if (!targetRow?.uuid) {
+            ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+            return;
+        }
+
+        const companyRow = companypaymentDetail.find((row) => row.uuid === company);
+        const bankRow = expenseitem.find((row) => row.uuid === bank);
+
+        try {
+            await apiPut(`/api/report_invoice/${targetRow.uuid}`, {
                 InvoiceID: invoiceID,
                 SelectedDateInvoice: dayjs(selectedDateInvoice, "DD/MM/YYYY").format("DD/MM/YYYY"),
                 SelectedDateTransfer: dayjs(selectedDateTransfer, "DD/MM/YYYY").format("DD/MM/YYYY"),
                 Registration: registration,
                 Company: company,
+                CompanyName: companyRow?.Name,
                 Bank: bank,
+                BankName: bankRow?.Name,
                 Price: price,
                 Vat: vat,
                 Total: total,
                 Details: details,
                 Path: img || ""
-            }).then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-
-                // reset state
-                setBillID("");
-                setInvoiceID("");
-                setSelectedDateInvoice("");
-                setSelectedDateTransfer("");
-                setRegistration("");
-                setRegID(0);
-                setCompany("");
-                setCompanyID(0);
-                setBank("");
-                setPrice("");
-                setVat("");
-                setTotal("");
-                setDetails("");
-                setTruckType("");
-                setFile(null);
-                setFileType(null);
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetchTripData?.();
+
+            // reset state
+            setBillID("");
+            setInvoiceID("");
+            setSelectedDateInvoice("");
+            setSelectedDateTransfer("");
+            setRegistration("");
+            setRegID(0);
+            setCompany("");
+            setCompanyID(0);
+            setBank("");
+            setPrice("");
+            setVat("");
+            setTotal("");
+            setDetails("");
+            setTruckType("");
+            setFile(null);
+            setFileType(null);
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     }
 
     const summary = finalData.filter((f) => f.Status !== "ยกเลิก").reduce(
@@ -1191,7 +1210,7 @@ const Financial = () => {
                                             }}>
                                                 {
                                                     row.Group !== "กลุ่ม" &&
-                                                    <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{`${row.RegistrationName} (${row.TruckType})`}</Typography>
+                                                    <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{`${resolveRegistrationDisplay(row.Registration)} (${row.TruckType})`}</Typography>
                                                     // (billID !== row.id ?
                                                     //     <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{`${row.RegistrationName} (${row.TruckType})`}</Typography>
                                                     //     :

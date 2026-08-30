@@ -45,20 +45,18 @@ import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
-import { database } from "../../server/firebase";
+import { apiPost, apiPut } from "../../server/apiClient";
 import theme from "../../theme/theme";
 import { IconButtonError, TablecellSelling } from "../../theme/style";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { useData } from "../../server/path";
 import dayjs from "dayjs";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useTripData } from "../../server/provider/TripProvider";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 
 const InsertTypeDeduction = ({ onSend }) => {
-    // const { typeFinancial } = useData();
-    const { deductibleincome } = useBasicData();
+    const { deductibleincome, refetch: refetchBasicData } = useBasicData();
     const deductibleIncome = Object.values(deductibleincome || {});
 
     const deduction = deductibleIncome.filter(row => row.Type === "รายหัก");
@@ -153,67 +151,67 @@ const InsertTypeDeduction = ({ onSend }) => {
         setStatus("ไม่ประจำ");
     }
 
-    const handlePost = () => {
-        database
-            .ref("deductibleincome")
-            .child(deductibleIncome.length)
-            .update({
+    const handlePost = async () => {
+        try {
+            await apiPost("/api/deductibleincome", {
                 id: deductibleIncome.length,
+                Code: code,
                 Name: name,
                 Type: type,
-                Status: "อยู่ในระบบ"
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setName("");
-                setType("");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
+                Status: "ไม่ประจำ",
+                StatusData: "อยู่ในระบบ"
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetchBasicData?.();
+            setName("");
+            setType("");
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
-    const handleSave = () => {
-        database
-            .ref("/deductibleincome/")
-            .child(Number(ID) - 1)
-            .update({
+    const handleSave = async () => {
+        const targetRow = deductibleIncome.find((row) => row.id === Number(ID));
+        if (!targetRow?.uuid) {
+            ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+            return;
+        }
+
+        try {
+            await apiPut(`/api/deductibleincome/${targetRow.uuid}`, {
                 Name: name,
                 Status: status ? "ประจำ" : "ไม่ประจำ"
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setID("");
-                setName("");
-                setStatus("");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetchBasicData?.();
+            setID("");
+            setName("");
+            setStatus("");
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
     const handleChangDelete = (id) => {
         ShowConfirm(
             `ต้องการลบบิลลำดับที่ ${id + 1} ใช่หรือไม่`,
-            () => {
-                database
-                    .ref("/deductibleincome")
-                    .child(id)
-                    .update({
-                        Status: "ยกเลิก"
-                    })
-                    .then(() => {
-                        ShowSuccess("ลบข้อมูลสำเร็จ");
-                        console.log("Data pushed successfully");
-                    })
-                    .catch((error) => {
-                        ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                        console.error("Error pushing data:", error);
-                    });
+            async () => {
+                const targetRow = deductibleIncome.find((row) => row.id === id);
+                if (!targetRow?.uuid) {
+                    ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+                    return;
+                }
+
+                try {
+                    await apiPut(`/api/deductibleincome/${targetRow.uuid}`, { StatusData: "ยกเลิก" });
+                    ShowSuccess("ลบข้อมูลสำเร็จ");
+                    refetchBasicData?.();
+                } catch (error) {
+                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+                    console.error("Error pushing data:", error);
+                }
             },
             () => {
                 console.log(`ยกเลิกการลบบิลลำดับที่ ${id + 1}`);

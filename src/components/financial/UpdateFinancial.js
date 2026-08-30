@@ -44,13 +44,11 @@ import ImageIcon from "@mui/icons-material/Image";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
-import { database } from "../../server/firebase";
-import { API_BASE } from "../../server/apiClient";
+import { API_BASE, apiPost, apiPut } from "../../server/apiClient";
 import theme from "../../theme/theme";
 import { IconButtonError, TablecellSelling } from "../../theme/style";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { useData } from "../../server/path";
 import dayjs from "dayjs";
 import { ShowConfirm, ShowError, ShowSuccess, ShowWarning } from "../sweetalert/sweetalert";
 import InsertSpendingAbout from "./InsertSpendingAbout";
@@ -62,9 +60,8 @@ import FileUploadCard from "../../theme/FileUploadCard";
 import FilePreview from "../truck/UploadButton";
 
 const UpdateFinancial = (props) => {
-    // const { reghead, regtail, small, report, reportType } = useData();
     const { reghead, regtail, small, companypayment, expenseitems } = useBasicData();
-    const { report, reportType } = useTripData();
+    const { report, reportType, refetch: refetchTripData } = useTripData();
     const registrationH = Object.values(reghead);
     const registrationT = Object.values(regtail);
     const registrationS = Object.values(small);
@@ -77,8 +74,8 @@ const UpdateFinancial = (props) => {
     const [invoiceID, setInvoiceID] = React.useState(row.InvoiceID || "");
     const [note, setNote] = React.useState(row.Note || "");
     const [details, setDetails] = React.useState(row.Details || "");
-    const [company, setCompany] = React.useState(companypaymentDetail.find((item) => item.id === Number(row.Company?.split(":")[0])) || null);
-    const [bank, setBank] = React.useState(expenseitem.find((item) => item.id === Number(row.Bank?.split(":")[0])) || null);
+    const [company, setCompany] = React.useState(companypaymentDetail.find((item) => item.uuid === row.Company) || null);
+    const [bank, setBank] = React.useState(expenseitem.find((item) => item.uuid === row.Bank) || null);
     const [price, setPrice] = useState(row.Price.toString());
     const [vat, setVat] = useState(row.Vat.toString());
     const [total, setTotal] = useState(row.Total.toString());
@@ -252,7 +249,7 @@ const UpdateFinancial = (props) => {
 
     const [selectedValue, setSelectedValue] = useState(row.Group !== "กลุ่ม" ? (
         getRegistration().find((item) =>
-            item.TruckType === row.TruckType && item.uuid === row.Registration)) : null
+            item.TruckType === row.TruckType && item.id === Number(row.Registration?.split(":")[0]))) : null
     );
 
     console.log("List : ", list);
@@ -282,9 +279,14 @@ const UpdateFinancial = (props) => {
             async () => {
                 try {
                     if (item.type === "old") {
-                        await database
-                            .ref("report/invoice/" + item.id)
-                            .update({ Status: "ยกเลิก" });
+                        const targetRow = reportDetail.find((r) => r.id === item.id);
+                        if (!targetRow?.uuid) {
+                            ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+                            return;
+                        }
+
+                        await apiPut(`/api/report_invoice/${targetRow.uuid}`, { Status: "ยกเลิก" });
+                        refetchTripData?.();
                     }
 
                     setList(prev => {
@@ -366,7 +368,7 @@ const UpdateFinancial = (props) => {
         setSelectedDateTransfer(dayjs(row.SelectedDateTransfer, "DD/MM/YYYY"));
         setSelectedValue(row.Group !== "กลุ่ม" ? (
             getRegistration().find((item) =>
-                item.TruckType === row.TruckType && item.uuid === row.Registration)) : null
+                item.TruckType === row.TruckType && item.id === Number(row.Registration?.split(":")[0]))) : null
         );
         setList(formattedList);
         setGroup(row.Group !== "กลุ่ม" ? "เดี่ยว" : "กลุ่ม");
@@ -487,28 +489,18 @@ const UpdateFinancial = (props) => {
             }
         }
 
-        const ref = database.ref("report/invoice");
-        const updates = {};
-
-        list.forEach((item) => {
-            let id;
-
-            if (item.type === "new") {
-                const newRef = ref.push(); // ✅ สร้าง key จาก Firebase
-                id = newRef.key;
-            } else {
-                id = item.id; // ของเดิมใช้ id เดิม
-            }
-
-            updates[id] = {
-                id,
+        const payloads = list.map((item) => ({
+            item,
+            data: {
                 InvoiceID: invoiceID,
                 SelectedDateInvoice: dayjs(selectedDateInvoice, "DD/MM/YYYY").format("DD/MM/YYYY"),
                 SelectedDateTransfer: dayjs(selectedDateTransfer, "DD/MM/YYYY").format("DD/MM/YYYY"),
                 Registration: item.registration,
-                Company: `${company?.id}:${company?.Name}`,
+                Company: company?.uuid,
+                CompanyName: company?.Name,
                 Details: details,
-                Bank: `${bank?.id}:${bank?.Name}`,
+                Bank: bank?.uuid,
+                BankName: bank?.Name,
                 Group: group,
                 Note: note,
                 Price: list.length <= 1 ? parseNumber(price) : parseNumber(resultPrice),
@@ -517,35 +509,47 @@ const UpdateFinancial = (props) => {
                 TruckType: item.truckType,
                 Status: "อยู่ในระบบ",
                 Path: img,
-            };
-        });
+            },
+        }));
 
-        console.log("updates : ", updates);
+        console.log("payloads : ", payloads);
 
-        database
-            .ref("report/invoice")
-            .update(updates)
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+        try {
+            await Promise.all(
+                payloads.map(({ item, data }) => {
+                    if (item.type === "new") {
+                        return apiPost("/api/report_invoice", { ...data, id: crypto.randomUUID() });
+                    }
 
-                setList([]);
-                setInvoiceID("");
-                setSelectedDateInvoice(dayjs().format("DD/MM/YYYY"));
-                setSelectedDateTransfer(dayjs().format("DD/MM/YYYY"));
-                setCompany("");
-                setDetails("");
-                setBank("");
-                setNote("");
-                setPrice("");
-                setVat("");
-                onClose();
-                setFile("ไม่แนบไฟล์");
-                setFileType(1);
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
-            });
+                    const targetRow = reportDetail.find((r) => r.id === item.id);
+                    if (!targetRow?.uuid) {
+                        throw new Error(`ไม่พบข้อมูลที่ต้องการอัปเดต (id: ${item.id})`);
+                    }
+
+                    return apiPut(`/api/report_invoice/${targetRow.uuid}`, data);
+                })
+            );
+
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetchTripData?.();
+
+            setList([]);
+            setInvoiceID("");
+            setSelectedDateInvoice(dayjs().format("DD/MM/YYYY"));
+            setSelectedDateTransfer(dayjs().format("DD/MM/YYYY"));
+            setCompany("");
+            setDetails("");
+            setBank("");
+            setNote("");
+            setPrice("");
+            setVat("");
+            onClose();
+            setFile("ไม่แนบไฟล์");
+            setFileType(1);
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
     console.log("registrationTruck: ", registrationTruck);

@@ -50,8 +50,6 @@ import {
   TablecellSelling,
   TablecellTickets,
 } from "../../theme/style";
-import { database } from "../../server/firebase";
-import { useData } from "../../server/path";
 import InsertType from "./InsertType";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";

@@ -40,7 +40,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
-import { database } from "../../server/firebase";
+import { apiPost } from "../../server/apiClient";
 import theme from "../../theme/theme";
 import { IconButtonError, TablecellSelling } from "../../theme/style";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -105,9 +105,8 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
             setSelectedDate(newValue); // ✅ newValue เป็น dayjs อยู่แล้ว
         }
     };
-    // const { reportType, drivers, typeFinancial, reportFinancial } = useData();
     const { drivers, deductibleincome, reghead, small } = useBasicData();
-    const { reportFinancial } = useTripData();
+    const { reportFinancial, refetch: refetchTripData } = useTripData();
 
     //const reportTypeDetail = Object.values(reportType);
     // const sortByDriver = (a, b) => {
@@ -144,7 +143,8 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
             const tail = Object.values(reghead).find((t) => t.uuid === item.Registration);
             return {
                 ...item,
-                RegTail: tail ? tail.RegTail : ""  // ถ้าเจอใน reghead → ดึงค่า RegTail จริง, ถ้าไม่เจอ → ค่าว่าง
+                RegTail: tail ? tail.RegTail : "",  // ถ้าเจอใน reghead → ดึงค่า RegTail จริง, ถ้าไม่เจอ → ค่าว่าง
+                RegTailName: tail ? tail.RegTailName : "",
             };
         })
         .sort(sortByDriver);
@@ -219,38 +219,6 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
         setPage(0);
     };
 
-    // const handlePost = () => {
-    //     database
-    //         .ref("report/financial")
-    //         .child(reportFinancialDetail.length)
-    //         .update({
-    //             id: reportFinancialDetail.length,
-    //             Year: selectedDate.format("YYYY"),
-    //             Period: period,
-    //             Date: dayjs(new Date).format("DD/MM/YYYY"),
-    //             Driver: driver.Driver,
-    //             RegHead: `${driver.id}:${driver.RegHead}`,
-    //             RegTail: driver.RegTail,
-    //             Code: type.Code,
-    //             Name: `${type.id}:${type.Name}`,
-    //             Type: check ? "รายได้" : "รายหัก",
-    //             Money: money,
-    //             Note: note,
-    //             Status: "อยู่ในระบบ"
-    //         })
-    //         .then(() => {
-    //             ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-    //             console.log("Data pushed successfully");
-    //             setDriver("");
-    //             setType("");
-    //             setNote("");
-    //             setMoney(0);
-    //         })
-    //         .catch((error) => {
-    //             ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-    //             console.error("Error pushing data:", error);
-    //         });
-    // };
     console.log("Driver vehicleType : ", driver.vehicleType)
 
     const validateBeforeSave = (rows) => {
@@ -297,7 +265,7 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
         return !hasError;
     };
 
-    const handlePost = () => {
+    const handlePost = async () => {
         // เลือกว่าจะใช้ incomeRows หรือ deductRows
         const rows = check ? incomeRows : deductRows;
 
@@ -308,6 +276,8 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
 
         if (!validateBeforeSave(rows)) return;
 
+        const isBigTruck = driver?.TruckType === "รถใหญ่";
+
         const updates = rows.map((row, index) => {
             const newId = reportFinancialDetail.length + index; // ให้ id ต่อเนื่อง
 
@@ -316,14 +286,17 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
                 Year: selectedDate.format("YYYY"),
                 Period: period,
                 Date: dayjs(new Date()).format("DD/MM/YYYY"),
-                Driver: `${driver.id}:${driver.Name}`,
-                RegHead: driver.Registration,
-                RegTail: driver.RegTail,
+                Driver: driver?.uuid,
+                DriverName: driver?.Name,
+                RegHead: isBigTruck ? (driver?.Registration || null) : null,
+                RegHeadName: isBigTruck ? (driver?.RegistrationName || "ไม่มี") : "ไม่มี",
+                RegTail: isBigTruck ? (driver?.RegTail || null) : null,
+                RegTailName: isBigTruck ? (driver?.RegTailName || "ไม่มี") : "",
                 Code: row.type.Code, // ใช้ Code ของ row ถ้ามี ไม่งั้นใช้ type.Code
                 Name: `${row.type.id}:${row.type.Name}`, // ใช้ Name ของ row
                 Type: check ? "รายได้" : "รายหัก",
-                VehicleType: driver.TruckType,
-                ShortName: driver.ShortName || "",
+                VehicleType: driver?.TruckType,
+                ShortName: driver?.ShortName || "",
                 Money: row.money, // เงินจาก row
                 Note: note,
                 Status: "อยู่ในระบบ"
@@ -332,33 +305,28 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
 
         console.log("updates : ", updates);
 
-        // loop บันทึกเข้า firebase
-        const promises = updates.map((data) =>
-            database.ref("report/financial")
-                .child(data.id)
-                .update(data)
-        );
+        try {
+            await Promise.all(
+                updates.map((data) => apiPost("/api/report_financial", data))
+            );
 
-        Promise.all(promises)
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetchTripData?.();
 
-                // reset state
-                setDriver("");
-                setType("");
-                setNote("");
-                setMoney(0);
-                if (check) {
-                    setIncomeRows([{ type: null, money: 0 }]);
-                } else {
-                    setDeductRows([{ type: null, money: 0 }]);
-                }
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
-            });
+            // reset state
+            setDriver("");
+            setType("");
+            setNote("");
+            setMoney(0);
+            if (check) {
+                setIncomeRows([{ type: null, money: 0 }]);
+            } else {
+                setDeductRows([{ type: null, money: 0 }]);
+            }
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
 

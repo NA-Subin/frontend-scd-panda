@@ -43,13 +43,11 @@ import FolderOffIcon from "@mui/icons-material/FolderOff";
 import ImageIcon from "@mui/icons-material/Image";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
-import { database } from "../../server/firebase";
-import { API_BASE } from "../../server/apiClient";
+import { API_BASE, apiPost } from "../../server/apiClient";
 import theme from "../../theme/theme";
 import { IconButtonError, TablecellSelling } from "../../theme/style";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { useData } from "../../server/path";
 import dayjs from "dayjs";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import InsertSpendingAbout from "./InsertSpendingAbout";
@@ -64,10 +62,9 @@ import {
 import FileUploadCard from "../../theme/FileUploadCard";
 
 const InsertFinancial = () => {
-  // const { reghead, regtail, small, report, reportType } = useData();
   const { reghead, regtail, small, companypayment, expenseitems } =
     useBasicData();
-  const { report, reportType } = useTripData();
+  const { report, reportType, refetch: refetchTripData } = useTripData();
   const registrationH = Object.values(reghead);
   const registrationT = Object.values(regtail);
   const registrationS = Object.values(small);
@@ -409,15 +406,11 @@ const InsertFinancial = () => {
       }
     }
 
-    const ref = database.ref("report/invoice");
-
     try {
       await Promise.all(
-        list.map((item) => {
-          const newRef = ref.push(); // ✅ สร้าง id auto
-
-          return newRef.set({
-            id: newRef.key, // ถ้ายังอยากเก็บ id
+        list.map((item) =>
+          apiPost("/api/report_invoice", {
+            id: crypto.randomUUID(),
             InvoiceID: invoiceID,
             SelectedDateInvoice: dayjs(
               selectedDateInvoice,
@@ -428,9 +421,11 @@ const InsertFinancial = () => {
               "DD/MM/YYYY",
             ).format("DD/MM/YYYY"),
             Registration: item.registration,
-            Company: `${company?.id}:${company?.Name}`,
+            Company: company?.uuid,
+            CompanyName: company?.Name,
             Details: details,
-            Bank: `${bank?.id}:${bank?.Name}`,
+            Bank: bank?.uuid,
+            BankName: bank?.Name,
             Group: group,
             Note: note,
             Price:
@@ -441,11 +436,12 @@ const InsertFinancial = () => {
             TruckType: item.truckType,
             Status: "อยู่ในระบบ",
             Path: img,
-          });
-        }),
+          })
+        ),
       );
 
       ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+      refetchTripData?.();
 
       // reset state
       setList([]);

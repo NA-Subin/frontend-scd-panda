@@ -48,8 +48,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import EditIcon from '@mui/icons-material/Edit';
 import theme from "../../theme/theme";
 import { RateOils, TablecellFinancial, TablecellFinancialHead, TablecellHeader, TablecellSelling, TablecellTickets } from "../../theme/style";
-import { database } from "../../server/firebase";
-import { useData } from "../../server/path";
+import { apiPut } from "../../server/apiClient";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import InsertDeducetionIncome from "./InsertDeductionIncome";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
@@ -85,9 +84,8 @@ const DeductionOfIncome = (props) => {
         }
     }, [selectedDate]);
 
-    // const { reportFinancial, drivers } = useData();
     const { drivers, deductibleincome } = useBasicData();
-    const { reportFinancial } = useTripData();
+    const { reportFinancial, refetch: refetchTripData } = useTripData();
     const reports = Object.values(reportFinancial || {})
         .sort((a, b) => {
             const driverA = (a.Driver || "").split(":")[1]?.trim() || "";
@@ -367,21 +365,21 @@ const DeductionOfIncome = (props) => {
     const handleChangDelete = (id) => {
         ShowConfirm(
             `ต้องการลบบิลลำดับที่ ${id + 1} ใช่หรือไม่`,
-            () => {
-                database
-                    .ref("report/financial")
-                    .child(id)
-                    .update({
-                        Status: "ยกเลิก"
-                    })
-                    .then(() => {
-                        ShowSuccess("ลบข้อมูลสำเร็จ");
-                        console.log("Data pushed successfully");
-                    })
-                    .catch((error) => {
-                        ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                        console.error("Error pushing data:", error);
-                    });
+            async () => {
+                const targetRow = reports.find((row) => row.id === id);
+                if (!targetRow?.uuid) {
+                    ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+                    return;
+                }
+
+                try {
+                    await apiPut(`/api/report_financial/${targetRow.uuid}`, { Status: "ยกเลิก" });
+                    ShowSuccess("ลบข้อมูลสำเร็จ");
+                    refetchTripData?.();
+                } catch (error) {
+                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+                    console.error("Error pushing data:", error);
+                }
             },
             () => {
                 console.log(`ยกเลิกการลบบิลลำดับที่ ${id + 1}`);
@@ -463,30 +461,35 @@ const DeductionOfIncome = (props) => {
         setDeductionType("");
     }
 
-    const handleSaveDeduction = () => {
-        database.ref("report/financial")
-            .child(deductionID)
-            .update({
+    const handleSaveDeduction = async () => {
+        const targetRow = reports.find((row) => row.id === deductionID);
+        if (!targetRow?.uuid) {
+            ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+            return;
+        }
+
+        try {
+            await apiPut(`/api/report_financial/${targetRow.uuid}`, {
                 Code: deductionCode,
                 Name: deductionName,
                 Money: deductionMoney,
                 Note: deductionNote,
-            }).then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-
-                // reset state
-                setDeductionID("");
-                setDeductionCode("");
-                setDeductionName("");
-                setDeductionMoney("");
-                setDeductionNote("");
-                setDeductionType("");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetchTripData?.();
+
+            // reset state
+            setDeductionID("");
+            setDeductionCode("");
+            setDeductionName("");
+            setDeductionMoney("");
+            setDeductionNote("");
+            setDeductionType("");
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     }
 
     return (
