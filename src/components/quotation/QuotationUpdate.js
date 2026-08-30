@@ -40,12 +40,6 @@ import {
     ShowWarning,
 } from "../sweetalert/sweetalert";
 import Logo from "../../theme/img/logoPanda.jpg";
-import {
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    signInWithPopup,
-    signOut,
-} from "firebase/auth";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
@@ -61,9 +55,8 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import dayjs from 'dayjs';
 import Cookies from 'js-cookie';
 import 'dayjs/locale/th';
-import { database } from "../../server/firebase";
+import { apiPut } from "../../server/apiClient";
 import { TableCellB7, TableCellB95, TableCellE20, TableCellG91, TableCellG95, TablecellSelling, TableCellPWD, TablecellHeader } from "../../theme/style";
-import { useData } from "../../server/path";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";
 import { formatThaiFull, formatThaiSlash } from "../../theme/DateTH";
@@ -77,7 +70,7 @@ const QuotationUpdate = ({ setOpen }) => {
         `น้ำมันได้มาตราฐานส่งพร้อมใบ COA`,
     ];
 
-    const { company, customerbigtruck, customersmalltruck, officers, quotation } = useBasicData();
+    const { company, customerbigtruck, customersmalltruck, officers, quotation, refetch } = useBasicData();
     const { banks } = useTripData();
     const companyDetail = Object.values(company || {});
     const customerB = Object.values(customerbigtruck || {});
@@ -244,24 +237,23 @@ const QuotationUpdate = ({ setOpen }) => {
     };
 
     const handleUpdate = (row) => {
-        setID(row.id);
+        setID(row.uuid);
         setCode(row.Code);
-        // แยก id ของ Company, Customer, Employee จาก string "id:Name"
+        // Company/Employee are real UUID FKs - match directly. Customer is
+        // still a legacy "id:Name" composite string, so it needs parsing.
         const getIdFromString = (str) => (str ? Number(str.split(":")[0]) : null);
 
-        const companyId = getIdFromString(row.Company);
         const customerId = getIdFromString(row.Customer);
-        const employeeId = getIdFromString(row.Employee);
 
         // หา object ที่ตรงกับ id
-        const cn = companyDetail.find((com) => com.id === companyId);
+        const cn = companyDetail.find((com) => com.uuid === row.Company);
 
         const cm =
             row.Truck === "รถใหญ่"
                 ? customerB.find((cus) => cus.id === customerId)
                 : customerS.find((cus) => cus.id === customerId);
 
-        const em = employees.find((emp) => emp.id === employeeId);
+        const em = employees.find((emp) => emp.uuid === row.Employee);
 
         // ตั้งค่า state
         setCompanies(cn);
@@ -313,67 +305,65 @@ const QuotationUpdate = ({ setOpen }) => {
         }
     };
 
-    const handleSave = () => {
-        database.ref("quotation/").child(ID).update({
-            Date: dayjs(selectedDate, "DD/MM/YYYY").format("DD/MM/YYYY"),
-            DateDelivery: dayjs(selectedDateDelivery, "DD/MM/YYYY").format("DD/MM/YYYY"),
-            Company: `${companies?.id}:${companies?.Name}`,
-            Customer: `${customer?.id}:${customer?.Name}`,
-            Employee: `${employee?.id}:${employee?.Name}`,
-            Product: getFilledFuelData(fuelData),
-            selectedIndex: selectedIndex,
-            Truck: check ? "รถใหญ่" : "รถเล็ก",
-            Note: note,
-        })
-            .then(() => {
-                console.log("บันทึกข้อมูลเรียบร้อย ✅");
-                ShowSuccess("บันทึกข้อมูลเรียบร้อย ✅");
-                setEdit(true);
-            })
-            .catch((error) => {
-                ShowError("ไม่สำเร็จ");
-                console.error("Error updating data:", error);
+    const handleSave = async () => {
+        try {
+            await apiPut(`/api/quotation/${ID}`, {
+                Date: dayjs(selectedDate, "DD/MM/YYYY").format("DD/MM/YYYY"),
+                DateDelivery: dayjs(selectedDateDelivery, "DD/MM/YYYY").format("DD/MM/YYYY"),
+                Company: companies?.uuid,
+                CompanyName: companies?.Name,
+                Customer: `${customer?.id}:${customer?.Name}`,
+                Employee: employee?.uuid,
+                EmployeeName: employee?.Name,
+                Product: getFilledFuelData(fuelData),
+                selectedIndex: selectedIndex,
+                Truck: check ? "รถใหญ่" : "รถเล็ก",
+                Note: note,
             });
+            console.log("บันทึกข้อมูลเรียบร้อย ✅");
+            ShowSuccess("บันทึกข้อมูลเรียบร้อย ✅");
+            setEdit(true);
+            refetch?.();
+        } catch (error) {
+            ShowError("ไม่สำเร็จ");
+            console.error("Error updating data:", error);
+        }
     }
 
-    const handleCancel = (id) => {
+    const handleCancel = (row) => {
         ShowConfirm(
-            `ต้องการลบใบวางบิลลำดับที่ ${id + 1} ใช่หรือไม่`,
-            () => {
-                database.ref("quotation/").child(id).update({
-                    Status: "ยกเลิก",
-                })
-                    .then(() => {
-                        ShowSuccess("บันทึกข้อมูลเรียบร้อย ✅");
-                    })
-                    .catch((error) => {
-                        ShowError("ไม่สำเร็จ");
-                        console.error("Error updating data:", error);
-                    });
+            `ต้องการลบใบวางบิลลำดับที่ ${row.id + 1} ใช่หรือไม่`,
+            async () => {
+                try {
+                    await apiPut(`/api/quotation/${row.uuid}`, { Status: "ยกเลิก" });
+                    ShowSuccess("บันทึกข้อมูลเรียบร้อย ✅");
+                    refetch?.();
+                } catch (error) {
+                    ShowError("ไม่สำเร็จ");
+                    console.error("Error updating data:", error);
+                }
             },
             () => {
-                console.log(`ยกเลิกการลบบิลลำดับที่ ${id + 1}`);
+                console.log(`ยกเลิกการลบบิลลำดับที่ ${row.id + 1}`);
             }
         );
     }
 
-    const handleEdit = (id) => {
+    const handleEdit = (row) => {
         ShowConfirm(
-            `ต้องการให้ใบวางบิลลำดับที่ ${id + 1} ย้อนกลับไปสถานะเดิมใช่หรือไม่`,
-            () => {
-                database.ref("quotation/").child(id).update({
-                    Status: "อยู่ในระบบ",
-                })
-                    .then(() => {
-                        ShowSuccess("บันทึกข้อมูลเรียบร้อย ✅");
-                    })
-                    .catch((error) => {
-                        ShowError("ไม่สำเร็จ");
-                        console.error("Error updating data:", error);
-                    });
+            `ต้องการให้ใบวางบิลลำดับที่ ${row.id + 1} ย้อนกลับไปสถานะเดิมใช่หรือไม่`,
+            async () => {
+                try {
+                    await apiPut(`/api/quotation/${row.uuid}`, { Status: "อยู่ในระบบ" });
+                    ShowSuccess("บันทึกข้อมูลเรียบร้อย ✅");
+                    refetch?.();
+                } catch (error) {
+                    ShowError("ไม่สำเร็จ");
+                    console.error("Error updating data:", error);
+                }
             },
             () => {
-                console.log(`ยกเลิกการลบบิลลำดับที่ ${id + 1}`);
+                console.log(`ยกเลิกการลบบิลลำดับที่ ${row.id + 1}`);
             }
         );
     }
@@ -628,7 +618,7 @@ const QuotationUpdate = ({ setOpen }) => {
                                         :
                                         filteredQuotations.map((row, index) => (
                                             <TableRow
-                                                key={row.id}
+                                                key={row.uuid}
                                                 onClick={() => handleUpdate(row)}
                                                 sx={{
                                                     cursor: "pointer",
@@ -640,8 +630,8 @@ const QuotationUpdate = ({ setOpen }) => {
                                                 <TableCell
                                                     sx={{
                                                         textAlign: "center",
-                                                        fontWeight: (invoice && ID === row.id) && "bold",
-                                                        backgroundColor: (invoice && ID === row.id) && "#e8eaf6"
+                                                        fontWeight: (invoice && ID === row.uuid) && "bold",
+                                                        backgroundColor: (invoice && ID === row.uuid) && "#e8eaf6"
                                                     }}
                                                 >
                                                     {index + 1}
@@ -649,8 +639,8 @@ const QuotationUpdate = ({ setOpen }) => {
                                                 <TableCell
                                                     sx={{
                                                         textAlign: "center",
-                                                        fontWeight: (invoice && ID === row.id) && "bold",
-                                                        backgroundColor: (invoice && ID === row.id) && "#e8eaf6"
+                                                        fontWeight: (invoice && ID === row.uuid) && "bold",
+                                                        backgroundColor: (invoice && ID === row.uuid) && "#e8eaf6"
                                                     }}
                                                 >
                                                     {formatThaiSlash(dayjs(row.Date, "DD/MM/YYYY"))}
@@ -658,8 +648,8 @@ const QuotationUpdate = ({ setOpen }) => {
                                                 <TableCell
                                                     sx={{
                                                         textAlign: "center",
-                                                        fontWeight: (invoice && ID === row.id) && "bold",
-                                                        backgroundColor: (invoice && ID === row.id) && "#e8eaf6"
+                                                        fontWeight: (invoice && ID === row.uuid) && "bold",
+                                                        backgroundColor: (invoice && ID === row.uuid) && "#e8eaf6"
                                                     }}
                                                 >
                                                     {row.Code}
@@ -667,8 +657,8 @@ const QuotationUpdate = ({ setOpen }) => {
                                                 <TableCell
                                                     sx={{
                                                         textAlign: "left",
-                                                        fontWeight: (invoice && ID === row.id) && "bold",
-                                                        backgroundColor: (invoice && ID === row.id) && "#e8eaf6"
+                                                        fontWeight: (invoice && ID === row.uuid) && "bold",
+                                                        backgroundColor: (invoice && ID === row.uuid) && "#e8eaf6"
                                                     }}
                                                 >
                                                     <Box sx={{ marginLeft: 1 }}>
@@ -678,8 +668,8 @@ const QuotationUpdate = ({ setOpen }) => {
                                                 <TableCell
                                                     sx={{
                                                         textAlign: "left",
-                                                        fontWeight: (invoice && ID === row.id) && "bold",
-                                                        backgroundColor: (invoice && ID === row.id) && "#e8eaf6"
+                                                        fontWeight: (invoice && ID === row.uuid) && "bold",
+                                                        backgroundColor: (invoice && ID === row.uuid) && "#e8eaf6"
                                                     }}
                                                 >
                                                     <Box sx={{ marginLeft: 1 }}>
@@ -689,8 +679,8 @@ const QuotationUpdate = ({ setOpen }) => {
                                                 <TableCell
                                                     sx={{
                                                         textAlign: "left",
-                                                        fontWeight: (invoice && ID === row.id) && "bold",
-                                                        backgroundColor: (invoice && ID === row.id) && "#e8eaf6"
+                                                        fontWeight: (invoice && ID === row.uuid) && "bold",
+                                                        backgroundColor: (invoice && ID === row.uuid) && "#e8eaf6"
                                                     }}
                                                 >
                                                     <Box sx={{ marginLeft: 1 }}>
@@ -700,8 +690,8 @@ const QuotationUpdate = ({ setOpen }) => {
                                                 <TableCell
                                                     sx={{
                                                         textAlign: "center",
-                                                        fontWeight: (invoice && ID === row.id) && "bold",
-                                                        backgroundColor: (invoice && ID === row.id) && "#e8eaf6"
+                                                        fontWeight: (invoice && ID === row.uuid) && "bold",
+                                                        backgroundColor: (invoice && ID === row.uuid) && "#e8eaf6"
                                                     }}
                                                 >
                                                     {row.Status}
@@ -718,13 +708,13 @@ const QuotationUpdate = ({ setOpen }) => {
                                                     {
                                                         row.Status !== "ยกเลิก" ?
                                                             <Tooltip title="ยกเลิกใบเสนอราคา" placement="right" >
-                                                                <IconButton color="error" size="small" onClick={() => handleCancel(row.id)} >
+                                                                <IconButton color="error" size="small" onClick={() => handleCancel(row)} >
                                                                     <DeleteForeverIcon />
                                                                 </IconButton>
                                                             </Tooltip>
                                                             :
                                                             <Tooltip title="ย้อนกลับไปสถานะเดิม" placement="right" >
-                                                                <IconButton color="success" size="small" onClick={() => handleEdit(row.id)} >
+                                                                <IconButton color="success" size="small" onClick={() => handleEdit(row)} >
                                                                     <ChangeCircleIcon />
                                                                 </IconButton>
                                                             </Tooltip>

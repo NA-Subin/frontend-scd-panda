@@ -37,12 +37,6 @@ import {
   ShowWarning,
 } from "../sweetalert/sweetalert";
 import Logo from "../../theme/img/logoPanda.jpg";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  signOut,
-} from "firebase/auth";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
@@ -53,7 +47,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import dayjs from "dayjs";
 import Cookies from "js-cookie";
 import "dayjs/locale/th";
-import { database } from "../../server/firebase";
+import { apiPost } from "../../server/apiClient";
 import {
   TableCellB7,
   TableCellB95,
@@ -63,7 +57,6 @@ import {
   TablecellSelling,
   TableCellPWD,
 } from "../../theme/style";
-import { useData } from "../../server/path";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";
 import { formatThaiFull, formatThaiSlash } from "../../theme/DateTH";
@@ -77,7 +70,7 @@ const QuotationDetail = ({ setOpen }) => {
     `น้ำมันได้มาตราฐานส่งพร้อมใบ COA`,
   ];
 
-  const { company, customerbigtruck, customersmalltruck, officers, quotation } =
+  const { company, customerbigtruck, customersmalltruck, officers, quotation, refetch } =
     useBasicData();
   const { banks } = useTripData();
   const companyDetail = Object.values(company || {});
@@ -198,7 +191,7 @@ const QuotationDetail = ({ setOpen }) => {
     }
   };
 
-  const exportToPDF = () => {
+  const exportToPDF = async () => {
     // 🔹 ตรวจสอบข้อมูลก่อน
     if (!companies?.id || !customer?.id || !employee?.id) {
       ShowWarning("กรุณาเลือก บริษัท / ลูกค้า / ผู้เสนอราคา ให้ครบถ้วน");
@@ -238,11 +231,8 @@ const QuotationDetail = ({ setOpen }) => {
 
     const newCode = `${prefix}/${String(lastNo + 1).padStart(3, "0")}`;
 
-    // 🔹 บันทึกลง Firebase
-    database
-      .ref("quotation/")
-      .child(quotations.length)
-      .update({
+    try {
+      await apiPost("/api/quotation", {
         id: quotations.length,
         Code: newCode,
         DateStart: dayjs(new Date()).format("DD/MM/YYYY"),
@@ -250,56 +240,58 @@ const QuotationDetail = ({ setOpen }) => {
         DateDelivery: dayjs(selectedDateDelivery, "DD/MM/YYYY").format(
           "DD/MM/YYYY",
         ),
-        Company: `${companies?.id}:${companies?.Name}`,
+        Company: companies?.uuid,
+        CompanyName: companies?.Name,
         Customer: `${customer?.id}:${customer?.Name}`,
-        Employee: `${employee?.id}:${employee?.Name}`,
+        Employee: employee?.uuid,
+        EmployeeName: employee?.Name,
         Product: getFilledFuelData(fuelData),
         selectedIndex: selectedIndex,
         Truck: check ? "รถใหญ่" : "รถเล็ก",
         Note: note,
         Status: "อยู่ในระบบ",
-      })
-      .then(() => {
-        console.log("บันทึกข้อมูลเรียบร้อย ✅");
-
-        // 🔹 เตรียมข้อมูลสำหรับหน้าพิมพ์
-        const invoiceData = {
-          Code: newCode,
-          DateB: dayjs(selectedDate, "DD/MM/YYYY"),
-          DateD: dayjs(selectedDateDelivery, "DD/MM/YYYY"),
-          Company: companies,
-          Customer: customer,
-          Employee: employee,
-          Product: getFilledFuelData(fuelData),
-          Products: products,
-          Note: note,
-          items: items[selectedIndex] || "",
-        };
-
-        sessionStorage.setItem("invoiceData", JSON.stringify(invoiceData));
-
-        // 🔹 เปิดหน้าต่างใหม่
-        const screenWidth = window.screen.width;
-        const screenHeight = window.screen.height;
-        const windowWidth = 820;
-        const windowHeight = 559;
-        const left = (screenWidth - windowWidth) / 2;
-        const top = (screenHeight - windowHeight) / 2;
-
-        const printWindow = window.open(
-          "/print-quotation",
-          "_blank",
-          `width=${windowWidth},height=${windowHeight},left=${left},top=${top}`,
-        );
-
-        if (!printWindow) {
-          alert("กรุณาปิด pop-up blocker แล้วลองใหม่");
-        }
-      })
-      .catch((error) => {
-        ShowError("ไม่สำเร็จ");
-        console.error("Error updating data:", error);
       });
+
+      console.log("บันทึกข้อมูลเรียบร้อย ✅");
+      refetch?.();
+
+      // 🔹 เตรียมข้อมูลสำหรับหน้าพิมพ์
+      const invoiceData = {
+        Code: newCode,
+        DateB: dayjs(selectedDate, "DD/MM/YYYY"),
+        DateD: dayjs(selectedDateDelivery, "DD/MM/YYYY"),
+        Company: companies,
+        Customer: customer,
+        Employee: employee,
+        Product: getFilledFuelData(fuelData),
+        Products: products,
+        Note: note,
+        items: items[selectedIndex] || "",
+      };
+
+      sessionStorage.setItem("invoiceData", JSON.stringify(invoiceData));
+
+      // 🔹 เปิดหน้าต่างใหม่
+      const screenWidth = window.screen.width;
+      const screenHeight = window.screen.height;
+      const windowWidth = 820;
+      const windowHeight = 559;
+      const left = (screenWidth - windowWidth) / 2;
+      const top = (screenHeight - windowHeight) / 2;
+
+      const printWindow = window.open(
+        "/print-quotation",
+        "_blank",
+        `width=${windowWidth},height=${windowHeight},left=${left},top=${top}`,
+      );
+
+      if (!printWindow) {
+        alert("กรุณาปิด pop-up blocker แล้วลองใหม่");
+      }
+    } catch (error) {
+      ShowError("ไม่สำเร็จ");
+      console.error("Error updating data:", error);
+    }
   };
 
   return (
