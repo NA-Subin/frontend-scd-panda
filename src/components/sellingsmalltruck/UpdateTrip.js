@@ -45,14 +45,14 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
 import PlagiarismIcon from '@mui/icons-material/Plagiarism';
 import TaskIcon from '@mui/icons-material/Task';
-import { database } from "../../server/firebase";
+import { apiPost, apiPut } from "../../server/apiClient";
 import { ShowConfirm, ShowError, ShowSuccess, ShowWarning } from "../sweetalert/sweetalert";
 import InfoIcon from '@mui/icons-material/Info';
 import OrderDetail from "./OrderDetail";
 import SellingDetail from "./SellingDetail";
 import "../../theme/scrollbar.css"
-import { useData } from "../../server/path";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
+import { useTripData } from "../../server/provider/TripProvider";
 
 // const depotOptions = ["ลำปาง", "พิจิตร", "สระบุรี", "บางปะอิน", "IR"];
 
@@ -77,18 +77,7 @@ const UpdateTrip = (props) => {
     const dialogRef = useRef(null);
     const [html2canvasLoaded, setHtml2canvasLoaded] = useState(false);
     const [update, setUpdate] = useState(true);
-    const [order, setOrder] = React.useState([]);
-    const [customer, setCustomer] = React.useState([]);
-    const [ticket, setTicket] = React.useState([]);
-    //const [trip, setTrip] = React.useState([]);
     const [tickets, setTickets] = React.useState([]);
-    const [orderLength, setOrderLength] = React.useState(0);
-    const [ticketsT, setTicketsT] = React.useState([]);
-    const [ticketsPS, setTicketsPS] = React.useState([]);
-    const [ticketsA, setTicketsA] = React.useState([]);
-    const [ticketsB, setTicketsB] = React.useState([]);
-    const [ticketsS, setTicketsS] = React.useState([]);
-    const [ticketLength, setTicketLength] = React.useState(0);
     const [selectedDateReceive, setSelectedDateReceive] = useState(dateReceive);
     const [selectedDateDelivery, setSelectedDateDelivery] = useState(dateDelivery);
     const [windowWidths, setWindowWidth] = useState(window.innerWidth);
@@ -118,9 +107,12 @@ const UpdateTrip = (props) => {
         return number.toLocaleString(); // => 3000 -> "3,000"
     };
 
-    // const { depots, small } = useData();
     const [driverss, setDriverss] = React.useState(driversdetail);
-    const { depots, small, drivers } = useBasicData();
+    const {
+        depots, small, drivers,
+        customertransports, customergasstations, customertickets, customerbigtruck, customersmalltruck,
+        refetch: refetchBasicData,
+    } = useBasicData();
 
     const driver = Object.values(drivers || {});
     const driverDetail = driver.filter((row) => row.Registration === "0:ไม่มี" || row.Registration === registrations);
@@ -132,6 +124,18 @@ const UpdateTrip = (props) => {
     const smalls = Object.values(small || {}).filter((item) => item.StatusTruck !== "ยกเลิก");
     const registrationTruck = smalls.filter((row) => (row.Driver === "0:ไม่มี" && row.Status === "ว่าง") || row.Driver === driverss);
     console.log("registrationTruck : ", registrationTruck);
+
+    const { order: orderData, tickets: ticketsTableData, refetch: refetchTripData } = useTripData();
+    const orderLength = orderData ? Object.keys(orderData).length : 0;
+    const ticketLength = ticketsTableData ? Object.keys(ticketsTableData).length : 0;
+    const order = Object.values(orderData || {}).filter((item) => Number(item.Trip) === Number(tripID) - 1);
+    const ticket = Object.values(ticketsTableData || {}).filter((item) => Number(item.Trip) === Number(tripID) - 1);
+
+    const ticketsT = Object.values(customertransports || {}).filter((item) => item.Status === "ตั๋ว" || item.Status === "ตั๋ว/ผู้รับ");
+    const ticketsPS = Object.values(customergasstations || {});
+    const ticketsA = Object.values(customertickets || {});
+    const ticketsB = Object.values(customerbigtruck || {});
+    const ticketsS = Object.values(customersmalltruck || {});
 
     // โหลด html2canvas จาก CDN
     useEffect(() => {
@@ -240,111 +244,7 @@ const UpdateTrip = (props) => {
         setOpen(true);
     };
 
-    const getOrder = async () => {
-        database.ref("/order").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataOrder = [];
-            for (let id in datas) {
-                setOrderLength(datas.length);
-                if (datas[id].Trip === (Number(tripID) - 1)) {
-                    dataOrder.push({ id, ...datas[id] })
-                }
-            }
-            setOrder(dataOrder);
-        });
-    };
-
     console.log("Ticket Length : ", ticketLength);
-
-    const getTicket = async () => {
-        database.ref("/tickets").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataTicket = [];
-            for (let id in datas) {
-                setTicketLength(datas.length);
-                if (datas[id].Trip === (Number(tripID) - 1)) {
-                    dataTicket.push({ id, ...datas[id] })
-                }
-            }
-            setTicket(dataTicket);
-        });
-
-        database.ref("/customers/transports/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataTicket = [];
-            for (let id in datas) {
-                if (datas[id].Status === "ตั๋ว" || datas[id].Status === "ตั๋ว/ผู้รับ")
-                    dataTicket.push({ id, ...datas[id] })
-            }
-            setTicketsT(dataTicket);
-        });
-
-        database.ref("/customers/transports/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataCustomer = [];
-            for (let id in datas) {
-                if (datas[id].Status === "ผู้รับ" || datas[id].Status === "ตั๋ว/ผู้รับ")
-                    dataCustomer.push({ id, ...datas[id] })
-            }
-            setCustomer(dataCustomer);
-        });
-
-        database.ref("/customers/gasstations/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataGasStations = [];
-            for (let id in datas) {
-                dataGasStations.push({ id, ...datas[id] })
-            }
-            setTicketsPS(dataGasStations);
-        });
-
-        database.ref("/customers/tickets/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataGasStations = [];
-            for (let id in datas) {
-                dataGasStations.push({ id, ...datas[id] })
-            }
-            setTicketsA(dataGasStations);
-        });
-
-        database.ref("/customers/bigtruck/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataStock = [];
-            for (let id in datas) {
-                dataStock.push({ id, ...datas[id] })
-            }
-            setTicketsB(dataStock);
-        });
-
-        database.ref("/customers/smalltruck/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataStock = [];
-            for (let id in datas) {
-                dataStock.push({ id, ...datas[id] })
-            }
-            setTicketsS(dataStock);
-        });
-    };
-
-    // const getTrip = async () => {
-    //     database.ref("/trip/" + (Number(tripID) - 1)).on("value", (snapshot) => {
-    //         const datas = snapshot.val();
-    //         // const dataTrip = [];
-    //         // for (let id in datas) {
-    //         //     if (datas[id].id === tripID) {
-    //         //         setSelectedDateReceive(datas[id].DateReceive)
-    //         //         setSelectedDateDelivery(datas[id].DateDelivery)
-    //         //     }
-    //         // }
-    //         setTrip(datas);
-    //     });
-    // };
-
-    useEffect(() => {
-        getTicket();
-        getOrder();
-        // getTrip();
-    }, []);
 
     const handleCancle = () => {
         setOpen(false);
@@ -773,157 +673,97 @@ const UpdateTrip = (props) => {
     }, [editableTickets, editableOrders, depot, weightTrucks]);
     // คำนวณใหม่ทุกครั้งที่ editableOrders เปลี่ยน
 
-    const updateFirebase = (refPath, childKey, data) => {
-        return database
-            .ref(refPath)
-            .child(childKey)
-            .update(data)
-            .then(() => console.log("Data pushed successfully"))
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
-            });
+    // ค่าเดิมที่โหลดมาจาก Postgres จะเป็น uuid อยู่แล้ว ส่วนค่าที่เพิ่งเลือกใหม่ผ่าน
+    // Autocomplete ในไฟล์นี้จะเป็น "id:ชื่อ/ทะเบียน" (id ธรรมดาจาก truck_small/employee_drivers)
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    const resolveTruckSmall = (value) => {
+        if (!value || value === "0:ไม่มี" || value === "0:0") return null;
+        return UUID_RE.test(value)
+            ? smalls.find((t) => t.uuid === value)
+            : smalls.find((t) => `${t.id}:${t.RegHead}` === value);
     };
 
-    const safeUpdateFirebase = (path, value, data) => {
-        if (!value || value === "0:ไม่มี") return;
+    const resolveDriverRow = (value) => {
+        if (!value || value === "0:ไม่มี" || value === "0:0") return null;
+        return UUID_RE.test(value)
+            ? driver.find((d) => d.uuid === value)
+            : driver.find((d) => `${d.id}:${d.Name}` === value);
+    };
 
-        const id = Number(String(value).split(":")[0]);
-
-        if (!Number.isInteger(id) || id <= 0) {
-            console.warn("Skip update:", value);
+    const handleSave = async () => {
+        const newTruck = resolveTruckSmall(registration);
+        if (!newTruck) {
+            ShowError("กรุณาเลือกทะเบียนรถก่อนบันทึก");
             return;
         }
+        const oldTruck = resolveTruckSmall(registrations);
+        const newDriver = resolveDriverRow(driverss);
+        const oldDriver = resolveDriverRow(driversdetail);
 
-        updateFirebase(path, id - 1, data); // ใช้ id ตรง ๆ
-    };
+        const registrationUuid = newTruck.uuid;
+        const registrationName = newTruck.RegHead;
+        const driverUuid = newDriver?.uuid || null;
+        const driverNameVal = newDriver?.Name || null;
+        const tripFinished = trip.StatusTrip === "จบทริป";
+        const currentTruckFields = {
+            Registration: registrationUuid,
+            RegistrationName: registrationName,
+            Driver: driverUuid,
+            DriverName: driverNameVal,
+        };
 
-    const getValidId = (value) => {
-        if (!value) return null;
+        try {
+            let ticketNoCounter = ticketLength;
+            for (const item of editableTickets) {
+                const { uuid, row_key, ...fields } = item;
+                const isRawSelection = fields.TicketName && !UUID_RE.test(fields.TicketName);
+                const resolvedTicket = isRawSelection ? getTickets().find((t) => t.Name === fields.TicketName) : null;
+                if (isRawSelection) {
+                    fields.TicketName = resolvedTicket?.uuid || null;
+                    fields.TicketNameName = resolvedTicket?.Name || item.TicketName;
+                }
 
-        const id = Number(String(value).split(":")[0]);
-
-        if (!Number.isInteger(id) || id <= 0) return null;
-
-        return id;
-    };
-
-    // const oldRegId = getValidId(registrations);
-    // const newRegId = getValidId(registration);
-    // const oldDriverId = getValidId(driversdetail);
-    // const newDriverId = getValidId(driverss);
-    // console.log("oldRegId : ", oldRegId, "registration : ", registrations);
-    // console.log("newRegId : ", newRegId, "registration : ", registration);
-    // console.log("oldDriverId : ", oldDriverId, "driversdetail : ", driversdetail);
-    // console.log("newDriverId : ", newDriverId, "driverss : ", driverss);
-    const handleSave = () => {
-        const noCountTicket = {}; // เก็บจำนวนครั้งที่ No ปรากฏ
-        const noIdTrackerTicket = {}; // เก็บค่า id ที่ใช้ไปแล้วสำหรับ No แต่ละค่า
-        let newNoTicket = ticketLength + 1; // เริ่มนับ No ใหม่จากจำนวน ticket ที่มีอยู่
-
-        editableTickets.forEach(ticket => {
-            const currentNo = ticket.No;
-            const currentId = ticket.id;
-
-            console.log(" NO : ", currentNo);
-            console.log(" ID : ", currentId);
-
-            // นับจำนวนครั้งที่ No ปรากฏ
-            if (!noCountTicket[currentNo]) {
-                noCountTicket[currentNo] = 1;
-                noIdTrackerTicket[currentNo] = new Set(); // ใช้ Set เก็บ id ที่ซ้ำ
-            } else {
-                noCountTicket[currentNo]++;
+                if (uuid) {
+                    await apiPut(`/api/tickets/${uuid}`, { ...fields, ...currentTruckFields });
+                } else {
+                    ticketNoCounter += 1;
+                    await apiPost("/api/tickets", {
+                        ...fields,
+                        ...currentTruckFields,
+                        Trip: String(Number(tripID) - 1),
+                        No: ticketNoCounter,
+                    });
+                }
             }
 
-            // ถ้า No ซ้ำกันและ id ไม่ซ้ำกัน
-            if (noCountTicket[currentNo] > 1 && !noIdTrackerTicket[currentNo].has(currentId)) {
-                ticket.No = newNoTicket; // เปลี่ยน No ใหม่
-                newNoTicket++; // เพิ่มค่า No ใหม่
+            let orderNoCounter = orderLength;
+            for (const item of editableOrders) {
+                const { uuid, row_key, ...fields } = item;
+                const isRawSelection = fields.TicketName && !UUID_RE.test(fields.TicketName);
+                const resolvedCustomer = isRawSelection ? getCustomers().find((t) => t.Name === fields.TicketName) : null;
+                if (isRawSelection) {
+                    fields.TicketName = resolvedCustomer?.uuid || null;
+                    fields.TicketNameName = resolvedCustomer?.Name || item.TicketName;
+                }
+
+                if (uuid) {
+                    await apiPut(`/api/order/${uuid}`, { ...fields, ...currentTruckFields });
+                } else {
+                    orderNoCounter += 1;
+                    await apiPost("/api/order", {
+                        ...fields,
+                        ...currentTruckFields,
+                        Trip: String(Number(tripID) - 1),
+                        No: orderNoCounter,
+                    });
+                }
             }
 
-            // บันทึก id ที่เคยใช้สำหรับ No นี้
-            noIdTrackerTicket[currentNo].add(currentId);
-        });
-
-        // Loop ผ่านแต่ละ item ใน editableTickets
-        editableTickets.forEach(ticket => {
-            const ticketNo = ticket.No; // ใช้ No เพื่ออ้างอิง
-            console.log("Ticket NO : ", ticketNo);
-            console.log("Ticket Detail : ", ticket);
-
-            database
-                .ref("/tickets")
-                .child(ticketNo)  // ใช้ No ในการเลือก Child
-                .update(ticket)    // อัปเดตข้อมูลของแต่ละ ticket
-                .then(() => {
-                    ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                })
-                .catch((error) => {
-                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                    console.error("Error pushing data:", error);
-                });
-        });
-
-        const noCountOrder = {}; // เก็บจำนวนครั้งที่ No ปรากฏ
-        const noIdTrackerOrder = {}; // เก็บค่า id ที่ใช้ไปแล้วสำหรับ No แต่ละค่า
-        let newNoOrder = orderLength + 1; // เริ่มนับ No ใหม่จากจำนวน order ที่มีอยู่
-
-        editableOrders.forEach(order => {
-            const currentNo = order.No;
-            const currentId = order.id;
-
-            console.log(" NO : ", currentNo);
-            console.log(" ID : ", currentId);
-
-            // นับจำนวนครั้งที่ No ปรากฏ
-            if (!noCountOrder[currentNo]) {
-                noCountOrder[currentNo] = 1;
-                noIdTrackerOrder[currentNo] = new Set(); // ใช้ Set เก็บ id ที่ซ้ำ
-            } else {
-                noCountOrder[currentNo]++;
-            }
-
-            // ถ้า No ซ้ำกันและ id ไม่ซ้ำกัน
-            if (noCountOrder[currentNo] > 1 && !noIdTrackerOrder[currentNo].has(currentId)) {
-                order.No = newNoOrder; // เปลี่ยน No ใหม่
-                newNoOrder++; // เพิ่มค่า No ใหม่
-            }
-
-            // บันทึก id ที่เคยใช้สำหรับ No นี้
-            noIdTrackerOrder[currentNo].add(currentId);
-        });
-
-        console.log(" Order Update : ", editableOrders);
-
-        // Loop ผ่านแต่ละ item ใน editableOrders
-        editableOrders.forEach(order => {
-            const orderNo = order.No; // ใช้ No เพื่ออ้างอิง
-            console.log("Order NO : ", orderNo);
-            database
-                .ref("/order")
-                .child(orderNo)  // ใช้ No ในการเลือก Child
-                .update(order)    // อัปเดตข้อมูลของแต่ละ order
-                .then(() => {
-                    ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                })
-                .catch((error) => {
-                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                    console.error("Error pushing data:", error);
-                });
-        });
-
-        database
-            .ref("/trip")
-            .child(Number(tripID) - 1)  // ใช้ No ในการเลือก Child
-            .set({
-                id: tripID,
+            await apiPut(`/api/trip/${trip.uuid}`, {
                 DateReceive: selectedDateReceive,
                 DateDelivery: selectedDateDelivery,
-                DateStart: trip.DateStart || dayjs(new Date).format("DD/MM/YYYY"),
                 DateEnd: trip.DateEnd || dayjs(new Date).format("DD/MM/YYYY"),
-                Driver: driverss,
-                Registration: registration,
                 Depot: depot,
                 CostTrip: costTrip,
                 WeightOil: totalVolumesOrder.totalOil,
@@ -932,103 +772,40 @@ const UpdateTrip = (props) => {
                 Status: status,
                 StatusTrip: trip.StatusTrip !== "จบทริป" ? "กำลังจัดเที่ยววิ่ง" : "จบทริป",
                 TruckType: "รถเล็ก",
+                ...currentTruckFields,
                 ...orderTrip,
                 ...ticketTrip
-            })    // อัปเดตข้อมูลของแต่ละ order
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
 
-        const oldRegId = getValidId(registrations);
-        const newRegId = getValidId(registration);
-        const oldDriverId = getValidId(driversdetail);
-        const newDriverId = getValidId(driverss);
+            // ปลดปล่อยรถ/คนขับเดิมถ้ามีการเปลี่ยนระหว่างแก้ไข
+            if (oldTruck && oldTruck.uuid !== newTruck.uuid) {
+                await apiPut(`/api/truck_small/${oldTruck.uuid}`, { Driver: "0:ไม่มี", Status: "ว่าง" });
+            }
+            if (oldDriver && oldDriver.uuid !== newDriver?.uuid) {
+                await apiPut(`/api/employee_drivers/${oldDriver.uuid}`, { Registration: null, RegistrationName: "ไม่มี" });
+            }
 
-        if (oldRegId !== newRegId) {
-
-            if (oldRegId !== null) {
-                safeUpdateFirebase("truck/small/", registrations, {
-                    Driver: "0:ไม่มี",
-                    Status: "ว่าง",
+            // ตั้งสถานะรถ/คนขับปัจจุบัน
+            await apiPut(`/api/truck_small/${newTruck.uuid}`, {
+                Driver: tripFinished ? "0:ไม่มี" : driverss,
+                Status: tripFinished ? "ว่าง" : `TR:${tripID}`,
+            });
+            if (newDriver) {
+                await apiPut(`/api/employee_drivers/${newDriver.uuid}`, {
+                    Registration: tripFinished ? null : registrationUuid,
+                    RegistrationName: tripFinished ? "ไม่มี" : registrationName,
                 });
             }
 
-            if (newRegId !== null) {
-                safeUpdateFirebase("truck/small/", registration, {
-                    Driver: trip.StatusTrip !== "จบทริป" ? driverss : "0:ไม่มี",
-                    Status: trip.StatusTrip !== "จบทริป" ? `TR:${tripID}` : "ว่าง", // ❗ แนะนำเอา -1 ออก
-                });
-            }
-
-            if (newDriverId !== null) {
-                safeUpdateFirebase("employee/drivers/", driverss, {
-                    Registration: trip.StatusTrip !== "จบทริป" ? registration : "0:ไม่มี",
-                });
-            }
+            ShowSuccess("บันทึกข้อมูลสำเร็จ");
+            refetchTripData?.();
+            refetchBasicData?.();
+            setOpen(false);
+            setEditMode(false);
+        } catch (error) {
+            ShowError("บันทึกข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
         }
-
-        if (oldDriverId !== newDriverId) {
-
-            if (oldDriverId !== null) {
-                safeUpdateFirebase("employee/drivers/", driversdetail, {
-                    Registration: "0:ไม่มี",
-                });
-            }
-
-            if (newDriverId !== null) {
-                safeUpdateFirebase("employee/drivers/", driverss, {
-                    Registration: trip.StatusTrip !== "จบทริป" ? registration : "0:ไม่มี",
-                });
-            }
-
-            if (newRegId !== null) {
-                safeUpdateFirebase("truck/small/", registration, {
-                    Driver: trip.StatusTrip !== "จบทริป" ? driverss : "0:ไม่มี",
-                    Status: trip.StatusTrip !== "จบทริป" ? `TR:${tripID}` : "ว่าง",
-                });
-            }
-        }
-
-        // // เงื่อนไขเมื่อทะเบียนเปลี่ยน
-        // if (registrations !== registration) {
-
-        //     safeUpdateFirebase("truck/small/", registrations, {
-        //         Driver: "0:ไม่มี",
-        //         Status: "ว่าง",
-        //     });
-
-        //     safeUpdateFirebase("truck/small/", registration, {
-        //         Driver: trip.StatusTrip !== "จบทริป" ? driverss : "0:ไม่มี",
-        //         Status: trip.StatusTrip !== "จบทริป" ? `TR:${tripID - 1}` : "ว่าง",
-        //     });
-
-        //     safeUpdateFirebase("employee/drivers/", driverss, {
-        //         Registration: trip.StatusTrip !== "จบทริป" ? registration : "0:ไม่มี",
-        //     });
-        // }
-
-        // // เงื่อนไขเมื่อพนักงานขับรถเปลี่ยน
-        // if (driversdetail !== driverss) {
-
-        //     safeUpdateFirebase("employee/drivers/", driversdetail, {
-        //         Registration: "0:ไม่มี",
-        //     });
-
-        //     safeUpdateFirebase("employee/drivers/", driverss, {
-        //         Registration: trip.StatusTrip !== "จบทริป" ? registration : "0:ไม่มี",
-        //     });
-
-        //     safeUpdateFirebase("truck/small/", registration, {
-        //         Driver: trip.StatusTrip !== "จบทริป" ? driverss : "0:ไม่มี",
-        //         Status: trip.StatusTrip !== "จบทริป" ? `TR:${tripID - 1}` : "ว่าง",
-        //     });
-        // }
-
-        setEditMode(false);
     };
 
     console.log("registration : ", registration);
@@ -1122,7 +899,7 @@ const UpdateTrip = (props) => {
     const handleDeleteTickets = (indexToDelete, id) => {
         const ticketIndex = Number(id) - 1;
         const tickets = ticket[ticketIndex];
-        if (!tickets || tickets.No === undefined || tickets.No === null) {
+        if (!tickets || !tickets.uuid) {
             setEditableTickets((prev) => {
                 const newTicket = [];
                 let newIndex = 0;
@@ -1153,33 +930,20 @@ const UpdateTrip = (props) => {
             return;
         }
 
-        const ticketKey = tickets.No;
-
         ShowConfirm(
             `ต้องการยกเลิกออเดอร์ลำดับที่ ${id} ใช่หรือไม่`,
-            () => {
-                const ticketRef = database.ref("tickets/").child(ticketKey);
-
-                ticketRef.once("value").then((snapshot) => {
-                    const ticketData = snapshot.val();
-
-                    if (ticketData && ticketData.No === ticketKey) {
-                        ticketRef.update({
-                            Trip: "ยกเลิก",
-                            Status: "ยกเลิก",
-                        })
-                            .then(() => {
-                                console.log("Data pushed successfully");
-                                updateStateAfterTicketDelete(indexToDelete, id);
-                            })
-                            .catch((error) => {
-                                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                                console.error("Error pushing data:", error);
-                            });
-                    } else {
-                        updateStateAfterTicketDelete(indexToDelete, id);
-                    }
-                });
+            async () => {
+                try {
+                    await apiPut(`/api/tickets/${tickets.uuid}`, {
+                        Trip: "ยกเลิก",
+                        Status: "ยกเลิก",
+                    });
+                    refetchTripData?.();
+                    updateStateAfterTicketDelete(indexToDelete, id);
+                } catch (error) {
+                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+                    console.error("Error pushing data:", error);
+                }
             },
             () => {
                 console.log(`ยกเลิกลบตั๋วที่ ${id}`);
@@ -1216,10 +980,7 @@ const UpdateTrip = (props) => {
 
         console.log("Show Index Order : ", orders);
 
-        if (!orders || orders.No === undefined || orders.No === null) {
-            // console.error("ไม่พบข้อมูลออเดอร์หรือคีย์ไม่ถูกต้อง");
-            // ShowError("ไม่สามารถยกเลิกออเดอร์ได้ เนื่องจากข้อมูลผิดพลาด");
-
+        if (!orders || !orders.uuid) {
             // ลบจาก editableOrders
             setEditableOrders((prev) => {
                 const newOrder = [];
@@ -1251,44 +1012,20 @@ const UpdateTrip = (props) => {
             return;
         }
 
-        const orderKey = orders.No;
-        // console.log("Show Order No : ", orderKey);
-        // console.log("Show Order No : ", orders.No);
-
-        // const orderRef = database.ref("order/").child(orderKey);
-        // console.log("Show Order Ref : ", orderRef);
-
-        // orderRef.once("value").then((snapshot) => {
-        //     const orderData = snapshot.val();
-        //     console.log("Show Order Data : ", orderData.No);
-        //  })
-
-
         ShowConfirm(
             `ต้องการยกเลิกออเดอร์ลำดับที่ ${id} ใช่หรือไม่`,
-            () => {
-                const orderRef = database.ref("order/").child(orderKey);
-
-                orderRef.once("value").then((snapshot) => {
-                    const orderData = snapshot.val();
-
-                    if (orderData && orderData.No === orderKey) {
-                        orderRef.update({
-                            Trip: "ยกเลิก",
-                            Status: "ยกเลิก",
-                        })
-                            .then(() => {
-                                console.log("Data pushed successfully");
-                                updateStateAfterOrderDelete(indexToDelete, id);
-                            })
-                            .catch((error) => {
-                                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                                console.error("Error pushing data:", error);
-                            });
-                    } else {
-                        updateStateAfterOrderDelete(indexToDelete, id);
-                    }
-                });
+            async () => {
+                try {
+                    await apiPut(`/api/order/${orders.uuid}`, {
+                        Trip: "ยกเลิก",
+                        Status: "ยกเลิก",
+                    });
+                    refetchTripData?.();
+                    updateStateAfterOrderDelete(indexToDelete, id);
+                } catch (error) {
+                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+                    console.error("Error pushing data:", error);
+                }
             },
             () => {
                 console.log(`ยกเลิกลบออเดอร์ที่ ${id}`);
@@ -1354,82 +1091,44 @@ const UpdateTrip = (props) => {
 
     console.log("registration before change status : ", registration);
 
-    const getId = (value) => {
-        if (!value) return null;
-
-        const id = Number(String(value).split(":")[0]);
-        if (!Number.isInteger(id) || id <= 0) return null;
-
-        return id - 1;
-    };
 
     const handleChangeStatus = () => {
-        const truckId = getId(registration);
-        const driverId = getId(driverss);
+        const selectedTruck = resolveTruckSmall(registration);
+        const selectedDriver = resolveDriverRow(driverss);
 
-        if (truckId === null) return ShowError("กรุณาเพิ่มทะเบียนรถก่อน");
-        if (driverId === null) return ShowError("กรุณาเพิ่มชื่อพนักงานขับรถก่อน");
+        if (!selectedTruck) return ShowError("กรุณาเพิ่มทะเบียนรถก่อน");
+        if (!selectedDriver) return ShowError("กรุณาเพิ่มชื่อพนักงานขับรถก่อน");
 
         ShowConfirm(
             `ต้องการจบเที่ยววิ่งใช่หรือไม่`,
-            () => {
-                const updates = [];
+            async () => {
+                try {
+                    await Promise.all([
+                        apiPut(`/api/truck_small/${selectedTruck.uuid}`, {
+                            Driver: "0:ไม่มี",
+                            Status: "ว่าง",
+                            RepairTruck: "00/00/0000:ยังไม่ตรวจสอบสภาพรถ"
+                        }),
+                        apiPut(`/api/employee_drivers/${selectedDriver.uuid}`, {
+                            Registration: null,
+                            RegistrationName: "ไม่มี",
+                        }),
+                        apiPut(`/api/trip/${trip.uuid}`, {
+                            StatusTrip: "จบทริป",
+                            DateEnd: dayjs().format("DD/MM/YYYY")
+                        }),
+                        ...order.map((row) => apiPut(`/api/order/${row.uuid}`, { Status: "จัดส่งสำเร็จ" })),
+                        ...ticket.map((row) => apiPut(`/api/tickets/${row.uuid}`, { Status: "จัดส่งสำเร็จ" })),
+                    ]);
 
-                // 1️⃣ reset รถ
-                updates.push(
-                    database.ref("truck/small/").child(truckId).update({
-                        Driver: "0:ไม่มี",
-                        Status: "ว่าง",
-                        RepairTruck: "00/00/0000:ยังไม่ตรวจสอบสภาพรถ"
-                    })
-                );
-
-                // 2️⃣ reset คนขับ
-                updates.push(
-                    database.ref("employee/drivers/").child(driverId).update({
-                        Registration: "0:ไม่มี"
-                    })
-                );
-
-                // 3️⃣ ปิด trip  (❗ เอา -1 ออกแล้ว)
-                updates.push(
-                    database.ref("trip/").child(Number(tripID) - 1).update({
-                        StatusTrip: "จบทริป",
-                        DateEnd: dayjs().format("DD/MM/YYYY")
-                    })
-                );
-
-                // 4️⃣ update order ทั้งหมด
-                order.forEach((row) => {
-                    updates.push(
-                        database.ref("order/").child(row.No).update({
-                            Status: "จัดส่งสำเร็จ"
-                        })
-                    );
-                });
-
-                // 5️⃣ update ticket ทั้งหมด
-                ticket.forEach((row) => {
-                    updates.push(
-                        database.ref("tickets/").child(row.No).update({
-                            Status: "จัดส่งสำเร็จ"
-                        })
-                    );
-                });
-
-
-                // ✅ รอทุกอย่างเสร็จจริง
-                Promise.all(updates)
-                    .then(() => {
-                        console.log("All updates success");
-                        ShowSuccess("จบทริปเรียบร้อย");
-                        setOpen(false);
-                    })
-                    .catch((error) => {
-                        console.error("Update failed:", error);
-                        ShowError("เกิดข้อผิดพลาดในการบันทึก");
-                    });
-
+                    ShowSuccess("จบทริปเรียบร้อย");
+                    refetchTripData?.();
+                    refetchBasicData?.();
+                    setOpen(false);
+                } catch (error) {
+                    console.error("Update failed:", error);
+                    ShowError("เกิดข้อผิดพลาดในการบันทึก");
+                }
             },
             () => {
                 console.log("ยกเลิกลบตั๋ว");
@@ -1439,71 +1138,41 @@ const UpdateTrip = (props) => {
 
 
     const handleChangeCancelTrip = () => {
-        const truckId = getId(registration);
-        const driverId = getId(driverss);
+        const selectedTruck = resolveTruckSmall(registration);
+        const selectedDriver = resolveDriverRow(driverss);
 
-        if (truckId === null) return ShowError("กรุณาเพิ่มทะเบียนรถก่อน");
-        if (driverId === null) return ShowError("กรุณาเพิ่มชื่อพนักงานขับรถก่อน");
+        if (!selectedTruck) return ShowError("กรุณาเพิ่มทะเบียนรถก่อน");
+        if (!selectedDriver) return ShowError("กรุณาเพิ่มชื่อพนักงานขับรถก่อน");
 
         ShowConfirm(
             `ต้องการยกเลิกเที่ยววิ่งใช่หรือไม่`,
-            () => {
-                const updates = [];
+            async () => {
+                try {
+                    await Promise.all([
+                        apiPut(`/api/truck_small/${selectedTruck.uuid}`, {
+                            Driver: "0:ไม่มี",
+                            Status: "ว่าง"
+                        }),
+                        apiPut(`/api/employee_drivers/${selectedDriver.uuid}`, {
+                            Registration: null,
+                            RegistrationName: "ไม่มี",
+                        }),
+                        apiPut(`/api/trip/${trip.uuid}`, {
+                            StatusTrip: "ยกเลิก",
+                            DateEnd: dayjs().format("DD/MM/YYYY")
+                        }),
+                        ...order.map((row) => apiPut(`/api/order/${row.uuid}`, { Status: "ยกเลิก" })),
+                        ...ticket.map((row) => apiPut(`/api/tickets/${row.uuid}`, { Status: "ยกเลิก" })),
+                    ]);
 
-                // 1️⃣ reset รถ
-                updates.push(
-                    database.ref("truck/small/").child(truckId).update({
-                        Driver: "0:ไม่มี",
-                        Status: "ว่าง"
-                    })
-                );
-
-                // 2️⃣ reset คนขับ
-                updates.push(
-                    database.ref("employee/drivers/").child(driverId).update({
-                        Registration: "0:ไม่มี"
-                    })
-                );
-
-                // 3️⃣ ปิด trip  (❗ เอา -1 ออกแล้ว)
-                updates.push(
-                    database.ref("trip/").child(Number(tripID) - 1).update({
-                        StatusTrip: "ยกเลิก",
-                        DateEnd: dayjs().format("DD/MM/YYYY")
-                    })
-                );
-
-                // 4️⃣ update order ทั้งหมด
-                order.forEach((row) => {
-                    updates.push(
-                        database.ref("order/").child(row.No).update({
-                            Status: "ยกเลิก"
-                        })
-                    );
-                });
-
-                // 5️⃣ update ticket ทั้งหมด
-                ticket.forEach((row) => {
-                    updates.push(
-                        database.ref("tickets/").child(row.No).update({
-                            Status: "ยกเลิก"
-                        })
-                    );
-                });
-
-
-                // ✅ รอทุกอย่างเสร็จจริง
-                Promise.all(updates)
-                    .then(() => {
-                        console.log("All updates success");
-                        ShowSuccess("จบทริปเรียบร้อย");
-                        setOpen(false);
-                    })
-                    .catch((error) => {
-                        console.error("Update failed:", error);
-                        ShowError("เกิดข้อผิดพลาดในการบันทึก");
-                    });
-
+                    ShowSuccess("ยกเลิกเที่ยววิ่งเรียบร้อย");
+                    refetchTripData?.();
+                    refetchBasicData?.();
+                    setOpen(false);
+                } catch (error) {
+                    console.error("Update failed:", error);
+                    ShowError("เกิดข้อผิดพลาดในการบันทึก");
+                }
             },
             () => {
                 console.log("ยกเลิกลบตั๋ว");

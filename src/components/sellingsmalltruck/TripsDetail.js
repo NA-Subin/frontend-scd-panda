@@ -32,52 +32,42 @@ import "dayjs/locale/th";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import theme from "../../theme/theme";
 import { RateOils, TablecellHeader } from "../../theme/style";
-import { database } from "../../server/firebase";
+import { apiPut } from "../../server/apiClient";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import InfoIcon from '@mui/icons-material/Info';
 import UpdateTrip from "./UpdateTrip";
 import { formatThaiSlash } from "../../theme/DateTH";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
+import { useTripData } from "../../server/provider/TripProvider";
 
 const TripsDetail = (props) => {
     const { trips, windowWidth, index, maxOrder } = props;
     const [approve, setApprove] = React.useState(false);
     const {small} = useBasicData();
+    const {refetch} = useTripData();
 
     const smalls = Object.values(small || {}).filter((item) => item.StatusTruck !== "ยกเลิก");
 
-    const handleApprove = () => {
-        database
-            .ref("trip/")
-            .child(trips.id - 1)
-            .update({
-                Status: "อนุมัติแล้ว",
-            })
-            .then(() => {
-                ShowSuccess("อนุมัติเที่ยววิ่งเรียบร้อย");
-                console.log("Data pushed successfully");
-            })
-            .catch((error) => {
-                ShowError("อนุมัติเที่ยววิ่งไม่สำเร็จ");
-                console.error("Error pushing data:", error);
-            });
+    const handleApprove = async () => {
+        try {
+            await apiPut(`/api/trip/${trips.uuid}`, { Status: "อนุมัติแล้ว" });
+            ShowSuccess("อนุมัติเที่ยววิ่งเรียบร้อย");
+            refetch?.();
+        } catch (error) {
+            ShowError("อนุมัติเที่ยววิ่งไม่สำเร็จ");
+            console.error("Error updating data:", error);
+        }
     };
 
-    const handleNonApprove = () => {
-        database
-            .ref("trip/")
-            .child(trips.id - 1)
-            .update({
-                Status: "ไม่อนุมัติ",
-            })
-            .then(() => {
-                ShowSuccess("ไม่อนุมัติเที่ยววิ่งเรียบร้อย");
-                console.log("Data pushed successfully");
-            })
-            .catch((error) => {
-                ShowError("ไม่อนุมัติเที่ยววิ่งไม่สำเร็จ");
-                console.error("Error pushing data:", error);
-            });
+    const handleNonApprove = async () => {
+        try {
+            await apiPut(`/api/trip/${trips.uuid}`, { Status: "ไม่อนุมัติ" });
+            ShowSuccess("ไม่อนุมัติเที่ยววิ่งเรียบร้อย");
+            refetch?.();
+        } catch (error) {
+            ShowError("ไม่อนุมัติเที่ยววิ่งไม่สำเร็จ");
+            console.error("Error updating data:", error);
+        }
     };
 
     const ShortName = smalls.find((t) => t.uuid === trips.Registration)?.ShortName || "-";
@@ -102,22 +92,17 @@ const TripsDetail = (props) => {
                             component="span"
                             variant="body2"
                             sx={{
-                                color:
-                                    trips?.Registration?.split(":")[1] === "0" ?
-                                        theme.palette.error.dark
-                                        : "black"
+                                color: !trips?.Registration ? theme.palette.error.dark : "black"
                             }}
                         >
                             {(() => {
-                                const reg = trips?.Registration ?? "";
-                                const value = reg.split(":")[1];
-
-                                if (!value || value === "0") {
+                                if (!trips?.Registration) {
                                     return "(ยังไม่ได้เลือกทะเบียนรถ)";
                                 }
 
-                                // return `${ShortName} (${value})`;
-                                return `${value}`;
+                                return trips.RegistrationName
+                                    || smalls.find((t) => t.uuid === trips.Registration)?.RegHead
+                                    || "-";
                             })()}
                         </Typography>
                     </Box>

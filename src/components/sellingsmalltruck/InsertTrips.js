@@ -38,13 +38,14 @@ import theme from "../../theme/theme";
 import { IconButtonError, RateOils, TableCellB7, TableCellB95, TablecellCustomers, TableCellE20, TableCellG91, TableCellG95, TableCellPWD, TablecellSelling, TablecellTickets } from "../../theme/style";
 import CancelIcon from '@mui/icons-material/Cancel';
 import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
-import { database } from "../../server/firebase";
+import { apiPost, apiPut } from "../../server/apiClient";
 import { ShowConfirm, ShowError, ShowSuccess, ShowWarning } from "../sweetalert/sweetalert";
 import InfoIcon from '@mui/icons-material/Info';
 import OrderDetail from "./OrderDetail";
 import SellingDetail from "./SellingDetail";
 import "../../theme/scrollbar.css"
 import { useBasicData } from "../../server/provider/BasicDataProvider";
+import { useTripData } from "../../server/provider/TripProvider";
 
 const InsertTrips = () => {
     const [menu, setMenu] = React.useState(0);
@@ -84,11 +85,29 @@ const InsertTrips = () => {
     const [weightL, setWeightL] = React.useState(0);
     const [costTrip, setCostTrip] = React.useState(0);
 
-    const { reghead, small, transport, drivers } = useBasicData();
+    const {
+        reghead, small, transport, drivers, depots: depotBasicData,
+        customertransports, customergasstations, customertickets, customerbigtruck, customersmalltruck,
+        refetch: refetchBasicData,
+    } = useBasicData();
     const truckH = Object.values(reghead || {}).filter((item) => item.StatusTruck !== "ยกเลิก");
     const truckS = Object.values(small || {}).filter((item) => item.StatusTruck !== "ยกเลิก");
     const truckT = Object.values(transport || {}).filter((item) => item.StatusTruck !== "ยกเลิก");
     const driver = Object.values(drivers || {});
+
+    const { trip: tripData, order: orderData, tickets: ticketsTableData, refetch: refetchTripData } = useTripData();
+    const trip = Object.values(tripData || {});
+    const order = Object.values(orderData || {});
+    const depot = Object.values(depotBasicData || {});
+
+    const ticketsT = Object.values(customertransports || {}).filter((item) => item.Status === "ตั๋ว" || item.Status === "ตั๋ว/ผู้รับ");
+    const ticketsPS = Object.values(customergasstations || {});
+    const ticketsA = Object.values(customertickets || {});
+    const ticketsB = Object.values(customerbigtruck || {});
+    const ticketsS = Object.values(customersmalltruck || {});
+
+    // รถเล็กที่ว่างและยังไม่ผูกคนขับ - เดิมกรองจากฟีดตรงของ Firebase, ตอนนี้กรองจาก truck_small ของ Postgres แทน
+    const smallTruck = truckS.filter((item) => item.Status === "ว่าง" && item.Driver === "0:ไม่มี");
 
     const driverDetail = driver.filter((row) => row.Registration === "0:ไม่มี" && (row.TruckType === "รถเล็ก" || row.TruckType === "รถใหญ่/รถเล็ก"));
 
@@ -220,14 +239,6 @@ const InsertTrips = () => {
     const handleClickOpen = () => {
         setOpen(true);
         setTicketsTrip(ticket);
-        database.ref("/tickets/" + ticket + "/ticketOrder").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataTicket = [];
-            for (let id in datas) {
-                dataTicket.push({ id, ...datas[id] })
-            }
-            setTicketsOrder(dataTicket);
-        });
     };
 
     const handleClose = () => {
@@ -313,177 +324,6 @@ const InsertTrips = () => {
         console.log("After Update:", { volumeG91, volumeG95, volumeB7, volumeB95, volumeE20, volumePWD });
     };
 
-
-    const [orders, setOrders] = useState([]);
-    const [data, setData] = useState([]);
-
-    const getData = async () => {
-        database.ref("/customer").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataList = [];
-            for (let id in datas) {
-                dataList.push({ id, ...datas[id] });
-            }
-            console.log(dataList);
-            setData(dataList);
-        });
-    };
-
-    const [regHead, setRegHead] = React.useState([]);
-    const [smallTruck, setSmallTruck] = React.useState([]);
-    const [allTruck, setAllTruck] = React.useState([]);
-
-    const getTruck = async () => {
-        database.ref("/truck/registration/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataRegHead = [];
-            for (let id in datas) {
-                if (datas[id].Driver !== "0:ไม่มี" && datas[id].RegTail !== "0:ไม่มี" && datas[id].Status === "ว่าง") {
-                    dataRegHead.push({ id, ...datas[id], type: "รถใหญ่" });
-                }
-            }
-            setRegHead(dataRegHead);
-
-            database.ref("/truck/small/").on("value", (snapshot) => {
-                const datas = snapshot.val();
-                const dataSmall = [];
-                for (let id in datas) {
-                    if (datas[id].Status === "ว่าง" && datas[id].Driver === "0:ไม่มี") {
-                        dataSmall.push({ id, ...datas[id], type: "รถเล็ก" });
-                    }
-                }
-                setSmallTruck(dataSmall);
-                setAllTruck([...dataRegHead, ...dataSmall]);
-            });
-        });
-    };
-
-    const [depot, setDepot] = React.useState([]);
-
-    const getDepot = async () => {
-        database.ref("/depot/oils").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataDepot = [];
-            for (let id in datas) {
-                dataDepot.push({ id, ...datas[id] })
-            }
-            setDepot(dataDepot);
-        });
-    };
-
-    const [order, setOrder] = React.useState([]);
-
-    const [trip, setTrip] = React.useState([]);
-    const [trips, setTrips] = React.useState("");
-
-    const getOrder = async () => {
-        database.ref("/order").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataOrder = [];
-            for (let id in datas) {
-                dataOrder.push({ id, ...datas[id] })
-            }
-            setOrder(dataOrder);
-        });
-    };
-
-    const [productT, setProductT] = React.useState([]);
-
-    const getTrip = async () => {
-        database.ref("/trip").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataTrip = [];
-            for (let id in datas) {
-                dataTrip.push({ id, ...datas[id] })
-            }
-            setTrip(dataTrip);
-        });
-    };
-
-    console.log("แสดงข้อมูลทั้งหมด", productT);
-
-    const [ticketsT, setTicketsT] = React.useState([]);
-    const [ticketsPS, setTicketsPS] = React.useState([]);
-    const [ticketsA, setTicketsA] = React.useState([]);
-    const [ticketsB, setTicketsB] = React.useState([]);
-    const [ticketsS, setTicketsS] = React.useState([]);
-    const [orderT, setOrderT] = React.useState([]);
-    const [orderPS, setOrderPS] = React.useState([]);
-    const [orderA, setOrderA] = React.useState([]);
-
-    const getTicket = async () => {
-        database.ref("/tickets").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            setTicket(datas.length);
-        });
-
-        database.ref("/customers/transports/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataTicket = [];
-            for (let id in datas) {
-                if (datas[id].Status === "ตั๋ว" || datas[id].Status === "ตั๋ว/ผู้รับ")
-                    dataTicket.push({ id, ...datas[id] })
-            }
-            setTicketsT(dataTicket);
-        });
-
-        database.ref("/customers/transports/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataCustomer = [];
-            for (let id in datas) {
-                if (datas[id].Status === "ผู้รับ" || datas[id].Status === "ตั๋ว/ผู้รับ")
-                    dataCustomer.push({ id, ...datas[id] })
-            }
-            setCustomer(dataCustomer);
-        });
-
-        database.ref("/customers/gasstations/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataGasStations = [];
-            for (let id in datas) {
-                dataGasStations.push({ id, ...datas[id] })
-            }
-            setTicketsPS(dataGasStations);
-        });
-
-        database.ref("/customers/tickets/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataGasStations = [];
-            for (let id in datas) {
-                dataGasStations.push({ id, ...datas[id] })
-            }
-            setTicketsA(dataGasStations);
-        });
-
-        database.ref("/customers/bigtruck/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataStock = [];
-            for (let id in datas) {
-                dataStock.push({ id, ...datas[id] })
-            }
-            setTicketsB(dataStock);
-        });
-
-        database.ref("/customers/smalltruck/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataStock = [];
-            for (let id in datas) {
-                dataStock.push({ id, ...datas[id] })
-            }
-            setTicketsS(dataStock);
-        });
-    };
-
-    useEffect(() => {
-        getTicket();
-        getData();
-        getTruck();
-        getDepot();
-        getOrder();
-        getTrip();
-    }, []);
-
-    console.log("Order : ", orders);
 
     const [isFocused, setIsFocused] = useState(false);
 
@@ -1123,258 +963,119 @@ const InsertTrips = () => {
             // }
         }
 
-        const orderRef = database.ref("order/");
-        const ticketsRef = database.ref("tickets/");
+        const selectedTruck = truckS.find((t) => `${t.id}:${t.RegHead}` === registration);
+        const selectedDriver = driver.find((d) => `${d.id}:${d.Name}` === driverss);
 
-        // ดึงข้อมูลปัจจุบันใน order เพื่อหาค่า index ล่าสุด
-        orderRef.once("value")
-            .then((snapshot) => {
-                const orders = snapshot.val() || {};
-                const currentLength = Object.keys(orders).length;
+        if (!selectedTruck) {
+            ShowError("กรุณาเลือกทะเบียนรถก่อนบันทึก");
+            return;
+        }
 
-                // สมมุติ selling คือ object ที่มีโครงสร้างเป็น
-                // {
-                //    0: { name: GG },
-                //    1: { name: BB },
-                //    2: { name: FF }
-                // }
-                // เราจะ append ข้อมูลใน selling ทีละตัว โดยคำนวณ index ใหม่เป็น currentLength + key ของ selling
-                const updates = {};
-                Object.keys(selling).forEach((key) => {
-                    const newIndex = currentLength + parseInt(key, 10);
+        const registrationUuid = selectedTruck.uuid;
+        const registrationName = selectedTruck.RegHead;
+        const driverUuid = selectedDriver?.uuid || null;
+        const driverName = selectedDriver?.Name || null;
+        const tripSeq = trip.length;
 
-                    // เพิ่ม No เข้าไปในแต่ละออเดอร์
-                    updates[newIndex] = {
-                        ...selling[key], // คัดลอกค่าทั้งหมดใน selling[key]
-                        No: newIndex,    // เพิ่มฟิลด์ No
-                    };
+        (async () => {
+            try {
+                let orderNo = order.length;
+                for (const key of Object.keys(selling)) {
+                    const entry = selling[key];
+                    const customerRow = getCustomers().find((item) => `${item.id}:${item.Name}` === entry.TicketName);
+                    orderNo += 1;
+                    await apiPost("/api/order", {
+                        ...entry,
+                        TicketName: customerRow?.uuid || null,
+                        TicketNameName: customerRow?.Name || entry.TicketName,
+                        Registration: registrationUuid,
+                        RegistrationName: registrationName,
+                        Driver: driverUuid,
+                        DriverName: driverName,
+                        Trip: String(tripSeq),
+                        No: orderNo,
+                    });
+                }
+
+                let ticketNo = ticketsTableData ? Object.keys(ticketsTableData).length : 0;
+                for (const key of Object.keys(ordersTickets)) {
+                    const entry = ordersTickets[key];
+                    const ticketRow = getTickets().find((item) => `${item.id}:${item.Name}` === entry.TicketName);
+                    ticketNo += 1;
+                    await apiPost("/api/tickets", {
+                        ...entry,
+                        TicketName: ticketRow?.uuid || null,
+                        TicketNameName: ticketRow?.Name || entry.TicketName,
+                        Registration: registrationUuid,
+                        RegistrationName: registrationName,
+                        Driver: driverUuid,
+                        DriverName: driverName,
+                        Trip: String(tripSeq),
+                        No: ticketNo,
+                    });
+                }
+
+                await apiPost("/api/trip", {
+                    id: tripSeq + 1,
+                    DateReceive: dayjs(selectedDateReceive).format('DD/MM/YYYY'),
+                    DateDelivery: dayjs(selectedDateDelivery).format('DD/MM/YYYY'),
+                    Registration: registrationUuid,
+                    RegistrationName: registrationName,
+                    DateStart: dayjs(new Date).format("DD/MM/YYYY"),
+                    Driver: driverUuid,
+                    DriverName: driverName,
+                    Depot: depots,
+                    CostTrip: costTrip,
+                    WeightOil: (volumeS.G91 + volumeS.G95 + volumeS.B7 + volumeS.B95 + volumeS.E20 + volumeS.PWD),
+                    WeightTruck: parseFloat(weight).toFixed(2),
+                    TotalWeight: (parseFloat(weightH) + parseFloat(weightL) + parseFloat(weight)),
+                    Status: status,
+                    StatusTrip: "กำลังจัดเที่ยววิ่ง",
+                    TruckType: "รถเล็ก",
+                    ...orderTrip,
+                    ...ticketTrip
                 });
 
-                // อัปเดตข้อมูลใน /order ด้วยการ merge updates
-                return orderRef.update(updates);
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มออเดอร์เรียบร้อย");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error updating order:", error);
-            });
-
-        ticketsRef.once("value")
-            .then((snapshot) => {
-                const tickets = snapshot.val() || {};
-                const currentLength = Object.keys(tickets).length;
-
-                // สมมุติ selling คือ object ที่มีโครงสร้างเป็น
-                // {
-                //    0: { name: GG },
-                //    1: { name: BB },
-                //    2: { name: FF }
-                // }
-                // เราจะ append ข้อมูลใน selling ทีละตัว โดยคำนวณ index ใหม่เป็น currentLength + key ของ selling
-
-                const updates = {};
-                Object.keys(ordersTickets).forEach((key) => {
-                    const newIndex = currentLength + parseInt(key, 10);
-
-                    // เพิ่ม No เข้าไปในแต่ละออเดอร์
-                    updates[newIndex] = {
-                        ...ordersTickets[key], // คัดลอกค่าทั้งหมดใน selling[key]
-                        No: newIndex,    // เพิ่มฟิลด์ No
-                    };
+                // truck_small.Driver เป็นคอลัมน์ TEXT (ไม่ใช่ FK) เก็บ "id:ชื่อ" แบบเดิมได้เลย
+                await apiPut(`/api/truck_small/${registrationUuid}`, {
+                    Driver: driverss,
+                    Status: "TR:" + tripSeq,
                 });
 
-                // อัปเดตข้อมูลใน /order ด้วยการ merge updates
-                return ticketsRef.update(updates);
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มออเดอร์เรียบร้อย");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error updating order:", error);
-            });
+                if (selectedDriver) {
+                    await apiPut(`/api/employee_drivers/${selectedDriver.uuid}`, {
+                        Registration: registrationUuid,
+                        RegistrationName: registrationName,
+                    });
+                }
 
-        database
-            .ref("trip/")
-            .child(trip.length)
-            .update({
-                id: trip.length + 1,
-                DateReceive: dayjs(selectedDateReceive).format('DD/MM/YYYY'),
-                DateDelivery: dayjs(selectedDateDelivery).format('DD/MM/YYYY'),
-                Registration: registration,
-                DateStart: dayjs(new Date).format("DD/MM/YYYY"),
-                Driver: driverss,
-                Depot: depots,
-                CostTrip: costTrip,
-                WeightOil: (volumeS.G91 + volumeS.G95 + volumeS.B7 + volumeS.B95 + volumeS.E20 + volumeS.PWD),
-                WeightTruck: parseFloat(weight).toFixed(2),
-                TotalWeight: (parseFloat(weightH) + parseFloat(weightL) + parseFloat(weight)),
-                Status: status,
-                StatusTrip: "กำลังจัดเที่ยววิ่ง",
-                TruckType: "รถเล็ก",
-                ...orderTrip,
-                ...ticketTrip
-            })
-            .then(() => {
                 ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                const getIdFromValue = (value) => {
-                    if (!value) return null;
-
-                    const id = Number(String(value).split(":")[0]);
-
-                    if (!Number.isInteger(id) || id <= 0) return null; // ❌ กัน 0 และ NaN
-
-                    return id - 1;
-                };
-
-                const regId = getIdFromValue(registration);
-                const driverId = getIdFromValue(driverss);
-
-                if (regId !== null) {
-                    database
-                        .ref("truck/small/")
-                        .child(regId) // ❗ ไม่ต้อง -1 แล้ว
-                        .update({
-                            Driver: driverss,
-                            Status: "TR:" + trip.length
-                        })
-                        .then(() => {
-                            setOpen(false);
-                            console.log("Truck updated");
-                        })
-                        .catch((error) => {
-                            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                            console.error(error);
-                        });
-                }
-
-                if (driverId !== null) {
-                    database
-                        .ref("employee/drivers/")
-                        .child(driverId) // ❗ ไม่ต้อง -1 แล้ว
-                        .update({
-                            Registration: registration
-                        })
-                        .then(() => {
-                            setOpen(false);
-                            console.log("Driver updated");
-                        })
-                        .catch((error) => {
-                            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                            console.error(error);
-                        });
-                }
-
-                // database
-                //     .ref("truck/small/")
-                //     .child(Number(registration.split(":")[0]) - 1)
-                //     .update({
-                //         Driver: driverss,
-                //         Status: "TR:" + trip.length
-                //     })
-                //     .then(() => {
-                //         setOpen(false);
-                //         console.log("Data pushed successfully");
-
-                //     })
-                //     .catch((error) => {
-                //         ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                //         console.error("Error pushing data:", error);
-                //     });
-
-                // database
-                //     .ref("employee/drivers/")
-                //     .child(Number(driverss.split(":")[0]) - 1)
-                //     .update({
-                //         Registration: registration
-                //     })
-                //     .then(() => {
-                //         setOpen(false);
-                //         console.log("Data pushed successfully");
-
-                //     })
-                //     .catch((error) => {
-                //         ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                //         console.error("Error pushing data:", error);
-                //     });
-            })
-            .catch((error) => {
+                refetchTripData?.();
+                refetchBasicData?.();
+                setOpen(false);
+                setOrdersTickets({});
+                setSelling({});
+                setVolumeT({});
+                setVolumeS({});
+                setWeightA({});
+                setOrderTrip({});
+                setTicketTrip({});
+                setWeightH(0);
+                setWeightL(0);
+                setCostTrip(0);
+                setDriverss("0:0");
+                setRegistration("0:0");
+                setSelectedDateReceive(dayjs(new Date()));
+                setSelectedDateDelivery(dayjs(new Date()));
+            } catch (error) {
                 ShowError("เพิ่มข้อมูลไม่สำเร็จ");
                 console.error("Error pushing data:", error);
-            });
-        setOrdersTickets({});
-        setSelling({});
-        setVolumeT({});
-        setVolumeS({});
-        setWeightA({});
-        setOrderTrip({});
-        setTicketTrip({});
-        setWeightH(0);
-        setWeightL(0);
-        setCostTrip(0);
-        setDriverss("0:0");
-        setRegistration("0:0");
-        setSelectedDateReceive(dayjs(new Date()));
-        setSelectedDateDelivery(dayjs(new Date()));
+            }
+        })();
     };
 
     const handleCancle = () => {
-        if (showTickers === false) {
-            if (showTrips === false) {
-                database
-                    .ref("trip/")
-                    .child(trip.length)
-                    .update({
-                        Status: "ยกเลิก"
-                    })
-                    .then(() => {
-                        ShowSuccess("ยกเลิกสำเร็จ");
-                        console.log("Data pushed successfully");
-                        database
-                            .ref("truck/small/")
-                            .child(Number(registration.split(":")[0]) - 1)
-                            .update({
-                                Status: "ว่าง"
-                            })
-                            .then(() => {
-                                console.log("Data pushed successfully");
-                                setOpen(false);
-                                setShowTickers(true);
-                                setShowTrips(true)
-                            })
-                            .catch((error) => {
-                                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                                console.error("Error pushing data:", error);
-                            });
-                    })
-                    .catch((error) => {
-                        ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                        console.error("Error pushing data:", error);
-                    });
-            } else {
-                database
-                    .ref("truck/small/")
-                    .child(Number(registration.split(":")[0]) - 1)
-                    .update({
-                        Status: "ว่าง"
-                    })
-                    .then(() => {
-                        ShowSuccess("ยกเลิกข้อมูลสำเร็จ");
-                        console.log("Data pushed successfully");
-                        setOpen(false);
-                        setShowTickers(true);
-                    })
-                    .catch((error) => {
-                        ShowError("ยกเลิกข้อมูลไม่สำเร็จ");
-                        console.error("Error pushing data:", error);
-                    });
-            }
-        } else {
-            setOpen(false);
-        }
+        setOpen(false);
         setOrdersTickets({});
         setSelling({});
         setVolumeT({});
@@ -2186,7 +1887,7 @@ const InsertTrips = () => {
                                                     <SellingDetail
                                                         key={selling[key].id}
                                                         detail={selling[key]}
-                                                        orders={orders.length}
+                                                        orders={order.length}
                                                         ticketsTrip={ticketsTrip}
                                                         customers={customers}
                                                         editMode={editMode}

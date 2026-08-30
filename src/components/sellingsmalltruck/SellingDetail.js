@@ -28,7 +28,6 @@ import {
     Typography,
 } from "@mui/material";
 import { IconButtonError, RateOils, TableCellB7, TableCellB95, TableCellE20, TableCellG91, TableCellG95, TablecellHeader, TableCellPWD } from "../../theme/style";
-import { database } from "../../server/firebase";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import theme from "../../theme/theme";
 
@@ -45,13 +44,6 @@ const SellingDetail = (props) => {
         depots
     } = props;
 
-    const [orderG91, setOrderG91] = React.useState([]);
-    const [orderG95, setOrderG95] = React.useState([]);
-    const [orderB7, setOrderB7] = React.useState([]);
-    const [orderB95, setOrderB95] = React.useState([]);
-    const [orderE20, setOrderE20] = React.useState([]);
-    const [orderPWD, setOrderPWD] = React.useState([]);
-
     const [isFocused, setIsFocused] = useState(false);
 
     const formatNumber = (value) => {
@@ -59,39 +51,6 @@ const SellingDetail = (props) => {
         if (isNaN(number)) return "";
         return number.toLocaleString(); // => 3000 -> "3,000"
     };
-
-    const getOrder = async () => {
-        database.ref("order/" + (detail.id - 1) + "/Product/G91").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            setOrderG91(datas);
-        });
-        database.ref("order/" + (detail.id - 1) + "/Product/G95").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            setOrderG95(datas);
-        });
-        database.ref("order/" + (detail.id - 1) + "/Product/B7").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            setOrderB7(datas);
-        });
-        database.ref("order/" + (detail.id - 1) + "/Product/B95").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            setOrderB95(datas);
-        });
-        database.ref("order/" + (detail.id - 1) + "/Product/E20").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            setOrderE20(datas);
-        });
-        database.ref("order/" + (detail.id - 1) + "/Product/PWD").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            setOrderPWD(datas);
-        });
-    };
-
-    useEffect(() => {
-        // getData();
-        getOrder();
-
-    }, []);
 
     console.log("Depot : ", depots);
 

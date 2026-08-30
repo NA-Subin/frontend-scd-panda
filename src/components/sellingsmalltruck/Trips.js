@@ -37,12 +37,10 @@ import "dayjs/locale/th";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import theme from "../../theme/theme";
 import { RateOils, TablecellHeader, TablecellPink, TablecellTickets } from "../../theme/style";
-import { database } from "../../server/firebase";
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import TripsDetail from "./TripsDetail";
 import InsertTrips from "./InsertTrips";
-import { useData } from "../../server/path";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";
 import { formatThaiFull } from "../../theme/DateTH";
@@ -77,7 +75,6 @@ const TripsSmallTruck = ({ openNavbar }) => {
         setOpen(false);
     };
 
-    // const { trip } = useData();
     const { trip, tickets } = useTripData();
     // const trips = Object.values(trip || {});
     const trips = Object.values(trip || {}).filter(item => {
