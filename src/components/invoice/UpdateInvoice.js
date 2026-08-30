@@ -1929,7 +1929,14 @@ const UpdateInvoice = (props) => {
                                   value={tranferBankName}
                                   sx={{ fontSize: "14px" }}
                                 >
-                                  {tranferBankName.split(":")[1]}
+                                  {(() => {
+                                    const selectedBank = bankDetail.find(
+                                      (b) => b.uuid === tranferBankName,
+                                    );
+                                    return selectedBank
+                                      ? `${selectedBank.BankName} - ${selectedBank.BankShortName}`
+                                      : "";
+                                  })()}
                                 </MenuItem>
                                 {bankDetail
                                   .slice() // 🔁 Clone ก่อนกัน side effect
@@ -1953,7 +1960,7 @@ const UpdateInvoice = (props) => {
                                   .map((row) => (
                                     <MenuItem
                                       key={row.id}
-                                      value={`${row.id}:${row.BankName} - ${row.BankShortName}`}
+                                      value={row.uuid}
                                       sx={{ fontSize: "14px" }}
                                     >
                                       {`${row.BankName}....${row.BankShortName}..${row.BankID}`}

@@ -1816,7 +1816,14 @@ const UpdateInvoice = (props) => {
                                     value={tranferBankName}
                                     sx={{ fontSize: "14px" }}
                                   >
-                                    {tranferBankName.split(":")[1]}
+                                    {(() => {
+                                      const selectedBank = bankDetail.find(
+                                        (b) => b.uuid === tranferBankName,
+                                      );
+                                      return selectedBank
+                                        ? `${selectedBank.BankName} - ${selectedBank.BankShortName}`
+                                        : tranferBankName.split(":")[1] || "";
+                                    })()}
                                   </MenuItem>
                                   {bankDetail
                                     .slice() // 🔁 Clone ก่อนกัน side effect
