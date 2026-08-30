@@ -55,6 +55,7 @@ import ImageIcon from "@mui/icons-material/Image";
 import Cookies from "js-cookie";
 import "dayjs/locale/th";
 import { database } from "../../server/firebase";
+import { API_BASE } from "../../server/apiClient";
 import {
   TableCellB7,
   TableCellB95,
@@ -482,7 +483,7 @@ const Driver = () => {
       formData.append("pic", file);
 
       const response = await fetch(
-        "https://upload.happysoftth.com/panda/uploads",
+        `${API_BASE}/panda/uploads`,
         {
           method: "POST",
           body: formData,

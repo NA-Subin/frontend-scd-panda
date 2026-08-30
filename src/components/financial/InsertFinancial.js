@@ -44,6 +44,7 @@ import ImageIcon from "@mui/icons-material/Image";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import { database } from "../../server/firebase";
+import { API_BASE } from "../../server/apiClient";
 import theme from "../../theme/theme";
 import { IconButtonError, TablecellSelling } from "../../theme/style";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -394,7 +395,7 @@ const InsertFinancial = () => {
 
       try {
         const response = await fetch(
-          "https://upload.happysoftth.com/panda/uploads",
+          `${API_BASE}/panda/uploads`,
           {
             method: "POST",
             body: formData,

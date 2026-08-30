@@ -41,6 +41,7 @@ import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import UploadButton from "./UploadButton";
 import { database } from "../../server/firebase";
+import { API_BASE } from "../../server/apiClient";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useData } from "../../server/path";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
@@ -161,7 +162,7 @@ const InsertTruck = (props) => {
             formData.append("pic", file);
 
             try {
-                const response = await fetch("https://upload.happysoftth.com/panda/uploads", {
+                const response = await fetch(`${API_BASE}/panda/uploads`, {
                     method: "POST",
                     body: formData,
                 });

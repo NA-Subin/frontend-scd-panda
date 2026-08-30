@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 
-const API_BASE = process.env.REACT_APP_API_URL;
+export const API_BASE = process.env.REACT_APP_API_URL;
 
 if (!API_BASE) {
   console.error(

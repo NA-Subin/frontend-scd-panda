@@ -52,6 +52,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import theme from "../../theme/theme";
 import { RateOils, TablecellFinancial, TablecellFinancialHead, TablecellHeader, TablecellSelling, TablecellTickets } from "../../theme/style";
 import { database } from "../../server/firebase";
+import { API_BASE } from "../../server/apiClient";
 import { useData } from "../../server/path";
 import InsertFinancial from "./InsertFinancial";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
@@ -577,7 +578,7 @@ const Financial = () => {
             formData.append("pic", file);
 
             try {
-                const response = await fetch("https://upload.happysoftth.com/panda/uploads", {
+                const response = await fetch(`${API_BASE}/panda/uploads`, {
                     method: "POST",
                     body: formData,
                 });

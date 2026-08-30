@@ -45,6 +45,7 @@ import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import { database } from "../../server/firebase";
+import { API_BASE } from "../../server/apiClient";
 import theme from "../../theme/theme";
 import { IconButtonError, TablecellSelling } from "../../theme/style";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -474,7 +475,7 @@ const UpdateFinancial = (props) => {
             formData.append("pic", file);
 
             try {
-                const response = await fetch("https://upload.happysoftth.com/panda/uploads", {
+                const response = await fetch(`${API_BASE}/panda/uploads`, {
                     method: "POST",
                     body: formData,
                 });
