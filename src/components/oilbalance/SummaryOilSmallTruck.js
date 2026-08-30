@@ -209,8 +209,8 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                 aValue = a.DriverName || '';
                 bValue = b.DriverName || '';
             } else if (key === 'TicketName') {
-                aValue = a.TicketName?.split(":")[1] || '';
-                bValue = b.TicketName?.split(":")[1] || '';
+                aValue = a.TicketNameName || '';
+                bValue = b.TicketNameName || '';
             } else if (key === 'ProductName') {
                 aValue = a.ProductName || '';
                 bValue = b.ProductName || '';
@@ -226,7 +226,7 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
 
     const getCustomers = () => {
         const customers = [
-            { id: "0", Name: "แสดงทั้งหมด", CustomerType: "" },
+            { id: "0", uuid: "0:แสดงทั้งหมด", Name: "แสดงทั้งหมด", CustomerType: "" },
             // ...[...ticketsPS]
             //     .filter((item) => item.SystemStatus !== "ไม่อยู่ในระบบ")
             //     .sort((a, b) => a.Name.localeCompare(b.Name, undefined, { sensitivity: 'base' }))
@@ -306,7 +306,7 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                 no: index + 1,
                 date: formatThaiSlash(dayjs(row.Date, "DD/MM/YYYY")),
                 driverReg: `${row.DriverName}/${row.RegistrationName}`,
-                ticket: row.TicketName.split(":")[1],
+                ticket: row.TicketNameName,
                 product: row.ProductName,
                 volume: Number(row.VolumeProduct),
                 rate: Number(row.RateOil),
@@ -495,16 +495,16 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                             options={getCustomers()}
                                             getOptionLabel={(option) => selectTickets === "0:แสดงทั้งหมด" ? option.Name : `${option.Name} (${option.CustomerType})`}
                                             isOptionEqualToValue={(option, value) =>
-                                                option.id === value.id && option.Name === value.Name
+                                                option.uuid === value.uuid
                                             }
                                             value={
                                                 selectTickets
-                                                    ? getCustomers().find(item => `${item.id}:${item.Name}` === selectTickets)
+                                                    ? getCustomers().find(item => item.uuid === selectTickets)
                                                     : null
                                             }
                                             onChange={(event, newValue) => {
                                                 if (newValue) {
-                                                    handleChangeTickets({ target: { value: `${newValue.id}:${newValue.Name}` } });
+                                                    handleChangeTickets({ target: { value: newValue.uuid } });
                                                 } else {
                                                     handleChangeTickets({ target: { value: "" } });
                                                 }
@@ -713,16 +713,16 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                             options={getCustomers()}
                                             getOptionLabel={(option) => selectTickets === "0:แสดงทั้งหมด" ? option.Name : `${option.Name} (${option.CustomerType})`}
                                             isOptionEqualToValue={(option, value) =>
-                                                option.id === value.id && option.Name === value.Name
+                                                option.uuid === value.uuid
                                             }
                                             value={
                                                 selectTickets
-                                                    ? getCustomers().find(item => `${item.id}:${item.Name}` === selectTickets)
+                                                    ? getCustomers().find(item => item.uuid === selectTickets)
                                                     : null
                                             }
                                             onChange={(event, newValue) => {
                                                 if (newValue) {
-                                                    handleChangeTickets({ target: { value: `${newValue.id}:${newValue.Name}` } });
+                                                    handleChangeTickets({ target: { value: newValue.uuid } });
                                                 } else {
                                                     handleChangeTickets({ target: { value: "" } });
                                                 }
@@ -892,7 +892,7 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                                 <TableCell sx={{ textAlign: "center" }}>{index + 1}</TableCell>
                                                 <TableCell sx={{ textAlign: "center" }}>{formatThaiSlash(dayjs(row.Date, "DD/MM/YYYY"))}</TableCell>
                                                 <TableCell sx={{ textAlign: "center" }}>{`${row.DriverName}/${row.RegistrationName}`}</TableCell>
-                                                <TableCell sx={{ textAlign: "center" }}>{row.TicketName.split(":")[1]}</TableCell>
+                                                <TableCell sx={{ textAlign: "center" }}>{row.TicketNameName}</TableCell>
                                                 <TableCell sx={{ textAlign: "center" }}>{row.ProductName}</TableCell>
                                                 <TableCell
                                                     sx={{

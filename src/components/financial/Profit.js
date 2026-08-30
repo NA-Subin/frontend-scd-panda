@@ -164,7 +164,7 @@ const Profit = ({ openNavbar }) => {
             )
             .flatMap((tk) => {
                 const customer = ticketsB.find(
-                    (c) => c.id === Number(tk.TicketName.split(":")[0])
+                    (c) => c.uuid === tk.TicketName
                 );
 
                 const trip = trips.find((t) => t.id === tk.Trip + 1);
@@ -184,6 +184,7 @@ const Profit = ({ openNavbar }) => {
                         Address: customer?.Address,
                         Registration: tk.Registration,
                         TicketName: tk.TicketName,
+                        TicketNameName: tk.TicketNameName,
                         CustomerType: tk.CustomerType,
                         CreditTime: customer?.CreditTime,
                         Status: tk.Status,
@@ -221,8 +222,8 @@ const Profit = ({ openNavbar }) => {
                     aValue = dayjs(a.Date, "DD/MM/YYYY");
                     bValue = dayjs(b.Date, "DD/MM/YYYY");
                 } else if (key === 'Customer') {
-                    aValue = a.TicketName?.split(":")[1] || '';
-                    bValue = b.TicketName?.split(":")[1] || '';
+                    aValue = a.TicketNameName || '';
+                    bValue = b.TicketNameName || '';
                 }
 
                 if (aValue < bValue) return direction === 'asc' ? -1 : 1;
@@ -362,7 +363,7 @@ const Profit = ({ openNavbar }) => {
             const dataRow = {
                 no: index + 1,
                 date: row.Date,
-                ticketName: row.TicketName ? row.TicketName.split(":")[1] : "",
+                ticketName: row.TicketNameName || "",
                 product: row.ProductName,
                 volume: row.Volume,
                 rateOil: check ? row.RateOil : row.RateOil * row.Volume,
@@ -613,7 +614,7 @@ const Profit = ({ openNavbar }) => {
                                                 <TableCell sx={{ textAlign: "center" }}>{row.Date}</TableCell>
                                                 <TableCell sx={{ textAlign: "left" }}>
                                                     <Typography variant="subtitle2" sx={{ marginLeft: 2 }} >
-                                                        {row.TicketName ? row.TicketName.split(":")[1] : ""}
+                                                        {row.TicketNameName || ""}
                                                     </Typography>
                                                 </TableCell>
                                                 <TableCell sx={{ textAlign: "center" }}>{row.ProductName}</TableCell>

@@ -1906,7 +1906,7 @@ const UpdateTrip = (props) => {
                                                                     options={getTickets()}
                                                                     getOptionLabel={(option) => `${option.Name}`}
                                                                     isOptionEqualToValue={(option, value) => option.Name === value.Name}
-                                                                    value={getTickets().find(item => `${item.id}:${item.Name}` === row.TicketName) || null}
+                                                                    value={getTickets().find(item => item.uuid === row.TicketName) || null}
                                                                     onChange={(event, newValue) => {
                                                                         if (newValue) {
                                                                             setEditableTickets((prev) => {
@@ -1995,10 +1995,7 @@ const UpdateTrip = (props) => {
 
                                                                             //     return row.TicketName;
                                                                             // })()
-                                                                            row.TicketName.split(":")[1] !== undefined ?
-                                                                                row.TicketName.split(":")[1]
-                                                                                :
-                                                                                row.TicketName
+                                                                            row.TicketNameName || row.TicketName
 
                                                                         }
                                                                     </Typography>
@@ -2783,7 +2780,7 @@ const UpdateTrip = (props) => {
                                                                     options={getCustomers()}
                                                                     getOptionLabel={(option) => `${option.Name}`}
                                                                     isOptionEqualToValue={(option, value) => option.Name === value.Name}
-                                                                    value={getCustomers().find(item => `${item.id}:${item.Name}` === row.TicketName) || null}
+                                                                    value={getCustomers().find(item => item.uuid === row.TicketName) || null}
                                                                     onChange={(event, newValue) => {
                                                                         if (newValue) {
                                                                             setEditableOrders((prev) => {
@@ -2860,10 +2857,7 @@ const UpdateTrip = (props) => {
                                                                 : (
                                                                     <Typography variant="subtitle2" fontSize="14px" fontWeight="bold">
                                                                         {
-                                                                            row.TicketName.split(":")[1] !== undefined ?
-                                                                                row.TicketName.split(":")[1]
-                                                                                :
-                                                                                row.TicketName
+                                                                            row.TicketNameName || row.TicketName
 
                                                                         }
                                                                     </Typography>

@@ -346,10 +346,9 @@ const ReportSmallTruck = () => {
         if (selectedRegHead !== "แสดงทั้งหมด" && Number(selectedId) !== 0) {
           if (ticket.CustomerType === "ตั๋วรถเล็ก") {
             if (tripReg !== selectedRegHead) {
-              const ticketId = Number(ticket?.TicketName?.split(":")?.[0]);
-              if (!ticketId) return null;
+              if (!ticket?.TicketName) return null;
 
-              const customer = customerB.find((b) => b.id === ticketId);
+              const customer = customerB.find((b) => b.uuid === ticket.TicketName);
               if (!customer) return null;
               if (customer.RegistrationCheck !== true) return null;
 
@@ -401,24 +400,15 @@ const ReportSmallTruck = () => {
         );
         if (!trip) return null;
 
-        const orderTicketId = Number(order.TicketName?.split(":")?.[0]);
-        if (!orderTicketId) return false;
-
-        // const ticketName = order?.TicketName?.split(":")?.[1]?.trim();
+        if (!order.TicketName) return false;
 
         if (order.CustomerType === "ตั๋วรถใหญ่") {
           const customer = customerB.find(
-            (b) => Number(b.id) === orderTicketId,
+            (b) => b.uuid === order.TicketName,
           );
 
           if (!customer) return false;
           if (customer.RegistrationCheck !== true) return false;
-          const ticketName = order?.TicketName?.split(":")?.[1]
-            ?.trim()
-            ?.toLowerCase();
-          const customerName = customer?.Name?.trim()?.toLowerCase();
-
-          if (!ticketName?.includes(customerName)) return false;
 
           if (selectedRegHead === "แสดงทั้งหมด" || Number(selectedId) === 0) {
             return true;
@@ -441,25 +431,11 @@ const ReportSmallTruck = () => {
           return customerReg === selectedRegHead;
         } else if (order.CustomerType === "ตั๋วรถเล็ก") {
           const customer = customerS.find(
-            (b) => Number(b.id) === orderTicketId,
+            (b) => b.uuid === order.TicketName,
           );
 
           if (!customer) return false;
           if (customer.RegistrationCheck !== true) return false;
-          const ticketParts = order?.TicketName?.split(":") || [];
-
-          const ticketName = ticketParts
-            .slice(1)
-            .join(":")
-            .trim()
-            .toLowerCase();
-
-          const customerName =
-            ticketParts.length > 2
-              ? customer?.Name?.split(":")[0]?.trim()?.toLowerCase()
-              : customer?.Name?.trim()?.toLowerCase();
-
-          if (!ticketName.includes(customerName)) return false;
 
           if (selectedRegHead === "แสดงทั้งหมด" || Number(selectedId) === 0) {
             return true;
@@ -1044,7 +1020,7 @@ const ReportSmallTruck = () => {
             row.type === "รับเข้า"
               ? `${getPart(row.Driver)}/${getPart(row.Registration)}`
               : "",
-          destination: row.type === "ส่งออก" ? getPart(row.TicketName) : "-",
+          destination: row.type === "ส่งออก" ? (row.TicketNameName || row.TicketName) : "-",
         };
 
         productTypes.forEach((key) => {
@@ -1698,7 +1674,7 @@ const ReportSmallTruck = () => {
 
                       <TableCell sx={{ textAlign: "left" }} colSpan={2}>
                         <Typography variant="subtitle2" sx={{ marginLeft: 2 }}>
-                          {row.TicketName.split(":")[1] || "-"}
+                          {row.TicketNameName || "-"}
                         </Typography>
                       </TableCell>
                       {summarizedList.map((d) =>

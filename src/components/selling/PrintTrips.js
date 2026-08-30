@@ -150,7 +150,7 @@ const PrintTrips = () => {
 
                         //   return row.TicketName;
                         // })()
-                        row.TicketName.split(":")[1]
+                        row.TicketNameName
                       }
                     </TableCell>
                     <TableCell sx={{ textAlign: "center", borderLeft: "1px solid black" }}>{row.OrderID}</TableCell>
@@ -250,7 +250,7 @@ const PrintTrips = () => {
 
                         //   return row.TicketName;
                         // })()
-                        row.TicketName.split(":")[1]
+                        row.TicketNameName
                       }
                     </TableCell>
                     <TableCell sx={{ textAlign: "center", borderLeft: "1px solid black" }}>

@@ -164,7 +164,7 @@ const ProfitSmallTruck = ({ openNavbar }) => {
             )
             .flatMap((tk) => {
                 const customer = ticketsS.find(
-                    (c) => c.id === Number(tk.TicketName.split(":")[0])
+                    (c) => c.uuid === tk.TicketName
                 );
 
                 const trip = trips.find((t) => t.id === tk.Trip + 1);
@@ -184,6 +184,7 @@ const ProfitSmallTruck = ({ openNavbar }) => {
                         Address: customer?.Address,
                         Registration: tk.Registration,
                         TicketName: tk.TicketName,
+                        TicketNameName: tk.TicketNameName,
                         CustomerType: tk.CustomerType,
                         CreditTime: customer?.CreditTime,
                         Status: tk.Status,
@@ -209,9 +210,9 @@ const ProfitSmallTruck = ({ openNavbar }) => {
                 const isBeforeEnd =
                     !selectedDateEnd || deliveryDate.isSameOrBefore(selectedDateEnd, "day");
 
-                const companystatus = !checkStatusCompany ? (row.StatusCompany === "อยู่บริษัทในเครือ" || row.TicketName.split(":")[1] === "ต่อภาษี") : row.StatusCompany === "ไม่อยู่บริษัทในเครือ";
-                
-                const checkTicket = !checkStatusCompany ? (row.TicketName.split(":")[1] === "ต่อภาษี") : (row.TicketName.split(":")[1] !== "ต่อภาษี");
+                const companystatus = !checkStatusCompany ? (row.StatusCompany === "อยู่บริษัทในเครือ" || row.TicketNameName === "ต่อภาษี") : row.StatusCompany === "ไม่อยู่บริษัทในเครือ";
+
+                const checkTicket = !checkStatusCompany ? (row.TicketNameName === "ต่อภาษี") : (row.TicketNameName !== "ต่อภาษี");
 
                 return isAfterStart && isBeforeEnd && companystatus && checkTicket;
             }).sort((a, b) => {
@@ -223,8 +224,8 @@ const ProfitSmallTruck = ({ openNavbar }) => {
                     aValue = dayjs(a.Date, "DD/MM/YYYY");
                     bValue = dayjs(b.Date, "DD/MM/YYYY");
                 } else if (key === 'Customer') {
-                    aValue = a.TicketName?.split(":")[1] || '';
-                    bValue = b.TicketName?.split(":")[1] || '';
+                    aValue = a.TicketNameName || '';
+                    bValue = b.TicketNameName || '';
                 }
 
                 if (aValue < bValue) return direction === 'asc' ? -1 : 1;
@@ -374,7 +375,7 @@ const ProfitSmallTruck = ({ openNavbar }) => {
             const dataRow = {
                 no: index + 1,
                 date: row.Date,
-                ticketName: row.TicketName ? row.TicketName.split(":")[1] : "",
+                ticketName: row.TicketNameName || "",
                 product: row.ProductName,
                 volume: row.Volume,
                 rateOil: check ? row.RateOil : row.RateOil * row.Volume,
@@ -624,7 +625,7 @@ const ProfitSmallTruck = ({ openNavbar }) => {
                                                 <TableCell sx={{ textAlign: "center" }}>{row.Date}</TableCell>
                                                 <TableCell sx={{ textAlign: "left" }}>
                                                     <Typography variant="subtitle2" sx={{ marginLeft: 2 }} >
-                                                        {row.TicketName ? row.TicketName.split(":")[1] : ""}
+                                                        {row.TicketNameName || ""}
                                                     </Typography>
                                                 </TableCell>
                                                 <TableCell sx={{ textAlign: "center" }}>{row.ProductName}</TableCell>

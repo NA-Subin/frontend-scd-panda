@@ -43,11 +43,6 @@ const PdaPrinter = () => {
     return `${addr.no || ""} หมู่ ${addr.village || ""} ${addr.subDistrict || ""} ${addr.district || ""} ${addr.province || ""}`;
   };
 
-  const getCustomerName = (ticketName) => {
-    if (!ticketName) return "-";
-    return ticketName.split(":")[1]?.trim() || "-";
-  };
-
   const mapProducts = (product) => {
     if (!product) return [];
 
@@ -98,7 +93,7 @@ const PdaPrinter = () => {
             ลูกค้า
           </Typography>
           <Typography sx={{ fontSize: "11px" }}>
-            {getCustomerName(data?.order?.TicketName)}
+            {data?.order?.TicketNameName || "-"}
           </Typography>
           <Typography sx={{ fontSize: "10px" }}>
             ทะเบียน: {data?.order?.Registration?.split(":")[1] || "-"}

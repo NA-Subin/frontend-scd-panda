@@ -242,7 +242,7 @@ const SellingDetail = (props) => {
 
                             //     return detail.TicketName;
                             // })()
-                            detail.TicketName.split(":")[1]
+                            detail.TicketNameName
                         }
                     </Typography>
                 </TableCell>

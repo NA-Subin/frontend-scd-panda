@@ -480,8 +480,8 @@ const CloseFS = ({ openNavbar }) => {
       .sort((a, b) => {
         // 🧩 ขั้นแรก: เรียงตามประเภท CustomerType
         const typeOrder = ["ตั๋วน้ำมัน", "ตั๋วรับจ้างขนส่ง", "ตั๋วปั้ม"];
-        const aNamePart = (a.TicketName?.split(":")[1] || "").trim();
-        const bNamePart = (b.TicketName?.split(":")[1] || "").trim();
+        const aNamePart = (a.TicketNameName || "").trim();
+        const bNamePart = (b.TicketNameName || "").trim();
 
         const typeA =
           typeOrder.indexOf(a.CustomerType) !== -1
@@ -1737,7 +1737,7 @@ const driverTotals = useMemo(() => {
           const dataRow = [
             idx + 1,
             "รายได้",
-            row.TicketName?.split(":")[1] || row.TicketName,
+            row.TicketNameName || row.TicketName,
             row.Rate,
             driverGroups.reduce((sum, h) => {
               const total = row.Drivers.filter(
@@ -2474,7 +2474,7 @@ const total = driverTotals[key] || { Volume: 0, Amount: 0 };
                             }}
                             gutterBottom
                           >
-                            {row.TicketName?.split(":")[1] || row.TicketName}
+                            {row.TicketNameName || row.TicketName}
                           </Typography>
                         </TableCell>
 

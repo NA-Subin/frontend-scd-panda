@@ -280,8 +280,8 @@ const SummaryOilBalance = ({ openNavbar }) => {
         aValue = a.DriverName || "";
         bValue = b.DriverName || "";
       } else if (key === "TicketName") {
-        aValue = a.TicketName?.split(":")[1] || "";
-        bValue = b.TicketName?.split(":")[1] || "";
+        aValue = a.TicketNameName || "";
+        bValue = b.TicketNameName || "";
       } else if (key === "ProductName") {
         aValue = a.ProductName || "";
         bValue = b.ProductName || "";
@@ -297,7 +297,7 @@ const SummaryOilBalance = ({ openNavbar }) => {
 
   const getCustomers = () => {
     const customers = [
-      { id: "0", Name: "แสดงทั้งหมด", CustomerType: "" },
+      { id: "0", uuid: "0:แสดงทั้งหมด", Name: "แสดงทั้งหมด", CustomerType: "" },
       ...[...ticketsPS]
         .filter((item) => item.SystemStatus !== "ไม่อยู่ในระบบ")
         .sort((a, b) =>
@@ -398,7 +398,7 @@ const SummaryOilBalance = ({ openNavbar }) => {
         no: index + 1,
         date: formatThaiSlash(dayjs(row.Date, "DD/MM/YYYY")),
         driverReg: `${row.DriverName}/${row.RegistrationName}`,
-        ticket: row.TicketName.split(":")[1],
+        ticket: row.TicketNameName,
         product: row.ProductName,
         volume: Number(row.VolumeProduct) * 1000,
         rate: Number(row.RateOil),
@@ -641,20 +641,19 @@ const SummaryOilBalance = ({ openNavbar }) => {
                         : `${option.Name} (${option.CustomerType})`
                     }
                     isOptionEqualToValue={(option, value) =>
-                      option.id === value.id && option.Name === value.Name
+                      option.uuid === value.uuid
                     }
                     value={
                       selectTickets
                         ? getCustomers().find(
-                            (item) =>
-                              `${item.id}:${item.Name}` === selectTickets,
+                            (item) => item.uuid === selectTickets,
                           )
                         : null
                     }
                     onChange={(event, newValue) => {
                       if (newValue) {
                         handleChangeTickets({
-                          target: { value: `${newValue.id}:${newValue.Name}` },
+                          target: { value: newValue.uuid },
                         });
                       } else {
                         handleChangeTickets({ target: { value: "" } });
@@ -855,20 +854,19 @@ const SummaryOilBalance = ({ openNavbar }) => {
                         : `${option.Name} (${option.CustomerType})`
                     }
                     isOptionEqualToValue={(option, value) =>
-                      option.id === value.id && option.Name === value.Name
+                      option.uuid === value.uuid
                     }
                     value={
                       selectTickets
                         ? getCustomers().find(
-                            (item) =>
-                              `${item.id}:${item.Name}` === selectTickets,
+                            (item) => item.uuid === selectTickets,
                           )
                         : null
                     }
                     onChange={(event, newValue) => {
                       if (newValue) {
                         handleChangeTickets({
-                          target: { value: `${newValue.id}:${newValue.Name}` },
+                          target: { value: newValue.uuid },
                         });
                       } else {
                         handleChangeTickets({ target: { value: "" } });
@@ -1062,7 +1060,8 @@ const SummaryOilBalance = ({ openNavbar }) => {
                       dayjs(row.Date, "DD/MM/YYYY"),
                     );
                     const driverKey = `${row.DriverName}/${row.RegistrationName}`;
-                    const ticketKey = row.TicketName.split(":")[1];
+                    const ticketKey = row.TicketName;
+                    const ticketLabel = row.TicketNameName;
                     const groupKey = `${dateKey}_${driverKey}`;
                     const subGroupKey = `${groupKey}_${ticketKey}`;
 
@@ -1087,7 +1086,7 @@ const SummaryOilBalance = ({ openNavbar }) => {
                             dateKey &&
                           `${r.DriverName}/${r.RegistrationName}` ===
                             driverKey &&
-                          r.TicketName.split(":")[1] === ticketKey,
+                          r.TicketName === ticketKey,
                       }))
                       .filter((x) => x.match)
                       .map((x) => x.i);
@@ -1182,7 +1181,7 @@ const SummaryOilBalance = ({ openNavbar }) => {
                                   : "1px solid lightgray",
                             }}
                           >
-                            {ticketKey}
+                            {ticketLabel}
                           </TableCell>
                         )}
 

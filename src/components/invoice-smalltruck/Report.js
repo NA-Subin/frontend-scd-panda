@@ -241,17 +241,17 @@ const ReportPaymentSmallTruck = ({ openNavbar }) => {
             const matchTickets = selectTickets === "0:แสดงทั้งหมด" || item.TicketName === selectTickets;
 
             // หาค่า customerId จาก TicketName
-            const customerId = Number(item.TicketName.split(":")[0]);
+            const customerId = item.TicketName;
 
             // ตรวจสอบเงื่อนไข check กับ customerB
             let isInCompany = false;
 
             if (check === 1) {
-                isInCompany = ticketsS.some(customer => customer.id === customerId);
+                isInCompany = ticketsS.some(customer => customer.uuid === customerId);
             } else if (check === 2) {
-                isInCompany = ticketsS.some(customer => customer.id === customerId && customer.StatusCompany === "อยู่บริษัทในเครือ");
+                isInCompany = ticketsS.some(customer => customer.uuid === customerId && customer.StatusCompany === "อยู่บริษัทในเครือ");
             } else if (check === 3) {
-                isInCompany = ticketsS.some(customer => customer.id === customerId && customer.StatusCompany === "ไม่อยู่บริษัทในเครือ");
+                isInCompany = ticketsS.some(customer => customer.uuid === customerId && customer.StatusCompany === "ไม่อยู่บริษัทในเครือ");
             }
 
             return isValidStatus && isInDateRange && matchTickets && isInCompany && item.CustomerType === "ตั๋วรถเล็ก";
@@ -363,8 +363,8 @@ const ReportPaymentSmallTruck = ({ openNavbar }) => {
             let aValue, bValue;
 
             if (key === 'TicketName') {
-                aValue = a.TicketName?.split(":")[1] || '';
-                bValue = b.TicketName?.split(":")[1] || '';
+                aValue = a.TicketNameName || '';
+                bValue = b.TicketNameName || '';
             }
 
             if (aValue < bValue) return direction === 'asc' ? -1 : 1;
@@ -453,7 +453,7 @@ const ReportPaymentSmallTruck = ({ openNavbar }) => {
         sortedOrderDetail.forEach((row, index) => {
             const dataRow = {
                 no: index + 1,
-                ticket: row.TicketName.split(":")[1] !== "" ? row.TicketName.split(":")[1] : row.TicketName,
+                ticket: row.TicketNameName || row.TicketName,
                 volume: Number(row.VolumeProduct),
                 amount: Number(row.Amount),
                 incoming: Number(row.IncomingMoney),
@@ -851,7 +851,7 @@ const ReportPaymentSmallTruck = ({ openNavbar }) => {
                                         sortedOrderDetail.map((row, index) => (
                                             <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#f8f0f7fa" }} >
                                                 <TableCell sx={{ textAlign: "center" }}>{index + 1}</TableCell>
-                                                <TableCell sx={{ textAlign: "center" }}>{row.TicketName.split(":")[1] !== "" ? row.TicketName.split(":")[1] : row.TicketName}</TableCell>
+                                                <TableCell sx={{ textAlign: "center" }}>{row.TicketNameName || row.TicketName}</TableCell>
                                                 <TableCell
                                                     sx={{
                                                         textAlign: "right",

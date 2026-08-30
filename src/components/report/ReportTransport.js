@@ -380,8 +380,8 @@ const ReportTransports = ({ openNavbar }) => {
       .sort((a, b) => {
         // 🧩 ขั้นแรก: เรียงตามประเภท CustomerType
         const typeOrder = ["ตั๋วน้ำมัน", "ตั๋วรับจ้างขนส่ง", "ตั๋วปั้ม"];
-        const aNamePart = (a.TicketName?.split(":")[1] || "").trim();
-        const bNamePart = (b.TicketName?.split(":")[1] || "").trim();
+        const aNamePart = (a.TicketNameName || "").trim();
+        const bNamePart = (b.TicketNameName || "").trim();
 
         const typeA =
           typeOrder.indexOf(a.CustomerType) !== -1
@@ -682,8 +682,8 @@ const ReportTransports = ({ openNavbar }) => {
       if (!dateA.isSame(dateB)) {
         return dateA - dateB;
       }
-      return (a.TicketName?.split(":")[1] || "").localeCompare(
-        b.TicketName?.split(":")[1] || "",
+      return (a.TicketNameName || "").localeCompare(
+        b.TicketNameName || "",
       );
     });
     // return merged.sort((a, b) => {
@@ -740,8 +740,8 @@ const ReportTransports = ({ openNavbar }) => {
       let aValue, bValue;
 
       if (key === "TicketName") {
-        aValue = a.TicketName?.split(":")[1] || "";
-        bValue = b.TicketName?.split(":")[1] || "";
+        aValue = a.TicketNameName || "";
+        bValue = b.TicketNameName || "";
       }
 
       if (aValue < bValue) return direction === "asc" ? -1 : 1;
@@ -837,10 +837,7 @@ const ReportTransports = ({ openNavbar }) => {
     sortedOrderDetail.forEach((row, index) => {
       const dataRow = {
         no: index + 1,
-        ticket:
-          row.TicketName.split(":")[1] !== ""
-            ? row.TicketName.split(":")[1]
-            : row.TicketName,
+        ticket: row.TicketNameName || row.TicketName,
         volume: Number(row.VolumeProduct),
         amount: Number(row.Amount),
         vat: Number(row.VatOnePercent),
@@ -1492,7 +1489,7 @@ const ReportTransports = ({ openNavbar }) => {
                         {index + 1}
                       </TableCell>
                       <TableCell sx={{ textAlign: "center" }}>
-                        {`${row.TicketName.split(":")[1] !== "" ? row.TicketName.split(":")[1] : row.TicketName} (${row.CustomerType})`}
+                        {`${row.TicketNameName || row.TicketName} (${row.CustomerType})`}
                       </TableCell>
                       <TableCell
                         sx={{

@@ -131,7 +131,7 @@ const TripsDetail = (props) => {
 
             // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
 
-            if (!(trips.Order1 === order?.TicketName && order?.file_path))
+            if (!(trips.Order1?.split(":")[1] === order?.TicketNameName && order?.file_path))
               return null;
 
             let fileUrl = order.file_path;
@@ -175,7 +175,7 @@ const TripsDetail = (props) => {
 
             // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
 
-            if (!(trips.Order2 === order?.TicketName && order?.file_path))
+            if (!(trips.Order2?.split(":")[1] === order?.TicketNameName && order?.file_path))
               return null;
 
             let fileUrl = order.file_path;
@@ -219,7 +219,7 @@ const TripsDetail = (props) => {
 
             // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
 
-            if (!(trips.Order3 === order?.TicketName && order?.file_path))
+            if (!(trips.Order3?.split(":")[1] === order?.TicketNameName && order?.file_path))
               return null;
 
             let fileUrl = order.file_path;
@@ -263,7 +263,7 @@ const TripsDetail = (props) => {
 
             // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
 
-            if (!(trips.Order4 === order?.TicketName && order?.file_path))
+            if (!(trips.Order4?.split(":")[1] === order?.TicketNameName && order?.file_path))
               return null;
 
             let fileUrl = order.file_path;
@@ -307,7 +307,7 @@ const TripsDetail = (props) => {
 
             // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
 
-            if (!(trips.Order5 === order?.TicketName && order?.file_path))
+            if (!(trips.Order5?.split(":")[1] === order?.TicketNameName && order?.file_path))
               return null;
 
             let fileUrl = order.file_path;
@@ -351,7 +351,7 @@ const TripsDetail = (props) => {
 
             // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
 
-            if (!(trips.Order6 === order?.TicketName && order?.file_path))
+            if (!(trips.Order6?.split(":")[1] === order?.TicketNameName && order?.file_path))
               return null;
 
             let fileUrl = order.file_path;
@@ -395,7 +395,7 @@ const TripsDetail = (props) => {
 
             // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
 
-            if (!(trips.Order7 === order?.TicketName && order?.file_path))
+            if (!(trips.Order7?.split(":")[1] === order?.TicketNameName && order?.file_path))
               return null;
 
             let fileUrl = order.file_path;
@@ -439,7 +439,7 @@ const TripsDetail = (props) => {
 
             // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
 
-            if (!(trips.Order8 === order?.TicketName && order?.file_path))
+            if (!(trips.Order8?.split(":")[1] === order?.TicketNameName && order?.file_path))
               return null;
 
             let fileUrl = order.file_path;

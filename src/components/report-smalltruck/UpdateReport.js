@@ -755,7 +755,7 @@ const UpdateReport = (props) => {
                 <Grid container spacing={1}>
                     <Grid item md={7} xs={12}>
                         <Typography variant="subtitle1" sx={{ marginBottom: -2, fontSize: "18px" }} fontWeight="bold" gutterBottom>
-                            รายละเอียด : วันที่ส่ง : {ticket.Date} จากตั๋ว : {ticket.TicketName.split(":")[1]}
+                            รายละเอียด : วันที่ส่ง : {ticket.Date} จากตั๋ว : {ticket.TicketNameName}
                         </Typography>
                     </Grid>
                     {

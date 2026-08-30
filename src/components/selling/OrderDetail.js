@@ -107,7 +107,7 @@ const OrderDetail = (props) => {
                 </TableCell> */}
                 <TableCell sx={{ textAlign: "center", height: "20px", padding: "1px 4px", width: 350 }}>
                     {
-                        detail.TicketName === "ตั๋วเปล่า" ?
+                        !detail.TicketName ?
                             <Autocomplete
                                 size="small"
                                 fullWidth
@@ -174,7 +174,7 @@ const OrderDetail = (props) => {
 
                                     //     return detail.TicketName.split(":")[1];
                                     // })()
-                                    detail.TicketName.split(":")[1]
+                                    detail.TicketNameName
                                 }
                             </Typography>
                     }

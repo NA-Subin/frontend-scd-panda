@@ -164,7 +164,7 @@ const ReportDetail = (props) => {
             const element = invoiceRef.current;
             const opt = {
                 margin: 1,
-                filename: `R-${row.TicketName?.split(":")[1] || "invoice"}.pdf`,
+                filename: `R-${row.TicketNameName || "invoice"}.pdf`,
                 image: { type: "jpeg", quality: 0.98 },
                 html2canvas: {
                     scale: 2,
@@ -247,7 +247,7 @@ const ReportDetail = (props) => {
                         }}
                         ref={invoiceRef}>
                         <Grid item xs={12}>
-                            <Typography variant="h6" gutterBottom><b>ชื่อตั๋วลูกค้า :</b> {row.TicketName.split(":")[1]}</Typography>
+                            <Typography variant="h6" gutterBottom><b>ชื่อตั๋วลูกค้า :</b> {row.TicketNameName}</Typography>
                         </Grid>
                         <Grid item xs={12} marginTop={-3}>
                             <Typography variant="h6" gutterBottom><b>ช่วงเวลา :</b> {formatted}</Typography>

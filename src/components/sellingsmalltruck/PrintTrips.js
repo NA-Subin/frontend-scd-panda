@@ -124,7 +124,7 @@ const PrintTripsSmall = () => {
                     <TableCell sx={{ textAlign: "center", borderLeft: "1px solid black" }}>{row.id + 1}</TableCell>
                     <TableCell sx={{ textAlign: "center", borderLeft: "1px solid black" }}>
                       {
-                        row.TicketName.split(":")[1]
+                        row.TicketNameName
                       }
                     </TableCell>
                     {/* <TableCell sx={{ textAlign: "center", borderLeft: "1px solid black" }}>{row.OrderID}</TableCell>
@@ -208,7 +208,7 @@ const PrintTripsSmall = () => {
                     <TableCell sx={{ textAlign: "center", borderLeft: "1px solid black" }}>{row.id + 1}</TableCell>
                     <TableCell sx={{ textAlign: "center", borderLeft: "1px solid black" }}>
                       {
-                        row.TicketName.split(":")[1]
+                        row.TicketNameName
                       }
                     </TableCell>
                     <TableCell sx={{ textAlign: "center", borderLeft: "1px solid black" }}>

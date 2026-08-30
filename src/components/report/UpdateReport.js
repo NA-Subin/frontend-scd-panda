@@ -1178,7 +1178,7 @@ const UpdateReport = (props) => {
               fontWeight="bold"
               gutterBottom
             >
-              จากตั๋ว : {ticket.TicketName.split(":")[1]}
+              จากตั๋ว : {ticket.TicketNameName}
             </Typography>
           </Grid>
           {windowWidth >= 900 && (

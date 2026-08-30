@@ -245,8 +245,7 @@ const Report = ({ openNavbar }) => {
       console.log("Rate : ", Rate);
 
       // ✅ เพิ่มตรงนี้: หา transport ที่ตรงกับ TicketName
-      const ticketId = Number(item.TicketName?.split(":")[0]);
-      const Match = transports.find((t) => t.id === ticketId);
+      const Match = transports.find((t) => t.uuid === item.TicketName);
 
       const totalPrice = Number((totalVolume * Rate).toFixed(2));
 
@@ -336,8 +335,7 @@ const Report = ({ openNavbar }) => {
       }
 
       // ✅ เพิ่มตรงนี้: หา transport ที่ตรงกับ TicketName
-      const ticketId = Number(item.TicketName?.split(":")[0]);
-      const Match = gasstations.find((t) => t.id === ticketId);
+      const Match = gasstations.find((t) => t.uuid === item.TicketName);
 
       const totalPrice = Number((totalVolume * Rate).toFixed(2));
 
@@ -432,8 +430,7 @@ const Report = ({ openNavbar }) => {
       }
 
       // ✅ เพิ่มตรงนี้: หา transport ที่ตรงกับ TicketName
-      const ticketId = Number(item.TicketName?.split(":")[0]);
-      const Match = ticketsOrder.find((t) => t.id === ticketId);
+      const Match = ticketsOrder.find((t) => t.uuid === item.TicketName);
       const totalPrice = Number((totalVolume * Rate).toFixed(2));
 
       const vatOnePercent = Number((totalPrice * 0.01).toFixed(2));
@@ -652,8 +649,8 @@ const Report = ({ openNavbar }) => {
           bValue = dayjs(b.DateEnd, "DD/MM/YYYY").toDate();
           break;
         case "TicketName":
-          aValue = a.TicketName?.split(":")[1] || "";
-          bValue = b.TicketName?.split(":")[1] || "";
+          aValue = a.TicketNameName || "";
+          bValue = b.TicketNameName || "";
           break;
         default:
           return 0;
@@ -867,8 +864,8 @@ const Report = ({ openNavbar }) => {
           bValue = dayjs(b.DateEnd, "DD/MM/YYYY").toDate();
           break;
         case "TicketName":
-          aValue = a.TicketName?.split(":")[1] || "";
-          bValue = b.TicketName?.split(":")[1] || "";
+          aValue = a.TicketNameName || "";
+          bValue = b.TicketNameName || "";
           break;
         default:
           return 0;
@@ -1126,8 +1123,8 @@ const Report = ({ openNavbar }) => {
           bValue = dayjs(b.DateEnd, "DD/MM/YYYY").toDate();
           break;
         case "TicketName":
-          aValue = a.TicketName?.split(":")[1] || "";
-          bValue = b.TicketName?.split(":")[1] || "";
+          aValue = a.TicketNameName || "";
+          bValue = b.TicketNameName || "";
           break;
         default:
           return 0;
@@ -1899,7 +1896,7 @@ const Report = ({ openNavbar }) => {
                                             "bold",
                                         }}
                                       >
-                                        {row.TicketName.split(":")[1]}
+                                        {row.TicketNameName}
                                       </TableCell>
                                       <TableCell
                                         sx={{
@@ -2157,7 +2154,7 @@ const Report = ({ openNavbar }) => {
                                           "bold",
                                       }}
                                     >
-                                      {row.TicketName.split(":")[1]}
+                                      {row.TicketNameName}
                                     </TableCell>
                                     <TableCell
                                       sx={{
@@ -2681,7 +2678,7 @@ const Report = ({ openNavbar }) => {
                                             "bold",
                                         }}
                                       >
-                                        {row.TicketName.split(":")[1]}
+                                        {row.TicketNameName}
                                       </TableCell>
                                       <TableCell
                                         sx={{
@@ -2936,7 +2933,7 @@ const Report = ({ openNavbar }) => {
                                           "bold",
                                       }}
                                     >
-                                      {row.TicketName.split(":")[1]}
+                                      {row.TicketNameName}
                                     </TableCell>
                                     <TableCell
                                       sx={{
@@ -3448,7 +3445,7 @@ const Report = ({ openNavbar }) => {
                                           "bold",
                                       }}
                                     >
-                                      {row.TicketName.split(":")[1]}
+                                      {row.TicketNameName}
                                     </TableCell>
                                     <TableCell
                                       sx={{
@@ -3702,7 +3699,7 @@ const Report = ({ openNavbar }) => {
                                           "bold",
                                       }}
                                     >
-                                      {row.TicketName.split(":")[1]}
+                                      {row.TicketNameName}
                                     </TableCell>
                                     <TableCell
                                       sx={{

@@ -194,7 +194,7 @@ const UpdateInvoice = (props) => {
       );
 
       const company = customerB.find(
-        (row) => row.id === Number(item.TicketName.split(":")[0]),
+        (row) => row.uuid === item.TicketName,
       );
 
       return {
@@ -450,7 +450,7 @@ const UpdateInvoice = (props) => {
   };
 
   const customer = customerB.find(
-    (row, index) => row.id === Number(ticket.TicketName.split(":")[0]),
+    (row) => row.uuid === ticket.TicketName,
   );
   const invoiceC = companies.find((row) => {
     if (!customer?.Company) return false;
@@ -869,7 +869,7 @@ const UpdateInvoice = (props) => {
           >
             รายละเอียดการชำระน้ำมันวันที่ส่ง :{" "}
             {dayjs(ticket.Date, "DD/MM/YYYY").format("D เดือนMMMM พ.ศ.BBBB")} /
-            ตั๋ว : {ticket.TicketName.split(":")[1]}
+            ตั๋ว : {ticket.TicketNameName}
           </Typography>
           {/* <Typography variant='subtitle1' fontWeight="bold" sx={{ marginTop: -2.5, fontSize: "12px", color: "red", textAlign: "right" }} gutterBottom>*กรอกราคาน้ำมันและพิมพ์ใบวางบิลตรงนี้*</Typography> */}
         </Grid>

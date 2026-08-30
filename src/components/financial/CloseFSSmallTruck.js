@@ -275,7 +275,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
             )
             .flatMap((tk) => {
                 const customer = ticketsS.find(
-                    (c) => c.id === Number(tk.TicketName?.split(":")?.[0])
+                    (c) => c.uuid === tk.TicketName
                 );
 
                 const trip = trips.find((t) => t.id === tk.Trip + 1);
@@ -302,6 +302,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
                             Registration: tk.Registration,
                             Driver: tk.Driver,
                             TicketName: tk.TicketName,
+                            TicketNameName: tk.TicketNameName,
                             CustomerType: tk.CustomerType,
                             CreditTime: customer?.CreditTime,
                             Status: tk.Status,
@@ -343,7 +344,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
             const isTruck = item?.TruckType === "รถเล็ก";
 
             const statusCompanyCheck = item?.StatusCompany === "ไม่อยู่บริษัทในเครือ";
-            const ticket = item.TicketName.split(":")[1] !== "ต่อภาษี";
+            const ticket = item.TicketNameName !== "ต่อภาษี";
 
             return (
                 sameMonth &&
@@ -359,6 +360,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
                 if (!acc[key]) {
                     acc[key] = {
                         TicketName: item.TicketName,
+                        TicketNameName: item.TicketNameName,
                         Date: item.Date,
                         Address: item.Address,
                         CustomerType: item.CustomerType,
@@ -708,8 +710,8 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
             .sort((a, b) => {
                 // 🧩 ขั้นแรก: เรียงตามประเภท CustomerType
                 const typeOrder = ["ตั๋วน้ำมัน", "ตั๋วรับจ้างขนส่ง", "ตั๋วปั้ม"];
-                const aNamePart = (a.TicketName?.split(":")[1] || "").trim();
-                const bNamePart = (b.TicketName?.split(":")[1] || "").trim();
+                const aNamePart = (a.TicketNameName || "").trim();
+                const bNamePart = (b.TicketNameName || "").trim();
 
                 const typeA = typeOrder.indexOf(a.CustomerType) !== -1 ? typeOrder.indexOf(a.CustomerType) : 999;
                 const typeB = typeOrder.indexOf(b.CustomerType) !== -1 ? typeOrder.indexOf(b.CustomerType) : 999;
@@ -1288,7 +1290,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
                     const dataRow = [
                         index + 1,
                         "รายได้",
-                        row.TicketName?.split(":")[1] || row.TicketName,
+                        row.TicketNameName || row.TicketName,
                         // row.Rate,
                         label === "ค่าขนส่ง" ? row.Transport : row.ProfitLoss,
                         ...driverGroups.map((h, i) => {
@@ -1841,7 +1843,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
                                                         sx={{ ml: 2, lineHeight: 1.2, whiteSpace: "nowrap" }}
                                                         gutterBottom
                                                     >
-                                                        {row.TicketName?.split(":")[1] || row.TicketName}
+                                                        {row.TicketNameName || row.TicketName}
                                                     </Typography>
                                                 </TableCell>
 

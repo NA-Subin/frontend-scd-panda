@@ -183,7 +183,7 @@ const UpdateInvoice = (props) => {
       );
 
       const company = customerS.find(
-        (row) => row.id === Number(item.TicketName.split(":")[0]),
+        (row) => row.uuid === item.TicketName,
       );
 
       return {
@@ -266,7 +266,7 @@ const UpdateInvoice = (props) => {
   });
 
   const customer = customerS.find(
-    (row, index) => row.id === Number(ticket.TicketName.split(":")[0]),
+    (row) => row.uuid === ticket.TicketName,
   );
   const invoiceC = companies.find((row) => {
     if (!customer?.Company) return false;
@@ -901,7 +901,7 @@ const UpdateInvoice = (props) => {
                 whiteSpace: "nowrap",
               }}
             >
-              ตั๋ว : {ticket.TicketName.split(":")[1]}
+              ตั๋ว : {ticket.TicketNameName}
             </Box>
           </Typography>
         </Grid>

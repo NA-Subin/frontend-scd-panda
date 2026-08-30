@@ -107,16 +107,9 @@ const PrintInvoice = () => {
   console.log("TicketName :  ", invoiceData?.Order[0].TicketName);
 
   const customer = customerB.find(
-    (row, index) =>
-      row.id === Number(invoiceData?.Order[0].TicketName.split(":")[0]),
+    (row) => row.uuid === invoiceData?.Order[0].TicketName,
   );
-  const invoiceC = companyDetail.find((row) => {
-    const companyIdStr = customer?.Company;
-    if (!companyIdStr) return false;
-
-    const companyId = Number(companyIdStr.split(":")[0]);
-    return row.id === companyId;
-  });
+  const invoiceC = companyDetail.find((row) => row.uuid === customer?.Company);
 
   console.log("company : ", customer?.Company);
   console.log("customer : ", customer);

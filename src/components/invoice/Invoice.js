@@ -179,20 +179,20 @@ const Invoice = ({ openNavbar }) => {
     })
     .filter((item) => {
       const itemDate = dayjs(item.tripsDate?.DateDelivery, "DD/MM/YYYY"); // ใช้ DateDelivery
-      const customerId = Number(item.TicketName.split(":")[0]);
+      const customerId = item.TicketName;
 
       let isInCompany =
         check === 1
-          ? customerB.find((customer) => customer.id === customerId)
+          ? customerB.find((customer) => customer.uuid === customerId)
           : check === 2
             ? customerB.find(
               (customer) =>
-                customer.id === customerId &&
+                customer.uuid === customerId &&
                 customer.StatusCompany === "อยู่บริษัทในเครือ"
             )
             : customerB.find(
               (customer) =>
-                customer.id === customerId &&
+                customer.uuid === customerId &&
                 customer.StatusCompany === "ไม่อยู่บริษัทในเครือ"
             );
 
@@ -247,7 +247,7 @@ const Invoice = ({ openNavbar }) => {
 
       return acc;
     }, [])
-    .sort((a, b) => a.TicketName.localeCompare(b.TicketName));
+    .sort((a, b) => (a.TicketNameName || "").localeCompare(b.TicketNameName || ""));
 
   const sortedOrderDetail = useMemo(() => {
     const sorted = [...orderDetail];
@@ -261,8 +261,8 @@ const Invoice = ({ openNavbar }) => {
         aValue = dayjs(a.Date, "DD/MM/YYYY");
         bValue = dayjs(b.Date, "DD/MM/YYYY");
       } else if (key === 'TicketName') {
-        aValue = a.TicketName?.split(":")[1] || '';
-        bValue = b.TicketName?.split(":")[1] || '';
+        aValue = a.TicketNameName || '';
+        bValue = b.TicketNameName || '';
       } else if (key === 'DueDate') {
         aValue = dayjs(a.Date, "DD/MM/YYYY").add((a.CreditTime === "-" || a.CreditTime === "0") ? 0 : Number(a.CreditTime), "day");
         bValue = dayjs(b.Date, "DD/MM/YYYY").add((b.CreditTime === "-" || b.CreditTime === "0") ? 0 : Number(b.CreditTime), "day");
@@ -596,7 +596,7 @@ const Invoice = ({ openNavbar }) => {
                                   )}
                                 </TableCell>
                                 <TableCell sx={{ textAlign: "center", fontWeight: ((selectedRow === row.No) || (indexes === index)) && "bold" }}>
-                                  {row.TicketName.split(":")[1]}
+                                  {row.TicketNameName}
                                 </TableCell>
                                 <TableCell sx={{ textAlign: "center", fontWeight: ((selectedRow === row.No) || (indexes === index)) && "bold" }}>
                                   {new Intl.NumberFormat("en-US").format(row.TotalVolume)}
@@ -642,7 +642,7 @@ const Invoice = ({ openNavbar }) => {
                                     .format("DD/MM/YYYY")}
                                 </TableCell>
                                 <TableCell sx={{ textAlign: "center", fontWeight: ((selectedRow === row.No) || (indexes === index)) && "bold" }}>
-                                  {row.TicketName.split(":")[1]}
+                                  {row.TicketNameName}
                                 </TableCell>
                                 <TableCell sx={{ textAlign: "center", fontWeight: ((selectedRow === row.No) || (indexes === index)) && "bold" }}>
                                   {new Intl.NumberFormat("en-US").format(row.TotalVolume)}
@@ -669,7 +669,7 @@ const Invoice = ({ openNavbar }) => {
                               sx={{ cursor: "pointer", "&:hover": { backgroundColor: "#e0e0e0" }, backgroundColor: (selectedRow === row.No) || (indexes === index) ? "#fff59d" : "" }}
                             >
                               <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>{index+1}</TableCell>
-                              <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>{row.TicketName.split(":")[1]}</TableCell>
+                              <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>{row.TicketNameName}</TableCell>
                               <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>
                                 {new Intl.NumberFormat("en-US").format(row.Volume || 0)}
                               </TableCell>
@@ -688,7 +688,7 @@ const Invoice = ({ openNavbar }) => {
                               sx={{ cursor: "pointer", "&:hover": { backgroundColor: "#e0e0e0" }, backgroundColor: (selectedRow === row.No) || (indexes === index) ? "#fff59d" : "" }}
                             >
                               <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>{index+1}</TableCell>
-                              <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>{row.TicketName.split(":")[1]}</TableCell>
+                              <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>{row.TicketNameName}</TableCell>
                               <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>
                                 {new Intl.NumberFormat("en-US").format(row.Volume || 0)}
                               </TableCell>

@@ -177,20 +177,20 @@ const InvoiceSmallTruck = ({ openNavbar }) => {
     })
     .filter((item) => {
       const itemDate = dayjs(item.tripsDate?.DateDelivery, "DD/MM/YYYY"); // ใช้ DateDelivery
-      const customerId = Number(item.TicketName.split(":")[0]);
+      const customerId = item.TicketName;
 
       let isInCompany =
         check === 1
-          ? customerS.find((customer) => customer.id === customerId)
+          ? customerS.find((customer) => customer.uuid === customerId)
           : check === 2
             ? customerS.find(
               (customer) =>
-                customer.id === customerId &&
+                customer.uuid === customerId &&
                 customer.StatusCompany === "อยู่บริษัทในเครือ"
             )
             : customerS.find(
               (customer) =>
-                customer.id === customerId &&
+                customer.uuid === customerId &&
                 customer.StatusCompany === "ไม่อยู่บริษัทในเครือ"
             );
 
@@ -245,7 +245,7 @@ const InvoiceSmallTruck = ({ openNavbar }) => {
 
       return acc;
     }, [])
-    .sort((a, b) => a.TicketName.localeCompare(b.TicketName));
+    .sort((a, b) => (a.TicketNameName || "").localeCompare(b.TicketNameName || ""));
 
   console.log("OrderDetail : ", orderDetail)
 
@@ -261,8 +261,8 @@ const InvoiceSmallTruck = ({ openNavbar }) => {
         aValue = dayjs(a.DateDelivery, "DD/MM/YYYY");
         bValue = dayjs(b.DateDelivery, "DD/MM/YYYY");
       } else if (key === 'TicketName') {
-        aValue = a.TicketName?.split(":")[1] || '';
-        bValue = b.TicketName?.split(":")[1] || '';
+        aValue = a.TicketNameName || '';
+        bValue = b.TicketNameName || '';
       } else if (key === 'DueDate') {
         aValue = dayjs(a.DateDelivery, "DD/MM/YYYY").add((a.CreditTime === "-" || a.CreditTime === "0") ? 0 : Number(a.CreditTime), "day");
         bValue = dayjs(b.DateDelivery, "DD/MM/YYYY").add((b.CreditTime === "-" || b.CreditTime === "0") ? 0 : Number(b.CreditTime), "day");
@@ -574,7 +574,7 @@ const InvoiceSmallTruck = ({ openNavbar }) => {
                                   </TableCell>
                                   <TableCell sx={{ textAlign: "left", fontWeight: ((selectedRow === row.No) || (indexes === index)) && "bold" }}>
                                     <Box sx={{ marginLeft: 4, }}>
-                                      {row.TicketName.split(":")[1]}
+                                      {row.TicketNameName}
                                     </Box>
                                   </TableCell>
                                   <TableCell
@@ -651,7 +651,7 @@ const InvoiceSmallTruck = ({ openNavbar }) => {
                                 </TableCell>
                                 <TableCell sx={{ textAlign: "left", fontWeight: ((selectedRow === row.No) || (indexes === index)) && "bold" }}>
                                   <Box sx={{ marginLeft: 4, }}>
-                                    {row.TicketName.split(":")[1]}
+                                    {row.TicketNameName}
                                   </Box>
                                 </TableCell>
                                 <TableCell
@@ -714,7 +714,7 @@ const InvoiceSmallTruck = ({ openNavbar }) => {
                               sx={{ cursor: "pointer", "&:hover": { backgroundColor: "#e0e0e0" }, backgroundColor: (selectedRow === row.No) || (indexes === index) ? "#fff59d" : "" }}
                             >
                               <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>{index+1}</TableCell>
-                              <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>{row.TicketName.split(":")[1]}</TableCell>
+                              <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>{row.TicketNameName}</TableCell>
                               <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>
                                 {new Intl.NumberFormat("en-US").format(row.Volume || 0)}
                               </TableCell>
@@ -733,7 +733,7 @@ const InvoiceSmallTruck = ({ openNavbar }) => {
                               sx={{ cursor: "pointer", "&:hover": { backgroundColor: "#e0e0e0" }, backgroundColor: (selectedRow === row.No) || (indexes === index) ? "#fff59d" : "" }}
                             >
                               <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>{index+1}</TableCell>
-                              <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>{row.TicketName.split(":")[1]}</TableCell>
+                              <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>{row.TicketNameName}</TableCell>
                               <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>
                                 {new Intl.NumberFormat("en-US").format(row.Volume || 0)}
                               </TableCell>

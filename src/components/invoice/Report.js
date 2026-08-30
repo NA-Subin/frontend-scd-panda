@@ -205,25 +205,25 @@ const FuelPaymentReport = ({ openNavbar }) => {
             const isInDateRange = itemDate.isBetween(selectedDateStart, selectedDateEnd, null, "[]");
             const matchTickets = selectTickets === "0:แสดงทั้งหมด" || item.TicketName === selectTickets;
 
-            const customerId = Number(item.TicketName.split(":")[0]);
+            const customerId = item.TicketName;
 
             let isInCompany = false;
             let iscompanyid = false;
 
             if (check === 1) {
                 // ทั้งหมด ยกเว้นตั๋วรถเล็ก
-                isInCompany = ticketsB.some(customer => customer.id === customerId);
+                isInCompany = ticketsB.some(customer => customer.uuid === customerId);
                 // iscompanyid = item.CustomerType !== "ตั๋วรถเล็ก";
             } else if (check === 2) {
                 // รถใหญ่ต้องอยู่ในเครือ / ตั๋วปั้มไม่ต้องเช็ค
-                const isInCompanyForBigTruck = ticketsB.some(customer => customer.id === customerId && customer.StatusCompany === "อยู่บริษัทในเครือ");
+                const isInCompanyForBigTruck = ticketsB.some(customer => customer.uuid === customerId && customer.StatusCompany === "อยู่บริษัทในเครือ");
 
                 isInCompany = (item.CustomerType === "ตั๋วรถใหญ่" && isInCompanyForBigTruck)
 
                 // iscompanyid = item.CustomerType === "ตั๋วรถใหญ่" || item.CustomerType === "ตั๋วปั้ม";
             } else if (check === 3) {
                 // ไม่อยู่ในเครือ ต้องเป็นรถใหญ่เท่านั้น
-                isInCompany = ticketsB.some(customer => customer.id === customerId && customer.StatusCompany === "ไม่อยู่บริษัทในเครือ");
+                isInCompany = ticketsB.some(customer => customer.uuid === customerId && customer.StatusCompany === "ไม่อยู่บริษัทในเครือ");
                 iscompanyid = item.CustomerType === "ตั๋วรถใหญ่";
             }
 
@@ -338,8 +338,8 @@ const FuelPaymentReport = ({ openNavbar }) => {
             let aValue, bValue;
 
             if (key === 'TicketName') {
-                aValue = a.TicketName?.split(":")[1] || '';
-                bValue = b.TicketName?.split(":")[1] || '';
+                aValue = a.TicketNameName || '';
+                bValue = b.TicketNameName || '';
             }
 
             if (aValue < bValue) return direction === 'asc' ? -1 : 1;
@@ -402,7 +402,7 @@ const FuelPaymentReport = ({ openNavbar }) => {
         sortedOrderDetail.forEach((row, index) => {
             const dataRow = {
                 no: index + 1,
-                ticket: row.TicketName.split(":")[1] !== "" ? row.TicketName.split(":")[1] : row.TicketName,
+                ticket: row.TicketNameName || row.TicketName,
                 volume: Number(row.VolumeProduct),
                 amount: Number(row.Amount),
                 incoming: Number(row.IncomingMoney),
@@ -760,7 +760,7 @@ const FuelPaymentReport = ({ openNavbar }) => {
                                         sortedOrderDetail.map((row, index) => (
                                             <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#f3f6fcff" }}>
                                                 <TableCell sx={{ textAlign: "center" }}>{index + 1}</TableCell>
-                                                <TableCell sx={{ textAlign: "center" }}>{row.TicketName.split(":")[1] !== "" ? row.TicketName.split(":")[1] : row.TicketName}</TableCell>
+                                                <TableCell sx={{ textAlign: "center" }}>{row.TicketNameName || row.TicketName}</TableCell>
                                                 <TableCell sx={{ textAlign: "center" }}>{new Intl.NumberFormat("en-US").format(row.VolumeProduct)}</TableCell>
                                                 <TableCell sx={{ textAlign: "center" }}>{new Intl.NumberFormat("en-US").format(row.Amount)}</TableCell>
                                                 <TableCell sx={{ textAlign: "center" }}>{new Intl.NumberFormat("en-US").format(row.IncomingMoney)}</TableCell>

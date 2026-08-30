@@ -326,7 +326,7 @@ const ReportDetail = (props) => {
   // dialog จริง (ดู handleExportPDF ด้านล่าง)
   const handlePrint = useReactToPrint({
     contentRef: invoiceRef,
-    documentTitle: `Invoice-${row.Code || row.TicketName?.split(":")[1] || "export"}`,
+    documentTitle: `Invoice-${row.Code || row.TicketNameName || "export"}`,
     pageStyle: `
       @page {
         size: A4 landscape;
@@ -478,7 +478,7 @@ const ReportDetail = (props) => {
             <Grid item xs={12} marginTop={-3}>
               <Typography variant="h6" gutterBottom>
                 <b>ชื่อตั๋วลูกค้า :</b>{" "}
-                {row.TicketName ? row.TicketName.split(":")[1] : "-"}
+                {row.TicketNameName || "-"}
               </Typography>
             </Grid>
             <Grid item xs={12} marginTop={-3}>
