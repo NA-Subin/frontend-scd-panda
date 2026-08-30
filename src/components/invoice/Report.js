@@ -49,8 +49,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import theme from "../../theme/theme";
 import { RateOils, TablecellFinancial, TablecellFinancialHead, TablecellHeader, TablecellSelling, TablecellTickets } from "../../theme/style";
-import { database } from "../../server/firebase";
-import { useData } from "../../server/path";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";
@@ -132,7 +130,6 @@ const FuelPaymentReport = ({ openNavbar }) => {
         }
     };
 
-    // const { reportFinancial, drivers } = useData();
     const { drivers, customertransports, customergasstations, customerbigtruck, customersmalltruck, customertickets } = useBasicData();
     const { order, transferMoney } = useTripData();
     // const orders = Object.values(order || {});

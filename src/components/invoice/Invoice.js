@@ -30,8 +30,6 @@ import {
 } from "@mui/material";
 import { IconButtonError, RateOils, TablecellHeader, TablecellYellow } from "../../theme/style";
 import InfoIcon from '@mui/icons-material/Info';
-import { database } from "../../server/firebase";
-import { useData } from "../../server/path";
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import UpdateInvoice from "./UpdateInvoice";
@@ -150,7 +148,6 @@ const Invoice = ({ openNavbar }) => {
   console.log("selectedRow : ", selectedRow);
   console.log("indexes : ", indexes);
 
-  // const { order, transferMoney } = useData();
   const { customerbigtruck } = useBasicData();
   const { order, trip, transferMoney } = useTripData();
   // const orders = Object.values(order || {});

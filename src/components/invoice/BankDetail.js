@@ -46,8 +46,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
 import AddCardIcon from '@mui/icons-material/AddCard';
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
-import { auth, database } from "../../server/firebase";
-import { useData } from "../../server/path";
+import { apiPost, apiPut } from "../../server/apiClient";
 import { useTripData } from "../../server/provider/TripProvider";
 
 const BankDetail = () => {
@@ -60,8 +59,7 @@ const BankDetail = () => {
     const [updateBank, setUpdateBank] = React.useState(false);
     const [search, setSearch] = React.useState("");
 
-    // const { banks } = useData();
-    const { banks } = useTripData();
+    const { banks, refetch: refetchTripData } = useTripData();
     //const bankDetail = Object.values(banks || {});
 
     const bankDetail = Object.values(banks || {}).filter(row =>
@@ -101,51 +99,33 @@ const BankDetail = () => {
         setPage(0);
     };
 
-    const handleSaveClick = () => {
-        const normalize = (str) => (str || "").trim().toLowerCase();
+    const handleSaveClick = async () => {
+        const editedRow = bankDetail.find((row) => row.id === editedData.id);
+        if (!editedRow?.uuid) {
+            ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+            return;
+        }
 
-        // const isDuplicateBankID = bankDetail.some(
-        //     (bank) => normalize(bank.BankID) === normalize(editedData.BankID) && bank.id !== editedData.id
-        // );
-
-        // const isDuplicateBankName = bankDetail.some(
-        //     (bank) => normalize(bank.BankName) === normalize(editedData.BankName) && bank.id !== editedData.id
-        // );
-
-        // if (isDuplicateBankID || isDuplicateBankName) {
-        //     let message = "ไม่สามารถบันทึกได้ เนื่องจาก";
-        //     if (isDuplicateBankID) message += " BankID ซ้ำ";
-        //     if (isDuplicateBankID && isDuplicateBankName) message += " และ";
-        //     if (isDuplicateBankName) message += " BankName ซ้ำ";
-
-        //     ShowError(message);
-        //     return;
-        // }
-
-        database
-            .ref("banks/")
-            .child(editedData.id - 1)
-            .update({
+        try {
+            await apiPut(`/api/banks/${editedRow.uuid}`, {
                 BankID: editedData.BankID,
                 BankName: editedData.BankName,
                 Bank: editedData.Bank,
                 BankShortName: editedData.BankShortName,
                 Status: editedData.Status
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setBankID("")
-                setBankName("")
-                setBank("")
-                setBankShortName("")
-                setStatus("")
-                setUpdateId(null); // รีเซ็ตค่า updateId กลับเป็น null
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetchTripData?.();
+            setBankID("")
+            setBankName("")
+            setBank("")
+            setBankShortName("")
+            setStatus("")
+            setUpdateId(null); // รีเซ็ตค่า updateId กลับเป็น null
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
     const handleChange = (field, value) => {
@@ -163,22 +143,23 @@ const BankDetail = () => {
             return;
         }
 
+        const targetRow = bankDetail.find((row) => row.id === newID);
+        if (!targetRow?.uuid) {
+            ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+            return;
+        }
+
         ShowConfirm(
             "คุณต้องการยกเลิกรายการนี้ใช่หรือไม่?",
-            () => {
-                // ✅ ถ้ากดยืนยัน
-                database
-                    .ref("banks/")
-                    .child(newID - 1)
-                    .update({ Status: "ยกเลิก" })
-                    .then(() => {
-                        ShowSuccess("บันทึกข้อมูลเรียบร้อย");
-                        console.log("บันทึกข้อมูลเรียบร้อย ✅");
-                    })
-                    .catch((error) => {
-                        ShowError("ไม่สำเร็จ");
-                        console.error("Error updating data:", error);
-                    });
+            async () => {
+                try {
+                    await apiPut(`/api/banks/${targetRow.uuid}`, { Status: "ยกเลิก" });
+                    ShowSuccess("บันทึกข้อมูลเรียบร้อย");
+                    refetchTripData?.();
+                } catch (error) {
+                    ShowError("ไม่สำเร็จ");
+                    console.error("Error updating data:", error);
+                }
             },
             () => {
                 // ❌ ถ้ากดยกเลิก
@@ -187,7 +168,7 @@ const BankDetail = () => {
         );
     };
 
-    const handlePost = () => {
+    const handlePost = async () => {
         const isDuplicateBankID = bankDetail.some(
             (bank) => bank.BankID === bankID
         );
@@ -207,30 +188,26 @@ const BankDetail = () => {
             return;
         }
 
-        database
-            .ref("banks/")
-            .child(bankDetail.length)
-            .update({
+        try {
+            await apiPost("/api/banks", {
                 id: bankDetail.length + 1,
                 BankID: bankID,
                 BankName: bankName,
                 Bank: bank,
                 BankShortName: bankShortName,
                 Status: "ใช้งานอยู่"
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setBankID("")
-                setBankName("")
-                setBank("")
-                setBankShortName("")
-                setStatus("")
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetchTripData?.();
+            setBankID("")
+            setBankName("")
+            setBank("")
+            setBankShortName("")
+            setStatus("")
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
     return (
