@@ -180,7 +180,7 @@ const DocSalary = ({ openNavbar }) => {
                 const Registrations = registrationH.find(
                     (row) => row.uuid === item.Registration
                 );
-                Registration = `${Registrations?.RegHead}/${Registrations?.RegTail.split(":")[1]}`;
+                Registration = `${Registrations?.RegHead}/${Registrations?.RegTailName || ""}`;
             } else if (item.TruckType === "รถเล็ก") {
                 const Registrations = smalls.find(
                     (row) => row.uuid === item.Registration
