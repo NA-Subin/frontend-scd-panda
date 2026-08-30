@@ -45,8 +45,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import theme from "../../theme/theme";
 import { RateOils, TablecellFinancial, TablecellFinancialHead, TablecellHeader, TablecellSelling, TablecellTickets } from "../../theme/style";
-import { database } from "../../server/firebase";
-import { useData } from "../../server/path";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";
@@ -105,7 +103,6 @@ const DocSalary = ({ openNavbar }) => {
 
     console.log("periods", periods);
 
-    // const { reportFinancial, drivers } = useData();
     const { drivers, reghead, small } = useBasicData();
     const { reportFinancial, trip } = useTripData();
     const reports = Object.values(reportFinancial || {})
@@ -172,7 +169,7 @@ const DocSalary = ({ openNavbar }) => {
     const document = driver
         .map((item) => {
             const details = reportDetail.filter(
-                (row) => String(row.Driver).split(":")[0] === String(item.id)
+                (row) => row.Driver === item.uuid
             );
 
             let Registration = "";
@@ -361,7 +358,7 @@ const DocSalary = ({ openNavbar }) => {
                 (doc.Name.split(":")[1] === "เงินค้ำประกัน" || doc.Name.split(":")[1] === "คืนเงินค้ำประกัน") &&
                 doc.Status !== "ยกเลิก" &&
                 Number(doc.Period) <= currentPeriod &&
-                String(doc.Driver).split(":")[0] === String(row.id)
+                doc.Driver === row.uuid
         );
         // const guaranteeTotal = moneyGuarantee.reduce(
         //     (acc, doc) => acc + Number(doc.Money),
@@ -389,7 +386,7 @@ const DocSalary = ({ openNavbar }) => {
                 (doc.Name.split(":")[1] === "เบิกเงินกู้ยืม" || doc.Name.split(":")[1] === "คืนเงินกู้ยืม") &&
                 doc.Status !== "ยกเลิก" &&
                 Number(doc.Period) <= currentPeriod &&
-                String(doc.Driver).split(":")[0] === String(row.id)
+                doc.Driver === row.uuid
         );
         // const loanTotal = moneyLoan.reduce(
         //     (acc, doc) => acc + Number(doc.Money),
