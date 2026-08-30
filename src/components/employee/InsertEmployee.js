@@ -46,10 +46,7 @@ import theme from "../../theme/theme";
 import { IconButtonError, RateOils, TablecellHeader, TablecellSelling } from "../../theme/style";
 import UploadButton from "./UploadButton";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
-import { auth, database } from "../../server/firebase";
-import { API_BASE } from "../../server/apiClient";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { useData } from "../../server/path";
+import { API_BASE, apiPost, apiPut } from "../../server/apiClient";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import FilePreview from "../truck/UploadButton";
 
@@ -61,8 +58,7 @@ const InsertEmployee = (props) => {
         setMenu(type);  // อัปเดต state เมื่อ props.type เปลี่ยน
     }, [type]);
 
-    // const { gasstation, positions } = useData();
-    const { gasstation, positions } = useBasicData();
+    const { gasstation, positions, refetch: refetchBasicData } = useBasicData();
     const gasStation = Object.values(gasstation || {});
     const positionDetail = Object.values(positions || {});
 
@@ -137,11 +133,9 @@ const InsertEmployee = (props) => {
     const [file, setFile] = useState("ไม่แนบไฟล์");
     const [fileType, setFileType] = useState(1);
 
-    const handleAddPosition = () => {
-        database
-            .ref("positions/")
-            .child(positionDetail.length)
-            .update({
+    const handleAddPosition = async () => {
+        try {
+            await apiPost("/api/positions", {
                 id: (positionDetail.length) + 1,
                 Name: newPosition,
                 BasicData: checkBasicData === false ? 0 : 1,
@@ -152,17 +146,15 @@ const InsertEmployee = (props) => {
                 SmallTruckData: checkSmallTruckData === false ? 0 : 1,
                 GasStationData: checkGasStationData === false ? 0 : 1,
                 DriverData: checkDriverData === false ? 0 : 1
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setOpenPosition(false);
-                setNewPosition("");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetchBasicData?.();
+            setOpenPosition(false);
+            setNewPosition("");
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     }
 
     const handleDateChange = (newDate) => {
@@ -171,12 +163,9 @@ const InsertEmployee = (props) => {
 
     const handlePost = async () => {
         try {
-
-            // if (phone.trim() === "" || name.trim() === "" || lastname.trim() === "" || idCard.trim() === "" || user.trim() === "" || bankID.trim() === "" || bank.trim() === "" || salary.trim() === "" || tripCost.trim() === "" || pointCost.trim() === "" || security.trim() === "" || deposit.trim() === "" || loan.trim() === "" || drivingLicense.trim() === "") {
-            //     setError(true);
-            //     return; // ❌ ไม่ให้บันทึก
-            // }
-            let email = "";
+            const positionRow = positionDetail.find(
+                (p) => p.id === Number(position.split(":")[0])
+            );
 
             // =======================
             // OFFICER
@@ -188,40 +177,33 @@ const InsertEmployee = (props) => {
                     return;
                 }
 
-                email = `${user.trim()}@gmail.com`;
-
-                createUserWithEmailAndPassword(auth, (email), password).then(
-                    (userCredential) => {
-                        database
-                            .ref("employee/officers/")
-                            .child(officer.length)
-                            .update({
-                                id: officer.length + 1,
-                                Name: name + " " + lastname,
-                                User: user,
-                                Password: password,
-                                Position: position,
-                                Phone: phone,
-                                GasStation: gasStations,
-                                Rights: check === 1 ? "แอดมิน" : check === 2 ? "หน้าลาน" : check === 3 ? "เจ้าหนี้น้ำมัน" : ""
-                            })
-                            .then(() => {
-                                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                                console.log("Data pushed successfully");
-                                //setPrefix("");
-                                setName("");
-                                setLastname("");
-                                setUser("");
-                                setPosition("");
-                                setPhone("");
-                                setGasStations("");
-                            })
-                            .catch((error) => {
-                                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                                console.error("Error pushing data:", error);
-                            });
-                    }
-                )
+                try {
+                    await apiPost("/api/auth/register", {
+                        table: "employee_officers",
+                        password,
+                        fields: {
+                            id: officer.length + 1,
+                            Name: name + " " + lastname,
+                            User: user,
+                            Position: positionRow?.uuid || null,
+                            PositionName: positionRow?.Name || "",
+                            Phone: phone,
+                            GasStation: gasStations,
+                            Rights: check === 1 ? "แอดมิน" : check === 2 ? "หน้าลาน" : check === 3 ? "เจ้าหนี้น้ำมัน" : ""
+                        },
+                    });
+                    ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+                    refetchBasicData?.();
+                    setName("");
+                    setLastname("");
+                    setUser("");
+                    setPosition("");
+                    setPhone("");
+                    setGasStations("");
+                } catch (error) {
+                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+                    console.error("Error pushing data:", error);
+                }
 
             } else {
 
@@ -252,105 +234,86 @@ const InsertEmployee = (props) => {
                     }
                 }
 
-                email = `t${String(driver.length).padStart(4, "0")}@gmail.com`;
-                createUserWithEmailAndPassword(auth, (`t${driver.length.toString().padStart(4, '0')}@gmail.com`), password).then(
-                    (userCredential) => {
-                        database
-                            .ref("employee/drivers/")
-                            .child(driver.length)
-                            .update({
-                                id: driver.length + 1,
-                                Name: name + " " + lastname,
-                                User: `t${driver.length.toString().padStart(4, '0')}`,
-                                Password: password,
-                                Phone: phone,
-                                Registration: `${regTruck.split(":")[0]}:${regTruck.split(":")[1]}`,
-                                BankID: bankID,
-                                BankName: bank,
-                                IDCard: idCard,
-                                Position: position,
-                                Salary: salary,
-                                TripCost: tripCost,
-                                PointCost: pointCost,
-                                Security: security,
-                                TelephoneBill: telephoneBill,
-                                TruckType: !bigTrucks && !smallTrucks ? "รถใหญ่/รถเล็ก" : !bigTrucks && smallTrucks ? "รถใหญ่" : bigTrucks && !smallTrucks ? "รถเล็ก" : "",
-                                Deposit: deposit,
-                                Loan: loan,
-                                DrivingLicense: drivingLicense,
-                                DrivingLicenseExpiration: expiration === "ไม่มี" ? "ไม่มี" : dayjs(expiration).format("DD/MM/YYYY"),
-                                DrivingLicensePicture: img,
-                            })
-                            .then(() => {
-                                if (regTruck.split(":")[2] === "รถใหญ่" && regTruck !== "0:ไม่มี") {
-                                    database
-                                        .ref("/truck/registration/")
-                                        .child(regTruck.split(":")[0] - 1)
-                                        .update({
-                                            Driver: name + " " + lastname,
-                                        })
-                                        .then(() => {
-                                            ShowSuccess("แก้ไขข้อมูลสำเร็จ");
-                                            console.log("Data pushed successfully");
-                                        })
-                                        .catch((error) => {
-                                            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                                            console.error("Error pushing data:", error);
-                                        });
-                                } else if (regTruck.split(":")[2] === "รถเล็ก" && regTruck !== "0:ไม่มี") {
-                                    database
-                                        .ref("/truck/small/")
-                                        .child(regTruck.split(":")[0] - 1)
-                                        .update({
-                                            Driver: name + " " + lastname,
-                                        })
-                                        .then(() => {
-                                            ShowSuccess("แก้ไขข้อมูลสำเร็จ");
-                                            console.log("Data pushed successfully");
-                                        })
-                                        .catch((error) => {
-                                            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                                            console.error("Error pushing data:", error);
-                                        });
-                                } else {
+                const [regIdRaw, , regTruckType] = regTruck.split(":");
+                const regId = Number(regIdRaw);
+                const hasTruckSelected = regTruck !== "0:ไม่มี:ไม่มี" && regId > 0;
+                const truckRow = !hasTruckSelected
+                    ? null
+                    : regTruckType === "รถใหญ่"
+                        ? truck.find((t) => t.id === regId)
+                        : regTruckType === "รถเล็ก"
+                            ? smallTruck.find((t) => t.id === regId)
+                            : null;
 
-                                }
-                                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                                console.log("Data pushed successfully");
-                                //setPrefix("");
-                                setName("");
-                                setLastname("");
-                                setRegTruck("");
-                                setBankID("");
-                                setBank("");
-                                setIDCard("");
-                                setSalary("");
-                                setTripCost("");
-                                setPointCost("");
-                                setSecurity("");
-                                setTrucks("");
-                                setDeposit("");
-                                setLoan("");
-                                setDrivingLicense("");
-                                setExpiration("");
-                                setPhone("");
-                                setUser("");
-                                setTelephoneBill("");
-                            })
-                            .catch((error) => {
-                                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                                console.error("Error pushing data:", error);
-                            });
-                    })
+                try {
+                    const { uuid: newDriverUuid } = await apiPost("/api/auth/register", {
+                        table: "employee_drivers",
+                        password,
+                        fields: {
+                            id: driver.length + 1,
+                            Name: name + " " + lastname,
+                            User: `t${driver.length.toString().padStart(4, '0')}`,
+                            Phone: phone,
+                            Registration: truckRow?.uuid || null,
+                            RegistrationName: truckRow?.RegHead || "ไม่มี",
+                            BankID: bankID,
+                            BankName: bank,
+                            IDCard: idCard,
+                            Position: positionRow?.uuid || null,
+                            PositionName: positionRow?.Name || "",
+                            Salary: salary,
+                            TripCost: tripCost,
+                            PointCost: pointCost,
+                            Security: security,
+                            TelephoneBill: telephoneBill,
+                            TruckType: !bigTrucks && !smallTrucks ? "รถใหญ่/รถเล็ก" : !bigTrucks && smallTrucks ? "รถใหญ่" : bigTrucks && !smallTrucks ? "รถเล็ก" : "",
+                            Deposit: deposit,
+                            Loan: loan,
+                            DrivingLicense: drivingLicense,
+                            DrivingLicenseExpiration: expiration === "ไม่มี" ? "ไม่มี" : dayjs(expiration).format("DD/MM/YYYY"),
+                            DrivingLicensePicture: img,
+                        },
+                    });
+
+                    if (truckRow?.uuid && regTruckType === "รถใหญ่") {
+                        await apiPut(`/api/truck_registration/${truckRow.uuid}`, {
+                            Driver: newDriverUuid,
+                            DriverName: name + " " + lastname,
+                        });
+                    } else if (truckRow?.uuid && regTruckType === "รถเล็ก") {
+                        await apiPut(`/api/truck_small/${truckRow.uuid}`, {
+                            Driver: name + " " + lastname,
+                        });
+                    }
+
+                    ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+                    refetchBasicData?.();
+                    setName("");
+                    setLastname("");
+                    setRegTruck("");
+                    setBankID("");
+                    setBank("");
+                    setIDCard("");
+                    setSalary("");
+                    setTripCost("");
+                    setPointCost("");
+                    setSecurity("");
+                    setTrucks("");
+                    setDeposit("");
+                    setLoan("");
+                    setDrivingLicense("");
+                    setExpiration("");
+                    setPhone("");
+                    setUser("");
+                    setTelephoneBill("");
+                } catch (error) {
+                    ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+                    console.error("Error pushing data:", error);
+                }
             }
         } catch (error) {
             console.error(error);
-
-            if (error.code === "auth/invalid-email") {
-                ShowError("Email ไม่ถูกต้อง กรุณาตรวจสอบ user");
-            } else {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-            }
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
         }
     };
 

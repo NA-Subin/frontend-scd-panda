@@ -42,17 +42,15 @@ import AirlineSeatReclineNormalIcon from "@mui/icons-material/AirlineSeatRecline
 import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
 import theme from "../../theme/theme";
 import { IconButtonError, RateOils, TablecellHeader } from "../../theme/style";
-import { database } from "../../server/firebase";
+import { apiPut } from "../../server/apiClient";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
-import { useData } from "../../server/path";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 
 const UpdateEmployee = (props) => {
     const { row, index } = props;
     const [update, setUpdate] = React.useState(true);
     const [openOfficeDetail, setOpenOfficeDetail] = useState(false);
-    // const { positions } = useData();
-    const { positions } = useBasicData();
+    const { positions, refetch: refetchBasicData } = useBasicData();
     const positionDetail = Object.values(positions || {});
 
     const [name, setName] = React.useState(row.Name);
@@ -65,26 +63,30 @@ const UpdateEmployee = (props) => {
         setOpenOfficeDetail(false);
     };
 
-    const handleUpdate = () => {
-        database
-            .ref("employee/officers/")
-            .child(row.id - 1)
-            .update({
+    const handleUpdate = async () => {
+        if (!row?.uuid) {
+            ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+            return;
+        }
+
+        const positionRow = positionDetail.find((p) => p.uuid === position);
+
+        try {
+            await apiPut(`/api/employee_officers/${row.uuid}`, {
                 Name: name,
                 User: user,
                 Position: position,
+                PositionName: positionRow?.Name || "",
                 Phone: phone
                 //Rights: rights === 1 ? "แอดมิน" : rights === 2 ? "หน้าลาน" : rights === 3 ? "เจ้าหนี้น้ำมัน" : ""
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                setUpdate(true)
-                console.log("Data pushed successfully");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetchBasicData?.();
+            setUpdate(true)
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     }
 
     return (
@@ -155,17 +157,15 @@ const UpdateEmployee = (props) => {
                                                 variant="standard"
                                                 onChange={(e) => setPosition(e.target.value)}
                                             >
-                                                <MenuItem value={position}>{position.split(":")[1]}</MenuItem>
                                                 {
-                                                    positionDetail.map((row) => (
-                                                        `${row.id}:${row.Name}` !== position &&
-                                                        <MenuItem value={`${row.id}:${row.Name}`}>{row.Name}</MenuItem>
+                                                    positionDetail.map((p) => (
+                                                        <MenuItem key={p.uuid} value={p.uuid}>{p.Name}</MenuItem>
                                                     ))
                                                 }
                                             </Select>
                                         </FormControl>
                                         :
-                                        <TextField fullWidth variant="standard" value={position.split(":")[1]} disabled />
+                                        <TextField fullWidth variant="standard" value={positionDetail.find((p) => p.uuid === position)?.Name || row.PositionName || ""} disabled />
                                 }
                             </Grid>
                             <Grid item xs={1.5}>

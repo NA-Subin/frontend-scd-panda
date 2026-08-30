@@ -43,15 +43,11 @@ import AirlineSeatReclineNormalIcon from "@mui/icons-material/AirlineSeatRecline
 import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
 import theme from "../../theme/theme";
 import { IconButtonError, RateOils, TablecellHeader } from "../../theme/style";
-import { database } from "../../server/firebase";
+import { apiPut } from "../../server/apiClient";
 import InsertEmployee from "./InsertEmployee";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import UpdateDriver from "./UpdateDriver";
 import UpdateEmployee from "./UpdateEmployee";
-import { fetchRealtimeData } from "../../server/data";
-//import { useData } from "../../server/path";
-//import { useData } from "../../server/ConnectDB";
-//import DriverTable from "../dashboard/ProviderTest";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 
 const Employee = ({ openNavbar }) => {
@@ -91,34 +87,28 @@ const Employee = ({ openNavbar }) => {
   //   setOpenOfficeDetail(false);
   // };
 
-  const { officers, drivers, reghead, small, loading } = useBasicData();
-
-  // const { data, fetchDataMany, loading } = useData();
-
-  // useEffect(() => {
-  //   fetchDataMany(["officers", "drivers", "reghead", "small"]);
-  // }, [fetchDataMany]);
+  const { officers, drivers, reghead, small, loading, refetch: refetchBasicData } = useBasicData();
 
   // const dataofficers = Object.values(data.officers || {});
   // const datadrivers = Object.values(data.drivers || {});
   // const datareghead = Object.values(data.reghead || {});
   // const datasmall = Object.values(data.small || {});
 
-  // const { officers, drivers, reghead, small } = useData();
   // คำนวณค่าที่ใช้หลายครั้งด้วย useMemo
   const dataofficers = useMemo(() => Object.values(officers || {}), [officers]);
   const datadrivers = useMemo(() => Object.values(drivers || {}), [drivers]);
   const datareghead = useMemo(() => Object.values(reghead || {}), [reghead]).filter((item) => item.StatusTruck !== "ยกเลิก");
   const datasmall = useMemo(() => Object.values(small || {}), [small]).filter((item) => item.StatusTruck !== "ยกเลิก");
 
-  // ตัวกรองรถที่ไม่มีคนขับ
+  // ตัวกรองรถที่ไม่มีคนขับ - Driver is a real UUID FK (null when unassigned) on
+  // truck_registration, but a plain "no driver" TEXT placeholder on truck_small.
   const registrationHead = useMemo(() =>
-    datareghead.filter(row => row.Driver === "0:ไม่มี"),
+    datareghead.filter(row => !row.Driver),
     [datareghead]
   );
 
   const registrationSmallTruck = useMemo(() =>
-    datasmall.filter(row => row.Driver === "0:ไม่มี"),
+    datasmall.filter(row => row.Driver === "0:ไม่มี" || row.Driver === "ไม่มี" || !row.Driver),
     [datasmall]
   );
 
@@ -160,54 +150,33 @@ const Employee = ({ openNavbar }) => {
   console.log("setting : ", setting);
   console.log("trucks : ", truck);
 
-  const handlePost = () => {
-    database
-      .ref("/employee/drivers/")
-      .child(setting.split(":")[0] - 1)
-      .update({
-        Registration: truck.split(":")[0] + ":" + truck.split(":")[1],
-      })
-      .then(() => {
-        if (truck.split(":")[2] === "รถใหญ่") {
-          database
-            .ref("/truck/registration/")
-            .child(truck.split(":")[0] - 1)
-            .update({
-              Driver: setting,
-            })
-            .then(() => {
-              ShowSuccess("เปลี่ยนทะเบียนสำเร็จ");
-              console.log("Data pushed successfully");
-              setSetting("");
-            })
-            .catch((error) => {
-              ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-              console.error("Error pushing data:", error);
-            });
-        } else if (truck.split(":")[2] === "รถเล็ก") {
-          database
-            .ref("/truck/small/")
-            .child(truck.split(":")[0] - 1)
-            .update({
-              Driver: setting,
-            })
-            .then(() => {
-              ShowSuccess("เปลี่ยนทะเบียนสำเร็จ");
-              console.log("Data pushed successfully");
-              setSetting("");
-            })
-            .catch((error) => {
-              ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-              console.error("Error pushing data:", error);
-            });
-        } else {
+  const handlePost = async () => {
+    const driverRow = datadrivers.find((d) => d.id === Number(setting.split(":")[0]));
+    // This dialog only ever offers head-truck (รถใหญ่) options in its
+    // dropdown (see registrationHead below), so the target table is fixed.
+    const truckRow = datareghead.find((t) => t.id === Number(truck.split(":")[0]));
 
-        }
-      })
-      .catch((error) => {
-        ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-        console.error("Error pushing data:", error);
+    if (!driverRow?.uuid || !truckRow?.uuid) {
+      ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+      return;
+    }
+
+    try {
+      await apiPut(`/api/employee_drivers/${driverRow.uuid}`, {
+        Registration: truckRow.uuid,
+        RegistrationName: truckRow.RegHead,
       });
+      await apiPut(`/api/truck_registration/${truckRow.uuid}`, {
+        Driver: driverRow.uuid,
+        DriverName: driverRow.Name,
+      });
+      ShowSuccess("เปลี่ยนทะเบียนสำเร็จ");
+      refetchBasicData?.();
+      setSetting("");
+    } catch (error) {
+      ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+      console.error("Error pushing data:", error);
+    }
   }
 
   const handleChangePage = (event, newPage) => {
@@ -307,7 +276,7 @@ const Employee = ({ openNavbar }) => {
               <IconButton size="small" sx={{ mt: -0.5 }} onClick={() => setSetting("")}>
                 <CancelIcon color="error" fontSize="12px" />
               </IconButton>
-              <IconButton size="small" sx={{ mt: -0.5 }} onClick={() => setSetting(handlePost)}>
+              <IconButton size="small" sx={{ mt: -0.5 }} onClick={() => handlePost()}>
                 <CheckCircleIcon color="success" fontSize="12px" />
               </IconButton>
             </Grid>

@@ -43,7 +43,8 @@ import { IconButtonError, RateOils, TablecellHeader } from "../../theme/style";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
-import { database } from "../../server/firebase";
+import { apiPut } from "../../server/apiClient";
+import { useBasicData } from "../../server/provider/BasicDataProvider";
 import InsertEmployee from "./InsertEmployee";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -65,9 +66,24 @@ const UpdateDriver = (props) => {
         setOpenTab(newOpen);
     };
 
+    const { reghead, small, refetch: refetchBasicData } = useBasicData();
+    const allReghead = Object.values(reghead || {});
+    const allSmall = Object.values(small || {});
+
+    // driver.Registration is a real reghead/small uuid, so the "id:plate:type"
+    // composite this dialog edits in-state has to be rebuilt from that row.
+    const currentTruckRow = driver.TruckType !== "รถเล็ก"
+        ? allReghead.find((row) => row.uuid === driver.Registration)
+        : allSmall.find((row) => row.uuid === driver.Registration);
+    const currentTruckType = driver.TruckType !== "รถเล็ก" ? "รถใหญ่" : "รถเล็ก";
+
     const [name, setName] = React.useState(driver.Name);
     const [idCard, setIDCard] = React.useState(driver.IDCard);
-    const [registration, setRegistration] = React.useState(driver.TruckType !== "รถเล็ก" ? `${driver.Registration}:รถใหญ่` : `${driver.Registration}:รถเล็ก`);
+    const [registration, setRegistration] = React.useState(
+        currentTruckRow
+            ? `${currentTruckRow.id}:${currentTruckRow.RegHead}:${currentTruckType}`
+            : `0:ไม่มี:${currentTruckType}`
+    );
     const [bank, setBank] = React.useState(driver.BankName);
     const [bankID, setBankID] = React.useState(driver.BankID);
     const [salary, setSalary] = React.useState(driver.Salary);
@@ -101,8 +117,11 @@ const UpdateDriver = (props) => {
 
     const [phone, setPhone] = React.useState(driver.Phone);
     const [user, setUser] = React.useState(driver.User);
-    const [registrationHead, setRegistrationHead] = React.useState([]);
-    const [registrationSmallTruck, setRegistrationSmallTruck] = React.useState([]);
+    // Available (driverless) trucks, plus whichever truck this driver is
+    // already assigned to - the currently-assigned one is shown separately
+    // via the "current value" MenuItem below, so it doesn't need to be here.
+    const registrationHead = allReghead.filter((row) => !row.Driver);
+    const registrationSmallTruck = allSmall.filter((row) => row.Driver === "0:ไม่มี" || row.Driver === "ไม่มี" || !row.Driver);
     const [bigTrucks, setBigTrucks] = useState(driver.TruckType !== "รถเล็ก" ? false : true);
     const [smallTrucks, setSmallTrucks] = useState(driver.TruckType !== "รถใหญ่" ? false : true);
 
@@ -115,42 +134,26 @@ const UpdateDriver = (props) => {
 
     console.log("show date : " + dayjs(expiration).format("DD/MM/YYYY"));
 
-    const getRegitration = async () => {
-        database.ref("/truck/registration/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataRegistration = [];
-            for (let id in datas) {
-                if (datas[id].Driver === "0:ไม่มี") {
-                    dataRegistration.push({ id, ...datas[id] })
-                }
-            }
-            setRegistrationHead(dataRegistration);
-        });
-
-        database.ref("/truck/small/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataRegistration = [];
-            for (let id in datas) {
-                if (datas[id].Driver === "0:ไม่มี") {
-                    dataRegistration.push({ id, ...datas[id] })
-                }
-            }
-            setRegistrationSmallTruck(dataRegistration);
-        });
-    };
-
-    useEffect(() => {
-        getRegitration();
-    }, []);
-
-    console.log("registartion : ", driver.Registration - 1)
-
     const handleUpdate = async () => {
+        if (!driver?.uuid) {
+            ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+            return;
+        }
+
         try {
-            await database.ref("/employee/drivers/").child(driver.id - 1).update({
+            const [selectedIdRaw, , selectedType] = registration.split(":");
+            const selectedId = Number(selectedIdRaw);
+            const newTruckRow = selectedId <= 0
+                ? null
+                : selectedType === "รถใหญ่"
+                    ? allReghead.find((row) => row.id === selectedId)
+                    : allSmall.find((row) => row.id === selectedId);
+
+            await apiPut(`/api/employee_drivers/${driver.uuid}`, {
                 Name: name,
                 IDCard: idCard,
-                Registration: `${registration.split(":")[0]}:${registration.split(":")[1]}`,
+                Registration: newTruckRow?.uuid || null,
+                RegistrationName: newTruckRow?.RegHead || "ไม่มี",
                 BankName: bank,
                 BankID: bankID,
                 Salary: salary,
@@ -165,60 +168,38 @@ const UpdateDriver = (props) => {
                 DrivingLicensePicture: file
             });
 
-            const newTruckId = Number(registration?.split?.(":")[0] || 0);   // ค่าที่เลือกใหม่
-            const oldTruckId = Number(driver?.Registration?.split?.(":")[0] || 0); // ค่าเดิม
+            const truckChanged = currentTruckRow?.uuid !== newTruckRow?.uuid;
 
-            const updates = [];
-
-            // หา path รถก่อน (ใช้ค่าใหม่ถ้ามี ไม่งั้นใช้ค่าเดิม)
-            const truckTypeSource = registration !== "0:ไม่มี"
-                ? registration
-                : driver?.Registration || "";
-
-            const truckPath =
-                truckTypeSource.split(":")[2] === "รถใหญ่"
-                    ? "/truck/registration/"
-                    : "/truck/small/";
-
-
-            // ✅ 1. ล้างของเก่า (ถ้ามี)
-            if (oldTruckId !== 0) {
-                updates.push(
-                    database
-                        .ref(truckPath)
-                        .child(oldTruckId - 1)
-                        .update({
-                            Driver: "0:ไม่มี",
-                        })
-                );
-            }
-
-            // ✅ 2. ใส่ค่าใหม่ (ถ้ามี)
-            if (newTruckId !== 0) {
-                updates.push(
-                    database
-                        .ref(truckPath)
-                        .child(newTruckId - 1)
-                        .update({
-                            Driver: `${driver.id}:${name}`,
-                        })
-                );
-            }
-
-            // 🚀 รอทุกอย่างเสร็จ
-            if (updates.length > 0) {
-                Promise.all(updates)
-                    .then(() => {
-                        console.log("Truck updated successfully");
-                    })
-                    .catch((err) => {
-                        ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                        console.error(err);
+            // ล้างของเก่า (ถ้ามีและเปลี่ยนไปคันอื่น)
+            if (truckChanged && currentTruckRow) {
+                if (currentTruckType === "รถใหญ่") {
+                    await apiPut(`/api/truck_registration/${currentTruckRow.uuid}`, {
+                        Driver: null,
+                        DriverName: "ไม่มี",
                     });
+                } else {
+                    await apiPut(`/api/truck_small/${currentTruckRow.uuid}`, {
+                        Driver: "ไม่มี",
+                    });
+                }
             }
 
+            // ใส่ค่าใหม่ (ถ้ามีและเปลี่ยนไปคันอื่น)
+            if (truckChanged && newTruckRow) {
+                if (selectedType === "รถใหญ่") {
+                    await apiPut(`/api/truck_registration/${newTruckRow.uuid}`, {
+                        Driver: driver.uuid,
+                        DriverName: name,
+                    });
+                } else {
+                    await apiPut(`/api/truck_small/${newTruckRow.uuid}`, {
+                        Driver: name,
+                    });
+                }
+            }
 
             ShowSuccess("แก้ไขข้อมูลสำเร็จ");
+            refetchBasicData?.();
             setUpdate(true);
         } catch (error) {
             ShowError("เพิ่มข้อมูลไม่สำเร็จ");
