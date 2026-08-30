@@ -40,7 +40,6 @@ import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import SaveIcon from '@mui/icons-material/Save';
 import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
-import { database } from "../../../server/firebase";
 import { ShowError, ShowSuccess } from "../../sweetalert/sweetalert";
 import { useGasStationData } from "../../../server/provider/GasStationProvider";
 import { useBasicData } from "../../../server/provider/BasicDataProvider";
@@ -309,25 +308,6 @@ const GasStationVolume = (props) => {
     //         onProductChange(gasStation.id, value, field); // ส่ง value + field name
     //     }
     // };
-
-    const handleUpdate = () => {
-        const year = dayjs(selectedDate).format("YYYY");
-        const month = dayjs(selectedDate).format("M");
-        const day = dayjs(selectedDate).format("D");
-
-        database
-            .ref(`/depot/gasStations/${gasStation.id - 1}/Report/${year}/${month}`)
-            .child(day)
-            .update(products)
-            .then(() => {
-                ShowSuccess("บันทึกข้อมูลสำเร็จ");
-                console.log("✅ Updated success");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error updating data:", error);
-            });
-    };
 
     // console.log("products length : ", products?.Products.length);
     return (

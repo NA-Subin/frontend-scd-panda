@@ -44,7 +44,6 @@ import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import CancelIcon from '@mui/icons-material/Cancel';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { database } from "../../../server/firebase";
 import { ShowError, ShowSuccess } from "../../sweetalert/sweetalert";
 import { useGasStationData } from "../../../server/provider/GasStationProvider";
 import { useBasicData } from "../../../server/provider/BasicDataProvider";
@@ -408,25 +407,6 @@ const UpdateGasStations = (props) => {
     //         onProductChange(gasStation.id, value, field); // ส่ง value + field name
     //     }
     // };
-
-    const handleUpdate = () => {
-        const year = dayjs(selectedDate).format("YYYY");
-        const month = dayjs(selectedDate).format("M");
-        const day = dayjs(selectedDate).format("D");
-
-        database
-            .ref(`/depot/gasStations/${gasStation.id - 1}/Report/${year}/${month}`)
-            .child(day)
-            .update(products)
-            .then(() => {
-                ShowSuccess("บันทึกข้อมูลสำเร็จ");
-                console.log("✅ Updated success");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error updating data:", error);
-            });
-    };
 
     console.log("hasChanged : ", volumeData?.some(v => v.stockID === products?.stockID && v.Products.some(p => p.hasChanged)))
     console.log("Products : ", products);

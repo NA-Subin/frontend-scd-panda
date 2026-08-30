@@ -44,7 +44,6 @@ import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import OilBarrelIcon from "@mui/icons-material/OilBarrel";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Cookies from "js-cookie";
-import { database } from "../../server/firebase";
 import InsertGasStations from "./gasstation/InsertGasStations";
 import InsertStock from "./stock/InsertStock";
 

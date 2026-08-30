@@ -44,10 +44,12 @@ import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import OilBarrelIcon from "@mui/icons-material/OilBarrel";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Cookies from "js-cookie";
-import { database } from "../../../server/firebase";
+import { apiPut } from "../../../server/apiClient";
+import { useGasStationData } from "../../../server/provider/GasStationProvider";
 
 const Detail = (props) => {
     const { gasStation, stock, onCheck } = props;
+    const { refetch: refetchGasStationData } = useGasStationData();
 
     const [menu, setMenu] = React.useState(0);
     const [open, setOpen] = React.useState(false);
@@ -91,9 +93,7 @@ const Detail = (props) => {
 
     const [stocks, setStocks] = React.useState(() => {
         if (!Array.isArray(stock)) return null;
-        const stockValue = gasStation?.Stock ?? "";
-        const id = stockValue.includes(":") ? Number(stockValue.split(":")[0]) : null;
-        return stock.find(item => item.id === id) || null;
+        return stock.find(item => item.uuid === gasStation?.Stock) || null;
     });
 
     const [volumeData, setVolumeData] = useState(gasStation?.Products);
@@ -152,17 +152,21 @@ const Detail = (props) => {
 
     console.log("Volume Data : ", volumeData);
 
-    const handlePost = () => {
-        database
-            .ref("depot/gasStations/")
-            .child(Number(gasStation?.id) - 1)
-            .update({
+    const handlePost = async () => {
+        if (!gasStation?.uuid) {
+            ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+            return;
+        }
+
+        try {
+            await apiPut(`/api/depot_gas_stations/${gasStation.uuid}`, {
                 Name: name,
                 ShortName: shortName,
                 Code: code,
                 OilWellNumber: oilWell,
                 Products: volumeData,
-                Stock: `${stocks?.id}:${stocks?.Name}`,
+                Stock: stocks?.uuid || null,
+                StockName: stocks?.Name || "",
                 CheckTruck: checkTruck,
                 Address:
                     (no === "-" ? "-" : no) +
@@ -174,18 +178,16 @@ const Detail = (props) => {
                 ,
                 lat: lat,
                 lng: lng
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setOpen(false);
-                setCheck(false);
-                onCheck(true);
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetchGasStationData?.();
+            setOpen(false);
+            setCheck(false);
+            onCheck(true);
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
     // console.log("จำนวนปั้ม "+gasStation);

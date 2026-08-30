@@ -36,10 +36,12 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import theme from "../../../theme/theme";
 import { ShowError, ShowSuccess } from "../../sweetalert/sweetalert";
-import { database } from "../../../server/firebase";
+import { apiPost } from "../../../server/apiClient";
+import { useGasStationData } from "../../../server/provider/GasStationProvider";
 
 const InsertGasStations = (props) => {
     const { gasStation, handleClose } = props;
+    const { refetch: refetchGasStationData } = useGasStationData();
     const [check, setCheck] = React.useState(true);
     const [open, setOpen] = React.useState(false);
 
@@ -248,20 +250,11 @@ const InsertGasStations = (props) => {
         );
     };
 
-    const getStock = async () => {
-        database.ref("depot/stock").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataStock = [];
-            for (let id in datas) {
-                dataStock.push({ id, ...datas[id] });
-            }
-            setStock(dataStock);
-        });
-    };
+    const { stockDetail } = useGasStationData();
 
     useEffect(() => {
-        getStock();
-    }, []);
+        setStock(Object.values(stockDetail || {}));
+    }, [stockDetail]);
 
     // console.log(volumeData);
 
@@ -274,32 +267,22 @@ const InsertGasStations = (props) => {
         );
     };
 
-    const handlePost = () => {
-        let truckData = "";
-
-        if (!isSmallTrucksEmpty(smallTrucks)) {
-            truckData = smallTrucks;  // บันทึกตามจริง
-        }
-
-        database
-            .ref("depot/gasStations/")
-            .child(gasStation)
-            .update({
+    const handlePost = async () => {
+        // Note: the old Firebase record also carried a "Truck" field (the
+        // per-truck price/volume list below), but depot_gas_stations has no
+        // such column in the migrated schema - dropped here since sending it
+        // would be rejected outright. Flagged separately as a data-model gap.
+        try {
+            await apiPost("/api/depot_gas_stations", {
                 id: gasStation + 1,
                 Name: name,
                 ShortName: shortName,
                 Code: code,
                 OilWellNumber: oilWell,
                 Products: volumeData,
-                Truck: truckData,
                 CheckTruck: checkTruck,
-                // Products: volumeData.reduce((acc, row) => {
-                //     if (row.CheckBox === true || row.CheckBox === "true") {
-                //         acc[row.Name] = row.Volume; // เพิ่ม key-value ในออบเจ็กต์
-                //     }
-                //     return acc; // คืนค่า acc เสมอ
-                // }, {}),
-                Stock: `${stocks?.id}:${stocks?.Name}`,
+                Stock: stocks?.uuid || null,
+                StockName: stocks?.Name || "",
                 Address:
                     (no === "-" ? "-" : no) +
                     (village === "-" ? "" : ` ${village}`) +
@@ -310,30 +293,28 @@ const InsertGasStations = (props) => {
                 ,
                 lat: lat,
                 lng: lng
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setOpen(false);
-                setName("");
-                setShortName("");
-                setCode("");
-                setOilWell("");
-                setStocks({});
-                setVolumeData([])
-                setNo("");
-                setVillage("");
-                setSubDistrict("");
-                setDistrict("");
-                setProvince("");
-                setZipCode("");
-                setLat("");
-                setLng("");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetchGasStationData?.();
+            setOpen(false);
+            setName("");
+            setShortName("");
+            setCode("");
+            setOilWell("");
+            setStocks({});
+            setVolumeData([])
+            setNo("");
+            setVillage("");
+            setSubDistrict("");
+            setDistrict("");
+            setProvince("");
+            setZipCode("");
+            setLat("");
+            setLng("");
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
     return (

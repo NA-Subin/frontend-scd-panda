@@ -38,7 +38,7 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { database } from "../../../server/firebase";
+import { apiPut } from "../../../server/apiClient";
 import UpdateGasStations from "./UpdateGasStations";
 import Logo from "../../../theme/img/logoPanda.jpg"
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
@@ -74,7 +74,7 @@ const GasStationsDetail = (props) => {
     const [downHole, setDownHole] = React.useState([]);
     const total = downHole.reduce((sum, value) => sum + value.DownHole, 0); // บวกค่า DownHole จากทุก item ใน array
 
-    const { gasstationDetail, stockDetail } = useGasStationData();
+    const { gasstationDetail, stockDetail, refetch: refetchGasStationData } = useGasStationData();
     const gasStationOil = Object.values(gasstationDetail || {});
     const stocks = Object.values(stockDetail || {});
     console.log("gasstation Oil : ", gasStationOil);
@@ -929,12 +929,23 @@ const GasStationsDetail = (props) => {
             for (const sp of stockProducts) {
                 if (!sp.stationId) continue;
 
-                await database
-                    .ref(`/depot/gasStations/${Number(sp.stationId) - 1}/Report/${year}/${month}/${day}`)
-                    .set(sp);
+                const station = gasStationOil.find((s) => s.id === sp.stationId);
+                if (!station?.uuid) continue;
+
+                // Report is JSONB (not a real nested path like Firebase), so a
+                // partial write has to read-merge-write the whole column.
+                const mergedReport = structuredClone(station.Report || {});
+                mergedReport[year] = mergedReport[year] || {};
+                mergedReport[year][month] = mergedReport[year][month] || {};
+                mergedReport[year][month][day] = sp;
+
+                await apiPut(`/api/depot_gas_stations/${station.uuid}`, {
+                    Report: mergedReport,
+                });
             }
 
             ShowSuccess("บันทึกข้อมูลสำเร็จ");
+            refetchGasStationData?.();
 
             // ---------------------------------------------------
             // ⭐ reset state หลัง save (สำคัญมาก)
