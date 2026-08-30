@@ -51,10 +51,8 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import PrintIcon from "@mui/icons-material/Print";
-import { database } from "../../server/firebase";
-import { useData } from "../../server/path";
+import { apiPost, apiPut } from "../../server/apiClient";
 import theme from "../../theme/theme";
-import { ref, update } from "firebase/database";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import dayjs from "dayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -108,7 +106,7 @@ const UpdateInvoice = (props) => {
   //     invoiceReport
   // } = useData();
 
-  const { order, banks, transferMoney, invoiceReport } = useTripData();
+  const { order, banks, transferMoney, invoiceReport, refetch: refetchTripData } = useTripData();
 
   const { company, small, customersmalltruck } = useBasicData();
   const companies = Object.values(company || {});
@@ -135,6 +133,14 @@ const UpdateInvoice = (props) => {
   const bankDetail = Object.values(banks || {}).filter(
     (row) => row.Status !== "ยกเลิก",
   );
+
+  // ตัวเลือกธนาคารบางจุดเก็บ "id:ชื่อ - ย่อ" บางจุดเก็บแค่ "ชื่อ - ย่อ" (ไม่มี id นำหน้า)
+  // จึงต้อง match แบบตัดส่วน id ออกก่อนเทียบ เพื่อหา uuid จริงของธนาคารสำหรับเขียนลง transfermoney.BankName
+  const resolveBank = (value) => {
+    if (!value) return null;
+    const withoutId = value.includes(":") ? value.split(":").slice(1).join(":") : value;
+    return bankDetail.find((row) => `${row.BankName} - ${row.BankShortName}` === withoutId);
+  };
   const transferMoneyDetail = Object.values(transferMoney || {});
   const invoiceDetail = Object.values(invoiceReport || {});
 
@@ -505,21 +511,19 @@ const UpdateInvoice = (props) => {
 
       Code = `lV${currentCode}-${formattedNumberInvoice}`;
 
-      database
-        .ref("invoice/")
-        .child(invoiceDetail.length)
-        .update({
-          id: invoiceDetail.length,
-          Code: `lV${currentCode}`,
-          Number: formattedNumberInvoice,
-          DateStart: dayjs(new Date()).format("DD/MM/YYYY"),
-          Transport: `${companyName?.id}:${companyName?.Name}`,
-          TicketName: ticket.TicketName,
-          TicketNo: ticket.No,
-          TicketType: ticket.CustomerType,
-        }) // ใช้ .set() แทน .update() เพื่อแทนที่ข้อมูลทั้งหมด
+      apiPost("/api/invoice", {
+        id: invoiceDetail.length,
+        Code: `lV${currentCode}`,
+        Number: formattedNumberInvoice,
+        DateStart: dayjs(new Date()).format("DD/MM/YYYY"),
+        Transport: `${companyName?.id}:${companyName?.Name}`,
+        TicketName: ticket.TicketName,
+        TicketNo: ticket.No,
+        TicketType: ticket.CustomerType,
+      })
         .then(() => {
           console.log("บันทึกข้อมูลเรียบร้อย ✅");
+          refetchTripData?.();
         })
         .catch((error) => {
           ShowError("ไม่สำเร็จ");
@@ -611,32 +615,38 @@ const UpdateInvoice = (props) => {
   console.log("Report : ", report);
   console.log("price : ", price);
 
-  const handleSave = () => {
-    Object.entries(report).forEach(([uniqueRowId, data]) => {
-      // ตรวจสอบว่า data.id และ data.ProductName ไม่ใช่ null หรือ undefined
-      if (
-        data.No == null ||
-        data.ProductName == null ||
-        data.ProductName.trim() === ""
-      ) {
-        console.log("ไม่พบ id หรือ ProductName");
-        return;
-      }
+  const handleSave = async () => {
+    try {
+      for (const data of Object.values(report)) {
+        if (
+          data.No == null ||
+          data.ProductName == null ||
+          data.ProductName.trim() === ""
+        ) {
+          continue;
+        }
 
-      const path = `order/${data.No}/Product/${data.ProductName}`;
-      update(ref(database, path), {
-        RateOil: data.RateOil,
-        Amount: data.Amount,
-        OverdueTransfer: data.Amount,
-      })
-        .then(() => {
-          console.log("บันทึกข้อมูลเรียบร้อย ✅");
-        })
-        .catch((error) => {
-          ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-          console.error("Error pushing data:", error);
-        });
-    });
+        const orderRow = orders.find((o) => o.No === data.No);
+        if (!orderRow?.uuid) continue;
+
+        const updatedProduct = {
+          ...orderRow.Product,
+          [data.ProductName]: {
+            ...(orderRow.Product?.[data.ProductName] || {}),
+            RateOil: data.RateOil,
+            Amount: data.Amount,
+            OverdueTransfer: data.Amount,
+          },
+        };
+
+        await apiPut(`/api/order/${orderRow.uuid}`, { Product: updatedProduct });
+      }
+      ShowSuccess("บันทึกข้อมูลเรียบร้อย");
+      refetchTripData?.();
+    } catch (error) {
+      ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+      console.error("Error pushing data:", error);
+    }
   };
 
   const [tranferID, setTranferID] = useState(null);
@@ -664,37 +674,40 @@ const UpdateInvoice = (props) => {
     setTranferNote(Note);
   };
 
-  const handleSaveTranfer = () => {
+  const handleSaveTranfer = async () => {
     if (tranferID === null) {
       ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
       return;
     }
 
-    const updatedData = {
-      DateStart: tranferDateStart,
-      BankName: tranferBankName,
-      IncomingMoney: tranferIncomingMoney,
-      Note: tranferNote,
-    };
+    const transferRow = transferMoneyDetail.find((t) => t.id === tranferID);
+    if (!transferRow?.uuid) {
+      ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+      return;
+    }
 
-    database
-      .ref("transfermoney/")
-      .child(tranferID)
-      .update(updatedData)
-      .then(() => {
-        ShowSuccess("บันทึกข้อมูลเรียบร้อย");
-        console.log("บันทึกข้อมูลเรียบร้อย ✅");
-        setUpdateTranfer(false);
-        setTranferID(null);
-        setTranferDateStart("");
-        setTranferBankName("");
-        setTranferIncomingMoney("");
-        setTranferNote("");
-      })
-      .catch((error) => {
-        ShowError("ไม่สำเร็จ");
-        console.error("Error updating data:", error);
+    const resolvedBank = resolveBank(tranferBankName);
+
+    try {
+      await apiPut(`/api/transfermoney/${transferRow.uuid}`, {
+        DateStart: tranferDateStart,
+        BankName: resolvedBank?.uuid || null,
+        BankNameName: resolvedBank ? `${resolvedBank.BankName} - ${resolvedBank.BankShortName}` : tranferBankName,
+        IncomingMoney: tranferIncomingMoney,
+        Note: tranferNote,
       });
+      ShowSuccess("บันทึกข้อมูลเรียบร้อย");
+      refetchTripData?.();
+      setUpdateTranfer(false);
+      setTranferID(null);
+      setTranferDateStart("");
+      setTranferBankName("");
+      setTranferIncomingMoney("");
+      setTranferNote("");
+    } catch (error) {
+      ShowError("ไม่สำเร็จ");
+      console.error("Error updating data:", error);
+    }
   };
 
   const handleDeleteReport = (newID) => {
@@ -703,22 +716,23 @@ const UpdateInvoice = (props) => {
       return;
     }
 
+    const transferRow = transferMoneyDetail.find((t) => t.id === newID);
+    if (!transferRow?.uuid) {
+      ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+      return;
+    }
+
     ShowConfirm(
       "คุณต้องการยกเลิกรายการนี้ใช่หรือไม่?",
-      () => {
-        // ✅ ถ้ากดยืนยัน
-        database
-          .ref("transfermoney/")
-          .child(newID)
-          .update({ Status: "ยกเลิก" })
-          .then(() => {
-            ShowSuccess("บันทึกข้อมูลเรียบร้อย");
-            console.log("บันทึกข้อมูลเรียบร้อย ✅");
-          })
-          .catch((error) => {
-            ShowError("ไม่สำเร็จ");
-            console.error("Error updating data:", error);
-          });
+      async () => {
+        try {
+          await apiPut(`/api/transfermoney/${transferRow.uuid}`, { Status: "ยกเลิก" });
+          ShowSuccess("บันทึกข้อมูลเรียบร้อย");
+          refetchTripData?.();
+        } catch (error) {
+          ShowError("ไม่สำเร็จ");
+          console.error("Error updating data:", error);
+        }
       },
       () => {
         // ❌ ถ้ากดยกเลิก
@@ -777,56 +791,51 @@ const UpdateInvoice = (props) => {
     });
   };
 
-  const handleNewInvoice = () => {
-    database
-      .ref("invoice/")
-      .child(invoices[0].id)
-      .update({
-        TicketNo: "ยกเลิก",
-      })
-      .then(() => {
-        ShowSuccess("บันทึกข้อมูลเรียบร้อย");
-        console.log("บันทึกข้อมูลเรียบร้อย ✅");
-      })
-      .catch((error) => {
-        ShowError("ไม่สำเร็จ");
-        console.error("Error updating data:", error);
-      });
+  const handleNewInvoice = async () => {
+    if (!invoices[0]?.uuid) {
+      ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+      return;
+    }
+    try {
+      await apiPut(`/api/invoice/${invoices[0].uuid}`, { TicketNo: "ยกเลิก" });
+      ShowSuccess("บันทึกข้อมูลเรียบร้อย");
+      refetchTripData?.();
+    } catch (error) {
+      ShowError("ไม่สำเร็จ");
+      console.error("Error updating data:", error);
+    }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const newId = transferMoneyDetail.length;
     const total = Number(newNumber) + 1;
-    //const formattedNumber = String(total).padStart(4, "0");
+    const resolvedBank = resolveBank(price.BankName);
 
     const newPrice = {
       ...price,
       id: newId,
-      //Number: formattedNumber,
+      BankName: resolvedBank?.uuid || null,
+      BankNameName: resolvedBank ? `${resolvedBank.BankName} - ${resolvedBank.BankShortName}` : price.BankName,
     };
 
-    database
-      .ref("transfermoney/")
-      .child(newId)
-      .set(newPrice)
-      .then(() => {
-        ShowSuccess("บันทึกข้อมูลเรียบร้อย");
-        console.log("บันทึกข้อมูลเรียบร้อย ✅");
+    try {
+      await apiPost("/api/transfermoney", newPrice);
+      ShowSuccess("บันทึกข้อมูลเรียบร้อย");
+      refetchTripData?.();
 
-        // เตรียมค่าใหม่สำหรับ price หลังบันทึก
-        const nextFormattedNumber = String(total).padStart(4, "0");
-        setPrice({
-          ...newPrice,
-          id: newId + 1,
-          Number: nextFormattedNumber,
-          IncomingMoney: "",
-          BankName: "",
-        });
-      })
-      .catch((error) => {
-        ShowError("ไม่สำเร็จ");
-        console.error("Error updating data:", error);
+      // เตรียมค่าใหม่สำหรับ price หลังบันทึก
+      const nextFormattedNumber = String(total).padStart(4, "0");
+      setPrice({
+        ...price,
+        id: newId + 1,
+        Number: nextFormattedNumber,
+        IncomingMoney: "",
+        BankName: "",
       });
+    } catch (error) {
+      ShowError("ไม่สำเร็จ");
+      console.error("Error updating data:", error);
+    }
   };
 
   // const handleSubmit = () => {

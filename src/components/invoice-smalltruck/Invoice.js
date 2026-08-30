@@ -30,8 +30,6 @@ import {
 } from "@mui/material";
 import { IconButtonError, RateOils, TablecellHeader, TablecellPink } from "../../theme/style";
 import InfoIcon from '@mui/icons-material/Info';
-import { database } from "../../server/firebase";
-import { useData } from "../../server/path";
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import UpdateInvoice from "./UpdateInvoice";
