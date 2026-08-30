@@ -30,7 +30,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useBasicData } from "../../../server/provider/BasicDataProvider";
 import { TablecellHeader, TablecellSelling } from "../../../theme/style";
 import InsertTruckTransport from "./InsertTruckTransport";
-import { database } from "../../../server/firebase";
+import { apiPut } from "../../../server/apiClient";
 import { ShowError, ShowSuccess } from "../../sweetalert/sweetalert";
 
 const TruckTransport = ({ openNavbar }) => {
@@ -43,9 +43,7 @@ const TruckTransport = ({ openNavbar }) => {
         setOpenTab(newOpen);
     };
 
-    // const { reghead,regtail,small } = useData();
-
-    const { transport, company } = useBasicData();
+    const { transport, company, refetch: refetchBasicData } = useBasicData();
     const dataTransport = Object.values(transport || {}).filter((item) => item.StatusTruck !== "ยกเลิก");
     const dataCompany = Object.values(company || {});
 
@@ -105,26 +103,33 @@ const TruckTransport = ({ openNavbar }) => {
 
     // บันทึกข้อมูลที่แก้ไขแล้ว
     const handleSave = async () => {
-        database
-            .ref("/truck/transport/")
-            .child(rowID - 1)
-            .update({
+        const targetRow = dataTransport.find((row) => row.id === rowID);
+        if (!targetRow?.uuid) {
+            ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
+            return;
+        }
+
+        const companyRow = companies?.includes(":")
+            ? dataCompany.find((c) => c.id === Number(companies.split(":")[0]))
+            : dataCompany.find((c) => c.uuid === companies);
+
+        try {
+            await apiPut(`/api/truck_transport/${targetRow.uuid}`, {
                 Name: name,
-                Company: companies,
+                Company: companyRow?.uuid || null,
+                CompanyName: companyRow?.Name || "",
                 Registration: registration,
                 Weight: weight,
-            }) // อัพเดท values ทั้งหมด
-            .then(() => {
-                ShowSuccess("แก้ไขข้อมูลสำเร็จ");
-                console.log("Data updated successfully");
-                setUpdate(false);
-                setRowID(null);
-                setRowIndex(null);
-            })
-            .catch((error) => {
-                ShowError("แก้ไขข้อมูลไม่สำเร็จ");
-                console.error("Error updating data:", error);
             });
+            ShowSuccess("แก้ไขข้อมูลสำเร็จ");
+            refetchBasicData?.();
+            setUpdate(false);
+            setRowID(null);
+            setRowIndex(null);
+        } catch (error) {
+            ShowError("แก้ไขข้อมูลไม่สำเร็จ");
+            console.error("Error updating data:", error);
+        }
     };
 
     const handleCancel = () => {
@@ -317,7 +322,7 @@ const TruckTransport = ({ openNavbar }) => {
                                                             </MenuItem>
                                                             {
                                                                 dataCompany.map((row) => (
-                                                                    row.id != 1 && Number(companies?.split(":")[0]) !== row.id &&
+                                                                    row.id != 1 && (!companies?.includes(":") || Number(companies.split(":")[0]) !== row.id) &&
                                                                     <MenuItem value={`${row.id}:${row.Name}`}>{row.Name}</MenuItem>
                                                                 ))
                                                             }

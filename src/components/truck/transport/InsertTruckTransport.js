@@ -36,8 +36,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { IconButtonError } from "../../../theme/style";
 import { useBasicData } from "../../../server/provider/BasicDataProvider";
 import theme from "../../../theme/theme";
-import { auth, database } from "../../../server/firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { apiPost } from "../../../server/apiClient";
 import { ShowError, ShowSuccess } from "../../sweetalert/sweetalert";
 
 const InsertTruckTransport = () => {
@@ -74,42 +73,41 @@ const InsertTruckTransport = () => {
     const [phone, setPhone] = React.useState("");
     const [truckType, setTruckType] = React.useState(0);
 
-    const { company, transport, drivers } = useBasicData();
+    const { company, transport, drivers, refetch: refetchBasicData } = useBasicData();
     const dataCompany = Object.values(company || {});
     const dataDriver = Object.values(drivers || {});
     const dataTransport = Object.values(transport || {}).filter((item) => item.StatusTruck !== "ยกเลิก");
 
     console.log(`User Id : t${(dataDriver.length + 1).toString().padStart(4, '0')}`);
 
-    const handlePost = () => {
-        createUserWithEmailAndPassword(auth, (`t${(dataDriver.length + 1).toString().padStart(4, '0')}` + "@gmail.com"), "1234567").then(
-            (userCredential) => {
-                database
-                    .ref("/truck/transport/")
-                    .child(dataTransport.length)
-                    .update({
-                        id: dataTransport.length + 1,
-                        Name: name,
-                        Company: companies,
-                        Registration: registration,
-                        Weight: weight,
-                        TruckType: truckType === 1 ? "รถใหญ่" : "รถเล็ก",
-                        Status: "ว่าง",
-                        UserId: `t${(dataDriver.length + 1).toString().padStart(4, '0')}`,
-                        PassWord: "1234567"
-                    })
-                    .then(() => {
-                        ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                        console.log("Data pushed successfully");
-                        setCompanies("");
-                        setRegistration("");
-                        setWeight("");
-                    })
-                    .catch((error) => {
-                        ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                        console.error("Error pushing data:", error);
-                    });
-            })
+    const handlePost = async () => {
+        const companyRow = dataCompany.find((c) => c.id === Number(String(companies).split(":")[0]));
+
+        try {
+            await apiPost("/api/auth/register", {
+                table: "truck_transport",
+                password: "1234567",
+                fields: {
+                    id: dataTransport.length + 1,
+                    Name: name,
+                    Company: companyRow?.uuid || null,
+                    CompanyName: companyRow?.Name || "",
+                    Registration: registration,
+                    Weight: weight,
+                    TruckType: truckType === 1 ? "รถใหญ่" : "รถเล็ก",
+                    Status: "ว่าง",
+                    UserId: `t${(dataDriver.length + 1).toString().padStart(4, '0')}`,
+                },
+            });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            refetchBasicData?.();
+            setCompanies("");
+            setRegistration("");
+            setWeight("");
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
     return (

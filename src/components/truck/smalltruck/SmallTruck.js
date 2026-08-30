@@ -41,9 +41,7 @@ import theme from "../../../theme/theme";
 import { IconButtonError, RateOils, TablecellHeader } from "../../../theme/style";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
-import { database } from "../../../server/firebase";
 import UpdateSmallTruck from "./UpdateSmallTruck";
-import { useData } from "../../../server/path";
 import { useBasicData } from "../../../server/provider/BasicDataProvider";
 import SmallDetail from "./SmallDetail";
 
@@ -52,7 +50,6 @@ const SmallTruck = (props) => {
   const [openTab, setOpenTab] = React.useState(true);
   const [openMenu, setOpenMenu] = React.useState(false);
 
-  // const { small } = useData();
   const { small } = useBasicData();
   const truck = Object.values(small || {}).filter((item) => item.StatusTruck !== "ยกเลิก");
 

@@ -42,10 +42,8 @@ import theme from "../../../theme/theme";
 import { IconButtonError, IconButtonSuccess, IconButtonWarning, RateOils, TablecellHeader } from "../../../theme/style";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
-import { database } from "../../../server/firebase";
+import { apiPut } from "../../../server/apiClient";
 import { ShowConfirm, ShowError, ShowSuccess } from "../../sweetalert/sweetalert";
-import { fetchRealtimeData } from "../../../server/data";
-import { useData } from "../../../server/path";
 import { useBasicData } from "../../../server/provider/BasicDataProvider";
 import UpdateSmallTruck from "./UpdateSmallTruck";
 
@@ -53,8 +51,6 @@ const SmallDetail = (props) => {
   const { truck, index } = props;
 
   const [openTab, setOpenTab] = React.useState(true);
-  const [setting, setSetting] = React.useState("0:0");
-  const [tail, setTail] = React.useState("ไม่มี:0:0:0");
   const [openDialog, setOpenDialog] = useState(null);
   const [selectedTruck, setSelectedTruck] = useState(null);
 
@@ -91,48 +87,12 @@ const SmallDetail = (props) => {
   //   });
   // };
 
-  // const { regtail } = useData();
-  const { regtail } = useBasicData();
+  const { regtail, refetch: refetchBasicData } = useBasicData();
   const dataregtail = Object.values(regtail || {});
   const registrationTail = dataregtail.filter(row => row.Status && row.Status === "ยังไม่ได้เชื่อมต่อทะเบียนหัว");
 
-  // useEffect(() => {
-  //   getRegitrationTail();
-  // }, []);
-
-  const handlePost = () => {
-    database
-      .ref("/truck/registration/")
-      .child(setting.split(":")[0] - 1)
-      .update({
-        RegTail: tail.split(":")[1],
-        TotalWeight: (parseFloat(truck.Weight) + parseFloat(tail.split(":")[3])),
-      })
-      .then(() => {
-        database
-          .ref("/truck/registrationTail/")
-          .child(tail.split(":")[0] - 1)
-          .update({
-            Status: "เชื่อมทะเบียนหัวแล้ว",
-          })
-          .then(() => {
-            ShowSuccess("เชื่อมทะเบียนหางสำเร็จ");
-            console.log("Data pushed successfully");
-            setSetting("");
-          })
-          .catch((error) => {
-            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-            console.error("Error pushing data:", error);
-          });
-      })
-      .catch((error) => {
-        ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-        console.error("Error pushing data:", error);
-      });
-  }
-
   const handleDelete = (t) => {
-    if (!t?.id) {
+    if (!t?.uuid) {
       ShowError("ไม่พบข้อมูลรถ");
       return;
     }
@@ -144,20 +104,17 @@ const SmallDetail = (props) => {
 
     ShowConfirm(
       `ต้องการลบทะเบียนรถ ${t.ShortName}${t.RegHead} ใช่หรือไม่`,
-      () => {
-        database
-          .ref("/truck/small/")
-          .child(t.id - 1)
-          .update({
+      async () => {
+        try {
+          await apiPut(`/api/truck_small/${t.uuid}`, {
             StatusTruck: "ยกเลิก",
-          })
-          .then(() => {
-            ShowSuccess("ลบทะเบียนรถเรียบร้อย");
-          })
-          .catch((error) => {
-            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-            console.error("Error pushing data:", error);
           });
+          ShowSuccess("ลบทะเบียนรถเรียบร้อย");
+          refetchBasicData?.();
+        } catch (error) {
+          ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+          console.error("Error pushing data:", error);
+        }
       },
       () => {
         console.log(`ยกเลิกลบทะเบียนรถ ${t.ShortName}${t.RegHead}`);

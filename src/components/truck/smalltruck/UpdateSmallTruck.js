@@ -47,10 +47,8 @@ import theme from "../../../theme/theme";
 import { IconButtonError, IconButtonSuccess, IconButtonWarning, RateOils, TablecellHeader } from "../../../theme/style";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
-import { database } from "../../../server/firebase";
-import { API_BASE } from "../../../server/apiClient";
+import { API_BASE, apiPut } from "../../../server/apiClient";
 import { ShowError, ShowSuccess } from "../../sweetalert/sweetalert";
-import { useData } from "../../../server/path";
 import { useBasicData } from "../../../server/provider/BasicDataProvider";
 import FilePreview from "../UploadButton";
 
@@ -60,11 +58,20 @@ const UpdateSmallTruck = (props) => {
 
     const [openTab, setOpenTab] = React.useState(true);
 
-    // const { company, drivers } = useData();
-    const { company, drivers } = useBasicData();
+    const { company, drivers, refetch: refetchBasicData } = useBasicData();
     const dataCompany = Object.values(company || {});
     const dataDrivers = Object.values(drivers || {});
-    const employees = dataDrivers.filter(row => row.Registration && row.Registration === "0:ไม่มี" && (row.TruckType === "รถเล็ก" || row.TruckType === "รถใหญ่/รถเล็ก"));
+    const employees = dataDrivers.filter(row => !row.Registration && (row.TruckType === "รถเล็ก" || row.TruckType === "รถใหญ่/รถเล็ก"));
+
+    const resolveCompanyDisplay = (value) =>
+        value?.includes(":")
+            ? value.split(":")[1]
+            : dataCompany.find((c) => c.uuid === value)?.Name || "-";
+
+    const resolveDriverDisplay = (value) => {
+        if (!value || value === "0:ไม่มี" || value === "ไม่มี") return "ไม่มี";
+        return value.includes(":") ? value.split(":")[1] : value;
+    };
 
     const toggleDrawer = (newOpen) => () => {
         setOpenTab(newOpen);
@@ -138,42 +145,49 @@ const UpdateSmallTruck = (props) => {
                     console.error("Upload failed:", err);
                 }
             }
-            await database
-                .ref("/truck/small/")
-                .child(truck.id - 1)
-                .update({
-                    RegHead: registration,
-                    ShortName: shortName,
-                    Weight: weight,
-                    Insurance: insurance,
-                    VehicleRegistration: vehicleRegistration ? "มี" : "ไม่มี",
-                    VehExpirationDate: vehExpirationDate,
-                    Company: companies,
-                    Driver: driver,
-                    Path: vehicleRegistration ? img : "ไม่แนบไฟล์"
+            if (!truck?.uuid) {
+                ShowError("ไม่พบข้อมูลรถ");
+                return;
+            }
+
+            const companyRow = companies?.includes(":")
+                ? dataCompany.find((c) => c.id === Number(companies.split(":")[0]))
+                : dataCompany.find((c) => c.uuid === companies);
+
+            // employees Select only produces a fresh "id:Name" value when the
+            // user actually picks someone new - anything else (unchanged plain
+            // text, or the "0:ไม่มี" sentinel) means the driver text is unchanged.
+            const newlySelectedDriver = driver?.includes(":") && driver !== "0:ไม่มี"
+                ? employees.find((e) => e.id === Number(driver.split(":")[0]))
+                : null;
+            const driverText = driver === "0:ไม่มี"
+                ? "ไม่มี"
+                : newlySelectedDriver
+                    ? newlySelectedDriver.Name
+                    : driver;
+
+            await apiPut(`/api/truck_small/${truck.uuid}`, {
+                RegHead: registration,
+                ShortName: shortName,
+                Weight: weight,
+                Insurance: insurance,
+                VehicleRegistration: vehicleRegistration ? "มี" : "ไม่มี",
+                VehExpirationDate: vehExpirationDate,
+                Company: companyRow?.uuid || null,
+                CompanyName: companyRow?.Name || "",
+                Driver: driverText,
+                Path: vehicleRegistration ? img : "ไม่แนบไฟล์"
+            });
+
+            if (newlySelectedDriver?.uuid) {
+                await apiPut(`/api/employee_drivers/${newlySelectedDriver.uuid}`, {
+                    Registration: truck.uuid,
+                    RegistrationName: registration,
                 });
-
-            const regId = driver?.split?.(":")[0] || "0";
-            const drvId = truck?.Driver?.split?.(":")[0] || "0";
-
-            const driverIdPart = drvId === "0"
-                ? regId
-                : (regId === "0" ? drvId : drvId);
-            const driverId = Number(driverIdPart);
-
-            // const driverIdPart = driver?.split(":")[0];
-            // const driverId = Number(driverIdPart);
-
-            if (!isNaN(driverId) && driverId > 0) {
-                await database
-                    .ref("/employee/drivers/")
-                    .child(driverId - 1)
-                    .update({
-                        Registration: driver !== "0:ไม่มี" ? `${truck.id}:${registration}` : driver,
-                    });
             }
 
             ShowSuccess("แก้ไขข้อมูลสำเร็จ");
+            refetchBasicData?.();
             console.log("Data pushed successfully");
             setUpdate(true);
         } catch (error) {
@@ -224,7 +238,7 @@ const UpdateSmallTruck = (props) => {
                             <Grid item xs={10}>
                                 {
                                     update ?
-                                        <TextField fullWidth variant="standard" value={driver.split(":")[1]} disabled />
+                                        <TextField fullWidth variant="standard" value={resolveDriverDisplay(driver)} disabled />
                                         :
                                         <FormControl variant="standard" fullWidth>
                                             <Select
@@ -233,14 +247,14 @@ const UpdateSmallTruck = (props) => {
                                                 value={driver}
                                                 onChange={(e) => setDriver(e.target.value)}
                                             >
-                                                <MenuItem value={driver}>{driver.split(":")[1]}</MenuItem>
+                                                <MenuItem value={driver}>{resolveDriverDisplay(driver)}</MenuItem>
                                                 {
                                                     driver !== "0:ไม่มี" &&
                                                     <MenuItem value={"0:ไม่มี"}>ไม่มี</MenuItem>
                                                 }
                                                 {
                                                     employees.map((row) => (
-                                                        row.id !== driver.split(":")[0] &&
+                                                        String(row.id) !== driver.split(":")[0] &&
                                                         <MenuItem value={`${row.id}:${row.Name}`}>{row.Name}</MenuItem>
                                                     ))
                                                 }
@@ -278,7 +292,7 @@ const UpdateSmallTruck = (props) => {
                             <Grid item xs={6}>
                                 {
                                     update ?
-                                        <TextField fullWidth variant="standard" value={companies?.includes(":") ? companies.split(":")[1] : (dataCompany.find((c) => c.uuid === companies)?.Name || "-")} disabled />
+                                        <TextField fullWidth variant="standard" value={resolveCompanyDisplay(companies)} disabled />
                                         :
                                         <FormControl
                                             variant="standard"
@@ -293,9 +307,9 @@ const UpdateSmallTruck = (props) => {
                                                 value={companies}
                                                 onChange={(e) => setCompanies(e.target.value)}
                                             >
-                                                <MenuItem value={companies} sx={{ fontSize: "14px", }}>{companies?.includes(":") ? companies.split(":")[1] : (dataCompany.find((c) => c.uuid === companies)?.Name || "-")}</MenuItem>
-                                                {Number(companies.split(":")[0]) !== 2 && <MenuItem value="2:บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)" sx={{ fontSize: "14px", }}>บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)</MenuItem>}
-                                                {Number(companies.split(":")[0]) !== 3 && <MenuItem value="3:หจก.พิชยา ทรานสปอร์ต (สำนักงานใหญ่)" sx={{ fontSize: "14px", }}>หจก.พิชยา ทรานสปอร์ต (สำนักงานใหญ่)</MenuItem>}
+                                                <MenuItem value={companies} sx={{ fontSize: "14px", }}>{resolveCompanyDisplay(companies)}</MenuItem>
+                                                {(!companies?.includes(":") || Number(companies.split(":")[0]) !== 2) && <MenuItem value="2:บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)" sx={{ fontSize: "14px", }}>บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)</MenuItem>}
+                                                {(!companies?.includes(":") || Number(companies.split(":")[0]) !== 3) && <MenuItem value="3:หจก.พิชยา ทรานสปอร์ต (สำนักงานใหญ่)" sx={{ fontSize: "14px", }}>หจก.พิชยา ทรานสปอร์ต (สำนักงานใหญ่)</MenuItem>}
                                             </Select>
                                         </FormControl>
                                 }
