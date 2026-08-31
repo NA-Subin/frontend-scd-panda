@@ -171,7 +171,7 @@ const Invoice = ({ openNavbar }) => {
 
   const orderDetail = orders
     .map((item) => {
-      const tripsDate = trips.find((row) => (row.id - 1) === item.Trip); // หา tripsDate ก่อน
+      const tripsDate = trips.find((row) => Number(row.id) - 1 === Number(item.Trip)); // หา tripsDate ก่อน
       return { ...item, tripsDate };
     })
     .filter((item) => {
@@ -195,7 +195,6 @@ const Invoice = ({ openNavbar }) => {
 
       return (
         isInCompany &&
-        isInCompany.id === customerId &&
         item.CustomerType === "ตั๋วรถใหญ่" &&
         item.Trip !== "ยกเลิก" &&
         item.Status !== "ยกเลิก" &&
@@ -211,7 +210,7 @@ const Invoice = ({ openNavbar }) => {
         .filter((trans) => trans.TicketNo === item.No)
         .reduce((sum, trans) => sum + (parseFloat(trans.IncomingMoney) || 0), 0);
 
-      Object.entries(item.Product).forEach(([key, value]) => {
+      Object.entries(item.Product || {}).forEach(([key, value]) => {
         if (key !== "P") {
           totalVolume += parseFloat(value.Volume || 0) * 1000;
           totalAmount += parseFloat(value.Amount || 0);
