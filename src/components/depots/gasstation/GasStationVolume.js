@@ -321,7 +321,7 @@ const GasStationVolume = (props) => {
                             </Typography>
                         </Grid>
                         {
-                            products?.Products.map((s, index) => (
+                            products?.Products.filter(Boolean).map((s, index) => (
                                 <Grid item xl={1.5} md={2} sm={3} xs={4}>
                                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "left", backgroundColor: s.Color, p: 0.5, borderRadius: 1 }}>
                                         <Typography variant="subtitle1" fontWeight="bold" sx={{ fontWeight: 'bold', mr: 1, fontSize: "18px" }}>{s.ProductName}</Typography>

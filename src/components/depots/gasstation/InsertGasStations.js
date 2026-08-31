@@ -399,7 +399,7 @@ const InsertGasStations = (props) => {
                         {stock.map((row) =>
                             row.id === stocks?.id && (
                                 <React.Fragment key={row.Name}>
-                                    {row.Products.map((product, index) => (
+                                    {row.Products.filter(Boolean).map((product, index) => (
                                         <React.Fragment key={index}>
                                             <Grid item sm={0.5} xs={12}></Grid>
                                             <Grid item sm={0.5} xs={2}>

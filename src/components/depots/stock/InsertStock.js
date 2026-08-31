@@ -116,20 +116,17 @@ const InsertStock = (props) => {
             return sum + (parseFloat(row.Capacity) || 0); // แปลง Capacity เป็นตัวเลขและรวม
         }, 0);
 
-        // Products is stored as a JSONB array indexed by each row's id (matches
-        // the shape already in the DB, imported from Firebase's auto-array
-        // coercion for sequential integer keys) - a plain {id: row} object would
-        // read back fine from Firebase but not from Postgres, which stores
-        // exactly what it's given.
-        const productsArray = [];
-        products.forEach((row) => {
-            productsArray[row.id] = {
-                id: row.id,
-                ProductName: row.Product,
-                Capacity: row.Capacity,
-                Color: row.Color,
-            };
-        });
+        // Products is a plain JSONB array - push in order instead of indexing by
+        // row.id (which starts at 1 here), since indexing by id left a null hole
+        // at position 0 on every stock created through this dialog, crashing any
+        // consumer that maps over Products without filtering nulls (e.g.
+        // depots/gasstation/Detail.js).
+        const productsArray = products.map((row) => ({
+            id: row.id,
+            ProductName: row.Product,
+            Capacity: row.Capacity,
+            Color: row.Color,
+        }));
 
         try {
             await apiPost("/api/depot_stock", {

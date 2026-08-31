@@ -299,7 +299,7 @@ const Detail = (props) => {
                                     {stock.map((row) =>
                                         row.id === stocks?.id && (
                                             <React.Fragment key={row.Name}>
-                                                {row.Products.map((product, index) => {
+                                                {row.Products.filter(Boolean).map((product, index) => {
                                                     const isChecked =
                                                         Array.isArray(volumeData) &&
                                                         volumeData.find((item) => item.Name === product.ProductName)?.CheckBox === true;

@@ -240,7 +240,7 @@ const StockDetail = (props) => {
                                 <Typography variant="h6" fontWeight="bold" gutterBottom>ผลิตภัณฑ์</Typography>
                                 <Divider sx={{ mt: 1, border: 1 }} />
                             </Grid>
-                            {stock.Products.map((product) => {
+                            {stock.Products.filter(Boolean).map((product) => {
                                 const editingProduct = editStates[product.id];
                                 const isEditing = editStates.isEditingId === product.id;
 

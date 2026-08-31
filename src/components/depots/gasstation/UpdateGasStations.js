@@ -737,7 +737,7 @@ const UpdateGasStations = (props) => {
                                             :
                                             (
                                                 !(products?.Products?.some(p => p.Backyard === true)) &&
-                                                <TablecellHeader sx={{ backgroundColor: theme.palette.panda.main, width: 100 }} rowSpan={products?.Products.length}>
+                                                <TablecellHeader sx={{ backgroundColor: theme.palette.panda.main, width: 100 }} rowSpan={products?.Products.filter(Boolean).length}>
 
                                                 </TablecellHeader>
                                             )
@@ -745,7 +745,7 @@ const UpdateGasStations = (props) => {
                                     :
                                     (
                                         !(products?.Products?.some(p => p.Backyard === true)) &&
-                                        <TablecellHeader sx={{ backgroundColor: theme.palette.panda.main, width: 100 }} rowSpan={products?.Products.length}>
+                                        <TablecellHeader sx={{ backgroundColor: theme.palette.panda.main, width: 100 }} rowSpan={products?.Products.filter(Boolean).length}>
 
                                         </TablecellHeader>
                                     )
@@ -781,7 +781,7 @@ const UpdateGasStations = (props) => {
                                             backgroundColor: theme.palette.panda.main,
                                             width: 100
                                         }}
-                                        rowSpan={products?.Products.length}
+                                        rowSpan={products?.Products.filter(Boolean).length}
                                     />
                                 </React.Fragment>
                             )}
@@ -789,7 +789,7 @@ const UpdateGasStations = (props) => {
                     </TableHead>
                     <TableBody>
                         {
-                            products?.Products.map((s, index) => (
+                            products?.Products.filter(Boolean).map((s, index) => (
                                 <TableRow key={index}>
                                     <TablecellHeader
                                         sx={{
@@ -1837,7 +1837,7 @@ const UpdateGasStations = (props) => {
                                                 // ปุ่ม save อยู่แถวล่าง
                                                 if (!isFirstPump && index === 1 && stockHasChanged) {
                                                     return (
-                                                        <TableCell rowSpan={products?.Products.length}>
+                                                        <TableCell rowSpan={products?.Products.filter(Boolean).length}>
                                                             <Paper
                                                                 sx={{
                                                                     display: "flex",
@@ -1904,7 +1904,7 @@ const UpdateGasStations = (props) => {
                                                 // ✅ แสดงปุ่ม save
                                                 if (stockHasChanged) {
                                                     return (
-                                                        <TableCell rowSpan={products?.Products.length}>
+                                                        <TableCell rowSpan={products?.Products.filter(Boolean).length}>
                                                             <Paper
                                                                 sx={{
                                                                     display: "flex",
@@ -1946,7 +1946,7 @@ const UpdateGasStations = (props) => {
 
                                     {/* ถ้าเป็นแถวแรก (index === 0) ให้เพิ่ม rowSpan, แถวอื่นไม่ต้องแสดง cell นี้ */}
                                     {/* {index === 0 ? (
-                                        <TableCell rowSpan={products?.Products.length}>
+                                        <TableCell rowSpan={products?.Products.filter(Boolean).length}>
                                             {
                                                 // ตรวจสอบว่า Products ของ stock นี้มีการแก้ไขอย่างน้อย 1 ปั้ม
                                                 check || volumeData?.some(v => v.stockID === products?.stockID && v.Products.some(p => p.hasChanged)) ? (
