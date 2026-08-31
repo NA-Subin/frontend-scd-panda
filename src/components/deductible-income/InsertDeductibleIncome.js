@@ -40,8 +40,11 @@ import { IconButtonError, RateOils, TablecellHeader } from "../../theme/style";
 import CancelIcon from '@mui/icons-material/Cancel';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
+import { apiPost } from "../../server/apiClient";
+import { useBasicData } from "../../server/provider/BasicDataProvider";
 
 const InsertDeductibleIncome = (props) => {
+    const { refetch } = useBasicData();
     const { data, income, deduction } = props;
     console.log("income ", income, "deduction ", deduction);
     const [open, setOpen] = React.useState(false);
@@ -65,27 +68,23 @@ const InsertDeductibleIncome = (props) => {
         setOpen(false);
     };
 
-    const handlePost = () => {
-        database
-            .ref("/deductibleincome")
-            .child(data)
-            .update({
+    const handlePost = async () => {
+        try {
+            await apiPost("/api/deductibleincome", {
                 id: data + 1,
                 Code: code,
                 Name: name,
                 Type: type,
                 Status: status
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setOpen(false);
-                setName("");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            setOpen(false);
+            setName("");
+            refetch?.();
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
     return (

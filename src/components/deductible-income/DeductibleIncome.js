@@ -35,6 +35,7 @@ import { IconButtonWarning, TablecellSelling } from "../../theme/style";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import InsertDeductibleIncome from "./InsertDeductibleIncome";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
+import { apiPut } from "../../server/apiClient";
 
 const DeductibleIncomeDetail = ({ openNavbar }) => {
     const [update, setUpdate] = React.useState({});
@@ -83,8 +84,7 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
         };
     }, [openNavbar]); // ✅ ทำงานใหม่ทุกครั้งที่ openNavbar เปลี่ยน
 
-    //const { creditors } = useData();
-    const { creditors, deductibleincome } = useBasicData();
+    const { creditors, deductibleincome, refetch } = useBasicData();
     const creditor = Object.values(creditors || {});
     const deductibleIncome = Object.values(deductibleincome || {});
 
@@ -134,7 +134,7 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
     };
 
     const handleUpdate = (data) => {
-        setID(data.id);
+        setID(data.uuid);
         setName(data.Name);
         setStatus(data.Status === "ประจำ" ? true : false);
     }
@@ -145,46 +145,36 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
         setStatus("");
     }
 
-    const handleSave = () => {
-        database
-            .ref("/deductibleincome/")
-            .child(Number(ID) - 1)
-            .update({
+    const handleSave = async () => {
+        try {
+            await apiPut(`/api/deductibleincome/${ID}`, {
                 Name: name,
                 Status: status ? "ประจำ" : "ไม่ประจำ",
                 StatusData: checkData ? "อยู่ในระบบ" : "ไม่อยู่ในระบบ"
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setID("");
-                setName("");
-                setStatus("");
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            setID("");
+            setName("");
+            setStatus("");
+            refetch?.();
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
     const handleDeleteData = (data) => {
         ShowConfirm(
             `ต้องการลบข้อมูล ${data.Name} ใช่หรือไม่`,
-            () => {
-                database
-                    .ref("/deductibleincome/")
-                    .child(Number(data.id) - 1)
-                    .update({
-                        StatusData: "ไม่อยู่ในระบบ"
-                    })
-                    .then(() => {
-                        ShowSuccess("ลบข้อมูลสำเร็จ");
-                        console.log("Data pushed successfully");
-                    })
-                    .catch((error) => {
-                        ShowError("ลบข้อมูลไม่สำเร็จ");
-                        console.error("Error pushing data:", error);
-                    });
+            async () => {
+                try {
+                    await apiPut(`/api/deductibleincome/${data.uuid}`, { StatusData: "ไม่อยู่ในระบบ" });
+                    ShowSuccess("ลบข้อมูลสำเร็จ");
+                    refetch?.();
+                } catch (error) {
+                    ShowError("ลบข้อมูลไม่สำเร็จ");
+                    console.error("Error pushing data:", error);
+                }
             },
             () => {
                 ShowError("ยกเลิกการลบข้อมูล");
@@ -195,21 +185,15 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
     const handleResetData = (data) => {
         ShowConfirm(
             `ต้องการกู้ข้อมูล ${data.Name} ใช่หรือไม่`,
-            () => {
-                database
-                    .ref("/deductibleincome/")
-                    .child(Number(data.id) - 1)
-                    .update({
-                        StatusData: "อยู่ในระบบ"
-                    })
-                    .then(() => {
-                        ShowSuccess("กู้ข้อมูลสำเร็จ");
-                        console.log("Data pushed successfully");
-                    })
-                    .catch((error) => {
-                        ShowError("กู้ข้อมูลไม่สำเร็จ");
-                        console.error("Error pushing data:", error);
-                    });
+            async () => {
+                try {
+                    await apiPut(`/api/deductibleincome/${data.uuid}`, { StatusData: "อยู่ในระบบ" });
+                    ShowSuccess("กู้ข้อมูลสำเร็จ");
+                    refetch?.();
+                } catch (error) {
+                    ShowError("กู้ข้อมูลไม่สำเร็จ");
+                    console.error("Error pushing data:", error);
+                }
             },
             () => {
                 ShowError("ยกเลิกการลบข้อมูล");
@@ -361,15 +345,15 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                         {
                                             income.filter((t) => t.StatusData === (checkData ? "อยู่ในระบบ" : "ไม่อยู่ในระบบ")).slice(pageIncome * rowsPerPageIncome, pageIncome * rowsPerPageIncome + rowsPerPageIncome).map((row, index) => (
                                                 <TableRow>
-                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.id && "#c5cae9" }}>
-                                                        <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.id && "bold" }} gutterBottom>{index + 1}</Typography>
+                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
+                                                        <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.uuid && "bold" }} gutterBottom>{index + 1}</Typography>
                                                     </TableCell>
-                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.id && "#c5cae9" }}>
-                                                        <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.id && "bold" }} gutterBottom>{row.Code}</Typography>
+                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
+                                                        <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.uuid && "bold" }} gutterBottom>{row.Code}</Typography>
                                                     </TableCell>
-                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.id && "#c5cae9" }}>
+                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
                                                         {
-                                                            ID !== row.id ?
+                                                            ID !== row.uuid ?
                                                                 <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5 }} gutterBottom>{row.Name}</Typography>
                                                                 :
                                                                 <Paper>
@@ -392,9 +376,9 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                                                 </Paper>
                                                         }
                                                     </TableCell>
-                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.id && "#c5cae9" }}>
+                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
                                                         {
-                                                            ID !== row.id ?
+                                                            ID !== row.uuid ?
                                                                 <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5 }} gutterBottom>{row.Status}</Typography>
                                                                 :
                                                                 <Paper
@@ -422,9 +406,9 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                                                 </Paper>
                                                         }
                                                     </TableCell>
-                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.id && "#c5cae9" }}>
+                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
                                                         {
-                                                            ID !== row.id ?
+                                                            ID !== row.uuid ?
                                                                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                                                                     <IconButton size="small" onClick={() => handleUpdate(row)}>
                                                                         <SettingsIcon fontSize="small" color="warning" />
@@ -583,15 +567,15 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                         {
                                             deduction.filter((t) => t.StatusData === (checkData ? "อยู่ในระบบ" : "ไม่อยู่ในระบบ")).slice(pageDeduction * rowsPerPageDeduction, pageDeduction * rowsPerPageDeduction + rowsPerPageDeduction).map((row, index) => (
                                                 <TableRow>
-                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.id && "#c5cae9" }}>
-                                                        <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.id && "bold" }} gutterBottom>{index + 1}</Typography>
+                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
+                                                        <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.uuid && "bold" }} gutterBottom>{index + 1}</Typography>
                                                     </TableCell>
-                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.id && "#c5cae9" }}>
-                                                        <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.id && "bold" }} gutterBottom>{row.Code}</Typography>
+                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
+                                                        <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.uuid && "bold" }} gutterBottom>{row.Code}</Typography>
                                                     </TableCell>
-                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.id && "#c5cae9" }}>
+                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
                                                         {
-                                                            ID !== row.id ?
+                                                            ID !== row.uuid ?
                                                                 <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5 }} gutterBottom>{row.Name}</Typography>
                                                                 :
                                                                 <Paper>
@@ -614,9 +598,9 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                                                 </Paper>
                                                         }
                                                     </TableCell>
-                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.id && "#c5cae9" }}>
+                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
                                                         {
-                                                            ID !== row.id ?
+                                                            ID !== row.uuid ?
                                                                 <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5 }} gutterBottom>{row.Status}</Typography>
                                                                 :
                                                                 <Paper
@@ -644,9 +628,9 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                                                 </Paper>
                                                         }
                                                     </TableCell>
-                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.id && "#c5cae9" }}>
+                                                    <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
                                                         {
-                                                            ID !== row.id ?
+                                                            ID !== row.uuid ?
                                                                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                                                                     <IconButton size="small" onClick={() => handleUpdate(row)}>
                                                                         <SettingsIcon fontSize="small" color="warning" />
