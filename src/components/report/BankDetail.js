@@ -47,6 +47,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import AddCardIcon from '@mui/icons-material/AddCard';
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useTripData } from "../../server/provider/TripProvider";
+import { apiPost, apiPut } from "../../server/apiClient";
 
 const BankDetail = () => {
     const [open, setOpen] = React.useState(false);
@@ -58,8 +59,7 @@ const BankDetail = () => {
     const [updateBank, setUpdateBank] = React.useState(false);
     const [search, setSearch] = React.useState("");
 
-    // const { banks } = useData();
-    const { banks } = useTripData();
+    const { banks, refetch } = useTripData();
     //const bankDetail = Object.values(banks || {});
 
     const bankDetail = Object.values(banks || {}).filter(row =>
@@ -99,7 +99,7 @@ const BankDetail = () => {
         setPage(0);
     };
 
-    const handleSaveClick = () => {
+    const handleSaveClick = async () => {
         const normalize = (str) => (str || "").trim().toLowerCase();
 
         const isDuplicateBankID = bankDetail.some(
@@ -120,30 +120,26 @@ const BankDetail = () => {
             return;
         }
 
-        database
-            .ref("banks/")
-            .child(editedData.id - 1)
-            .update({
+        try {
+            await apiPut(`/api/banks/${editedData.uuid}`, {
                 BankID: editedData.BankID,
                 BankName: editedData.BankName,
                 Bank: editedData.Bank,
                 BankShortName: editedData.BankShortName,
                 Status: editedData.Status
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setBankID("")
-                setBankName("")
-                setBank("")
-                setBankShortName("")
-                setStatus("")
-                setUpdateId(null); // รีเซ็ตค่า updateId กลับเป็น null
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            setBankID("")
+            setBankName("")
+            setBank("")
+            setBankShortName("")
+            setStatus("")
+            setUpdateId(null); // รีเซ็ตค่า updateId กลับเป็น null
+            refetch?.();
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
     const handleChange = (field, value) => {
@@ -155,28 +151,24 @@ const BankDetail = () => {
 
     console.log("editedData : ", editedData);
 
-    const handleDeleteReport = (newID) => {
-        if (newID === null) {
+    const handleDeleteReport = (newUuid) => {
+        if (newUuid === null) {
             ShowError("ไม่พบข้อมูลที่ต้องการอัปเดต");
             return;
         }
 
         ShowConfirm(
             "คุณต้องการยกเลิกรายการนี้ใช่หรือไม่?",
-            () => {
+            async () => {
                 // ✅ ถ้ากดยืนยัน
-                database
-                    .ref("banks/")
-                    .child(newID - 1)
-                    .update({ Status: "ยกเลิก" })
-                    .then(() => {
-                        ShowSuccess("บันทึกข้อมูลเรียบร้อย");
-                        console.log("บันทึกข้อมูลเรียบร้อย ✅");
-                    })
-                    .catch((error) => {
-                        ShowError("ไม่สำเร็จ");
-                        console.error("Error updating data:", error);
-                    });
+                try {
+                    await apiPut(`/api/banks/${newUuid}`, { Status: "ยกเลิก" });
+                    ShowSuccess("บันทึกข้อมูลเรียบร้อย");
+                    refetch?.();
+                } catch (error) {
+                    ShowError("ไม่สำเร็จ");
+                    console.error("Error updating data:", error);
+                }
             },
             () => {
                 // ❌ ถ้ากดยกเลิก
@@ -185,50 +177,27 @@ const BankDetail = () => {
         );
     };
 
-    const handlePost = () => {
-        // const isDuplicateBankID = bankDetail.some(
-        //     (bank) => bank.BankID === bankID
-        // );
-
-        // const isDuplicateBankName = bankDetail.some(
-        //     (bank) => bank.BankName === bankName
-        // );
-
-
-        // if (isDuplicateBankID || isDuplicateBankName) {
-        //     let message = "ไม่สามารถบันทึกได้ เนื่องจาก";
-        //     if (isDuplicateBankID) message += " BankID ซ้ำ";
-        //     if (isDuplicateBankID && isDuplicateBankName) message += " และ";
-        //     if (isDuplicateBankName) message += " BankName ซ้ำ";
-
-        //     ShowError(message);
-        //     return;
-        // }
-
-        database
-            .ref("banks/")
-            .child(bankDetail.length)
-            .update({
+    const handlePost = async () => {
+        try {
+            await apiPost("/api/banks", {
                 id: bankDetail.length + 1,
                 BankID: bankID,
                 BankName: bankName,
                 Bank: bank,
                 BankShortName: bankShortName,
                 Status: "ใช้งานอยู่"
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setBankID("")
-                setBankName("")
-                setBank("")
-                setBankShortName("")
-                setStatus("")
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            setBankID("")
+            setBankName("")
+            setBank("")
+            setBankShortName("")
+            setStatus("")
+            refetch?.();
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
     return (
@@ -340,7 +309,7 @@ const BankDetail = () => {
                                             <TableRow key={row.id}>
                                                 <TableCell sx={{ textAlign: "center", width: 60 }}>{row.id}</TableCell>
 
-                                                {updateId === row.id ? (
+                                                {updateId === row.uuid ? (
                                                     <>
                                                         <TableCell sx={{ textAlign: "center", height: "30px" }}>
                                                             <Paper component="form" sx={{ width: "100%" }}>
@@ -436,14 +405,14 @@ const BankDetail = () => {
                                                             <Box display="flex" alignItems="center" justifyContent="center" >
                                                                 <IconButton
                                                                     color="warning"
-                                                                    onClick={() => handleEditClick(row.id, row)} // ✅ ใช้ arrow function
+                                                                    onClick={() => handleEditClick(row.uuid, row)} // ✅ ใช้ arrow function
                                                                     sx={{ marginTop: -0.5, marginBottom: -0.5, marginRight: -2 }}
                                                                 >
                                                                     <EditNoteIcon />
                                                                 </IconButton>
                                                                 <IconButton
                                                                     color="error"
-                                                                    onClick={() => handleDeleteReport(row.id)}
+                                                                    onClick={() => handleDeleteReport(row.uuid)}
                                                                     sx={{ marginTop: -0.5, marginBottom: -0.5 }}
                                                                 >
                                                                     <DeleteForeverIcon />
@@ -454,7 +423,7 @@ const BankDetail = () => {
                                                                 color="warning"
                                                                 startIcon={<EditNoteIcon />}
                                                                 sx={{ height: "25px" }}
-                                                                onClick={() => handleEditClick(row.id, row)} // ✅ ใช้ arrow function
+                                                                onClick={() => handleEditClick(row.uuid, row)} // ✅ ใช้ arrow function
                                                                 size="small"
                                                                 fullWidth
                                                             >

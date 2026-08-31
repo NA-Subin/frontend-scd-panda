@@ -44,6 +44,7 @@ import AddCardIcon from '@mui/icons-material/AddCard';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useTripData } from "../../server/provider/TripProvider";
+import { apiPost, apiPut } from "../../server/apiClient";
 
 const BankDetail = () => {
     const [open, setOpen] = React.useState(false);
@@ -53,8 +54,7 @@ const BankDetail = () => {
     const [bankShortName, setBankShortName] = React.useState("");
     const [status, setStatus] = React.useState("");
 
-    // const { banks } = useData();
-    const { banks } = useTripData();
+    const { banks, refetch } = useTripData();
     const bankDetail = Object.values(banks || {});
 
     const handleClickOpen = () => {
@@ -73,31 +73,27 @@ const BankDetail = () => {
         setEditedData({ ...row }); // คัดลอกค่าของ row นั้นมาเก็บไว้
     };
 
-    const handleSaveClick = () => {
-        database
-            .ref("banks/")
-            .child(editedData.id - 1)
-            .update({
+    const handleSaveClick = async () => {
+        try {
+            await apiPut(`/api/banks/${editedData.uuid}`, {
                 BankID: editedData.BankID,
                 BankName: editedData.BankName,
                 Bank: editedData.Bank,
                 BankShortName: editedData.BankShortName,
                 Status: editedData.Status
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setBankID("")
-                setBankName("")
-                setBank("")
-                setBankShortName("")
-                setStatus("")
-                setUpdateId(null); // รีเซ็ตค่า updateId กลับเป็น null
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            setBankID("")
+            setBankName("")
+            setBank("")
+            setBankShortName("")
+            setStatus("")
+            setUpdateId(null); // รีเซ็ตค่า updateId กลับเป็น null
+            refetch?.();
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
     const handleChange = (field, value) => {
@@ -109,31 +105,27 @@ const BankDetail = () => {
 
     console.log("editedData : ", editedData);
 
-    const handlePost = () => {
-        database
-            .ref("banks/")
-            .child(bankDetail.length)
-            .update({
+    const handlePost = async () => {
+        try {
+            await apiPost("/api/banks", {
                 id: bankDetail.length + 1,
                 BankID: bankID,
                 BankName: bankName,
                 Bank: bank,
                 BankShortName: bankShortName,
                 Status: "ใช้งานอยู่"
-            })
-            .then(() => {
-                ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setBankID("")
-                setBankName("")
-                setBank("")
-                setBankShortName("")
-                setStatus("")
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+            setBankID("")
+            setBankName("")
+            setBank("")
+            setBankShortName("")
+            setStatus("")
+            refetch?.();
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     };
 
     return (
@@ -209,7 +201,7 @@ const BankDetail = () => {
                                             <TableRow key={row.id}>
                                                 <TableCell sx={{ textAlign: "center", width: 60 }}>{row.id}</TableCell>
 
-                                                {updateId === row.id ? (
+                                                {updateId === row.uuid ? (
                                                     <>
                                                         <TableCell sx={{ textAlign: "center",height: "30px" }}>
                                                             <Paper component="form" sx={{ width: "100%" }}>
@@ -307,7 +299,7 @@ const BankDetail = () => {
                                                                 color="warning"
                                                                 startIcon={<EditNoteIcon />}
                                                                 sx={{ height: "25px" }}
-                                                                onClick={() => handleEditClick(row.id, row)} // ✅ ใช้ arrow function
+                                                                onClick={() => handleEditClick(row.uuid, row)} // ✅ ใช้ arrow function
                                                                 size="small"
                                                                 fullWidth
                                                             >
