@@ -141,14 +141,17 @@ const TripsBigTruck = ({ openNavbar }) => {
         );
     })
         .map((item) => {
-            const regHeadId = item.Registration; // แยก id ก่อน :
+            // item.Registration เป็น UUID จริงหลัง migrate (schema-manifest: trip.Registration = UUID)
+            // ต้อง match ด้วย uuid ไม่ใช่ row.id (NUMERIC) ซึ่งจะไม่มีทาง match กับ UUID ได้เลย
+            const regHeadUuid = item.Registration;
 
-            const regHead = registrations.find((row) => row.id === regHeadId);
+            const regHead = registrations.find((row) => row.uuid === regHeadUuid);
 
             return {
                 ...item,
                 RegistrationHead: regHead ? regHead?.RegHead : null,
-                RegistrationTail: regHead ? regHead?.RegTail : null,
+                // truck_registration.RegTail เป็น UUID เช่นกัน ต้องใช้ RegTailName (TEXT) สำหรับแสดงผล
+                RegistrationTail: regHead ? regHead?.RegTailName : null,
             };
         })
         .sort((a, b) => {

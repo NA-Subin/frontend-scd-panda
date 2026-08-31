@@ -156,9 +156,9 @@ const PrintTrips = () => {
                     <TableCell sx={{ textAlign: "center", borderLeft: "1px solid black" }}>{row.OrderID}</TableCell>
                     <TableCell sx={{ textAlign: "center", borderLeft: "1px solid black" }}>
                       {
-                        trips?.Depot.split(":")[0] === "ลำปาง" ? row.Rate1
-                          : trips?.Depot.split(":")[0] === "พิจิตร" ? row.Rate2
-                            : trips?.Depot.split(":")[0] === "สระบุรี" || trips?.Depot.split(":")[0] === "บางปะอิน" || trips?.Depot.split(":")[0] === "IR" ? row.Rate3
+                        trips?.Depot.split(":")[1] === "ลำปาง" ? row.Rate1
+                          : trips?.Depot.split(":")[1] === "พิจิตร" ? row.Rate2
+                            : trips?.Depot.split(":")[1] === "สระบุรี" || trips?.Depot.split(":")[1] === "บางปะอิน" || trips?.Depot.split(":")[1] === "IR" ? row.Rate3
                               : row.Rate
                       }
                     </TableCell>
@@ -255,9 +255,9 @@ const PrintTrips = () => {
                     </TableCell>
                     <TableCell sx={{ textAlign: "center", borderLeft: "1px solid black" }}>
                     {
-                        trips?.Depot.split(":")[0] === "ลำปาง" ? row.Rate1
-                          : trips?.Depot.split(":")[0] === "พิจิตร" ? row.Rate2
-                            : trips?.Depot.split(":")[0] === "สระบุรี" || trips?.Depot.split(":")[0] === "บางปะอิน" || trips?.Depot.split(":")[0] === "IR" ? row.Rate3
+                        trips?.Depot.split(":")[1] === "ลำปาง" ? row.Rate1
+                          : trips?.Depot.split(":")[1] === "พิจิตร" ? row.Rate2
+                            : trips?.Depot.split(":")[1] === "สระบุรี" || trips?.Depot.split(":")[1] === "บางปะอิน" || trips?.Depot.split(":")[1] === "IR" ? row.Rate3
                               : row.Rate
                       }
                     </TableCell>

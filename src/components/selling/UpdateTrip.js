@@ -676,7 +676,9 @@ const UpdateTrip = (props) => {
             for (const item of editableTickets) {
                 const { uuid, row_key, ...fields } = item;
                 const isRawSelection = fields.TicketName && !UUID_RE.test(fields.TicketName);
-                const resolvedTicket = isRawSelection ? getTickets().find((t) => t.Name === fields.TicketName) : null;
+                // Autocomplete ตอนเลือกลูกค้าใหม่เขียนเป็น "id:Name" (ดู setEditableTickets ด้านล่าง)
+                // ต้อง match ด้วยรูปแบบเดียวกัน ไม่ใช่ t.Name เฉย ๆ ซึ่งจะไม่ตรงกับ "id:Name" เลย
+                const resolvedTicket = isRawSelection ? getTickets().find((t) => `${t.id}:${t.Name}` === fields.TicketName) : null;
                 if (isRawSelection) {
                     fields.TicketName = resolvedTicket?.uuid || null;
                     fields.TicketNameName = resolvedTicket?.Name || item.TicketName;
@@ -699,7 +701,9 @@ const UpdateTrip = (props) => {
             for (const item of editableOrders) {
                 const { uuid, row_key, ...fields } = item;
                 const isRawSelection = fields.TicketName && !UUID_RE.test(fields.TicketName);
-                const resolvedCustomer = isRawSelection ? getCustomers().find((t) => t.Name === fields.TicketName) : null;
+                // Autocomplete ตอนเลือกลูกค้าใหม่เขียนเป็น "id:Name" (ดู setEditableOrders ด้านล่าง)
+                // ต้อง match ด้วยรูปแบบเดียวกัน ไม่ใช่ t.Name เฉย ๆ ซึ่งจะไม่ตรงกับ "id:Name" เลย
+                const resolvedCustomer = isRawSelection ? getCustomers().find((t) => `${t.id}:${t.Name}` === fields.TicketName) : null;
                 if (isRawSelection) {
                     fields.TicketName = resolvedCustomer?.uuid || null;
                     fields.TicketNameName = resolvedCustomer?.Name || item.TicketName;
@@ -1475,15 +1479,11 @@ const UpdateTrip = (props) => {
                                                         }}
                                                     >
                                                         {(() => {
-                                                            const driverName = trip.Driver?.includes(":")
-                                                                ? trip.DriverName
-                                                                : trip.Driver || "";
+                                                            // trip.Driver/trip.Registration เป็น UUID จริงหลัง migrate (schema-manifest: order.Driver/Registration = UUID)
+                                                            // จึงต้อง match ด้วย uuid ไม่ใช่แยก id ด้วย split(":") แบบ composite เดิมอีกต่อไป
+                                                            const driverName = trip.DriverName || trip.Driver || "";
 
-                                                            const [regId, regName] = trip.Registration?.includes(":")
-                                                                ? trip.Registration.split(":")
-                                                                : [null, trip.Registration || ""];
-
-                                                            const matchedReg = truckH.find(reg => reg.id === Number(regId));
+                                                            const matchedReg = truckH.find(reg => reg.uuid === trip.Registration);
 
                                                             const fullPlate = matchedReg
                                                                 ? `${matchedReg.RegHead}${matchedReg.RegTail &&
@@ -1491,7 +1491,7 @@ const UpdateTrip = (props) => {
                                                                     ? `: /${matchedReg.RegTailName}`
                                                                     : ""
                                                                 }`
-                                                                : regName;
+                                                                : trip.RegistrationName || trip.Registration || "";
 
                                                             return driverName === "รับจ้างขนส่ง" ? "รถรับจ้างขนส่ง" : `${driverName} / ${fullPlate}`;
                                                         })()}
@@ -2339,15 +2339,11 @@ const UpdateTrip = (props) => {
                                                         }}
                                                     >
                                                         {(() => {
-                                                            const driverName = trip.Driver?.includes(":")
-                                                                ? trip.DriverName
-                                                                : trip.Driver || "";
+                                                            // trip.Driver/trip.Registration เป็น UUID จริงหลัง migrate (schema-manifest: order.Driver/Registration = UUID)
+                                                            // จึงต้อง match ด้วย uuid ไม่ใช่แยก id ด้วย split(":") แบบ composite เดิมอีกต่อไป
+                                                            const driverName = trip.DriverName || trip.Driver || "";
 
-                                                            const [regId, regName] = trip.Registration?.includes(":")
-                                                                ? trip.Registration.split(":")
-                                                                : [null, trip.Registration || ""];
-
-                                                            const matchedReg = truckH.find(reg => reg.id === Number(regId));
+                                                            const matchedReg = truckH.find(reg => reg.uuid === trip.Registration);
 
                                                             const fullPlate = matchedReg
                                                                 ? `${matchedReg.RegHead ? matchedReg.RegHead : ""}${matchedReg.RegTail &&
@@ -2355,7 +2351,7 @@ const UpdateTrip = (props) => {
                                                                     ? ` : /${matchedReg.RegTailName}`
                                                                     : ""
                                                                 }`
-                                                                : regName;
+                                                                : trip.RegistrationName || trip.Registration || "";
 
                                                             return driverName === "รับจ้างขนส่ง" ? "รถรับจ้างขนส่ง" : `${driverName} / ${fullPlate}`;
                                                         })()}
