@@ -761,7 +761,7 @@ const DriverDetail = () => {
                     size="small"
                     fullWidth
                     variant="standard"
-                    value={driverDeetail?.Position.split(":")[1]}
+                    value={driverDeetail?.PositionName || ""}
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         height: "25px", // ปรับความสูงของ TextField
@@ -837,7 +837,7 @@ const DriverDetail = () => {
                     size="small"
                     fullWidth
                     variant="standard"
-                    value={registrationDetail?.RegTail.split(":")[1]}
+                    value={registrationDetail?.RegTailName || ""}
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         height: "25px", // ปรับความสูงของ TextField
