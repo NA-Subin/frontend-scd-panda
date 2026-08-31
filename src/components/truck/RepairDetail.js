@@ -87,9 +87,20 @@ const RepairDetail = ({}) => {
         item.Type === "รถใหญ่"
           ? (registration?.RegTail ?? "-")
           : (smallTruck?.RegTail ?? "-"),
+      // registration.RegTail is a UUID FK (truck_registration_tail); its
+      // display text lives in the RegTailName companion column, not in
+      // RegTail itself.
+      RegTailName: item.Type === "รถใหญ่" ? (registration?.RegTailName ?? "-") : "-",
       Company: registration?.Company ?? "-",
+      CompanyName:
+        item.Type === "รถใหญ่"
+          ? (registration?.CompanyName ?? "-")
+          : (smallTruck?.CompanyName ?? "-"),
       Status: registration?.StatusTruck ?? "ใช้งานอยู่",
+      // inspection.Employee is a UUID FK (employee_drivers); its display
+      // text lives in the EmployeeName companion column.
       Driver: item.Employee ?? "-",
+      DriverName: item.EmployeeName ?? "-",
       Shortname: item.Type === "รถใหญ่" ? "-" : (smallTruck?.Shortname ?? "-"),
     };
   });
