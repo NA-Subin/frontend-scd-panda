@@ -102,13 +102,13 @@ const TruckRepair = (props) => {
   useEffect(() => {
     setTruck(matchedTruck?.RepairTruck || "");
     setInspection(matchedInspection || "");
-    setBrake(matchedInspection?.Brake);
-    setElectricity(matchedInspection?.Electricity);
-    setWater(matchedInspection?.Water);
-    setAir(matchedInspection?.Air);
-    setGasoline(matchedInspection?.Gasoline);
-    setOils(matchedInspection?.Oils);
-    setNoise(matchedInspection?.Noise);
+    setBrake(matchedInspection?.Brake || {});
+    setElectricity(matchedInspection?.Electricity || {});
+    setWater(matchedInspection?.Water || {});
+    setAir(matchedInspection?.Air || {});
+    setGasoline(matchedInspection?.Gasoline || {});
+    setOils(matchedInspection?.Oils || {});
+    setNoise(matchedInspection?.Noise || {});
   }, [matchedTruck, matchedInspection]);
 
   const tableRef = useRef();
