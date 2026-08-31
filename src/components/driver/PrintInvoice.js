@@ -96,7 +96,7 @@ const PdaPrinter = () => {
             {data?.order?.TicketNameName || "-"}
           </Typography>
           <Typography sx={{ fontSize: "10px" }}>
-            ทะเบียน: {data?.order?.Registration?.split(":")[1] || "-"}
+            ทะเบียน: {data?.order?.RegistrationName || "-"}
           </Typography>
         </Box>
 
@@ -154,7 +154,7 @@ const PdaPrinter = () => {
         {/* 🔹 ข้อมูลเพิ่ม */}
         <Box sx={{ fontSize: "10px" }}>
           <Typography>วันที่: {data?.order?.Date}</Typography>
-          <Typography>คนขับ: {data?.order?.Driver?.split(":")[1]}</Typography>
+          <Typography>คนขับ: {data?.order?.DriverName || "-"}</Typography>
         </Box>
 
         <Divider sx={{ my: 1 }} />
