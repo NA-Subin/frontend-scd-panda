@@ -354,8 +354,8 @@ const UpdateFinancial = (props) => {
         setInvoiceID(row.InvoiceID || "");
         setNote(row.Note || "");
         setDetails(row.Details || "");
-        setCompany(companypaymentDetail.find((item) => item.id === Number(row.Company?.split(":")[0])) || null);
-        setBank(expenseitem.find((item) => item.id === Number(row.Bank?.split(":")[0])) || null);
+        setCompany(companypaymentDetail.find((item) => item.uuid === row.Company) || null);
+        setBank(expenseitem.find((item) => item.uuid === row.Bank) || null);
         setPrice(row.Price);
         setVat(row.Vat);
         setTotal(row.Total);
