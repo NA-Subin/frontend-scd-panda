@@ -928,8 +928,9 @@ const InsertTrips = () => {
         // บันทึกข้อมูลลง sessionStorage
         sessionStorage.setItem("Trips", JSON.stringify(Trips));
 
-        // เปิดหน้าต่างใหม่ไปที่ /print-invoice
-        const printWindow = window.open("/print-trips", "_blank", "width=800,height=600");
+        // เปิดหน้าต่างใหม่ไปที่หน้าพิมพ์ของรถเล็ก (App.js ลงทะเบียน /print-tripssmall ให้ PrintTrips ของ sellingsmalltruck โดยเฉพาะ
+        // ส่วน /print-trips เป็นหน้าของรถใหญ่ - UpdateTrip.js ของรถเล็กก็เปิด /print-tripssmall เช่นกัน)
+        const printWindow = window.open("/print-tripssmall", "_blank", "width=800,height=600");
 
         if (!printWindow) {
             alert("กรุณาปิด pop-up blocker แล้วลองใหม่");

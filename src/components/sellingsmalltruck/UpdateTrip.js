@@ -146,21 +146,17 @@ const UpdateTrip = (props) => {
     }, []);
 
     const handleSaveAsImage = () => {
-        const driverName = trip.Driver?.includes(":")
-            ? trip.DriverName
-            : trip.Driver || "";
+        // trip.Driver/trip.Registration เป็น UUID จริงหลัง migrate (schema-manifest: order.Driver/Registration = UUID)
+        // จึงต้อง match ด้วย uuid ไม่ใช่แยก id ด้วย split(":") แบบ composite เดิมอีกต่อไป
+        const driverName = trip.DriverName || trip.Driver || "";
 
-        const registrationId = trip.Registration?.includes(":")
-            ? trip.Registration
-            : null;
+        const matchedTruck = registrationTruck.find(
+            (row) => row.uuid === trip.Registration
+        );
 
-        const plate = trip.Registration?.includes(":")
-            ? trip.RegistrationName
-            : trip.Registration || "";
+        const plate = matchedTruck?.RegHead || trip.RegistrationName || trip.Registration || "";
 
-        const shortName = registrationTruck.find(
-            (row) => row.id === registrationId
-        )?.ShortName || "";
+        const shortName = matchedTruck?.ShortName || "";
 
 
         const Trips = {
@@ -718,7 +714,9 @@ const UpdateTrip = (props) => {
             for (const item of editableTickets) {
                 const { uuid, row_key, ...fields } = item;
                 const isRawSelection = fields.TicketName && !UUID_RE.test(fields.TicketName);
-                const resolvedTicket = isRawSelection ? getTickets().find((t) => t.Name === fields.TicketName) : null;
+                // Autocomplete ตอนเลือกลูกค้าใหม่เขียนเป็น "id:Name" (ดู setEditableTickets ด้านล่าง)
+                // ต้อง match ด้วยรูปแบบเดียวกัน ไม่ใช่ t.Name เฉย ๆ ซึ่งจะไม่ตรงกับ "id:Name" เลย
+                const resolvedTicket = isRawSelection ? getTickets().find((t) => `${t.id}:${t.Name}` === fields.TicketName) : null;
                 if (isRawSelection) {
                     fields.TicketName = resolvedTicket?.uuid || null;
                     fields.TicketNameName = resolvedTicket?.Name || item.TicketName;
@@ -741,7 +739,9 @@ const UpdateTrip = (props) => {
             for (const item of editableOrders) {
                 const { uuid, row_key, ...fields } = item;
                 const isRawSelection = fields.TicketName && !UUID_RE.test(fields.TicketName);
-                const resolvedCustomer = isRawSelection ? getCustomers().find((t) => t.Name === fields.TicketName) : null;
+                // Autocomplete ตอนเลือกลูกค้าใหม่เขียนเป็น "id:Name" (ดู setEditableOrders ด้านล่าง)
+                // ต้อง match ด้วยรูปแบบเดียวกัน ไม่ใช่ t.Name เฉย ๆ ซึ่งจะไม่ตรงกับ "id:Name" เลย
+                const resolvedCustomer = isRawSelection ? getCustomers().find((t) => `${t.id}:${t.Name}` === fields.TicketName) : null;
                 if (isRawSelection) {
                     fields.TicketName = resolvedCustomer?.uuid || null;
                     fields.TicketNameName = resolvedCustomer?.Name || item.TicketName;
@@ -1466,25 +1466,17 @@ const UpdateTrip = (props) => {
                                                         }}
                                                     >
                                                         {(() => {
-                                                            const driverName = trip.Driver?.includes(":")
-                                                                ? trip.DriverName
-                                                                : trip.Driver || "";
+                                                            // trip.Driver/trip.Registration เป็น UUID จริงหลัง migrate (schema-manifest: order.Driver/Registration = UUID)
+                                                            // จึงต้อง match ด้วย uuid ไม่ใช่แยก id ด้วย split(":") แบบ composite เดิมอีกต่อไป
+                                                            const driverName = trip.DriverName || trip.Driver || "";
 
-                                                            const registrationParts = trip.Registration?.includes(":")
-                                                                ? trip.Registration.split(":")
-                                                                : [];
+                                                            const matchedTruck = registrationTruck.find(
+                                                                (row) => row.uuid === trip.Registration
+                                                            );
 
-                                                            const registrationId = registrationParts.length > 0
-                                                                ? Number(registrationParts[0])
-                                                                : null;
+                                                            const plate = matchedTruck?.RegHead || trip.RegistrationName || trip.Registration || "";
 
-                                                            const plate = registrationParts.length > 1
-                                                                ? registrationParts[1]
-                                                                : trip.Registration || "";
-
-                                                            const shortName = registrationTruck.find(
-                                                                (row) => row.id === registrationId
-                                                            )?.ShortName || "";
+                                                            const shortName = matchedTruck?.ShortName || "";
 
                                                             const cleanShortName = shortName.includes("...")
                                                                 ? shortName.split("...")[1]
@@ -2257,25 +2249,17 @@ const UpdateTrip = (props) => {
                                                         }}
                                                     >
                                                         {(() => {
-                                                            const driverName = trip.Driver?.includes(":")
-                                                                ? trip.DriverName
-                                                                : trip.Driver || "";
+                                                            // trip.Driver/trip.Registration เป็น UUID จริงหลัง migrate (schema-manifest: order.Driver/Registration = UUID)
+                                                            // จึงต้อง match ด้วย uuid ไม่ใช่แยก id ด้วย split(":") แบบ composite เดิมอีกต่อไป
+                                                            const driverName = trip.DriverName || trip.Driver || "";
 
-                                                            const registrationParts = trip.Registration?.includes(":")
-                                                                ? trip.Registration.split(":")
-                                                                : [];
+                                                            const matchedTruck = registrationTruck.find(
+                                                                (row) => row.uuid === trip.Registration
+                                                            );
 
-                                                            const registrationId = registrationParts.length > 0
-                                                                ? Number(registrationParts[0])
-                                                                : null;
+                                                            const plate = matchedTruck?.RegHead || trip.RegistrationName || trip.Registration || "";
 
-                                                            const plate = registrationParts.length > 1
-                                                                ? registrationParts[1]
-                                                                : trip.Registration || "";
-
-                                                            const shortName = registrationTruck.find(
-                                                                (row) => row.id === registrationId
-                                                            )?.ShortName || "";
+                                                            const shortName = matchedTruck?.ShortName || "";
 
                                                             const cleanShortName = shortName.includes("...")
                                                                 ? shortName.split("...")[1]
