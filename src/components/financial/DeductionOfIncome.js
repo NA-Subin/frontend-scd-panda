@@ -88,8 +88,8 @@ const DeductionOfIncome = (props) => {
     const { reportFinancial, refetch: refetchTripData } = useTripData();
     const reports = Object.values(reportFinancial || {})
         .sort((a, b) => {
-            const driverA = (a.Driver || "").split(":")[1]?.trim() || "";
-            const driverB = (b.Driver || "").split(":")[1]?.trim() || "";
+            const driverA = (a.DriverName || "").trim();
+            const driverB = (b.DriverName || "").trim();
             return driverA.localeCompare(driverB, 'th', { numeric: true });
         });
 
