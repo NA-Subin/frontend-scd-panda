@@ -272,6 +272,7 @@ const ReportTrip = ({ openNavbar }) => {
             const ordersText = Object.entries(row)
                 .filter(([key]) => key.startsWith("Order"))
                 .sort((a, b) => parseInt(a[0].replace("Order", "")) - parseInt(b[0].replace("Order", "")))
+                .filter(([, value]) => value)
                 .map(([_, value], idx) => `[${idx + 1}] : ${value.split(":")[1]}`)
                 .join("\n");
 
@@ -731,6 +732,7 @@ const ReportTrip = ({ openNavbar }) => {
                                                         Object.entries(row)
                                                             .filter(([key]) => key.startsWith("Order"))
                                                             .sort((a, b) => parseInt(a[0].replace("Order", "")) - parseInt(b[0].replace("Order", "")))
+                                                            .filter(([, value]) => value)
                                                             .map(([_, value], idx) => (
                                                                 <div key={idx}>{`[${idx + 1}] : ${value.split(":")[1]}`}</div>
                                                             ))
