@@ -84,8 +84,9 @@ const TicketsBigTruck = ({ openNavbar }) => {
     const { customerbigtruck, company, small, refetch } = useBasicData();
     const ticket = Object.values(customerbigtruck || {}).map((item) => {
 
+        // customers.Company เป็น UUID จริงหลัง migrate (schema-manifest) ต้อง match ด้วย uuid ไม่ใช่ id (NUMERIC)
         const companies = Object.values(company || {}).find((c) =>
-            c.id === (
+            c.uuid === (
                 item.Company
                     ? item.Company
                     : null
@@ -188,12 +189,20 @@ const TicketsBigTruck = ({ openNavbar }) => {
         setRate3Edit(rowRate3);
         setName(newname);
         setCreditTimeEdit(rowCreditTime);
-        setCompanies((newCompany && newCompany !== "0:ไม่มี") ? `${Number(newCompany.split(":")[0])}:${newCompanyTicket}` : "ไม่มี");
+        // newCompany คือ customers.Company (UUID) - ต้อง resolve เป็น "id:Name" (id ตัวเลขจาก company table)
+        // ให้ตรงกับ format ที่ MenuItem ของ Select บริษัทด้านล่างใช้ ไม่ใช่แยกด้วย split(":") แบบ composite เดิม
+        const matchedCompany = newCompany ? companyDetail.find((c) => c.uuid === newCompany) : null;
+        setCompanies(matchedCompany ? `${matchedCompany.id}:${matchedCompany.Name || newCompanyTicket}` : "ไม่มี");
     };
 
     // บันทึกข้อมูลที่แก้ไขแล้ว
     const handleSave = async () => {
         try {
+            // companies ในหน้านี้เก็บเป็น "id:Name" (id ตัวเลขจาก company table ตาม MenuItem)
+            // ต้อง resolve กลับเป็น uuid จริงก่อนเขียนลง customers.Company ซึ่งเป็นคอลัมน์ UUID
+            const resolvedCompanyUuid = companies && companies !== "ไม่มี"
+                ? companyDetail.find((c) => `${c.id}:${c.Name}` === companies)?.uuid || null
+                : null;
             await apiPut(`/api/customers/${selectedRowId}`, {
                 Status: ticketChecked ? "ลูกค้าประจำ" : "ลูกค้าไม่ประจำ",
                 StatusCompany: ticketCheckedC ? "อยู่บริษัทในเครือ" : "ไม่อยู่บริษัทในเครือ",
@@ -201,7 +210,7 @@ const TicketsBigTruck = ({ openNavbar }) => {
                 Rate2: rate2Edit,
                 Rate3: rate3Edit,
                 CreditTime: creditTimeEdit,
-                Company: companies,
+                Company: resolvedCompanyUuid,
                 Name: name
             });
             ShowSuccess("แก้ไขข้อมูลสำเร็จ");
@@ -276,7 +285,11 @@ const TicketsBigTruck = ({ openNavbar }) => {
         setRegistrationChecked(row.RegistrationCheck ?? false);
         setRegistration(row.Registration ?? "ไม่มี");
         setType(row.Type);
-        setCompanies(row.Company ? `${row.Company}:${row.CompanyTicket}` : "ไม่มี");
+        // row.Company คือ customers.Company (UUID) - ต้อง resolve เป็น "id:Name" ให้ตรงกับ format ของ Select บริษัท
+        {
+            const matchedCompany = row.Company ? companyDetail.find((c) => c.uuid === row.Company) : null;
+            setCompanies(matchedCompany ? `${matchedCompany.id}:${matchedCompany.Name || row.CompanyTicket}` : "ไม่มี");
+        }
         if (row.StatusCompany === "อยู่บริษัทในเครือ") {
             setTicketCheckedC(true);
         } else {
@@ -320,6 +333,11 @@ const TicketsBigTruck = ({ openNavbar }) => {
         };
 
         try {
+            // companies ในหน้านี้เก็บเป็น "id:Name" (id ตัวเลขจาก company table ตาม MenuItem)
+            // ต้อง resolve กลับเป็น uuid จริงก่อนเขียนลง customers.Company ซึ่งเป็นคอลัมน์ UUID
+            const resolvedCompanyUuid = companies && companies !== "ไม่มี"
+                ? companyDetail.find((c) => `${c.id}:${c.Name}` === companies)?.uuid || null
+                : null;
             await apiPut(`/api/customers/${openCustomer}`, {
                 Name: name,
                 Status: ticketChecked === true ? "ลูกค้าประจำ" : "ลูกค้าไม่ประจำ",
@@ -329,7 +347,7 @@ const TicketsBigTruck = ({ openNavbar }) => {
                 Rate3: rate3,
                 Code: code,
                 CompanyName: companyName,
-                Company: companies,
+                Company: resolvedCompanyUuid,
                 CodeID: codeID,
                 Address: address,
                 Phone: phone,

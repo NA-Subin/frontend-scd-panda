@@ -106,6 +106,12 @@ const InsertCustomerBigTruck = (props) => {
         const existing = Object.values(customersmalltruck || {});
         const nextId = existing.reduce((max, row) => Math.max(max, row.id || 0), 0) + 1;
 
+        // companies เก็บเป็น "id:Name" (id ตัวเลขจาก company table ตาม MenuItem)
+        // ต้อง resolve กลับเป็น uuid จริงก่อนเขียนลง customers.Company ซึ่งเป็นคอลัมน์ UUID
+        const resolvedCompanyUuid = companies && companies !== "ไม่มี"
+            ? companyDetail.find((c) => `${c.id}:${c.Name}` === companies)?.uuid || null
+            : null;
+
         try {
             await apiPost("/api/customers", {
                 Category: "smalltruck",
@@ -120,7 +126,7 @@ const InsertCustomerBigTruck = (props) => {
                 Bill: bill,
                 Code: code,
                 CompanyName: companyName,
-                Company: companies,
+                Company: resolvedCompanyUuid,
                 CodeID: codeID,
                 Address: address,
                 lat: lat,
