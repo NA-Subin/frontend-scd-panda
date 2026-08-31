@@ -2300,7 +2300,7 @@ const InsertTrips = () => {
                                                     <SellingDetail
                                                         key={selling[key].id}
                                                         detail={selling[key]}
-                                                        orders={orders.length}
+                                                        orders={order.length}
                                                         ticketsTrip={ticketsTrip}
                                                         customers={customers}
                                                         editMode={editMode}
