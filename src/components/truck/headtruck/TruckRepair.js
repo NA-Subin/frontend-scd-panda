@@ -2238,9 +2238,7 @@ const TruckRepair = (props) => {
                     placeholder="ลงชื่อ"
                     size="small"
                     variant="standard"
-                    value={
-                      inspection.Employee && inspection.Employee.split(":")[1]
-                    }
+                    value={inspection.EmployeeName || ""}
                     InputLabelProps={{
                       style: {
                         textAlign: "center",

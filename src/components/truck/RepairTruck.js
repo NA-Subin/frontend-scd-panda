@@ -133,6 +133,10 @@ const RepairTruck = ({ selectDriver, driverDetail, setRepairTruck, trip }) => {
   const regheadList = Object.values(reghead || {});
   const smallList = Object.values(small || {});
   const driversList = Object.values(drivers || {});
+  // `employee` holds a raw employee_drivers.uuid (truck_registration.Driver is a
+  // UUID FK, not the old "id:Name" composite string), so it can't be displayed
+  // with .split(":") - resolve the name via the uuid lookup instead.
+  const employeeName = driversList.find((d) => d.uuid === employee)?.Name || "";
 
   useEffect(() => {
     setRegHead(selectDriver || "");
@@ -424,7 +428,7 @@ const RepairTruck = ({ selectDriver, driverDetail, setRepairTruck, trip }) => {
                         placeholder="ระบุ"
                         size="small"
                         variant="standard"
-                        value={row?.Driver?.split(":")?.[1] || ""}
+                        value={row?.DriverName || ""}
                         disabled
                         sx={{ maxWidth: "20vw", ml: 1 }}
                       />
@@ -458,7 +462,7 @@ const RepairTruck = ({ selectDriver, driverDetail, setRepairTruck, trip }) => {
                         placeholder="ระบุ"
                         size="small"
                         variant="standard"
-                        value={row?.RegTail?.split(":")?.[1] || ""}
+                        value={row?.RegTailName || ""}
                         disabled
                         sx={{ maxWidth: "10vw", ml: 1 }}
                       />
@@ -1685,7 +1689,7 @@ const RepairTruck = ({ selectDriver, driverDetail, setRepairTruck, trip }) => {
                 placeholder="ลงชื่อ"
                 size="small"
                 variant="standard"
-                value={employee && employee.split(":")[1]}
+                value={employeeName}
                 InputLabelProps={{
                   style: { textAlign: "center", width: "100%" }, // จัดให้ label อยู่ตรงกลาง
                 }}
