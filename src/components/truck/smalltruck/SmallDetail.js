@@ -91,6 +91,16 @@ const SmallDetail = (props) => {
   const dataregtail = Object.values(regtail || {});
   const registrationTail = dataregtail.filter(row => row.Status && row.Status === "ยังไม่ได้เชื่อมต่อทะเบียนหัว");
 
+  // truck_small.Driver is still a plain TEXT column (no DriverName companion
+  // exists in schema-manifest.json for this table) - it has been written
+  // over time as "ไม่มี", the "0:ไม่มี" sentinel, a bare name, or an
+  // "id:Name" composite depending on which flow last touched it. Mirrors
+  // resolveDriverDisplay() in UpdateSmallTruck.js.
+  const resolveDriverDisplay = (value) => {
+    if (!value || value === "0:ไม่มี" || value === "ไม่มี") return "ไม่มี";
+    return value.includes(":") ? value.split(":")[1] : value;
+  };
+
   const handleDelete = (t) => {
     if (!t?.uuid) {
       ShowError("ไม่พบข้อมูลรถ");
@@ -161,7 +171,7 @@ const SmallDetail = (props) => {
         </TableCell>
         <TableCell sx={{ textAlign: "center" }}>{truck.Status}</TableCell>
         <TableCell sx={{ textAlign: "center" }}>{truck.CompanyName || "-"}</TableCell>
-        <TableCell sx={{ textAlign: "center" }}>{truck.Driver === "ไม่มี" ? truck.Driver : truck.DriverName}</TableCell>
+        <TableCell sx={{ textAlign: "center" }}>{resolveDriverDisplay(truck.Driver)}</TableCell>
         <TableCell
           sx={{
             backgroundColor: "white",
