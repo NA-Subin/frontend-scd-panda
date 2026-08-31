@@ -161,7 +161,7 @@ const ReportTrip = ({ openNavbar }) => {
 
         // 2. สร้าง Map: tripId → totalVolumeProduct
         const volumeByTripId = orders.reduce((acc, order) => {
-            const totalVolume = Object.entries(order.Product)
+            const totalVolume = Object.entries(order.Product || {})
                 .filter(([productName]) => productName !== "P")
                 .reduce((sum, [, productData]) => sum + ((Number(productData.Volume) * 1000) || 0), 0);
 
@@ -176,7 +176,7 @@ const ReportTrip = ({ openNavbar }) => {
                 const isValidStatus = item.StatusTrip === "จบทริป";
                 const isTruckType = item.TruckType === "รถใหญ่";
                 const isInDateRange = itemDate.isBetween(selectedDateStart, selectedDateEnd, null, "[]");
-                const matchDrivers = item.Driver === selectDriver?.id;
+                const matchDrivers = item.Driver === selectDriver?.uuid;
                 return isValidStatus && isInDateRange && matchDrivers && isTruckType;
             })
             .sort((a, b) => {
