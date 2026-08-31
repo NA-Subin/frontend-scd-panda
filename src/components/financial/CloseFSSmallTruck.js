@@ -276,7 +276,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
                     (c) => c.uuid === tk.TicketName
                 );
 
-                const trip = trips.find((t) => t.id === tk.Trip + 1);
+                const trip = trips.find((t) => Number(t.id) - 1 === Number(tk.Trip));
 
                 return Object.entries(tk.Product || {})
                     .filter(([key]) => key !== "P")
@@ -674,7 +674,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
                 let truckCompany = "";
                 if (tripDetail?.TruckType === "รถเล็ก") {
                     const reg = registrationSm.find(
-                        (h) => h.id === Number(tripDetail?.Registration.split(":")[0])
+                        (h) => h.uuid === tripDetail?.Registration
                     );
                     shortName = reg?.ShortName || "";
                     truckCompany = reg?.Company || "";
@@ -689,7 +689,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
                     Rate = parseFloat(curr.Rate3) || 0;
 
                 // 🔥 คำนวณยอดจาก Product
-                const totalProductCost = calcProductTotal(curr.Product, curr.Rate);
+                const totalProductCost = calcProductTotal(curr.Product, Rate);
 
                 return {
                     ...curr,
@@ -697,7 +697,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
                     DateDelivery: tripDetail?.DateDelivery,
                     TruckType: tripDetail?.TruckType,
                     Driver: tripDetail?.Driver,
-                    RateOil: curr.Rate,
+                    RateOil: Rate,
                     ProductTotal: totalProductCost, // ✅ ยอดรวม Volume * 1000 * Rate
                     ProductVolume: calcProductVolume(curr.Product, Rate), // ✅ ยอดรวม Volume * 1000
                     Registration: tripDetail?.Registration,
@@ -1074,9 +1074,8 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
 
             if (exist) return;
 
-            const registrations = registration.split(":")[1]?.trim() || "";
             const shortName =
-                registrationSm.find((reg) => reg.RegHead === registrations)?.ShortName || "";
+                registrationSm.find((reg) => reg.uuid === registration)?.ShortName || "";
 
             result.push({
                 _key: key, // 🔥 เก็บ key ไว้เลย
