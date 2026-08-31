@@ -108,8 +108,12 @@ const DocSalary = ({ openNavbar }) => {
     const reports = Object.values(reportFinancial || {})
         .filter((r) => parseInt(r.Year) >= 2026)
         .sort((a, b) => {
-            const driverA = (a.Driver || "").split(":")[1]?.trim() || "";
-            const driverB = (b.Driver || "").split(":")[1]?.trim() || "";
+            // Driver is a UUID FK (schema-manifest: report_financial.Driver = UUID),
+            // it has no ":" separator anymore. Use the DriverName companion column
+            // (the migration's TEXT display field) instead of splitting the UUID,
+            // which always returned "" for both sides and silently made this sort a no-op.
+            const driverA = (a.DriverName || "").trim();
+            const driverB = (b.DriverName || "").trim();
             return driverA.localeCompare(driverB, 'th', { numeric: true });
         });
 
@@ -998,7 +1002,12 @@ const DocSalary = ({ openNavbar }) => {
 
                                                 let displayMoney = "";
                                                 if (found) {
-                                                    displayMoney = col.type === "รายได้" ? found.Money : `-${found.Money}`;
+                                                    // Money is TEXT in schema-manifest (report_financial.Money), so it
+                                                    // arrives from the API as a string. Wrap in Number() here to match
+                                                    // the identical lookup in exportToExcel() above — without it,
+                                                    // displayMoney was a raw/negated string, so the "===0" zero-styling
+                                                    // check below never matched populated zero amounts.
+                                                    displayMoney = col.type === "รายได้" ? Number(found.Money) : -Number(found.Money);
                                                 }
 
                                                 return (
