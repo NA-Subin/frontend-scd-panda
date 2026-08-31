@@ -167,7 +167,7 @@ const ProfitSmallTruck = ({ openNavbar }) => {
                     (c) => c.uuid === tk.TicketName
                 );
 
-                const trip = trips.find((t) => t.id === tk.Trip + 1);
+                const trip = trips.find((t) => Number(t.id) - 1 === Number(tk.Trip));
                 let Rate = tk.Rate;
 
                 // if (trip?.Depot.split(":")[1] === "ลำปาง") Rate = tk.Rate1;
