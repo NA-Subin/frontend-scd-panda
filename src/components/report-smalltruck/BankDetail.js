@@ -45,6 +45,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useTripData } from "../../server/provider/TripProvider";
 import { apiPost, apiPut } from "../../server/apiClient";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 
 const BankDetail = () => {
     const [open, setOpen] = React.useState(false);
@@ -56,6 +57,12 @@ const BankDetail = () => {
 
     const { banks, refetch } = useTripData();
     const bankDetail = Object.values(banks || {});
+
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const pageCount = Math.max(1, Math.ceil(bankDetail.length / rowsPerPage));
+    const safePage = Math.min(page, pageCount - 1);
+    const pagedBankDetail = bankDetail.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -197,7 +204,7 @@ const BankDetail = () => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {bankDetail.map((row) => (
+                                        {pagedBankDetail.map((row) => (
                                             <TableRow key={row.id}>
                                                 <TableCell sx={{ textAlign: "center", width: 60 }}>{row.id}</TableCell>
 
@@ -313,6 +320,14 @@ const BankDetail = () => {
                                     </TableBody>
                                 </Table>
                             </TableContainer>
+                            <TablePaginationBar
+                                count={bankDetail.length}
+                                page={safePage}
+                                rowsPerPage={rowsPerPage}
+                                onPageChange={setPage}
+                                onRowsPerPageChange={setRowsPerPage}
+                                rowsPerPageOptions={[5, 10, 25, 30]}
+                            />
                         </Grid>
                         <Grid item xs={12}>
                             <Typography variant="subtitle1" fontWeight="bold" gutterBottom>เพิ่มบัญชีธนาคาร</Typography>

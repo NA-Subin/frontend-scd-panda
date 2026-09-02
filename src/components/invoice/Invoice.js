@@ -22,13 +22,13 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
   TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
 import { IconButtonError, RateOils, TablecellHeader, TablecellYellow } from "../../theme/style";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 import InfoIcon from '@mui/icons-material/Info';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -138,6 +138,7 @@ const Invoice = ({ openNavbar }) => {
     setCheckOverdueTransfer(!checkOverdueTransfer);
     setSelectedRow(0)
     setIndex(0)
+    setPage(0)
   }
 
   const handleRowClick = (row, index, newTicketName, newDate) => {
@@ -291,16 +292,11 @@ const Invoice = ({ openNavbar }) => {
   console.log("Order Detail : ", orderDetail);
 
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const activeRows = checkOverdueTransfer ? displayRows : sortedOrderDetail;
+  const pageCount = Math.max(1, Math.ceil(activeRows.length / rowsPerPage));
+  const safePage = Math.min(page, pageCount - 1);
+  const pagedActiveRows = activeRows.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
 
   return (
     <Container maxWidth="xl" sx={{ marginTop: 13, marginBottom: 5, width: windowWidth <= 900 && windowWidth > 600 ? (windowWidth - 110) : windowWidth <= 600 ? (windowWidth) : (windowWidth - 230) }}>
@@ -575,12 +571,12 @@ const Invoice = ({ openNavbar }) => {
                       <TableBody>
                         {
                           checkOverdueTransfer ?
-                            displayRows.map((row, index) => (
+                            pagedActiveRows.map((row, index) => (
                               <TableRow key={row.No} onClick={() => handleRowClick(row.No, index, row.TicketName, row.DateDelivery)}
                                 sx={{ cursor: "pointer", "&:hover": { backgroundColor: "#e0e0e0" }, backgroundColor: (selectedRow === row.No) || (indexes === index) ? "#fff59d" : "" }}
                               >
                                 <TableCell sx={{ textAlign: "center", fontWeight: ((selectedRow === row.No) || (indexes === index)) && "bold" }}>
-                                  {index + 1}
+                                  {safePage * rowsPerPage + index + 1}
                                 </TableCell>
                                 <TableCell sx={{ textAlign: "center", fontWeight: ((selectedRow === row.No) || (indexes === index)) && "bold" }}>
                                   {formatThaiSlash(dayjs(row.DateDelivery, "DD/MM/YYYY"))}
@@ -622,12 +618,12 @@ const Invoice = ({ openNavbar }) => {
                             )
                             )
                             :
-                            sortedOrderDetail.map((row, index) => (
+                            pagedActiveRows.map((row, index) => (
                               <TableRow key={row.No} onClick={() => handleRowClick(row.No, index, row.TicketName, row.DateDelivery)}
                                 sx={{ cursor: "pointer", "&:hover": { backgroundColor: "#e0e0e0" }, backgroundColor: (selectedRow === row.No) || (indexes === index) ? "#fff59d" : "" }}
                               >
                                 <TableCell sx={{ textAlign: "center", fontWeight: ((selectedRow === row.No) || (indexes === index)) && "bold" }}>
-                                  {index + 1}
+                                  {safePage * rowsPerPage + index + 1}
                                 </TableCell>
                                 <TableCell sx={{ textAlign: "center", fontWeight: ((selectedRow === row.No) || (indexes === index)) && "bold" }}>
                                   {row.DateDelivery}
@@ -698,21 +694,21 @@ const Invoice = ({ openNavbar }) => {
                       </TableBody>
                     </Table>
                   </TableContainer>
+                  <TablePaginationBar
+                    count={activeRows.length}
+                    page={safePage}
+                    rowsPerPage={rowsPerPage}
+                    onPageChange={setPage}
+                    onRowsPerPageChange={setRowsPerPage}
+                  />
                 </Grid>
                 <Grid item xs={12}>
                   {
-                    checkOverdueTransfer ?
-                      displayRows.map((row, index) => (
-                        (selectedRow && selectedRow === row.No) || indexes === index ?
-                          <UpdateInvoice key={row.No} ticket={row} ticketNo={ticketNo} date={newDate} openNavbar={openNavbar} />
-                          : ""
-                      ))
-                      :
-                      sortedOrderDetail.map((row, index) => (
-                        (selectedRow && selectedRow === row.No) || indexes === index ?
-                          <UpdateInvoice key={row.No} ticket={row} ticketNo={ticketNo} date={newDate} openNavbar={openNavbar} />
-                          : ""
-                      ))
+                    pagedActiveRows.map((row, index) => (
+                      (selectedRow && selectedRow === row.No) || indexes === index ?
+                        <UpdateInvoice key={row.No} ticket={row} ticketNo={ticketNo} date={newDate} openNavbar={openNavbar} />
+                        : ""
+                    ))
                   }
                 </Grid>
               </Grid>

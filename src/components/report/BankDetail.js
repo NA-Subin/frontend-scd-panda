@@ -26,7 +26,6 @@ import {
     TableCell,
     TableContainer,
     TableHead,
-    TablePagination,
     TableRow,
     TextField,
     Tooltip,
@@ -48,6 +47,7 @@ import AddCardIcon from '@mui/icons-material/AddCard';
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useTripData } from "../../server/provider/TripProvider";
 import { apiPost, apiPut } from "../../server/apiClient";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 
 const BankDetail = () => {
     const [open, setOpen] = React.useState(false);
@@ -89,15 +89,8 @@ const BankDetail = () => {
 
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
-
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 5));
-        setPage(0);
-    };
+    const pageCount = Math.max(1, Math.ceil(bankDetail.length / rowsPerPage));
+    const safePage = Math.min(page, pageCount - 1);
 
     const handleSaveClick = async () => {
         const normalize = (str) => (str || "").trim().toLowerCase();
@@ -305,7 +298,7 @@ const BankDetail = () => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {bankDetail.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+                                        {bankDetail.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage).map((row, index) => (
                                             <TableRow key={row.id}>
                                                 <TableCell sx={{ textAlign: "center", width: 60 }}>{row.id}</TableCell>
 
@@ -436,54 +429,15 @@ const BankDetail = () => {
                                         ))}
                                     </TableBody>
                                 </Table>
-                                {
-                                    bankDetail.length <= 10 ? null :
-                                        <TablePagination
-                                            rowsPerPageOptions={[5, 10, 25, 30]}
-                                            component="div"
-                                            count={bankDetail.length}
-                                            rowsPerPage={rowsPerPage}
-                                            page={page}
-                                            onPageChange={handleChangePage}
-                                            onRowsPerPageChange={handleChangeRowsPerPage}
-                                            labelRowsPerPage="เลือกจำนวนแถวที่ต้องการ:"  // เปลี่ยนข้อความตามที่ต้องการ
-                                            labelDisplayedRows={({ from, to, count }) =>
-                                                `${from} - ${to} จากทั้งหมด ${count !== -1 ? count : `มากกว่า ${to}`}`
-                                            }
-                                            sx={{
-                                                overflow: "hidden", // ซ่อน scrollbar ที่อาจเกิดขึ้น
-                                                borderBottomLeftRadius: 5,
-                                                borderBottomRightRadius: 5,
-                                                height: "45px",
-                                                '& .MuiTablePagination-toolbar': {
-                                                    backgroundColor: "lightgray",
-                                                    height: "20px", // กำหนดความสูงของ toolbar
-                                                    alignItems: "center",
-                                                    paddingY: 0, // ลด padding บนและล่างให้เป็น 0
-                                                    overflow: "hidden", // ซ่อน scrollbar ภายใน toolbar
-                                                    fontWeight: "bold", // กำหนดให้ข้อความใน toolbar เป็นตัวหนา
-                                                    marginTop: -0.5
-                                                },
-                                                '& .MuiTablePagination-select': {
-                                                    paddingY: 0,
-                                                    fontWeight: "bold", // กำหนดให้ข้อความใน select เป็นตัวหนา
-                                                },
-                                                '& .MuiTablePagination-actions': {
-                                                    '& button': {
-                                                        paddingY: 0,
-                                                        fontWeight: "bold", // กำหนดให้ข้อความใน actions เป็นตัวหนา
-                                                    },
-                                                },
-                                                '& .MuiTablePagination-displayedRows': {
-                                                    fontWeight: "bold", // กำหนดให้ข้อความแสดงผลตัวเลขเป็นตัวหนา
-                                                },
-                                                '& .MuiTablePagination-selectLabel': {
-                                                    fontWeight: "bold", // กำหนดให้ข้อความ label ของ select เป็นตัวหนา
-                                                }
-                                            }}
-                                        />
-                                }
                             </TableContainer>
+                            <TablePaginationBar
+                                count={bankDetail.length}
+                                page={safePage}
+                                rowsPerPage={rowsPerPage}
+                                onPageChange={setPage}
+                                onRowsPerPageChange={setRowsPerPage}
+                                rowsPerPageOptions={[5, 10, 25, 30]}
+                            />
                         </Grid>
                         <Grid item xs={12}>
                             {
