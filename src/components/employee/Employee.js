@@ -24,7 +24,6 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
   TextField,
   Tooltip,
@@ -49,6 +48,7 @@ import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import UpdateDriver from "./UpdateDriver";
 import UpdateEmployee from "./UpdateEmployee";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 
 const Employee = ({ openNavbar }) => {
   //const [update, setUpdate] = React.useState(true);
@@ -179,15 +179,6 @@ const Employee = ({ openNavbar }) => {
     }
   }
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
   // const handleChangeOpen1 = (event) => {
   //   setOpen(1);
   //   setPage(0);
@@ -197,9 +188,16 @@ const Employee = ({ openNavbar }) => {
   //   setOpen(2);
   //   setPage(0);
   // };
+  const officersPageCount = Math.max(1, Math.ceil(dataofficers.length / rowsPerPage));
+  const safeOfficersPage = Math.min(page, officersPageCount - 1);
+  const driversPageCount = Math.max(1, Math.ceil(driverDetail.length / rowsPerPage));
+  const safeDriversPage = Math.min(page, driversPageCount - 1);
+  const paginatedOfficers = useMemo(() => {
+    return dataofficers.slice(safeOfficersPage * rowsPerPage, safeOfficersPage * rowsPerPage + rowsPerPage);
+  }, [dataofficers, safeOfficersPage, rowsPerPage]);
   const paginatedDrivers = useMemo(() => {
-    return driverDetail.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-  }, [driverDetail, page, rowsPerPage]);
+    return driverDetail.slice(safeDriversPage * rowsPerPage, safeDriversPage * rowsPerPage + rowsPerPage);
+  }, [driverDetail, safeDriversPage, rowsPerPage]);
 
   const renderSelectOptions = (truckType) => {
     // if (truckType === "รถใหญ่") {
@@ -381,57 +379,19 @@ const Employee = ({ openNavbar }) => {
                     // loading ? (
                     //   <p> กำลังโหลด...</p>
                     // ) :
-                    dataofficers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+                    paginatedOfficers.map((row, index) => (
                       <UpdateEmployee key={row.id} row={row} index={index} />
                     ))
                   }
                 </TableBody>
               </Table>
-              {
-                dataofficers.length <= 10 ? null :
-                  <TablePagination
-                    rowsPerPageOptions={[10, 25, 30]}
-                    component="div"
-                    count={dataofficers.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                    labelRowsPerPage="เลือกจำนวนแถวที่ต้องการ:"  // เปลี่ยนข้อความตามที่ต้องการ
-                    labelDisplayedRows={({ from, to, count }) =>
-                      `${from} - ${to} จากทั้งหมด ${count !== -1 ? count : `มากกว่า ${to}`}`
-                    }
-                    sx={{
-                      overflow: "hidden", // ซ่อน scrollbar ที่อาจเกิดขึ้น
-                      borderBottomLeftRadius: 5,
-                      borderBottomRightRadius: 5,
-                      '& .MuiTablePagination-toolbar': {
-                        backgroundColor: "lightgray",
-                        height: "20px", // กำหนดความสูงของ toolbar
-                        alignItems: "center",
-                        paddingY: 0, // ลด padding บนและล่างให้เป็น 0
-                        overflow: "hidden", // ซ่อน scrollbar ภายใน toolbar
-                        fontWeight: "bold", // กำหนดให้ข้อความใน toolbar เป็นตัวหนา
-                      },
-                      '& .MuiTablePagination-select': {
-                        paddingY: 0,
-                        fontWeight: "bold", // กำหนดให้ข้อความใน select เป็นตัวหนา
-                      },
-                      '& .MuiTablePagination-actions': {
-                        '& button': {
-                          paddingY: 0,
-                          fontWeight: "bold", // กำหนดให้ข้อความใน actions เป็นตัวหนา
-                        },
-                      },
-                      '& .MuiTablePagination-displayedRows': {
-                        fontWeight: "bold", // กำหนดให้ข้อความแสดงผลตัวเลขเป็นตัวหนา
-                      },
-                      '& .MuiTablePagination-selectLabel': {
-                        fontWeight: "bold", // กำหนดให้ข้อความ label ของ select เป็นตัวหนา
-                      }
-                    }}
-                  />
-              }
+              <TablePaginationBar
+                count={dataofficers.length}
+                page={safeOfficersPage}
+                rowsPerPage={rowsPerPage}
+                onPageChange={setPage}
+                onRowsPerPageChange={setRowsPerPage}
+              />
             </TableContainer>
             :
             // <DriverTable />
@@ -480,51 +440,13 @@ const Employee = ({ openNavbar }) => {
                   }
                 </TableBody>
               </Table>
-              {
-                driverDetail.length <= 10 ? null :
-                  <TablePagination
-                    rowsPerPageOptions={[10, 25, 30]}
-                    component="div"
-                    count={driverDetail.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                    labelRowsPerPage="เลือกจำนวนแถวที่ต้องการ:"  // เปลี่ยนข้อความตามที่ต้องการ
-                    labelDisplayedRows={({ from, to, count }) =>
-                      `${from} - ${to} จากทั้งหมด ${count !== -1 ? count : `มากกว่า ${to}`}`
-                    }
-                    sx={{
-                      overflow: "hidden", // ซ่อน scrollbar ที่อาจเกิดขึ้น
-                      borderBottomLeftRadius: 5,
-                      borderBottomRightRadius: 5,
-                      '& .MuiTablePagination-toolbar': {
-                        backgroundColor: "lightgray",
-                        height: "20px", // กำหนดความสูงของ toolbar
-                        alignItems: "center",
-                        paddingY: 0, // ลด padding บนและล่างให้เป็น 0
-                        overflow: "hidden", // ซ่อน scrollbar ภายใน toolbar
-                        fontWeight: "bold", // กำหนดให้ข้อความใน toolbar เป็นตัวหนา
-                      },
-                      '& .MuiTablePagination-select': {
-                        paddingY: 0,
-                        fontWeight: "bold", // กำหนดให้ข้อความใน select เป็นตัวหนา
-                      },
-                      '& .MuiTablePagination-actions': {
-                        '& button': {
-                          paddingY: 0,
-                          fontWeight: "bold", // กำหนดให้ข้อความใน actions เป็นตัวหนา
-                        },
-                      },
-                      '& .MuiTablePagination-displayedRows': {
-                        fontWeight: "bold", // กำหนดให้ข้อความแสดงผลตัวเลขเป็นตัวหนา
-                      },
-                      '& .MuiTablePagination-selectLabel': {
-                        fontWeight: "bold", // กำหนดให้ข้อความ label ของ select เป็นตัวหนา
-                      }
-                    }}
-                  />
-              }
+              <TablePaginationBar
+                count={driverDetail.length}
+                page={safeDriversPage}
+                rowsPerPage={rowsPerPage}
+                onPageChange={setPage}
+                onRowsPerPageChange={setRowsPerPage}
+              />
             </TableContainer>
         }
       </Paper>

@@ -26,7 +26,6 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
   TextField,
   Tooltip,
@@ -54,6 +53,7 @@ import dayjs from "dayjs";
 import { ShowError, ShowSuccess } from "../../sweetalert/sweetalert";
 import RegHeadDetail from "./RegHeadDetail";
 import { useBasicData } from "../../../server/provider/BasicDataProvider";
+import TablePaginationBar from "../../../theme/TablePaginationBar";
 
 const BigTruckRegHead = (props) => {
   const { repair, loading } = props;
@@ -92,15 +92,8 @@ const BigTruckRegHead = (props) => {
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  const pageCount = Math.max(1, Math.ceil(truck.length / rowsPerPage));
+  const safePage = Math.min(page, pageCount - 1);
 
   return (
     <React.Fragment>
@@ -343,57 +336,20 @@ const BigTruckRegHead = (props) => {
                 </TableHead>
                 <TableBody>
                   {truck
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage)
                     .map((row,index) => (
                       <RegHeadDetail key={row.RegHead} truck={row} index={index} />
                     ))}
                 </TableBody>
               </Table>
             </TableContainer>
-            {truck.length <= 10 ? null : (
-              <TablePagination
-                rowsPerPageOptions={[10, 25, 30]}
-                component="div"
-                count={truck.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-                labelRowsPerPage="เลือกจำนวนแถวที่ต้องการ:" // เปลี่ยนข้อความตามที่ต้องการ
-                labelDisplayedRows={({ from, to, count }) =>
-                  `${from} - ${to} จากทั้งหมด ${count !== -1 ? count : `มากกว่า ${to}`}`
-                }
-                sx={{
-                  overflow: "hidden", // ซ่อน scrollbar ที่อาจเกิดขึ้น
-                  borderBottomLeftRadius: 5,
-                  borderBottomRightRadius: 5,
-                  "& .MuiTablePagination-toolbar": {
-                    backgroundColor: "lightgray",
-                    height: "20px", // กำหนดความสูงของ toolbar
-                    alignItems: "center",
-                    paddingY: 0, // ลด padding บนและล่างให้เป็น 0
-                    overflow: "hidden", // ซ่อน scrollbar ภายใน toolbar
-                    fontWeight: "bold", // กำหนดให้ข้อความใน toolbar เป็นตัวหนา
-                  },
-                  "& .MuiTablePagination-select": {
-                    paddingY: 0,
-                    fontWeight: "bold", // กำหนดให้ข้อความใน select เป็นตัวหนา
-                  },
-                  "& .MuiTablePagination-actions": {
-                    "& button": {
-                      paddingY: 0,
-                      fontWeight: "bold", // กำหนดให้ข้อความใน actions เป็นตัวหนา
-                    },
-                  },
-                  "& .MuiTablePagination-displayedRows": {
-                    fontWeight: "bold", // กำหนดให้ข้อความแสดงผลตัวเลขเป็นตัวหนา
-                  },
-                  "& .MuiTablePagination-selectLabel": {
-                    fontWeight: "bold", // กำหนดให้ข้อความ label ของ select เป็นตัวหนา
-                  },
-                }}
-              />
-            )}
+            <TablePaginationBar
+              count={truck.length}
+              page={safePage}
+              rowsPerPage={rowsPerPage}
+              onPageChange={setPage}
+              onRowsPerPageChange={setRowsPerPage}
+            />
           </Paper>
         </Grid>
       </Grid>

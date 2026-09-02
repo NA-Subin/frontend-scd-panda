@@ -36,6 +36,7 @@ import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { TablecellHeader, TablecellTickets } from "../../theme/style";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import TruckRepair from "./headtruck/TruckRepair";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -57,6 +58,9 @@ const RepairDetail = ({}) => {
   const handleChange = (event) => {
     setRegHead(event.target.value);
   };
+
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
   const { inspection, reghead, small } = useBasicData();
 
@@ -108,6 +112,10 @@ const RepairDetail = ({}) => {
   console.log("Inspection Data:", data);
   console.log("RegHead Data:", regheadData);
 
+  const pageCount = Math.max(1, Math.ceil(data.length / rowsPerPage));
+  const safePage = Math.min(page, pageCount - 1);
+  const pagedData = data.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
+
   return (
     <React.Fragment>
       <TableContainer component={Paper} sx={{ marginTop: 5 }}>
@@ -155,7 +163,7 @@ const RepairDetail = ({}) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.map((row, index) => (
+            {pagedData.map((row, index) => (
               <TableRow key={index}>
                 <TableCell sx={{ textAlign: "center", fontSize: 14 }}>
                   {index + 1}
@@ -204,6 +212,13 @@ const RepairDetail = ({}) => {
           </TableBody>
         </Table>
       </TableContainer>
+      <TablePaginationBar
+        count={data.length}
+        page={safePage}
+        rowsPerPage={rowsPerPage}
+        onPageChange={setPage}
+        onRowsPerPageChange={setRowsPerPage}
+      />
     </React.Fragment>
   );
 };
