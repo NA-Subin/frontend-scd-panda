@@ -451,10 +451,10 @@ const InvoiceSmallTruck = ({ openNavbar }) => {
                           <FormControlLabel control={
                             <Checkbox
                               color="pink"
-                              value={checkOverdueTransfer}
+                              checked={checkOverdueTransfer}
                               //onChange={() => setCheckOverdueTransfer(!checkOverdueTransfer)}
                               onChange={handleChangeCheck}
-                              defaultChecked />
+                            />
                           }
                             label={
                               <Typography sx={{ fontSize: "16px", fontWeight: "bold" }}>
@@ -472,10 +472,10 @@ const InvoiceSmallTruck = ({ openNavbar }) => {
                             <FormControlLabel control={
                               <Checkbox
                                 color="pink"
-                                value={checkOverdueTransfer}
+                                checked={checkOverdueTransfer}
                                 //onChange={() => setCheckOverdueTransfer(!checkOverdueTransfer)}
                                 onChange={handleChangeCheck}
-                                defaultChecked />
+                              />
                             }
                               label={
                                 <Typography sx={{ fontSize: "16px", fontWeight: "bold" }}>

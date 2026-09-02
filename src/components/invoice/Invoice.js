@@ -474,10 +474,10 @@ const Invoice = ({ openNavbar }) => {
                           <FormControlLabel control={
                             <Checkbox
                               color="warning"
-                              value={checkOverdueTransfer}
+                              checked={checkOverdueTransfer}
                               //onChange={() => setCheckOverdueTransfer(!checkOverdueTransfer)}
                               onChange={handleChangeCheck}
-                              defaultChecked />
+                              />
                           }
                             label={
                               <Typography sx={{ fontSize: "16px", fontWeight: "bold" }}>
@@ -495,10 +495,10 @@ const Invoice = ({ openNavbar }) => {
                             <FormControlLabel control={
                               <Checkbox
                                 color="warning"
-                                value={checkOverdueTransfer}
+                                checked={checkOverdueTransfer}
                                 //onChange={() => setCheckOverdueTransfer(!checkOverdueTransfer)}
                                 onChange={handleChangeCheck}
-                                defaultChecked />
+                              />
                             }
                               label={
                                 <Typography sx={{ fontSize: "16px", fontWeight: "bold" }}>

@@ -1490,11 +1490,10 @@ const Report = ({ openNavbar }) => {
                             control={
                               <Checkbox
                                 color="warning"
-                                value={checkOverdueTransfer}
+                                checked={checkOverdueTransfer}
                                 onChange={() =>
                                   setCheckOverdueTransfer(!checkOverdueTransfer)
                                 }
-                                defaultChecked
                               />
                             }
                             label={
@@ -1548,11 +1547,10 @@ const Report = ({ openNavbar }) => {
                             control={
                               <Checkbox
                                 color="warning"
-                                value={checkOverdueTransfer}
+                                checked={checkOverdueTransfer}
                                 onChange={() =>
                                   setCheckOverdueTransfer(!checkOverdueTransfer)
                                 }
-                                defaultChecked
                               />
                             }
                             label={
@@ -2269,11 +2267,10 @@ const Report = ({ openNavbar }) => {
                             control={
                               <Checkbox
                                 color="warning"
-                                value={checkOverdueTransfer}
+                                checked={checkOverdueTransfer}
                                 onChange={() =>
                                   setCheckOverdueTransfer(!checkOverdueTransfer)
                                 }
-                                defaultChecked
                               />
                             }
                             label={
@@ -2327,11 +2324,10 @@ const Report = ({ openNavbar }) => {
                             control={
                               <Checkbox
                                 color="warning"
-                                value={checkOverdueTransfer}
+                                checked={checkOverdueTransfer}
                                 onChange={() =>
                                   setCheckOverdueTransfer(!checkOverdueTransfer)
                                 }
-                                defaultChecked
                               />
                             }
                             label={
@@ -3050,11 +3046,10 @@ const Report = ({ openNavbar }) => {
                             control={
                               <Checkbox
                                 color="warning"
-                                value={checkOverdueTransfer}
+                                checked={checkOverdueTransfer}
                                 onChange={() =>
                                   setCheckOverdueTransfer(!checkOverdueTransfer)
                                 }
-                                defaultChecked
                               />
                             }
                             label={
@@ -3108,11 +3103,10 @@ const Report = ({ openNavbar }) => {
                             control={
                               <Checkbox
                                 color="warning"
-                                value={checkOverdueTransfer}
+                                checked={checkOverdueTransfer}
                                 onChange={() =>
                                   setCheckOverdueTransfer(!checkOverdueTransfer)
                                 }
-                                defaultChecked
                               />
                             }
                             label={
