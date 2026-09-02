@@ -23,12 +23,12 @@ import {
   TableContainer,
   TableFooter,
   TableHead,
-  TablePagination,
   TableRow,
   TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 import {
   IconButtonError,
   RateOils,
@@ -1136,6 +1136,25 @@ const ReportSmallTruck = () => {
   console.log("matchedOrdersWithAll : ", matchedOrdersWithAll);
   console.log("productTypes : ", productTypes);
 
+  const filteredMatchedOrders = matchedOrdersWithAll.filter((item) => {
+    const itemDate = dayjs(item.Date, "DD/MM/YYYY");
+
+    if (
+      !itemDate.isValid() ||
+      !itemDate.isBetween(selectedDateStart, selectedDateEnd, null, "[]")
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const pageCount = Math.max(1, Math.ceil(filteredMatchedOrders.length / rowsPerPage));
+  const safePage = Math.min(page, pageCount - 1);
+  const pagedMatchedOrders = filteredMatchedOrders.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
+
   return (
     <Container
       maxWidth="xl"
@@ -1496,24 +1515,7 @@ const ReportSmallTruck = () => {
               )}
             </TableHead>
             <TableBody>
-              {matchedOrdersWithAll
-                .filter((item) => {
-                  const itemDate = dayjs(item.Date, "DD/MM/YYYY");
-
-                  if (
-                    !itemDate.isValid() ||
-                    !itemDate.isBetween(
-                      selectedDateStart,
-                      selectedDateEnd,
-                      null,
-                      "[]",
-                    )
-                  ) {
-                    return false;
-                  }
-
-                  return true;
-                })
+              {pagedMatchedOrders
                 .map((row, index) =>
                   row.type === "รับเข้า" ? (
                     <TableRow
@@ -1534,7 +1536,7 @@ const ReportSmallTruck = () => {
                             index % 2 === 0 ? "#FFFFFF" : "#f3f6fcff",
                         }}
                       >
-                        {index + 1}
+                        {safePage * rowsPerPage + index + 1}
                       </TableCell>
                       <TableCell sx={{ textAlign: "center" }}>
                         {formatThaiSlash(dayjs(row.Date, "DD/MM/YYYY"))}
@@ -1625,7 +1627,7 @@ const ReportSmallTruck = () => {
                             index % 2 === 0 ? "#FFFFFF" : "#f3f6fcff",
                         }}
                       >
-                        {index + 1}
+                        {safePage * rowsPerPage + index + 1}
                       </TableCell>
                       <TableCell sx={{ textAlign: "center" }}>
                         {formatThaiSlash(dayjs(row.Date, "DD/MM/YYYY"))}
@@ -1745,6 +1747,13 @@ const ReportSmallTruck = () => {
             </TableFooter>
           </Table> */}
         </TableContainer>
+        <TablePaginationBar
+          count={filteredMatchedOrders.length}
+          page={safePage}
+          rowsPerPage={rowsPerPage}
+          onPageChange={setPage}
+          onRowsPerPageChange={setRowsPerPage}
+        />
       </Box>
     </Container>
   );
