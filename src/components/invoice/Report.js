@@ -29,7 +29,6 @@ import {
     TableCell,
     TableContainer,
     TableHead,
-    TablePagination,
     TableRow,
     TextField,
     Tooltip,
@@ -38,6 +37,7 @@ import {
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import ExcelJS from "exceljs";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
@@ -352,15 +352,9 @@ const FuelPaymentReport = ({ openNavbar }) => {
 
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
-
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
+    const pageCount = Math.max(1, Math.ceil(sortedOrderDetail.length / rowsPerPage));
+    const safePage = Math.min(page, pageCount - 1);
+    const pagedOrderDetail = sortedOrderDetail.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
 
     const exportToExcel = async () => {
         const workbook = new ExcelJS.Workbook();
@@ -754,9 +748,9 @@ const FuelPaymentReport = ({ openNavbar }) => {
                                 </TableHead>
                                 <TableBody>
                                     {
-                                        sortedOrderDetail.map((row, index) => (
+                                        pagedOrderDetail.map((row, index) => (
                                             <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#f3f6fcff" }}>
-                                                <TableCell sx={{ textAlign: "center" }}>{index + 1}</TableCell>
+                                                <TableCell sx={{ textAlign: "center" }}>{safePage * rowsPerPage + index + 1}</TableCell>
                                                 <TableCell sx={{ textAlign: "center" }}>{row.TicketNameName || row.TicketName}</TableCell>
                                                 <TableCell sx={{ textAlign: "center" }}>{new Intl.NumberFormat("en-US").format(row.VolumeProduct)}</TableCell>
                                                 <TableCell sx={{ textAlign: "center" }}>{new Intl.NumberFormat("en-US").format(row.Amount)}</TableCell>
@@ -771,6 +765,13 @@ const FuelPaymentReport = ({ openNavbar }) => {
                                 </TableBody>
                             </Table>
                         </TableContainer>
+                        <TablePaginationBar
+                            count={sortedOrderDetail.length}
+                            page={safePage}
+                            rowsPerPage={rowsPerPage}
+                            onPageChange={setPage}
+                            onRowsPerPageChange={setRowsPerPage}
+                        />
                         <Grid container spacing={1} marginTop={1} paddingBottom={1} sx={{ backgroundColor: theme.palette.info.dark }}>
                             <Grid item xs={3}>
                                 <Paper sx={{ backgroundColor: "white" }}>

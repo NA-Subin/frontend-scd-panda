@@ -21,7 +21,6 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
   TextField,
   Tooltip,
@@ -32,6 +31,7 @@ import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import InfoIcon from "@mui/icons-material/Info";
 import UpdateReport from "./UpdateReport";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 import theme from "../../theme/theme";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -1247,16 +1247,33 @@ const Report = ({ openNavbar }) => {
   console.log("resultGasStation : ", resultGasStation);
 
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+  const handleSetOpen = (tab) => {
+    setOpen(tab);
     setPage(0);
   };
+
+  const handleToggleOverdue = () => {
+    setCheckOverdueTransfer((prev) => !prev);
+    setPage(0);
+  };
+
+  const filteredTicketsDetail = checkOverdueTransfer
+    ? TicketsDetail.filter((row) => Number(row.TotalAmount) - Number(row.TotalOverdue) !== 0)
+    : TicketsDetail;
+  const filteredTransportDetail = checkOverdueTransfer
+    ? TransportDetail.filter((row) => Number(row.TotalAmount) - Number(row.TotalOverdue) !== 0)
+    : TransportDetail;
+  const filteredGasStationDetail = GasStationDetail;
+
+  const activeReportRows =
+    open === 1 ? filteredTicketsDetail : open === 2 ? filteredTransportDetail : filteredGasStationDetail;
+  const pageCount = Math.max(1, Math.ceil(activeReportRows.length / rowsPerPage));
+  const safePage = Math.min(page, pageCount - 1);
+  const pagedTicketsDetail = filteredTicketsDetail.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
+  const pagedTransportDetail = filteredTransportDetail.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
+  const pagedGasStationDetail = filteredGasStationDetail.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
 
   return (
     <Container
@@ -1389,7 +1406,7 @@ const Report = ({ openNavbar }) => {
                   open === 1 && "5px solid" + theme.palette.warning.dark,
               }}
               fullWidth
-              onClick={() => setOpen(1)}
+              onClick={() => handleSetOpen(1)}
             >
               ตั๋วน้ำมัน
             </Button>
@@ -1407,7 +1424,7 @@ const Report = ({ openNavbar }) => {
                   open === 2 && "5px solid" + theme.palette.warning.dark,
               }}
               fullWidth
-              onClick={() => setOpen(2)}
+              onClick={() => handleSetOpen(2)}
             >
               ตั๋วรับจ้างขนส่ง
             </Button>
@@ -1425,7 +1442,7 @@ const Report = ({ openNavbar }) => {
                   open === 3 && "5px solid" + theme.palette.warning.dark,
               }}
               fullWidth
-              onClick={() => setOpen(3)}
+              onClick={() => handleSetOpen(3)}
             >
               ตั๋วปั้ม
             </Button>
@@ -1492,7 +1509,7 @@ const Report = ({ openNavbar }) => {
                                 color="warning"
                                 checked={checkOverdueTransfer}
                                 onChange={() =>
-                                  setCheckOverdueTransfer(!checkOverdueTransfer)
+                                  handleToggleOverdue()
                                 }
                               />
                             }
@@ -1549,7 +1566,7 @@ const Report = ({ openNavbar }) => {
                                 color="warning"
                                 checked={checkOverdueTransfer}
                                 onChange={() =>
-                                  setCheckOverdueTransfer(!checkOverdueTransfer)
+                                  handleToggleOverdue()
                                 }
                               />
                             }
@@ -1695,12 +1712,7 @@ const Report = ({ openNavbar }) => {
                         </TableHead>
                         <TableBody>
                           {checkOverdueTransfer
-                            ? TicketsDetail.filter(
-                                (row) =>
-                                  Number(row.TotalAmount) -
-                                    Number(row.TotalOverdue) !==
-                                  0,
-                              ).map((row, index) => {
+                            ? pagedTicketsDetail.map((row, index) => {
                                 // <<<<<< เพิ่มตรงนี้
                                 const transfer = transferMoneyDetail.filter(
                                   (transferRow) =>
@@ -1761,7 +1773,7 @@ const Report = ({ openNavbar }) => {
                                             "bold",
                                         }}
                                       >
-                                        {index + 1}
+                                        {safePage * rowsPerPage + index + 1}
                                       </TableCell>
                                       {/* วันที่เริ่มต้น */}
                                       {/* <TableCell sx={{ textAlign: "center" }}>
@@ -1976,7 +1988,7 @@ const Report = ({ openNavbar }) => {
                                   )
                                 );
                               })
-                            : TicketsDetail.map((row, index) => {
+                            : pagedTicketsDetail.map((row, index) => {
                                 // <<<<<< เพิ่มตรงนี้
                                 const transfer = transferMoneyDetail.filter(
                                   (transferRow) =>
@@ -2023,7 +2035,7 @@ const Report = ({ openNavbar }) => {
                                           "bold",
                                       }}
                                     >
-                                      {index + 1}
+                                      {safePage * rowsPerPage + index + 1}
                                     </TableCell>
                                     {/* วันที่เริ่มต้น */}
                                     {/* <TableCell sx={{ textAlign: "center" }}>
@@ -2236,12 +2248,19 @@ const Report = ({ openNavbar }) => {
                         </TableBody>
                       </Table>
                     </TableContainer>
+                    <TablePaginationBar
+                      count={filteredTicketsDetail.length}
+                      page={safePage}
+                      rowsPerPage={rowsPerPage}
+                      onPageChange={setPage}
+                      onRowsPerPageChange={setRowsPerPage}
+                    />
                   </Grid>
                   <Grid item xs={12}>
                     {/* {
                       selectedRow && <UpdateReport ticket={selectedRow} open={open} dateRanges={dateRangesA} months={month} />
                     } */}
-                    {TicketsDetail.map((row, index) =>
+                    {pagedTicketsDetail.map((row, index) =>
                       (selectedRow && selectedRow.No === row.No) ||
                       indexes === index ? (
                         <UpdateReport
@@ -2269,7 +2288,7 @@ const Report = ({ openNavbar }) => {
                                 color="warning"
                                 checked={checkOverdueTransfer}
                                 onChange={() =>
-                                  setCheckOverdueTransfer(!checkOverdueTransfer)
+                                  handleToggleOverdue()
                                 }
                               />
                             }
@@ -2326,7 +2345,7 @@ const Report = ({ openNavbar }) => {
                                 color="warning"
                                 checked={checkOverdueTransfer}
                                 onChange={() =>
-                                  setCheckOverdueTransfer(!checkOverdueTransfer)
+                                  handleToggleOverdue()
                                 }
                               />
                             }
@@ -2472,12 +2491,7 @@ const Report = ({ openNavbar }) => {
                         </TableHead>
                         <TableBody>
                           {checkOverdueTransfer
-                            ? TransportDetail.filter(
-                                (row) =>
-                                  Number(row.TotalAmount) -
-                                    Number(row.TotalOverdue) !==
-                                  0,
-                              ).map((row, index) => {
+                            ? pagedTransportDetail.map((row, index) => {
                                 // <<<<<< เพิ่มตรงนี้
                                 const transfer = transferMoneyDetail.filter(
                                   (transferRow) =>
@@ -2538,7 +2552,7 @@ const Report = ({ openNavbar }) => {
                                             "bold",
                                         }}
                                       >
-                                        {index + 1}
+                                        {safePage * rowsPerPage + index + 1}
                                       </TableCell>
                                       {/* <TableCell sx={{ textAlign: "center" }}>
                                             <Paper component="form" sx={{ width: "100%" }}>
@@ -2756,7 +2770,7 @@ const Report = ({ openNavbar }) => {
                                   )
                                 );
                               })
-                            : TransportDetail.map((row, index) => {
+                            : pagedTransportDetail.map((row, index) => {
                                 // <<<<<< เพิ่มตรงนี้
                                 const transfer = transferMoneyDetail.filter(
                                   (transferRow) =>
@@ -2803,7 +2817,7 @@ const Report = ({ openNavbar }) => {
                                           "bold",
                                       }}
                                     >
-                                      {index + 1}
+                                      {safePage * rowsPerPage + index + 1}
                                     </TableCell>
                                     {/* <TableCell sx={{ textAlign: "center" }}>
                                           <Paper component="form" sx={{ width: "100%" }}>
@@ -3013,13 +3027,20 @@ const Report = ({ openNavbar }) => {
                         </TableBody>
                       </Table>
                     </TableContainer>
+                    <TablePaginationBar
+                      count={filteredTransportDetail.length}
+                      page={safePage}
+                      rowsPerPage={rowsPerPage}
+                      onPageChange={setPage}
+                      onRowsPerPageChange={setRowsPerPage}
+                    />
                   </Grid>
                   <Grid item xs={12}>
                     <Grid item xs={12}>
                       {/* {
                         selectedRow && <UpdateReport ticket={selectedRow} open={open} dateRanges={dateRangesG} months={month} />
                       } */}
-                      {TransportDetail.map((row, index) =>
+                      {pagedTransportDetail.map((row, index) =>
                         (selectedRow && selectedRow.No === row.No) ||
                         indexes === index ? (
                           <UpdateReport
@@ -3048,7 +3069,7 @@ const Report = ({ openNavbar }) => {
                                 color="warning"
                                 checked={checkOverdueTransfer}
                                 onChange={() =>
-                                  setCheckOverdueTransfer(!checkOverdueTransfer)
+                                  handleToggleOverdue()
                                 }
                               />
                             }
@@ -3105,7 +3126,7 @@ const Report = ({ openNavbar }) => {
                                 color="warning"
                                 checked={checkOverdueTransfer}
                                 onChange={() =>
-                                  setCheckOverdueTransfer(!checkOverdueTransfer)
+                                  handleToggleOverdue()
                                 }
                               />
                             }
@@ -3251,7 +3272,7 @@ const Report = ({ openNavbar }) => {
                         </TableHead>
                         <TableBody>
                           {checkOverdueTransfer
-                            ? GasStationDetail.map((row, index) => {
+                            ? pagedGasStationDetail.map((row, index) => {
                                 // <<<<<< เพิ่มตรงนี้
                                 const transfer = transferMoneyDetail.filter(
                                   (transferRow) =>
@@ -3309,7 +3330,7 @@ const Report = ({ openNavbar }) => {
                                           "bold",
                                       }}
                                     >
-                                      {index + 1}
+                                      {safePage * rowsPerPage + index + 1}
                                     </TableCell>
                                     {/* <TableCell sx={{ textAlign: "center" }}>
                                             <Paper component="form" sx={{ width: "100%" }}>
@@ -3520,7 +3541,7 @@ const Report = ({ openNavbar }) => {
                                   </TableRow>
                                 );
                               })
-                            : GasStationDetail.map((row, index) => {
+                            : pagedGasStationDetail.map((row, index) => {
                                 // <<<<<< เพิ่มตรงนี้
                                 const transfer = transferMoneyDetail.filter(
                                   (transferRow) =>
@@ -3567,7 +3588,7 @@ const Report = ({ openNavbar }) => {
                                           "bold",
                                       }}
                                     >
-                                      {index + 1}
+                                      {safePage * rowsPerPage + index + 1}
                                     </TableCell>
                                     {/* <TableCell sx={{ textAlign: "center" }}>
                                           <Paper component="form" sx={{ width: "100%" }}>
@@ -3777,12 +3798,19 @@ const Report = ({ openNavbar }) => {
                         </TableBody>
                       </Table>
                     </TableContainer>
+                    <TablePaginationBar
+                      count={filteredGasStationDetail.length}
+                      page={safePage}
+                      rowsPerPage={rowsPerPage}
+                      onPageChange={setPage}
+                      onRowsPerPageChange={setRowsPerPage}
+                    />
                   </Grid>
                   <Grid item xs={12}>
                     {/* {
                         selectedRow && <UpdateReport ticket={selectedRow} open={open} dateRanges={dateRangesG} months={month} />
                       } */}
-                    {GasStationDetail.map((row, index) =>
+                    {pagedGasStationDetail.map((row, index) =>
                       selectedRow && selectedRow.No === row.No ? (
                         <UpdateReport
                           key={row.No}
