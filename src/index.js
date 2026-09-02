@@ -1,6 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
+// Registers dayjs plugins (customParseFormat, isBetween, isSameOrAfter/
+// Before, buddhistEra) before anything else in the app runs - see the
+// comment in theme/DateTH.js for why this can't be left to load lazily.
+import './theme/DateTH';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 //import { DataProvider } from './server/path';
