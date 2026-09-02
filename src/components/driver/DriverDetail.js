@@ -340,7 +340,9 @@ const DriverDetail = () => {
     // ✅ กัน type mismatch + -1 ให้ชัด
     const tripId = Number(check.id) - 1;
 
-    const checkOrder = orders.filter((item) => Number(item.Trip) === tripId);
+    const checkOrder = orders
+      .filter((item) => Number(item.Trip) === tripId)
+      .sort((a, b) => Number(a.No) - Number(b.No));
 
     console.log("✅ checkOrder :", checkOrder);
 
@@ -1053,26 +1055,18 @@ const DriverDetail = () => {
                     </TableHead>
                     <TableBody>
                       {Object.entries(tripNew).map(([key, value], index) =>
-                        orderNew.map((row) => {
-                          // หาค่าที่ต้อง split
-                          let modifiedTicketName = row.TicketName;
-
-                          branches.forEach((branch) => {
-                            if (row.TicketName.includes(branch)) {
-                              modifiedTicketName = row.TicketName.split(branch)
-                                .pop()
-                                .trim(); // เอาค่าหลังจาก branch และตัดช่องว่างออก
-                            }
-                          });
-
+                        orderNew.map((row, orderIndex) => {
+                          // order.TicketName is a real UUID now - match by
+                          // position (orderNew is sorted by No, same
+                          // sequence as the OrderN slots) instead of name text.
                           return (
-                            modifiedTicketName === value.Name && (
+                            orderIndex === value.No && (
                               <TableRow key={key}>
                                 <TableCell sx={{ textAlign: "center" }}>
                                   {value.No + 1}
                                 </TableCell>
                                 <TableCell sx={{ textAlign: "center" }}>
-                                  {row.TicketName.split(":")[1]}
+                                  {row.TicketNameName}
                                 </TableCell>
                                 <TableCell sx={{ textAlign: "center" }}>
                                   {row.Product.G95 === undefined
@@ -1302,18 +1296,7 @@ const DriverDetail = () => {
                       const coordinates = Object.entries(tripNew).flatMap(
                         ([key, value]) =>
                           orderNew
-                            .filter((row) => {
-                              let modifiedTicketName = row.TicketName;
-
-                              // ตัดค่า branch ออกจาก TicketName
-                              // branches.forEach(branch => {
-                              //     if (row.TicketName.includes(branch)) {
-                              //         modifiedTicketName = row.TicketName.split(branch).pop().trim();
-                              //     }
-                              // });
-
-                              return modifiedTicketName === value.Name;
-                            })
+                            .filter((row, orderIndex) => orderIndex === value.No)
                             .map((row) =>
                               row.Lat &&
                               row.Lng &&
@@ -1443,18 +1426,12 @@ const DriverDetail = () => {
                     </Grid>
                     <Grid item xs={5.5} />
                     {Object.entries(tripNew).map(([key, value], index) =>
-                      orderNew.map((row) => {
-                        // หาค่าที่ต้อง split
-                        let modifiedTicketName = row.TicketName;
-
-                        // branches.forEach(branch => {
-                        //     if (row.TicketName.includes(branch)) {
-                        //         modifiedTicketName = row.TicketName.split(branch).pop().trim(); // เอาค่าหลังจาก branch และตัดช่องว่างออก
-                        //     }
-                        // });
-
+                      orderNew.map((row, orderIndex) => {
+                        // order.TicketName is a real UUID now - match by
+                        // position (orderNew is sorted by No, same sequence
+                        // as the OrderN slots) instead of by name text.
                         return (
-                          modifiedTicketName === value.Name && (
+                          orderIndex === value.No && (
                             <React.Fragment key={key}>
                               {index % 2 === 0 ? (
                                 // แสดงข้อมูลฝั่งซ้าย
@@ -1511,7 +1488,7 @@ const DriverDetail = () => {
                                         fontWeight="bold"
                                         gutterBottom
                                       >
-                                        {row.TicketName.split(":")[1]}
+                                        {row.TicketNameName}
                                       </Typography>
                                       {Object.entries(row.Product).map(
                                         ([key, value]) =>
@@ -1627,7 +1604,7 @@ const DriverDetail = () => {
                                         fontWeight="bold"
                                         gutterBottom
                                       >
-                                        {row.TicketName.split(":")[1]}
+                                        {row.TicketNameName}
                                       </Typography>
                                       {Object.entries(row.Product).map(
                                         ([key, value]) =>
@@ -1855,22 +1832,7 @@ const DriverDetail = () => {
                       const coordinates = Object.entries(tripNew).flatMap(
                         ([key, value]) =>
                           orderNew
-                            .filter((row) => {
-                              let modifiedTicketName = row.TicketName;
-
-                              // ตัดค่า branch ออกจาก TicketName
-                              branches.forEach((branch) => {
-                                if (row.TicketName.includes(branch)) {
-                                  modifiedTicketName = row.TicketName.split(
-                                    branch,
-                                  )
-                                    .pop()
-                                    .trim();
-                                }
-                              });
-
-                              return modifiedTicketName === value.Name;
-                            })
+                            .filter((row, orderIndex) => orderIndex === value.No)
                             .map((row) =>
                               row.Lat &&
                               row.Lng &&
@@ -1972,20 +1934,12 @@ const DriverDetail = () => {
                       />
                     </Grid>
                     {Object.entries(tripNew).map(([key, value], index) =>
-                      orderNew.map((row) => {
-                        // หาค่าที่ต้อง split
-                        let modifiedTicketName = row.TicketName;
-
-                        branches.forEach((branch) => {
-                          if (row.TicketName.includes(branch)) {
-                            modifiedTicketName = row.TicketName.split(branch)
-                              .pop()
-                              .trim(); // เอาค่าหลังจาก branch และตัดช่องว่างออก
-                          }
-                        });
-
+                      orderNew.map((row, orderIndex) => {
+                        // order.TicketName is a real UUID now - match by
+                        // position (orderNew is sorted by No, same sequence
+                        // as the OrderN slots) instead of by name text.
                         return (
-                          modifiedTicketName === value.Name && (
+                          orderIndex === value.No && (
                             <React.Fragment key={key}>
                               <Grid item xs={12}>
                                 <Paper
@@ -2009,7 +1963,7 @@ const DriverDetail = () => {
                                     fontWeight="bold"
                                     gutterBottom
                                   >
-                                    {row.TicketName}
+                                    {row.TicketNameName}
                                   </Typography>
                                   {Object.entries(row.Product).map(
                                     ([key, value]) =>
