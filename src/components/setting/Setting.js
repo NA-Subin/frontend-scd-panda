@@ -85,8 +85,9 @@ const Setting = () => {
   const userId = Cookies.get("sessionToken");
   // const { company, officers } = useData();
 
-  const { company, officers, positions, refetch } = useBasicData();
+  const { company, companyHistory, officers, positions, refetch } = useBasicData();
   const companyDetail = Object.values(company || {});
+  const companyHistoryDetail = Object.values(companyHistory || {});
   const officersDetail = Object.values(officers || {});
   const positionsDetail = Object.values(positions || {});
   console.log("company : ", company);
@@ -272,20 +273,19 @@ const Setting = () => {
         companyData.Name !== newName ||
         companyData.Address !== newAddress;
 
+      // History used to be a JSONB blob read-merge-written onto the company
+      // row itself - now it's its own append-only table (company_history),
+      // so logging a change is just inserting one row, not reconstructing
+      // the whole array every time.
       if (isChanged) {
-        const history = companyData.History || {};
-        const nextIndex = Object.keys(history).length;
-
-        const oldHistory = {
-          id: nextIndex,
+        await apiPost("/api/company_history", {
+          Company: companyID,
           Name: companyData.Name,
           Address: companyData.Address,
           CardID: companyData.CardID,
           DateStart: companyData.DateStart || "",
           DateEnd: dateStr,
-        };
-
-        updatedData.History = { ...history, [nextIndex]: oldHistory };
+        });
       }
 
       await apiPut(`/api/company/${companyID}`, updatedData);
@@ -837,6 +837,43 @@ const Setting = () => {
                                         </Grid>
                                       </Grid>
                                     </Paper>
+                                    {
+                                      companyHistoryDetail.filter((h) => h.Company === row.uuid).length > 0 &&
+                                      <Paper
+                                        sx={{ p: 2, border: "1px solid" + theme.palette.grey[600], marginBottom: 2 }}
+                                      >
+                                        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>ประวัติการแก้ไข</Typography>
+                                        <TableContainer>
+                                          <Table size="small">
+                                            <TableHead>
+                                              <TableRow>
+                                                <TableCell sx={{ fontWeight: "bold" }}>ชื่อบริษัท</TableCell>
+                                                <TableCell sx={{ fontWeight: "bold" }}>เลขที่ภาษี</TableCell>
+                                                <TableCell sx={{ fontWeight: "bold" }}>ที่อยู่</TableCell>
+                                                <TableCell sx={{ fontWeight: "bold" }}>ใช้ตั้งแต่</TableCell>
+                                                <TableCell sx={{ fontWeight: "bold" }}>ถึง</TableCell>
+                                              </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                              {
+                                                companyHistoryDetail
+                                                  .filter((h) => h.Company === row.uuid)
+                                                  .sort((a, b) => (a.DateEnd || "").localeCompare(b.DateEnd || ""))
+                                                  .map((h) => (
+                                                    <TableRow key={h.uuid}>
+                                                      <TableCell>{h.Name}</TableCell>
+                                                      <TableCell>{h.CardID}</TableCell>
+                                                      <TableCell>{formatAddress(h.Address)}</TableCell>
+                                                      <TableCell>{h.DateStart}</TableCell>
+                                                      <TableCell>{h.DateEnd}</TableCell>
+                                                    </TableRow>
+                                                  ))
+                                              }
+                                            </TableBody>
+                                          </Table>
+                                        </TableContainer>
+                                      </Paper>
+                                    }
                                   </DialogContent>
                                   <DialogActions sx={{ textAlign: "center", borderTop: "2px solid " + theme.palette.panda.dark, display: "flex", justifyContent: "center", alignItems: "center" }}>
                                     {

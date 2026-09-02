@@ -8,6 +8,7 @@ export const useBasicData = () => useContext(BasicDataContext);
 
 const EMPTY_BASIC_DATA = {
     company: {},
+    companyHistory: {},
     positions: {},
     officers: {},
     drivers: {},
