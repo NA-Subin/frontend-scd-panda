@@ -40,6 +40,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import { IconButtonError, IconButtonInfo, TablecellHeader, TablecellSetting, TablecellTickets } from "../../theme/style";
 import { apiPost, apiPut } from "../../server/apiClient";
 import InsertCompany from "./InsertCompany";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 import theme from "../../theme/theme";
 import Cookies from 'js-cookie';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
@@ -92,6 +93,15 @@ const Setting = () => {
   const positionsDetail = Object.values(positions || {});
   console.log("company : ", company);
   console.log("Officers : ", officers);
+
+  const [companyPage, setCompanyPage] = useState(0);
+  const [companyRowsPerPage, setCompanyRowsPerPage] = useState(10);
+  const companyPageCount = Math.max(1, Math.ceil(companyDetail.length / companyRowsPerPage));
+  const safeCompanyPage = Math.min(companyPage, companyPageCount - 1);
+  const pagedCompanyDetail = companyDetail.slice(
+    safeCompanyPage * companyRowsPerPage,
+    safeCompanyPage * companyRowsPerPage + companyRowsPerPage
+  );
 
   const userDetail = officersDetail.find((row) => (row.id === Number(userId.split("$")[1])));
 
@@ -513,9 +523,9 @@ const Setting = () => {
                         </TableHead>
                         <TableBody>
                           {
-                            companyDetail.map((row, index) => (
+                            pagedCompanyDetail.map((row, index) => (
                               <TableRow>
-                                <TableCell sx={{ textAlign: "center" }}>{index + 1}</TableCell>
+                                <TableCell sx={{ textAlign: "center" }}>{safeCompanyPage * companyRowsPerPage + index + 1}</TableCell>
                                 <TableCell sx={{ textAlign: "left" }}>{row.Name}</TableCell>
                                 <TableCell sx={{ textAlign: "left" }}>{formatAddress(row.Address)}</TableCell>
                                 <TableCell sx={{ textAlign: "center" }}>
@@ -896,6 +906,13 @@ const Setting = () => {
                         </TableBody>
                       </Table>
                     </TableContainer>
+                    <TablePaginationBar
+                      count={companyDetail.length}
+                      page={safeCompanyPage}
+                      rowsPerPage={companyRowsPerPage}
+                      onPageChange={setCompanyPage}
+                      onRowsPerPageChange={setCompanyRowsPerPage}
+                    />
                   </Paper>
                   :
                   <Paper sx={{ height: "70vh", borderRadius: 5, padding: 2 }}>
