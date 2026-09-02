@@ -48,6 +48,7 @@ import 'dayjs/locale/th';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import { TablecellHeader } from "../../theme/style";
 import InsertTrips from "./InsertTrips";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 
 const TradePayable = () => {
 
@@ -76,6 +77,11 @@ const TradePayable = () => {
     const { prefix, firstName, lastName } = getNameParts(Creditor.Name);
 
     const isMobile = useMediaQuery((theme) => theme.breakpoints.down('sm'));
+
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const pageCount = Math.max(1, Math.ceil(trip.length / rowsPerPage));
+    const safePage = Math.min(page, pageCount - 1);
 
     const getTrip = async () => {
         database.ref("/trip").on("value", (snapshot) => {
@@ -393,7 +399,7 @@ const TradePayable = () => {
                                         <TableRow>
                                             <TableCell colSpan={10} sx={{ textAlign: "center", height: "80px", backgroundColor: "lightgray",color: "white", fontWeight: "bold", fontSize: "18px" }}><DescriptionIcon/></TableCell>
                                         </TableRow>
-                                    : trip.map((row) => (
+                                    : trip.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage).map((row) => (
                                         <TableRow>
                                             <TableCell sx={{ textAlign: "center" }}>{row.id}</TableCell>
                                             <TableCell sx={{ textAlign: "center" }}>{row.DateStart}</TableCell>
@@ -418,6 +424,13 @@ const TradePayable = () => {
                             </TableBody>
                         </Table>
                     </TableContainer>
+                    <TablePaginationBar
+                        count={trip.length}
+                        page={safePage}
+                        rowsPerPage={rowsPerPage}
+                        onPageChange={setPage}
+                        onRowsPerPageChange={setRowsPerPage}
+                    />
                 </Grid>
             </Grid>
                 </Box>

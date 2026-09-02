@@ -25,7 +25,6 @@ import {
     TableCell,
     TableContainer,
     TableHead,
-    TablePagination,
     TableRow,
     TextField,
     Tooltip,
@@ -44,6 +43,7 @@ import InsertTrips from "./InsertTrips";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";
 import { formatThaiFull } from "../../theme/DateTH";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 
 const TripsSmallTruck = ({ openNavbar }) => {
     const [menu, setMenu] = React.useState(0);
@@ -202,15 +202,8 @@ const TripsSmallTruck = ({ openNavbar }) => {
 
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
-
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
+    const pageCount = Math.max(1, Math.ceil(tripDetail.length / rowsPerPage));
+    const safePage = Math.min(page, pageCount - 1);
 
     const handleChangeCheck = (value) => {
         setCheck(value);
@@ -468,58 +461,20 @@ const TripsSmallTruck = ({ openNavbar }) => {
                                 </TableHead>
                                 <TableBody>
                                     {
-                                        tripDetail.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+                                        tripDetail.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage).map((row, index) => (
                                             <TripsDetail key={row.id} trips={row} index={index} windowWidth={windowWidth} maxOrder={maxOrder} />
                                         ))
                                     }
                                 </TableBody>
                             </Table>
                         </TableContainer>
-                        {
-                            tripDetail.length < 10 ? null :
-                                <TablePagination
-                                    rowsPerPageOptions={[10, 25, 30]}
-                                    component="div"
-                                    count={tripDetail.length}
-                                    rowsPerPage={rowsPerPage}
-                                    page={page}
-                                    onPageChange={handleChangePage}
-                                    onRowsPerPageChange={handleChangeRowsPerPage}
-                                    labelRowsPerPage="เลือกจำนวนแถวที่ต้องการ:"  // เปลี่ยนข้อความตามที่ต้องการ
-                                    labelDisplayedRows={({ from, to, count }) =>
-                                        `${from} - ${to} จากทั้งหมด ${count !== -1 ? count : `มากกว่า ${to}`}`
-                                    }
-                                    sx={{
-                                        overflow: "hidden", // ซ่อน scrollbar ที่อาจเกิดขึ้น
-                                        borderBottomLeftRadius: 5,
-                                        borderBottomRightRadius: 5,
-                                        '& .MuiTablePagination-toolbar': {
-                                            backgroundColor: "lightgray",
-                                            height: "20px", // กำหนดความสูงของ toolbar
-                                            alignItems: "center",
-                                            paddingY: 0, // ลด padding บนและล่างให้เป็น 0
-                                            overflow: "hidden", // ซ่อน scrollbar ภายใน toolbar
-                                            fontWeight: "bold", // กำหนดให้ข้อความใน toolbar เป็นตัวหนา
-                                        },
-                                        '& .MuiTablePagination-select': {
-                                            paddingY: 0,
-                                            fontWeight: "bold", // กำหนดให้ข้อความใน select เป็นตัวหนา
-                                        },
-                                        '& .MuiTablePagination-actions': {
-                                            '& button': {
-                                                paddingY: 0,
-                                                fontWeight: "bold", // กำหนดให้ข้อความใน actions เป็นตัวหนา
-                                            },
-                                        },
-                                        '& .MuiTablePagination-displayedRows': {
-                                            fontWeight: "bold", // กำหนดให้ข้อความแสดงผลตัวเลขเป็นตัวหนา
-                                        },
-                                        '& .MuiTablePagination-selectLabel': {
-                                            fontWeight: "bold", // กำหนดให้ข้อความ label ของ select เป็นตัวหนา
-                                        }
-                                    }}
-                                />
-                        }
+                        <TablePaginationBar
+                            count={tripDetail.length}
+                            page={safePage}
+                            rowsPerPage={rowsPerPage}
+                            onPageChange={setPage}
+                            onRowsPerPageChange={setRowsPerPage}
+                        />
                     </Grid>
                 </Grid>
             </Box>
