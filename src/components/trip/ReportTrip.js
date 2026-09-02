@@ -29,7 +29,6 @@ import {
     TableCell,
     TableContainer,
     TableHead,
-    TablePagination,
     TableRow,
     TextField,
     Tooltip,
@@ -38,6 +37,7 @@ import {
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import ExcelJS from "exceljs";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
@@ -222,15 +222,9 @@ const ReportTrip = ({ openNavbar }) => {
 
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
-
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
+    const pageCount = Math.max(1, Math.ceil(TripDetail.length / rowsPerPage));
+    const safePage = Math.min(page, pageCount - 1);
+    const pagedTripDetail = TripDetail.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
 
     console.log(sortedDrivers.find(item => item.id === 1));
 
@@ -723,9 +717,9 @@ const ReportTrip = ({ openNavbar }) => {
                                 </TableHead>
                                 <TableBody>
                                     {
-                                        TripDetail.map((row, index) => (
+                                        pagedTripDetail.map((row, index) => (
                                             <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#f3f6fcff" }}>
-                                                <TableCell sx={{ textAlign: "center" }}>{index + 1}</TableCell>
+                                                <TableCell sx={{ textAlign: "center" }}>{safePage * rowsPerPage + index + 1}</TableCell>
                                                 <TableCell sx={{ textAlign: "center" }}>{formatThaiSlash(dayjs(row.DateReceive, "DD/MM/YYYY"))}</TableCell>
                                                 <TableCell>
                                                     {
@@ -747,6 +741,13 @@ const ReportTrip = ({ openNavbar }) => {
                                 </TableBody>
                             </Table>
                         </TableContainer>
+                        <TablePaginationBar
+                            count={TripDetail.length}
+                            page={safePage}
+                            rowsPerPage={rowsPerPage}
+                            onPageChange={setPage}
+                            onRowsPerPageChange={setRowsPerPage}
+                        />
                         <Grid container spacing={1} marginTop={1} paddingBottom={1} sx={{ backgroundColor: theme.palette.info.main }}>
                             <Grid item xs={3} />
                             <Grid item xs={3}>
