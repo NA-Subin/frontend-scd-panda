@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
     Badge,
     Box,
@@ -32,7 +32,8 @@ import InfoIcon from '@mui/icons-material/Info';
 import theme from "../../theme/theme";
 import { IconButtonError, RateOils, TablecellHeader } from "../../theme/style";
 import "dayjs/locale/th";
-import { database } from "../../server/firebase";
+import { apiPut } from "../../server/apiClient";
+import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 
 const UpdateCustomer = (props) => {
@@ -55,30 +56,13 @@ const UpdateCustomer = (props) => {
     const [lng, setLng] = React.useState(customer.Lng);
     const [phone,setPhone] = React.useState(customer.Phone);
 
-    const getRegitration = async () => {
-        database.ref("/truck/registration/").on("value", (snapshot) => {
-            const datas = snapshot.val();
-            const dataRegistration = [];
-            for (let id in datas) {
-                if(datas[id].Driver === "ไม่มี"){
-                    dataRegistration.push({ id, ...datas[id] })
-                }
-            }
-            
-        });
-    };
+    const { refetch } = useBasicData();
 
-    useEffect(() => {
-        getRegitration();
-    }, []);
-
-    const handleUpdate = () => {
-        database
-            .ref("/customer")
-            .child(customer.id - 1)
-            .update({
+    const handleUpdate = async () => {
+        try {
+            await apiPut(`/api/customer/${customer.uuid}`, {
                 Name: name,
-                Address: 
+                Address:
                 (no === "-" ? "-" : no)+
                 (village === "-" ? "" : ","+village)+
                 (subDistrict === "-" ? "" : ","+subDistrict)+
@@ -93,26 +77,24 @@ const UpdateCustomer = (props) => {
                 Phone: phone,
                 Lat: lat,
                 Lng: lng
-            })
-            .then(() => {
-                ShowSuccess("แก้ไขข้อมูลสำเร็จ");
-                console.log("Data pushed successfully");
-                setUpdate(true)
-            })
-            .catch((error) => {
-                ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                console.error("Error pushing data:", error);
             });
+            ShowSuccess("แก้ไขข้อมูลสำเร็จ");
+            setUpdate(true);
+            refetch?.();
+        } catch (error) {
+            ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+            console.error("Error pushing data:", error);
+        }
     }
 
 
     return (
         <React.Fragment>
             <TableCell sx={{ textAlign: "center" }}>
-                <IconButton size="small" sx={{ marginTop: -0.5 }} onClick={() => setOpen(customer.id)}><InfoIcon color="info" fontSize="12px" /></IconButton>
+                <IconButton size="small" sx={{ marginTop: -0.5 }} onClick={() => setOpen(customer.uuid)}><InfoIcon color="info" fontSize="12px" /></IconButton>
             </TableCell>
             <Dialog
-                open={open === customer.id ? true : false}
+                open={open === customer.uuid ? true : false}
                 keepMounted
                 onClose={() => setOpen(false)}
                 sx={{

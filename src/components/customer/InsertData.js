@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React from "react";
 import {
   Badge,
   Box,
@@ -40,8 +40,8 @@ import { IconButtonError, RateOils, TablecellHeader } from "../../theme/style";
 import CancelIcon from '@mui/icons-material/Cancel';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
-import { auth, database } from "../../server/firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { apiPost } from "../../server/apiClient";
+import { useBasicData } from "../../server/provider/BasicDataProvider";
 
 const InsertData = () => {
   const [menu, setMenu] = React.useState(0);
@@ -74,24 +74,13 @@ const InsertData = () => {
   const [lat, setLat] = React.useState("");
   const [lng, setLng] = React.useState("");
 
-  const [customer, setCustomer] = useState([]);
-  const getCustomer = async () => {
-    database.ref("customer/").on("value", (snapshot) => {
-      const datas = snapshot.val();
-      setCustomer(datas.length);
-    });
-  };
+  const { customer, refetch } = useBasicData();
+  const customerList = Object.values(customer || {});
 
-  useEffect(() => {
-    getCustomer();
-  }, []);
-
-  const handlePost = () => {
-    database
-      .ref("customer/")
-      .child(customer)
-      .update({
-        id: customer + 1,
+  const handlePost = async () => {
+    try {
+      await apiPost("/api/customer", {
+        id: customerList.length + 1,
         Name: check ? (prefix + name + " " + lastname) : name,
         Address:
           (no === "-" ? "-" : no) +
@@ -101,23 +90,21 @@ const InsertData = () => {
           (province === "-" ? "" : "," + province) +
           (zipCode === "-" ? "" : "," + zipCode)
         ,
-        Lat: lat, 
+        Lat: lat,
         Lng: lng,
         Credit: credit,
         CreditTime: creditTime,
         Debt: debt,
         IdCard: idCard,
         Phone: phone
-      })
-      .then(() => {
-        ShowSuccess("เพิ่มข้อมูลสำเร็จ");
-        console.log("Data pushed successfully");
-        setOpen(false);
-      })
-      .catch((error) => {
-        ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-        console.error("Error pushing data:", error);
       });
+      ShowSuccess("เพิ่มข้อมูลสำเร็จ");
+      setOpen(false);
+      refetch?.();
+    } catch (error) {
+      ShowError("เพิ่มข้อมูลไม่สำเร็จ");
+      console.error("Error pushing data:", error);
+    }
   };
 
   return (
