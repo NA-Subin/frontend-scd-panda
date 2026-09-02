@@ -61,6 +61,7 @@ const Report = ({ openNavbar }) => {
     if (newValue) {
       const formattedDate = dayjs(newValue); // แปลงวันที่เป็นฟอร์แมต
       setSelectedDateStart(formattedDate);
+      setCheckOverdueTransfer(false); // เลือกวันที่แล้วต้องใช้ตัวกรองวันที่ทันที ไม่ใช่ถูกข้ามเพราะ "ค้างโอน" ยังติ๊กอยู่
     }
   };
 
@@ -68,6 +69,7 @@ const Report = ({ openNavbar }) => {
     if (newValue) {
       const formattedDate = dayjs(newValue); // แปลงวันที่เป็นฟอร์แมต
       setSelectedDateEnd(formattedDate);
+      setCheckOverdueTransfer(false);
     }
   };
 
@@ -1331,7 +1333,6 @@ const Report = ({ openNavbar }) => {
                     },
                   },
                 }}
-                disabled={checkOverdueTransfer ? true : false}
               />
               <DatePicker
                 openTo="day"
@@ -1367,7 +1368,6 @@ const Report = ({ openNavbar }) => {
                     },
                   },
                 }}
-                disabled={checkOverdueTransfer ? true : false}
               />
             </LocalizationProvider>
           </Box>
