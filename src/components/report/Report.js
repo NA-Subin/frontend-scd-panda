@@ -122,6 +122,13 @@ const Report = ({ openNavbar }) => {
   const gasstations = Object.values(customergasstations || {});
   const ticketsOrder = Object.values(customertickets || {});
   const driverDetail = Object.values(drivers || {});
+  // Legacy Firebase data used numeric driver id 1 as the sentinel for
+  // "รถรับจ้างขนส่ง" (contract-transport, no real driver assigned).
+  // Resolve it to that driver's real uuid once here, since every
+  // ticket's Driver field is a uuid now, not the old numeric id.
+  const contractTransportDriverUuid = driverDetail.find(
+    (driver) => driver.id === 1,
+  )?.uuid;
   // const trips = Object.values(trip || {});
   const trips = Object.values(trip || {}).filter((item) => {
     const deliveryDate = dayjs(item.DateDelivery, "DD/MM/YYYY");
@@ -200,10 +207,10 @@ const Report = ({ openNavbar }) => {
       const driverId = item.Driver;
 
       const TruckType =
-        driverDetail.find((driver) => driver.id === driverId)?.TruckType || "";
+        driverDetail.find((driver) => driver.uuid === driverId)?.TruckType || "";
 
       // ✅ flag สำหรับรถรับจ้างขนส่ง
-      const isContractTransport = driverId === 1;
+      const isContractTransport = driverId === contractTransportDriverUuid;
 
       // ✅ flag สำหรับรถใหญ่ปกติ
       const isBigTruck = TruckType?.trim() === "รถใหญ่";
@@ -293,10 +300,10 @@ const Report = ({ openNavbar }) => {
       const driverId = item.Driver;
 
       const TruckType =
-        driverDetail.find((driver) => driver.id === driverId)?.TruckType || "";
+        driverDetail.find((driver) => driver.uuid === driverId)?.TruckType || "";
 
       // ✅ flag สำหรับรถรับจ้างขนส่ง
-      const isContractTransport = driverId === 1;
+      const isContractTransport = driverId === contractTransportDriverUuid;
 
       // ✅ flag สำหรับรถใหญ่ปกติ
       const isBigTruck = TruckType?.trim() === "รถใหญ่";
@@ -388,10 +395,10 @@ const Report = ({ openNavbar }) => {
       const driverId = item.Driver;
 
       const TruckType =
-        driverDetail.find((driver) => driver.id === driverId)?.TruckType || "";
+        driverDetail.find((driver) => driver.uuid === driverId)?.TruckType || "";
 
       // ✅ flag สำหรับรถรับจ้างขนส่ง
-      const isContractTransport = driverId === 1;
+      const isContractTransport = driverId === contractTransportDriverUuid;
 
       // ✅ flag สำหรับรถใหญ่ปกติ
       const isBigTruck = TruckType?.trim() === "รถใหญ่";
