@@ -237,6 +237,13 @@ const UpdateReport = (props) => {
     TicketType: ticket.CustomerType,
     Note: "",
     month: months,
+    // The billing period's own date range (not to be confused with
+    // DateStart above, which is the date this payment was recorded) -
+    // report/Report.js matches transfers back to a group using this
+    // pair instead of the fragile month/TicketNo-based lookups it used
+    // to rely on.
+    PeriodStart: ticket.DateStart,
+    PeriodEnd: ticket.DateEnd,
   });
 
   // const ticketsList = showTickets.filter(item => {
