@@ -29,7 +29,6 @@ import {
     TableContainer,
     TableFooter,
     TableHead,
-    TablePagination,
     TableRow,
     TextField,
     Tooltip,
@@ -62,6 +61,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import ExcelJS from "exceljs";
 import UpdateFinancial from "./UpdateFinancial";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 
 const Financial = () => {
     const [search, setSearch] = useState("");
@@ -188,15 +188,6 @@ const Financial = () => {
 
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
-
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
 
     const filteredData =
         group === "ทั้งหมด"
@@ -662,6 +653,11 @@ const Financial = () => {
 
     summary.total = summary.price + summary.vat;
 
+    const activeFinalData = finalData.filter((f) => f.Status !== "ยกเลิก");
+    const finalDataPageCount = Math.max(1, Math.ceil(activeFinalData.length / rowsPerPage));
+    const safePage = Math.min(page, finalDataPageCount - 1);
+    const pagedFinalData = activeFinalData.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
+
     console.log("Registration : ", registration);
 
     return (
@@ -1074,7 +1070,7 @@ const Financial = () => {
                         </TableHead>
                         <TableBody>
                             {
-                                finalData.filter((f) => f.Status !== "ยกเลิก").map((row, index) => (
+                                pagedFinalData.map((row, index) => (
                                     <TableRow
                                         key={index}
                                         sx={{
@@ -1092,7 +1088,7 @@ const Financial = () => {
                                             "&:hover": {
                                                 backgroundColor: "#ffebee",
                                             },
-                                        }}>{index + 1}</TableCell>
+                                        }}>{safePage * rowsPerPage + index + 1}</TableCell>
                                         <TableCell sx={{ textAlign: "left" }}>
                                             <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{row.InvoiceID}</Typography>
                                             {/* {
@@ -1851,52 +1847,14 @@ const Financial = () => {
                             onClose={() => setFinanCialCheck(null)}
                         />
                     )}
-                    {/* {
-                        reportDetail.length <= 10 ? null :
-                            <TablePagination
-                                rowsPerPageOptions={[10, 25, 30]}
-                                component="div"
-                                count={reportDetail.length}
-                                rowsPerPage={rowsPerPage}
-                                page={page}
-                                onPageChange={handleChangePage}
-                                onRowsPerPageChange={handleChangeRowsPerPage}
-                                labelRowsPerPage="เลือกจำนวนแถวที่ต้องการ:"  // เปลี่ยนข้อความตามที่ต้องการ
-                                labelDisplayedRows={({ from, to, count }) =>
-                                    `${from} - ${to} จากทั้งหมด ${count !== -1 ? count : `มากกว่า ${to}`}`
-                                }
-                                sx={{
-                                    overflow: "hidden", // ซ่อน scrollbar ที่อาจเกิดขึ้น
-                                    borderBottomLeftRadius: 5,
-                                    borderBottomRightRadius: 5,
-                                    '& .MuiTablePagination-toolbar': {
-                                        backgroundColor: "lightgray",
-                                        height: "20px", // กำหนดความสูงของ toolbar
-                                        alignItems: "center",
-                                        paddingY: 0, // ลด padding บนและล่างให้เป็น 0
-                                        overflow: "hidden", // ซ่อน scrollbar ภายใน toolbar
-                                        fontWeight: "bold", // กำหนดให้ข้อความใน toolbar เป็นตัวหนา
-                                    },
-                                    '& .MuiTablePagination-select': {
-                                        paddingY: 0,
-                                        fontWeight: "bold", // กำหนดให้ข้อความใน select เป็นตัวหนา
-                                    },
-                                    '& .MuiTablePagination-actions': {
-                                        '& button': {
-                                            paddingY: 0,
-                                            fontWeight: "bold", // กำหนดให้ข้อความใน actions เป็นตัวหนา
-                                        },
-                                    },
-                                    '& .MuiTablePagination-displayedRows': {
-                                        fontWeight: "bold", // กำหนดให้ข้อความแสดงผลตัวเลขเป็นตัวหนา
-                                    },
-                                    '& .MuiTablePagination-selectLabel': {
-                                        fontWeight: "bold", // กำหนดให้ข้อความ label ของ select เป็นตัวหนา
-                                    }
-                                }}
-                            />
-                    } */}
                 </TableContainer>
+                <TablePaginationBar
+                    count={activeFinalData.length}
+                    page={safePage}
+                    rowsPerPage={rowsPerPage}
+                    onPageChange={setPage}
+                    onRowsPerPageChange={setRowsPerPage}
+                />
             </Grid>
         </Grid>
     );

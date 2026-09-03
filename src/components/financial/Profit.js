@@ -39,6 +39,7 @@ import { useTripData } from "../../server/provider/TripProvider";
 import theme from "../../theme/theme";
 import { apiPut } from "../../server/apiClient";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 
 const Profit = ({ openNavbar }) => {
     const [open, setOpen] = useState(true);
@@ -49,6 +50,8 @@ const Profit = ({ openNavbar }) => {
     const [checkStatusCompany, setCheckStatusCompany] = useState(true);
     const [selectedRow, setSelectedRow] = useState(0);
     const [indexes, setIndex] = useState(0);
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const handleChangeCheck = () => {
         setCheckStatusCompany(!checkStatusCompany);
@@ -284,6 +287,9 @@ const Profit = ({ openNavbar }) => {
     console.log("totals:", totals);
     console.log("avg:", avg);
 
+    const resultPageCount = Math.max(1, Math.ceil(result.length / rowsPerPage));
+    const safePage = Math.min(page, resultPageCount - 1);
+    const pagedResult = result.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
 
     const handleCheckUpdate = (row, index) => {
         console.log(`order/${row.No}/Product/${row.ProductName}/`);
@@ -617,7 +623,9 @@ const Profit = ({ openNavbar }) => {
                                 </TableHead>
                                 <TableBody>
                                     {
-                                        result.map((row, index) =>
+                                        pagedResult.map((row, localIndex) => {
+                                            const index = safePage * rowsPerPage + localIndex;
+                                            return (
                                             <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#f3f6fcff" }} >
                                                 <TableCell sx={{ textAlign: "center" }}>{index + 1}</TableCell>
                                                 <TableCell sx={{ textAlign: "center" }}>{row.Date}</TableCell>
@@ -769,7 +777,7 @@ const Profit = ({ openNavbar }) => {
                                                     </Typography>
                                                 </TableCell>
                                             </TableRow>
-                                        )
+                                        );})
                                     }
                                 </TableBody>
                                 {
@@ -819,6 +827,13 @@ const Profit = ({ openNavbar }) => {
                                 }
                             </Table>
                         </TableContainer>
+                        <TablePaginationBar
+                            count={result.length}
+                            page={safePage}
+                            rowsPerPage={rowsPerPage}
+                            onPageChange={setPage}
+                            onRowsPerPageChange={setRowsPerPage}
+                        />
                     </Grid>
                 </Grid>
             </Box>

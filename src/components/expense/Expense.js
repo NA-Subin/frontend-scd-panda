@@ -22,7 +22,6 @@ import {
     TableCell,
     TableContainer,
     TableHead,
-    TablePagination,
     TableRow,
     TextField,
     Tooltip,
@@ -36,6 +35,7 @@ import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { TablecellSelling } from "../../theme/style";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { apiPost, apiPut } from "../../server/apiClient";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 
 const ExpenseDetail = ({ openNavbar }) => {
     const [update, setUpdate] = React.useState(true);
@@ -80,14 +80,10 @@ const ExpenseDetail = ({ openNavbar }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
+    const filteredExpenseItem = expenseitem.filter((t) => t.Status === (check ? "อยู่ในระบบ" : "ไม่อยู่ในระบบ") && t.Name?.toLowerCase().includes(searchText.toLowerCase()));
+    const expenseItemPageCount = Math.max(1, Math.ceil(filteredExpenseItem.length / rowsPerPage));
+    const safePage = Math.min(page, expenseItemPageCount - 1);
+    const pagedExpenseItem = filteredExpenseItem.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
 
     const handleUpdate = (data) => {
         setID(data.uuid);
@@ -298,12 +294,11 @@ const ExpenseDetail = ({ openNavbar }) => {
                                 </TableHead>
                                 <TableBody>
                                     {
-                                        expenseitem.filter((t) => t.Status === (check ? "อยู่ในระบบ" : "ไม่อยู่ในระบบ") && t.Name?.toLowerCase().includes(searchText.toLowerCase()))
-                                            // .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                        pagedExpenseItem
                                             .map((row, index) => (
                                                 <TableRow>
                                                     <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
-                                                        <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.uuid && "bold" }} gutterBottom>{index + 1}</Typography>
+                                                        <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.uuid && "bold" }} gutterBottom>{safePage * rowsPerPage + index + 1}</Typography>
                                                     </TableCell>
                                                     <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
                                                         {
@@ -520,51 +515,13 @@ const ExpenseDetail = ({ openNavbar }) => {
                                 </TableBody>
                             </Table>
                         </TableContainer>
-                        {/* {
-                            expenseitem.filter((t) => t.Status === (check ? "อยู่ในระบบ" : "ไม่อยู่ในระบบ")).length <= 10 ? null :
-                                <TablePagination
-                                    rowsPerPageOptions={[10, 25, 30]}
-                                    component="div"
-                                    count={expenseitem.filter((t) => t.Status === (check ? "อยู่ในระบบ" : "ไม่อยู่ในระบบ")).length}
-                                    rowsPerPage={rowsPerPage}
-                                    page={page}
-                                    onPageChange={handleChangePage}
-                                    onRowsPerPageChange={handleChangeRowsPerPage}
-                                    labelRowsPerPage="เลือกจำนวนแถวที่ต้องการ:"  // เปลี่ยนข้อความตามที่ต้องการ
-                                    labelDisplayedRows={({ from, to, count }) =>
-                                        `${from} - ${to} จากทั้งหมด ${count !== -1 ? count : `มากกว่า ${to}`}`
-                                    }
-                                    sx={{
-                                        overflow: "hidden", // ซ่อน scrollbar ที่อาจเกิดขึ้น
-                                        borderBottomLeftRadius: 5,
-                                        borderBottomRightRadius: 5,
-                                        '& .MuiTablePagination-toolbar': {
-                                            backgroundColor: "lightgray",
-                                            height: "20px", // กำหนดความสูงของ toolbar
-                                            alignItems: "center",
-                                            paddingY: 0, // ลด padding บนและล่างให้เป็น 0
-                                            overflow: "hidden", // ซ่อน scrollbar ภายใน toolbar
-                                            fontWeight: "bold", // กำหนดให้ข้อความใน toolbar เป็นตัวหนา
-                                        },
-                                        '& .MuiTablePagination-select': {
-                                            paddingY: 0,
-                                            fontWeight: "bold", // กำหนดให้ข้อความใน select เป็นตัวหนา
-                                        },
-                                        '& .MuiTablePagination-actions': {
-                                            '& button': {
-                                                paddingY: 0,
-                                                fontWeight: "bold", // กำหนดให้ข้อความใน actions เป็นตัวหนา
-                                            },
-                                        },
-                                        '& .MuiTablePagination-displayedRows': {
-                                            fontWeight: "bold", // กำหนดให้ข้อความแสดงผลตัวเลขเป็นตัวหนา
-                                        },
-                                        '& .MuiTablePagination-selectLabel': {
-                                            fontWeight: "bold", // กำหนดให้ข้อความ label ของ select เป็นตัวหนา
-                                        }
-                                    }}
-                                />
-                        } */}
+                        <TablePaginationBar
+                            count={filteredExpenseItem.length}
+                            page={safePage}
+                            rowsPerPage={rowsPerPage}
+                            onPageChange={setPage}
+                            onRowsPerPageChange={setRowsPerPage}
+                        />
                     </Grid>
                 </Grid>
                 <Box sx={{ marginTop: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>

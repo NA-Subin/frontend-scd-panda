@@ -28,7 +28,6 @@ import {
     TableCell,
     TableContainer,
     TableHead,
-    TablePagination,
     TableRow,
     TextField,
     Tooltip,
@@ -52,6 +51,7 @@ import dayjs from "dayjs";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useTripData } from "../../server/provider/TripProvider";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 
 const InsertSpendingAbout = ({ onSend }) => {
     const [open, setOpen] = React.useState(false);
@@ -97,14 +97,10 @@ const InsertSpendingAbout = ({ onSend }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
+    const activeCompanyPayments = companypaymentDetail.filter((item) => item.Status === "อยู่ในระบบ");
+    const companyPaymentPageCount = Math.max(1, Math.ceil(activeCompanyPayments.length / rowsPerPage));
+    const safePage = Math.min(page, companyPaymentPageCount - 1);
+    const pagedCompanyPayments = activeCompanyPayments.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
 
     const handleUpdate = (data) => {
         setID(data.id);
@@ -264,10 +260,10 @@ const InsertSpendingAbout = ({ onSend }) => {
                                     </TableHead>
                                     <TableBody>
                                         {
-                                            companypaymentDetail.filter((item) => item.Status === "อยู่ในระบบ").slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+                                            pagedCompanyPayments.map((row, index) => (
                                                 <TableRow>
                                                     <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.id && "#ffecb3" }}>
-                                                        <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.id && "bold" }} gutterBottom>{index + 1}</Typography>
+                                                        <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.id && "bold" }} gutterBottom>{safePage * rowsPerPage + index + 1}</Typography>
                                                     </TableCell>
                                                     <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.id && "#ffecb3" }}>
                                                         {
@@ -344,52 +340,14 @@ const InsertSpendingAbout = ({ onSend }) => {
                                         }
                                     </TableBody>
                                 </Table>
-                                {
-                                    companypaymentDetail.filter((item) => item.Status === "อยู่ในระบบ").length <= 10 ? null :
-                                        <TablePagination
-                                            rowsPerPageOptions={[10, 25, 30]}
-                                            component="div"
-                                            count={companypaymentDetail.filter((item) => item.Status === "อยู่ในระบบ").length}
-                                            rowsPerPage={rowsPerPage}
-                                            page={page}
-                                            onPageChange={handleChangePage}
-                                            onRowsPerPageChange={handleChangeRowsPerPage}
-                                            labelRowsPerPage="เลือกจำนวนแถวที่ต้องการ:"  // เปลี่ยนข้อความตามที่ต้องการ
-                                            labelDisplayedRows={({ from, to, count }) =>
-                                                `${from} - ${to} จากทั้งหมด ${count !== -1 ? count : `มากกว่า ${to}`}`
-                                            }
-                                            sx={{
-                                                overflow: "hidden", // ซ่อน scrollbar ที่อาจเกิดขึ้น
-                                                borderBottomLeftRadius: 5,
-                                                borderBottomRightRadius: 5,
-                                                '& .MuiTablePagination-toolbar': {
-                                                    backgroundColor: "lightgray",
-                                                    height: "15px", // กำหนดความสูงของ toolbar
-                                                    alignItems: "center",
-                                                    paddingY: 0, // ลด padding บนและล่างให้เป็น 0
-                                                    overflow: "hidden", // ซ่อน scrollbar ภายใน toolbar
-                                                    fontWeight: "bold", // กำหนดให้ข้อความใน toolbar เป็นตัวหนา
-                                                },
-                                                '& .MuiTablePagination-select': {
-                                                    paddingY: 0,
-                                                    fontWeight: "bold", // กำหนดให้ข้อความใน select เป็นตัวหนา
-                                                },
-                                                '& .MuiTablePagination-actions': {
-                                                    '& button': {
-                                                        paddingY: 0,
-                                                        fontWeight: "bold", // กำหนดให้ข้อความใน actions เป็นตัวหนา
-                                                    },
-                                                },
-                                                '& .MuiTablePagination-displayedRows': {
-                                                    fontWeight: "bold", // กำหนดให้ข้อความแสดงผลตัวเลขเป็นตัวหนา
-                                                },
-                                                '& .MuiTablePagination-selectLabel': {
-                                                    fontWeight: "bold", // กำหนดให้ข้อความ label ของ select เป็นตัวหนา
-                                                }
-                                            }}
-                                        />
-                                }
                             </TableContainer>
+                            <TablePaginationBar
+                                count={activeCompanyPayments.length}
+                                page={safePage}
+                                rowsPerPage={rowsPerPage}
+                                onPageChange={setPage}
+                                onRowsPerPageChange={setRowsPerPage}
+                            />
                         </Grid>
                         {
                             update ?

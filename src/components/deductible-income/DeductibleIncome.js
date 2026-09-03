@@ -21,7 +21,6 @@ import {
     TableCell,
     TableContainer,
     TableHead,
-    TablePagination,
     TableRow,
     TextField,
     Tooltip,
@@ -36,6 +35,7 @@ import { useBasicData } from "../../server/provider/BasicDataProvider";
 import InsertDeductibleIncome from "./InsertDeductibleIncome";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { apiPut } from "../../server/apiClient";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 
 const DeductibleIncomeDetail = ({ openNavbar }) => {
     const [update, setUpdate] = React.useState({});
@@ -112,26 +112,18 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
     const [pageIncome, setPageIncome] = useState(0);
     const [rowsPerPageIncome, setRowsPerPageIncome] = useState(10);
 
-    const handleChangePageIncome = (event, newPage) => {
-        setPageIncome(newPage);
-    };
-
-    const handleChangeRowsPerPageIncome = (event) => {
-        setRowsPerPageIncome(parseInt(event.target.value, 10));
-        setPageIncome(0);
-    };
-
     const [pageDeduction, setPageDeduction] = useState(0);
     const [rowsPerPageDeduction, setRowsPerPageDeduction] = useState(10);
 
-    const handleChangePageDeduction = (event, newPage) => {
-        setPageDeduction(newPage);
-    };
+    const incomeFiltered = income.filter((t) => t.StatusData === (checkData ? "อยู่ในระบบ" : "ไม่อยู่ในระบบ"));
+    const incomePageCount = Math.max(1, Math.ceil(incomeFiltered.length / rowsPerPageIncome));
+    const safePageIncome = Math.min(pageIncome, incomePageCount - 1);
+    const pagedIncome = incomeFiltered.slice(safePageIncome * rowsPerPageIncome, safePageIncome * rowsPerPageIncome + rowsPerPageIncome);
 
-    const handleChangeRowsPerPageDeduction = (event) => {
-        setRowsPerPageDeduction(parseInt(event.target.value, 10));
-        setPageDeduction(0);
-    };
+    const deductionFiltered = deduction.filter((t) => t.StatusData === (checkData ? "อยู่ในระบบ" : "ไม่อยู่ในระบบ"));
+    const deductionPageCount = Math.max(1, Math.ceil(deductionFiltered.length / rowsPerPageDeduction));
+    const safePageDeduction = Math.min(pageDeduction, deductionPageCount - 1);
+    const pagedDeduction = deductionFiltered.slice(safePageDeduction * rowsPerPageDeduction, safePageDeduction * rowsPerPageDeduction + rowsPerPageDeduction);
 
     const handleUpdate = (data) => {
         setID(data.uuid);
@@ -343,10 +335,10 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                     </TableHead>
                                     <TableBody>
                                         {
-                                            income.filter((t) => t.StatusData === (checkData ? "อยู่ในระบบ" : "ไม่อยู่ในระบบ")).slice(pageIncome * rowsPerPageIncome, pageIncome * rowsPerPageIncome + rowsPerPageIncome).map((row, index) => (
+                                            pagedIncome.map((row, index) => (
                                                 <TableRow>
                                                     <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
-                                                        <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.uuid && "bold" }} gutterBottom>{index + 1}</Typography>
+                                                        <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.uuid && "bold" }} gutterBottom>{safePageIncome * rowsPerPageIncome + index + 1}</Typography>
                                                     </TableCell>
                                                     <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
                                                         <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.uuid && "bold" }} gutterBottom>{row.Code}</Typography>
@@ -470,51 +462,13 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                     </TableBody>
                                 </Table>
                             </TableContainer>
-                            {
-                                income.filter((t) => t.StatusData === (checkData ? "อยู่ในระบบ" : "ไม่อยู่ในระบบ")).length <= 10 ? null :
-                                    <TablePagination
-                                        rowsPerPageOptions={[10, 25, 30]}
-                                        component="div"
-                                        count={income.filter((t) => t.StatusData === (checkData ? "อยู่ในระบบ" : "ไม่อยู่ในระบบ")).length}
-                                        rowsPerPage={rowsPerPageIncome}
-                                        page={pageIncome}
-                                        onPageChange={handleChangePageIncome}
-                                        onRowsPerPageChange={handleChangeRowsPerPageIncome}
-                                        labelRowsPerPage="เลือกจำนวนแถว:"  // เปลี่ยนข้อความตามที่ต้องการ
-                                        labelDisplayedRows={({ from, to, count }) =>
-                                            `${from} - ${to} จาก ${count !== -1 ? count : `มากกว่า ${to}`}`
-                                        }
-                                        sx={{
-                                            overflow: "hidden", // ซ่อน scrollbar ที่อาจเกิดขึ้น
-                                            borderBottomLeftRadius: 5,
-                                            borderBottomRightRadius: 5,
-                                            '& .MuiTablePagination-toolbar': {
-                                                backgroundColor: "lightgray",
-                                                height: "20px", // กำหนดความสูงของ toolbar
-                                                alignItems: "center",
-                                                paddingY: 0, // ลด padding บนและล่างให้เป็น 0
-                                                overflow: "hidden", // ซ่อน scrollbar ภายใน toolbar
-                                                fontWeight: "bold", // กำหนดให้ข้อความใน toolbar เป็นตัวหนา
-                                            },
-                                            '& .MuiTablePagination-select': {
-                                                paddingY: 0,
-                                                fontWeight: "bold", // กำหนดให้ข้อความใน select เป็นตัวหนา
-                                            },
-                                            '& .MuiTablePagination-actions': {
-                                                '& button': {
-                                                    paddingY: 0,
-                                                    fontWeight: "bold", // กำหนดให้ข้อความใน actions เป็นตัวหนา
-                                                },
-                                            },
-                                            '& .MuiTablePagination-displayedRows': {
-                                                fontWeight: "bold", // กำหนดให้ข้อความแสดงผลตัวเลขเป็นตัวหนา
-                                            },
-                                            '& .MuiTablePagination-selectLabel': {
-                                                fontWeight: "bold", // กำหนดให้ข้อความ label ของ select เป็นตัวหนา
-                                            }
-                                        }}
-                                    />
-                            }
+                            <TablePaginationBar
+                                count={incomeFiltered.length}
+                                page={safePageIncome}
+                                rowsPerPage={rowsPerPageIncome}
+                                onPageChange={setPageIncome}
+                                onRowsPerPageChange={setRowsPerPageIncome}
+                            />
                         </Grid>
                     }
                     {
@@ -565,10 +519,10 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                     </TableHead>
                                     <TableBody>
                                         {
-                                            deduction.filter((t) => t.StatusData === (checkData ? "อยู่ในระบบ" : "ไม่อยู่ในระบบ")).slice(pageDeduction * rowsPerPageDeduction, pageDeduction * rowsPerPageDeduction + rowsPerPageDeduction).map((row, index) => (
+                                            pagedDeduction.map((row, index) => (
                                                 <TableRow>
                                                     <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
-                                                        <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.uuid && "bold" }} gutterBottom>{index + 1}</Typography>
+                                                        <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.uuid && "bold" }} gutterBottom>{safePageDeduction * rowsPerPageDeduction + index + 1}</Typography>
                                                     </TableCell>
                                                     <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
                                                         <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.uuid && "bold" }} gutterBottom>{row.Code}</Typography>
@@ -692,51 +646,13 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                     </TableBody>
                                 </Table>
                             </TableContainer>
-                            {
-                                deduction.filter((t) => t.StatusData === (checkData ? "อยู่ในระบบ" : "ไม่อยู่ในระบบ")).length <= 10 ? null :
-                                    <TablePagination
-                                        rowsPerPageOptions={[10, 25, 30]}
-                                        component="div"
-                                        count={deduction.filter((t) => t.StatusData === (checkData ? "อยู่ในระบบ" : "ไม่อยู่ในระบบ")).length}
-                                        rowsPerPage={rowsPerPageDeduction}
-                                        page={pageDeduction}
-                                        onPageChange={handleChangePageDeduction}
-                                        onRowsPerPageChange={handleChangeRowsPerPageDeduction}
-                                        labelRowsPerPage="เลือกจำนวนแถว:"  // เปลี่ยนข้อความตามที่ต้องการ
-                                        labelDisplayedRows={({ from, to, count }) =>
-                                            `${from} - ${to} จาก ${count !== -1 ? count : `มากกว่า ${to}`}`
-                                        }
-                                        sx={{
-                                            overflow: "hidden", // ซ่อน scrollbar ที่อาจเกิดขึ้น
-                                            borderBottomLeftRadius: 5,
-                                            borderBottomRightRadius: 5,
-                                            '& .MuiTablePagination-toolbar': {
-                                                backgroundColor: "lightgray",
-                                                height: "20px", // กำหนดความสูงของ toolbar
-                                                alignItems: "center",
-                                                paddingY: 0, // ลด padding บนและล่างให้เป็น 0
-                                                overflow: "hidden", // ซ่อน scrollbar ภายใน toolbar
-                                                fontWeight: "bold", // กำหนดให้ข้อความใน toolbar เป็นตัวหนา
-                                            },
-                                            '& .MuiTablePagination-select': {
-                                                paddingY: 0,
-                                                fontWeight: "bold", // กำหนดให้ข้อความใน select เป็นตัวหนา
-                                            },
-                                            '& .MuiTablePagination-actions': {
-                                                '& button': {
-                                                    paddingY: 0,
-                                                    fontWeight: "bold", // กำหนดให้ข้อความใน actions เป็นตัวหนา
-                                                },
-                                            },
-                                            '& .MuiTablePagination-displayedRows': {
-                                                fontWeight: "bold", // กำหนดให้ข้อความแสดงผลตัวเลขเป็นตัวหนา
-                                            },
-                                            '& .MuiTablePagination-selectLabel': {
-                                                fontWeight: "bold", // กำหนดให้ข้อความ label ของ select เป็นตัวหนา
-                                            }
-                                        }}
-                                    />
-                            }
+                            <TablePaginationBar
+                                count={deductionFiltered.length}
+                                page={safePageDeduction}
+                                rowsPerPage={rowsPerPageDeduction}
+                                onPageChange={setPageDeduction}
+                                onRowsPerPageChange={setRowsPerPageDeduction}
+                            />
                         </Grid>
                     }
                 </Grid>

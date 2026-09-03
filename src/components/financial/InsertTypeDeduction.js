@@ -30,7 +30,6 @@ import {
     TableCell,
     TableContainer,
     TableHead,
-    TablePagination,
     TableRow,
     TextField,
     Tooltip,
@@ -54,6 +53,7 @@ import dayjs from "dayjs";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useTripData } from "../../server/provider/TripProvider";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 
 const InsertTypeDeduction = ({ onSend }) => {
     const { deductibleincome, refetch: refetchBasicData } = useBasicData();
@@ -130,14 +130,10 @@ const InsertTypeDeduction = ({ onSend }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
 
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
+    const activeDataSource = dataSource.filter((item) => item.StatusData === "อยู่ในระบบ");
+    const dataSourcePageCount = Math.max(1, Math.ceil(activeDataSource.length / rowsPerPage));
+    const safePage = Math.min(page, dataSourcePageCount - 1);
+    const pagedDataSource = activeDataSource.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
 
     const handleUpdate = (data) => {
         setID(data.id);
@@ -322,10 +318,10 @@ const InsertTypeDeduction = ({ onSend }) => {
                                     </TableHead>
                                     <TableBody>
                                         {
-                                            dataSource.filter((item) => item.StatusData === "อยู่ในระบบ").slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+                                            pagedDataSource.map((row, index) => (
                                                 <TableRow>
                                                     <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.id && "#ffecb3" }}>
-                                                        <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.id && "bold" }} gutterBottom>{index + 1}</Typography>
+                                                        <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.id && "bold" }} gutterBottom>{safePage * rowsPerPage + index + 1}</Typography>
                                                     </TableCell>
                                                     <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.id && "#ffecb3" }}>
                                                         <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 0.5, fontWeight: ID === row.id && "bold" }} gutterBottom>{row.Code}</Typography>
@@ -444,54 +440,15 @@ const InsertTypeDeduction = ({ onSend }) => {
                                         }
                                     </TableBody>
                                 </Table>
-                                {
-                                    dataSource.filter((item) => item.StatusData === "อยู่ในระบบ").length <= 10 ? null :
-                                        <TablePagination
-                                            rowsPerPageOptions={[5, 10, 25, 30]}
-                                            component="div"
-                                            count={dataSource.filter((item) => item.StatusData === "อยู่ในระบบ").length}
-                                            rowsPerPage={rowsPerPage}
-                                            page={page}
-                                            onPageChange={handleChangePage}
-                                            onRowsPerPageChange={handleChangeRowsPerPage}
-                                            labelRowsPerPage="เลือกจำนวนแถวที่ต้องการ:"  // เปลี่ยนข้อความตามที่ต้องการ
-                                            labelDisplayedRows={({ from, to, count }) =>
-                                                `${from} - ${to} จากทั้งหมด ${count !== -1 ? count : `มากกว่า ${to}`}`
-                                            }
-                                            sx={{
-                                                overflow: "hidden", // ซ่อน scrollbar ที่อาจเกิดขึ้น
-                                                borderBottomLeftRadius: 5,
-                                                borderBottomRightRadius: 5,
-                                                height: "45px",
-                                                '& .MuiTablePagination-toolbar': {
-                                                    backgroundColor: "lightgray",
-                                                    height: "20px", // กำหนดความสูงของ toolbar
-                                                    alignItems: "center",
-                                                    paddingY: 0, // ลด padding บนและล่างให้เป็น 0
-                                                    overflow: "hidden", // ซ่อน scrollbar ภายใน toolbar
-                                                    fontWeight: "bold", // กำหนดให้ข้อความใน toolbar เป็นตัวหนา
-                                                    marginTop: -0.5
-                                                },
-                                                '& .MuiTablePagination-select': {
-                                                    paddingY: 0,
-                                                    fontWeight: "bold", // กำหนดให้ข้อความใน select เป็นตัวหนา
-                                                },
-                                                '& .MuiTablePagination-actions': {
-                                                    '& button': {
-                                                        paddingY: 0,
-                                                        fontWeight: "bold", // กำหนดให้ข้อความใน actions เป็นตัวหนา
-                                                    },
-                                                },
-                                                '& .MuiTablePagination-displayedRows': {
-                                                    fontWeight: "bold", // กำหนดให้ข้อความแสดงผลตัวเลขเป็นตัวหนา
-                                                },
-                                                '& .MuiTablePagination-selectLabel': {
-                                                    fontWeight: "bold", // กำหนดให้ข้อความ label ของ select เป็นตัวหนา
-                                                }
-                                            }}
-                                        />
-                                }
                             </TableContainer>
+                            <TablePaginationBar
+                                count={activeDataSource.length}
+                                page={safePage}
+                                rowsPerPage={rowsPerPage}
+                                onPageChange={setPage}
+                                onRowsPerPageChange={setRowsPerPage}
+                                rowsPerPageOptions={[5, 10, 25, 30]}
+                            />
                         </Grid>
                         {
                             update ?

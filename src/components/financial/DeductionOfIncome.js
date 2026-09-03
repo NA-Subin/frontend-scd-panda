@@ -29,7 +29,6 @@ import {
     TableContainer,
     TableFooter,
     TableHead,
-    TablePagination,
     TableRow,
     TextField,
     Tooltip,
@@ -58,6 +57,7 @@ import { buildPeriodsForYear, findCurrentPeriod } from "./Paid";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import ExcelJS from "exceljs";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 
 const DeductionOfIncome = (props) => {
     const { selectedDateStart, selectedDateEnd } = props;
@@ -256,22 +256,11 @@ const DeductionOfIncome = (props) => {
         a.localeCompare(b, "th")
     );
 
-    let order = 1;
-
     console.log("Report Table : ", table);
     console.log("Report Detail : ", reportDetail);
 
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
-
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
 
     const exportToExcel = async () => {
         let order = 1;
@@ -433,6 +422,13 @@ const DeductionOfIncome = (props) => {
             totalExpense: expense,
         };
     }, [sortedGroups]); // 👈 คำนวณใหม่เมื่อ sortedGroups เปลี่ยน
+
+    // ✅ Pagination is applied per driver-group (not per raw row) so that the
+    // rowSpan grouping in the table body never gets split across pages.
+    const groupPageCount = Math.max(1, Math.ceil(processedGroups.length / rowsPerPage));
+    const safePage = Math.min(page, groupPageCount - 1);
+    const pagedGroups = processedGroups.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
+    let order = safePage * rowsPerPage + 1;
 
     const [deductionID, setDeductionID] = useState("");
     const [deductionCode, setDeductionCode] = useState("");
@@ -791,7 +787,7 @@ const DeductionOfIncome = (props) => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {processedGroups.map(({ driverName, sortedRows }) =>
+                            {pagedGroups.map(({ driverName, sortedRows }) =>
                                 sortedRows.map((row, rowIndex) => (
                                     <TableRow key={row.id} sx={{ backgroundColor: rowIndex % 2 === 0 ? "#FFFFFF" : "#f3f6fcff" }}>
                                         {/* ✅ ลำดับแสดงเฉพาะแถวแรกของ driver */}
@@ -1077,52 +1073,14 @@ const DeductionOfIncome = (props) => {
                             </TableFooter>
                         }
                     </Table>
-                    {/* {
-                        reportDetail.length <= 10 ? null :
-                            <TablePagination
-                                rowsPerPageOptions={[10, 25, 30]}
-                                component="div"
-                                count={reportDetail.length}
-                                rowsPerPage={rowsPerPage}
-                                page={page}
-                                onPageChange={handleChangePage}
-                                onRowsPerPageChange={handleChangeRowsPerPage}
-                                labelRowsPerPage="เลือกจำนวนแถวที่ต้องการ:"  // เปลี่ยนข้อความตามที่ต้องการ
-                                labelDisplayedRows={({ from, to, count }) =>
-                                    `${from} - ${to} จากทั้งหมด ${count !== -1 ? count : `มากกว่า ${to}`}`
-                                }
-                                sx={{
-                                    overflow: "hidden", // ซ่อน scrollbar ที่อาจเกิดขึ้น
-                                    borderBottomLeftRadius: 5,
-                                    borderBottomRightRadius: 5,
-                                    '& .MuiTablePagination-toolbar': {
-                                        backgroundColor: "lightgray",
-                                        height: "20px", // กำหนดความสูงของ toolbar
-                                        alignItems: "center",
-                                        paddingY: 0, // ลด padding บนและล่างให้เป็น 0
-                                        overflow: "hidden", // ซ่อน scrollbar ภายใน toolbar
-                                        fontWeight: "bold", // กำหนดให้ข้อความใน toolbar เป็นตัวหนา
-                                    },
-                                    '& .MuiTablePagination-select': {
-                                        paddingY: 0,
-                                        fontWeight: "bold", // กำหนดให้ข้อความใน select เป็นตัวหนา
-                                    },
-                                    '& .MuiTablePagination-actions': {
-                                        '& button': {
-                                            paddingY: 0,
-                                            fontWeight: "bold", // กำหนดให้ข้อความใน actions เป็นตัวหนา
-                                        },
-                                    },
-                                    '& .MuiTablePagination-displayedRows': {
-                                        fontWeight: "bold", // กำหนดให้ข้อความแสดงผลตัวเลขเป็นตัวหนา
-                                    },
-                                    '& .MuiTablePagination-selectLabel': {
-                                        fontWeight: "bold", // กำหนดให้ข้อความ label ของ select เป็นตัวหนา
-                                    }
-                                }}
-                            />
-                    } */}
                 </TableContainer>
+                <TablePaginationBar
+                    count={processedGroups.length}
+                    page={safePage}
+                    rowsPerPage={rowsPerPage}
+                    onPageChange={setPage}
+                    onRowsPerPageChange={setRowsPerPage}
+                />
             </Grid>
         </Grid>
 
