@@ -34,6 +34,7 @@ import InsertCustomer from "./InsertData";
 import { Inventory } from "@mui/icons-material";
 import UpdateCustomer from "./UpdateCustomer";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -43,6 +44,12 @@ const Customer = () => {
   const { customer } = useBasicData();
       const customerList = Object.values(customer || {});
       console.log("customer : ", customerList);
+
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const pageCount = Math.max(1, Math.ceil(customerList.length / rowsPerPage));
+  const safePage = Math.min(page, pageCount - 1);
+  const pagedCustomerList = customerList.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
       
@@ -162,8 +169,8 @@ const Customer = () => {
                   ไม่มีออเดอร์
                 </TablecellNoData>
               ) : (
-                customerList.map((row) =>
-                  <TableRow>
+                pagedCustomerList.map((row) =>
+                  <TableRow key={row.uuid}>
                     <TableCell sx={{ textAlign: "center" }}>{row.id}</TableCell>
                     <TableCell sx={{ textAlign: "center" }}>{row.Name}</TableCell>
                     <TableCell sx={{ textAlign: "center" }}>{row.IdCard}</TableCell>
@@ -179,6 +186,13 @@ const Customer = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        <TablePaginationBar
+          count={customerList.length}
+          page={safePage}
+          rowsPerPage={rowsPerPage}
+          onPageChange={setPage}
+          onRowsPerPageChange={setRowsPerPage}
+        />
         </Paper>
         </Grid>
       </Grid>
