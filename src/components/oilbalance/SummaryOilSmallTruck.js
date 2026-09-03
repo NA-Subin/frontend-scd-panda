@@ -29,7 +29,6 @@ import {
     TableCell,
     TableContainer,
     TableHead,
-    TablePagination,
     TableRow,
     TextField,
     Tooltip,
@@ -52,6 +51,7 @@ import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";
 import { formatThaiFull, formatThaiSlash } from "../../theme/DateTH";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 
 const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
 
@@ -253,15 +253,9 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
 
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
-
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
+    const sortedOrderDetailPageCount = Math.max(1, Math.ceil(sortedOrderDetail.length / rowsPerPage));
+    const safePage = Math.min(page, sortedOrderDetailPageCount - 1);
+    const pagedOrderDetail = sortedOrderDetail.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
 
     const exportToExcel = async () => {
         const workbook = new ExcelJS.Workbook();
@@ -885,7 +879,9 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                 </TableHead>
                                 <TableBody>
                                     {
-                                        sortedOrderDetail.map((row, index) => (
+                                        pagedOrderDetail.map((row, localIndex) => {
+                                            const index = safePage * rowsPerPage + localIndex;
+                                            return (
                                             <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#f8f0f7fa" }} >
                                                 <TableCell sx={{ textAlign: "center" }}>{index + 1}</TableCell>
                                                 <TableCell sx={{ textAlign: "center" }}>{formatThaiSlash(dayjs(row.Date, "DD/MM/YYYY"))}</TableCell>
@@ -933,11 +929,18 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                                     }
                                                 </TableCell>
                                             </TableRow>
-                                        ))
+                                        );})
                                     }
                                 </TableBody>
                             </Table>
                         </TableContainer>
+                        <TablePaginationBar
+                            count={sortedOrderDetail.length}
+                            page={safePage}
+                            rowsPerPage={rowsPerPage}
+                            onPageChange={setPage}
+                            onRowsPerPageChange={setRowsPerPage}
+                        />
                         <Grid container spacing={1} marginTop={1} paddingBottom={1} sx={{ backgroundColor: theme.palette.pink.dark }}>
                             <Grid item xs={3} />
                             <Grid item xs={3}>

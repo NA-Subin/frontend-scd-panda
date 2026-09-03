@@ -29,7 +29,6 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
   TextField,
   Tooltip,
@@ -61,6 +60,7 @@ import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";
 import { formatThaiFull, formatThaiSlash } from "../../theme/DateTH";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 
 const SummaryOilBalance = ({ openNavbar }) => {
   const [date, setDate] = React.useState(false);
@@ -80,8 +80,6 @@ const SummaryOilBalance = ({ openNavbar }) => {
     key: "Date",
     direction: "asc",
   });
-
-  let groupCounter = 0; // ตัวนับลำดับกลุ่ม
 
   console.log("sortConfig : ", sortConfig);
 
@@ -333,14 +331,29 @@ const SummaryOilBalance = ({ openNavbar }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
+  // ✅ Pagination is applied per date+driver group (not per raw row) so that
+  // the rowSpan grouping in the table body never gets split across pages.
+  const orderGroups = useMemo(() => {
+    const groups = [];
+    sortedOrderDetail.forEach((row) => {
+      const dateKey = formatThaiSlash(dayjs(row.Date, "DD/MM/YYYY"));
+      const driverKey = `${row.DriverName}/${row.RegistrationName}`;
+      const key = `${dateKey}_${driverKey}`;
+      const lastGroup = groups[groups.length - 1];
+      if (lastGroup && lastGroup.key === key) {
+        lastGroup.rows.push(row);
+      } else {
+        groups.push({ key, rows: [row] });
+      }
+    });
+    return groups;
+  }, [sortedOrderDetail]);
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  const orderGroupPageCount = Math.max(1, Math.ceil(orderGroups.length / rowsPerPage));
+  const safePage = Math.min(page, orderGroupPageCount - 1);
+  const pagedOrderDetail = orderGroups
+    .slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage)
+    .flatMap((g) => g.rows);
 
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
@@ -1053,7 +1066,10 @@ const SummaryOilBalance = ({ openNavbar }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {sortedOrderDetail.map((row, index) => {
+                  {(() => {
+                    // ✅ ลำดับกลุ่มต่อเนื่องข้ามหน้า (เริ่มจากจำนวนกลุ่มที่ถูกข้ามไปในหน้าก่อนหน้า)
+                    let groupCounter = safePage * rowsPerPage;
+                    return pagedOrderDetail.map((row, index) => {
                     const dateKey = formatThaiSlash(
                       dayjs(row.Date, "DD/MM/YYYY"),
                     );
@@ -1064,7 +1080,7 @@ const SummaryOilBalance = ({ openNavbar }) => {
                     const subGroupKey = `${groupKey}_${ticketKey}`;
 
                     // หาจำนวนและขอบเขตของกลุ่ม
-                    const groupIndexes = sortedOrderDetail
+                    const groupIndexes = pagedOrderDetail
                       .map((r, i) => ({
                         i,
                         match:
@@ -1076,7 +1092,7 @@ const SummaryOilBalance = ({ openNavbar }) => {
                       .filter((x) => x.match)
                       .map((x) => x.i);
 
-                    const subGroupIndexes = sortedOrderDetail
+                    const subGroupIndexes = pagedOrderDetail
                       .map((r, i) => ({
                         i,
                         match:
@@ -1244,10 +1260,18 @@ const SummaryOilBalance = ({ openNavbar }) => {
                         </TableCell>
                       </TableRow>
                     );
-                  })}
+                  });
+                  })()}
                 </TableBody>
               </Table>
             </TableContainer>
+            <TablePaginationBar
+              count={orderGroups.length}
+              page={safePage}
+              rowsPerPage={rowsPerPage}
+              onPageChange={setPage}
+              onRowsPerPageChange={setRowsPerPage}
+            />
             <Grid
               container
               spacing={1}

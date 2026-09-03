@@ -60,6 +60,7 @@ import { TableCellB7, TableCellB95, TableCellE20, TableCellG91, TableCellG95, Ta
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";
 import { formatThaiFull, formatThaiSlash } from "../../theme/DateTH";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 
 const QuotationUpdate = ({ setOpen }) => {
     const navigate = useNavigate();
@@ -225,6 +226,12 @@ const QuotationUpdate = ({ setOpen }) => {
     }, [quotations, search, selectedDateStart, selectedDateEnd, sortConfig]);
 
     console.log("filteredQuotations : ", filteredQuotations);
+
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const quotationPageCount = Math.max(1, Math.ceil(filteredQuotations.length / rowsPerPage));
+    const safePage = Math.min(page, quotationPageCount - 1);
+    const pagedQuotations = filteredQuotations.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
 
     const handleChange = (type, field, value) => {
         setFuelData((prev) => ({
@@ -616,7 +623,9 @@ const QuotationUpdate = ({ setOpen }) => {
                                             </TableCell>
                                         </TableRow>
                                         :
-                                        filteredQuotations.map((row, index) => (
+                                        pagedQuotations.map((row, localIndex) => {
+                                            const index = safePage * rowsPerPage + localIndex;
+                                            return (
                                             <TableRow
                                                 key={row.uuid}
                                                 onClick={() => handleUpdate(row)}
@@ -721,10 +730,17 @@ const QuotationUpdate = ({ setOpen }) => {
                                                     }
                                                 </TableCell>
                                             </TableRow>
-                                        ))}
+                                        );})}
                             </TableBody>
                         </Table>
                     </TableContainer>
+                    <TablePaginationBar
+                        count={filteredQuotations.length}
+                        page={safePage}
+                        rowsPerPage={rowsPerPage}
+                        onPageChange={setPage}
+                        onRowsPerPageChange={setRowsPerPage}
+                    />
                 </Grid>
                 {
                     invoice &&
