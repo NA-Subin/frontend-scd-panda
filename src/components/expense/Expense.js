@@ -32,7 +32,8 @@ import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { useBasicData } from "../../server/provider/BasicDataProvider";
-import { TablecellSelling } from "../../theme/style";
+import { TablecellNoData, TablecellSelling } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { apiPost, apiPut } from "../../server/apiClient";
 import TablePaginationBar from "../../theme/TablePaginationBar";
@@ -271,8 +272,7 @@ const ExpenseDetail = ({ openNavbar }) => {
                     <Grid item xs={12}>
                         <TableContainer
                             component={Paper}
-                            style={{ maxHeight: "70vh" }}
-                            sx={{ marginBottom: 2 }}
+                            sx={{ height: "70vh", marginBottom: 2 }}
                         >
                             <Table stickyHeader size="small">
                                 <TableHead sx={{ height: "7vh" }}>
@@ -293,7 +293,15 @@ const ExpenseDetail = ({ openNavbar }) => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {
+                                    {filteredExpenseItem.length === 0 ? (
+                                        <TableRow>
+                                            <TablecellNoData colSpan={5}>
+                                                <Inventory fontSize="large" />
+                                                <br />
+                                                ไม่มีข้อมูล
+                                            </TablecellNoData>
+                                        </TableRow>
+                                    ) : (
                                         pagedExpenseItem
                                             .map((row, index) => (
                                                 <TableRow>
@@ -443,7 +451,7 @@ const ExpenseDetail = ({ openNavbar }) => {
                                                     </TableCell>
                                                 </TableRow>
                                             ))
-                                    }
+                                    )}
                                     {
                                         open &&
                                         <TableRow sx={{ backgroundColor: "#c5cae9", position: "sticky", bottom: 0 }}>

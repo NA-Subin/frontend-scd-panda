@@ -43,7 +43,8 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import theme from "../../theme/theme";
-import { RateOils, TablecellFinancial, TablecellFinancialHead, TablecellHeader, TablecellSelling, TablecellTickets } from "../../theme/style";
+import { RateOils, TablecellFinancial, TablecellFinancialHead, TablecellHeader, TablecellNoData, TablecellSelling, TablecellTickets } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";
@@ -972,7 +973,16 @@ const DocSalary = ({ openNavbar }) => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {pagedProcessed.map(({ index, row, costrip, total, moneyGuarantee, moneyLoan }) => (
+                                    {processed.length === 0 ? (
+                                        <TableRow>
+                                            <TablecellNoData colSpan={8 + uniqueNames.length}>
+                                                <Inventory fontSize="large" />
+                                                <br />
+                                                ไม่มีข้อมูล
+                                            </TablecellNoData>
+                                        </TableRow>
+                                    ) : (
+                                    pagedProcessed.map(({ index, row, costrip, total, moneyGuarantee, moneyLoan }) => (
                                         <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#f3f6fcff" }}>
                                             <TableCell sx={{ textAlign: "center" }}>{index + 1}</TableCell>
                                             <TableCell sx={{ textAlign: "center", position: "sticky", left: 0, backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#f3f6fcff", fontWeight: "bold" }}>
@@ -1085,6 +1095,7 @@ const DocSalary = ({ openNavbar }) => {
                                             <MoneyGuarantee money={moneyGuarantee} periods={periods} name={`${row.Name} ${row.Registration ? row.Registration : ""}`} />
                                             <MoneyLoan money={moneyLoan} periods={periods} name={`${row.Name} ${row.Registration ? row.Registration : ""}`} />
                                         </TableRow>
+                                    )
                                     )
                                     )}
 

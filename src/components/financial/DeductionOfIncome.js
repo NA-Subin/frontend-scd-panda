@@ -46,7 +46,8 @@ import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import EditIcon from '@mui/icons-material/Edit';
 import theme from "../../theme/theme";
-import { RateOils, TablecellFinancial, TablecellFinancialHead, TablecellHeader, TablecellSelling, TablecellTickets } from "../../theme/style";
+import { RateOils, TablecellFinancial, TablecellFinancialHead, TablecellHeader, TablecellNoData, TablecellSelling, TablecellTickets } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import { apiPut } from "../../server/apiClient";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import InsertDeducetionIncome from "./InsertDeductionIncome";
@@ -787,7 +788,16 @@ const DeductionOfIncome = (props) => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {pagedGroups.map(({ driverName, sortedRows }) =>
+                            {processedGroups.length === 0 ? (
+                                <TableRow>
+                                    <TablecellNoData colSpan={8}>
+                                        <Inventory fontSize="large" />
+                                        <br />
+                                        ไม่มีข้อมูล
+                                    </TablecellNoData>
+                                </TableRow>
+                            ) : (
+                                pagedGroups.map(({ driverName, sortedRows }) =>
                                 sortedRows.map((row, rowIndex) => (
                                     <TableRow key={row.id} sx={{ backgroundColor: rowIndex % 2 === 0 ? "#FFFFFF" : "#f3f6fcff" }}>
                                         {/* ✅ ลำดับแสดงเฉพาะแถวแรกของ driver */}
@@ -1042,6 +1052,7 @@ const DeductionOfIncome = (props) => {
                                         </TableCell>
                                     </TableRow>
                                 ))
+                                )
                             )}
                         </TableBody>
                         {

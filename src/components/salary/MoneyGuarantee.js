@@ -37,7 +37,8 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import theme from "../../theme/theme";
-import { IconButtonError, TablecellSelling } from "../../theme/style";
+import { IconButtonError, TablecellNoData, TablecellSelling } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import { formatThaiFull, formatThaiYear } from "../../theme/DateTH";
 import dayjs from "dayjs";
 import { saveAs } from "file-saver";
@@ -343,7 +344,16 @@ const MoneyGuarantee = ({ money, periods, name }) => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {pagedRows.map(({ row, cumulative, index }) => {
+                                    {rowsWithCumulative.length === 0 ? (
+                                        <TableRow>
+                                            <TablecellNoData colSpan={6}>
+                                                <Inventory fontSize="large" />
+                                                <br />
+                                                ไม่มีข้อมูล
+                                            </TablecellNoData>
+                                        </TableRow>
+                                    ) : (
+                                    pagedRows.map(({ row, cumulative, index }) => {
                                         return (
                                             <TableRow key={index}>
                                                 <TableCell sx={{ textAlign: "center" }}>
@@ -366,7 +376,8 @@ const MoneyGuarantee = ({ money, periods, name }) => {
                                                 <TableCell sx={{ textAlign: "center" }}>{new Intl.NumberFormat("en-US").format(cumulative || 0)}</TableCell>
                                             </TableRow>
                                         );
-                                    })}
+                                    })
+                                    )}
                                 </TableBody>
                             </Table>
                         </TableContainer>

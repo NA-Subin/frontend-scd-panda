@@ -49,7 +49,8 @@ import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import EditIcon from '@mui/icons-material/Edit';
 import theme from "../../theme/theme";
-import { RateOils, TablecellFinancial, TablecellFinancialHead, TablecellHeader, TablecellSelling, TablecellTickets } from "../../theme/style";
+import { RateOils, TablecellFinancial, TablecellFinancialHead, TablecellHeader, TablecellNoData, TablecellSelling, TablecellTickets } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import { API_BASE, apiPost, apiPut } from "../../server/apiClient";
 import InsertFinancial from "./InsertFinancial";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
@@ -657,6 +658,7 @@ const Financial = () => {
     const finalDataPageCount = Math.max(1, Math.ceil(activeFinalData.length / rowsPerPage));
     const safePage = Math.min(page, finalDataPageCount - 1);
     const pagedFinalData = activeFinalData.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
+    const financialColumnCount = 11 + (group !== "กลุ่ม" ? 2 : 0) + (group === "ทั้งหมด" ? 1 : 0);
 
     console.log("Registration : ", registration);
 
@@ -1069,7 +1071,15 @@ const Financial = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {
+                            {activeFinalData.length === 0 ? (
+                                <TableRow>
+                                    <TablecellNoData colSpan={financialColumnCount}>
+                                        <Inventory fontSize="large" />
+                                        <br />
+                                        ไม่มีข้อมูล
+                                    </TablecellNoData>
+                                </TableRow>
+                            ) : (
                                 pagedFinalData.map((row, index) => (
                                     <TableRow
                                         key={index}
@@ -1792,7 +1802,7 @@ const Financial = () => {
                                         } */}
                                     </TableRow>
                                 ))
-                            }
+                            )}
                         </TableBody>
                         {
                             finalData.filter((f) => f.Status !== "ยกเลิก").length !== 0 &&

@@ -52,10 +52,12 @@ import {
   TablecellFinancialHead,
   TablecellHeader,
   TablecellInfo,
+  TablecellNoData,
   TablecellPrimary,
   TablecellSelling,
   TablecellTickets,
 } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";
@@ -1066,7 +1068,16 @@ const SummaryOilBalance = ({ openNavbar }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {(() => {
+                  {orderGroups.length === 0 ? (
+                    <TableRow>
+                      <TablecellNoData colSpan={9}>
+                        <Inventory fontSize="large" />
+                        <br />
+                        ไม่มีข้อมูล
+                      </TablecellNoData>
+                    </TableRow>
+                  ) : (
+                  (() => {
                     // ✅ ลำดับกลุ่มต่อเนื่องข้ามหน้า (เริ่มจากจำนวนกลุ่มที่ถูกข้ามไปในหน้าก่อนหน้า)
                     let groupCounter = safePage * rowsPerPage;
                     return pagedOrderDetail.map((row, index) => {
@@ -1261,7 +1272,8 @@ const SummaryOilBalance = ({ openNavbar }) => {
                       </TableRow>
                     );
                   });
-                  })()}
+                  })()
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>

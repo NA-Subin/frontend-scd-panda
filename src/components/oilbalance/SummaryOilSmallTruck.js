@@ -46,7 +46,8 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import theme from "../../theme/theme";
-import { RateOils, TablecellFinancial, TablecellFinancialHead, TablecellHeader, TablecellPink, TablecellSelling, TablecellTickets } from "../../theme/style";
+import { RateOils, TablecellFinancial, TablecellFinancialHead, TablecellHeader, TablecellNoData, TablecellPink, TablecellSelling, TablecellTickets } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";
@@ -878,7 +879,15 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {
+                                    {sortedOrderDetail.length === 0 ? (
+                                        <TableRow>
+                                            <TablecellNoData colSpan={9}>
+                                                <Inventory fontSize="large" />
+                                                <br />
+                                                ไม่มีข้อมูล
+                                            </TablecellNoData>
+                                        </TableRow>
+                                    ) : (
                                         pagedOrderDetail.map((row, localIndex) => {
                                             const index = safePage * rowsPerPage + localIndex;
                                             return (
@@ -930,7 +939,7 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                                 </TableCell>
                                             </TableRow>
                                         );})
-                                    }
+                                    )}
                                 </TableBody>
                             </Table>
                         </TableContainer>

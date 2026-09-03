@@ -30,7 +30,8 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import { IconButtonWarning, TablecellSelling } from "../../theme/style";
+import { IconButtonWarning, TablecellSelling, TablecellNoData } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import InsertDeductibleIncome from "./InsertDeductibleIncome";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
@@ -312,8 +313,7 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                             </Box>
                             <TableContainer
                                 component={Paper}
-                                style={{ maxHeight: "70vh" }}
-                                sx={{ marginBottom: 2 }}
+                                sx={{ height: "70vh", marginBottom: 2 }}
                             >
                                 <Table stickyHeader size="small">
                                     <TableHead sx={{ height: "7vh" }}>
@@ -334,7 +334,15 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {
+                                        {incomeFiltered.length === 0 ? (
+                                            <TableRow>
+                                                <TablecellNoData colSpan={5}>
+                                                    <Inventory fontSize="large" />
+                                                    <br />
+                                                    ไม่มีข้อมูล
+                                                </TablecellNoData>
+                                            </TableRow>
+                                        ) : (
                                             pagedIncome.map((row, index) => (
                                                 <TableRow>
                                                     <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
@@ -458,7 +466,7 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                                     {/* <UpdateCreditor key={row.id} employee={row} /> */}
                                                 </TableRow>
                                             ))
-                                        }
+                                        )}
                                     </TableBody>
                                 </Table>
                             </TableContainer>
@@ -496,8 +504,7 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                             </Box>
                             <TableContainer
                                 component={Paper}
-                                style={{ maxHeight: "70vh" }}
-                                sx={{ marginBottom: 2 }}
+                                sx={{ height: "70vh", marginBottom: 2 }}
                             >
                                 <Table stickyHeader size="small">
                                     <TableHead sx={{ height: "7vh" }}>
@@ -518,7 +525,15 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {
+                                        {deductionFiltered.length === 0 ? (
+                                            <TableRow>
+                                                <TablecellNoData colSpan={5}>
+                                                    <Inventory fontSize="large" />
+                                                    <br />
+                                                    ไม่มีข้อมูล
+                                                </TablecellNoData>
+                                            </TableRow>
+                                        ) : (
                                             pagedDeduction.map((row, index) => (
                                                 <TableRow>
                                                     <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
@@ -642,7 +657,7 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                                     {/* <UpdateCreditor key={row.id} employee={row} /> */}
                                                 </TableRow>
                                             ))
-                                        }
+                                        )}
                                     </TableBody>
                                 </Table>
                             </TableContainer>

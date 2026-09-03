@@ -44,7 +44,6 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
-import FolderOffIcon from '@mui/icons-material/FolderOff';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
@@ -56,7 +55,8 @@ import dayjs from 'dayjs';
 import Cookies from 'js-cookie';
 import 'dayjs/locale/th';
 import { apiPut } from "../../server/apiClient";
-import { TableCellB7, TableCellB95, TableCellE20, TableCellG91, TableCellG95, TablecellSelling, TableCellPWD, TablecellHeader } from "../../theme/style";
+import { TableCellB7, TableCellB95, TableCellE20, TableCellG91, TableCellG95, TablecellNoData, TablecellSelling, TableCellPWD, TablecellHeader } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";
 import { formatThaiFull, formatThaiSlash } from "../../theme/DateTH";
@@ -606,21 +606,11 @@ const QuotationUpdate = ({ setOpen }) => {
                                 {
                                     filteredQuotations.length <= 0 ?
                                         <TableRow>
-                                            <TableCell colSpan={6}>
-                                                <Box
-                                                    display="flex"
-                                                    flexDirection="column"
-                                                    alignItems="center"
-                                                    justifyContent="center"
-                                                    py={3} // เพิ่ม padding แนวตั้ง
-                                                    height="42vh"
-                                                >
-                                                    <FolderOffIcon color="action" sx={{ fontSize: 20, mb: 1 }} />
-                                                    <Typography variant="subtitle1" color="textSecondary">
-                                                        ไม่มีข้อมูล
-                                                    </Typography>
-                                                </Box>
-                                            </TableCell>
+                                            <TablecellNoData colSpan={8}>
+                                                <Inventory fontSize="large" />
+                                                <br />
+                                                ไม่มีข้อมูล
+                                            </TablecellNoData>
                                         </TableRow>
                                         :
                                         pagedQuotations.map((row, localIndex) => {

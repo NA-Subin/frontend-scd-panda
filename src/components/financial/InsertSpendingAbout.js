@@ -44,7 +44,8 @@ import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 import { apiPost, apiPut } from "../../server/apiClient";
 import theme from "../../theme/theme";
-import { IconButtonError, TablecellSelling } from "../../theme/style";
+import { IconButtonError, TablecellNoData, TablecellSelling } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
@@ -259,7 +260,15 @@ const InsertSpendingAbout = ({ onSend }) => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {
+                                        {activeCompanyPayments.length === 0 ? (
+                                            <TableRow>
+                                                <TablecellNoData colSpan={3}>
+                                                    <Inventory fontSize="large" />
+                                                    <br />
+                                                    ไม่มีข้อมูล
+                                                </TablecellNoData>
+                                            </TableRow>
+                                        ) : (
                                             pagedCompanyPayments.map((row, index) => (
                                                 <TableRow>
                                                     <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.id && "#ffecb3" }}>
@@ -337,7 +346,7 @@ const InsertSpendingAbout = ({ onSend }) => {
                                                     </TableCell>
                                                 </TableRow>
                                             ))
-                                        }
+                                        )}
                                     </TableBody>
                                 </Table>
                             </TableContainer>

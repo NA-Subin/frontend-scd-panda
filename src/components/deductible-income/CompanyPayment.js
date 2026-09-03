@@ -31,7 +31,8 @@ import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { useBasicData } from "../../server/provider/BasicDataProvider";
-import { TablecellSelling } from "../../theme/style";
+import { TablecellSelling, TablecellNoData } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { apiPost, apiPut } from "../../server/apiClient";
 import ImportExcel from "./ExportExcel";
@@ -270,8 +271,7 @@ const CompanyPayment = ({ openNavbar }) => {
                     <Grid item xs={12}>
                         <TableContainer
                             component={Paper}
-                            style={{ maxHeight: "70vh" }}
-                            sx={{ marginBottom: 2 }}
+                            sx={{ height: "70vh", marginBottom: 2 }}
                         >
                             <Table stickyHeader size="small">
                                 <TableHead sx={{ height: "7vh" }}>
@@ -289,7 +289,15 @@ const CompanyPayment = ({ openNavbar }) => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {
+                                    {filteredData.length === 0 ? (
+                                        <TableRow>
+                                            <TablecellNoData colSpan={4}>
+                                                <Inventory fontSize="large" />
+                                                <br />
+                                                ไม่มีข้อมูล
+                                            </TablecellNoData>
+                                        </TableRow>
+                                    ) : (
                                         pagedFilteredData.map((row, index) => (
                                             <TableRow>
                                                 <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.uuid && "#c5cae9" }}>
@@ -409,7 +417,7 @@ const CompanyPayment = ({ openNavbar }) => {
                                                 </TableCell>
                                             </TableRow>
                                         ))
-                                    }
+                                    )}
                                     {
                                         open &&
                                         <TableRow sx={{ backgroundColor: "#c5cae9" }}>

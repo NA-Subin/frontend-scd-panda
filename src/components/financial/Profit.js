@@ -33,7 +33,8 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { formatThaiFull } from "../../theme/DateTH";
-import { IconButtonError, IconButtonSuccess, TablecellSelling } from "../../theme/style";
+import { IconButtonError, IconButtonSuccess, TablecellNoData, TablecellSelling } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";
 import theme from "../../theme/theme";
@@ -622,7 +623,15 @@ const Profit = ({ openNavbar }) => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {
+                                    {result.length === 0 ? (
+                                        <TableRow>
+                                            <TablecellNoData colSpan={9}>
+                                                <Inventory fontSize="large" />
+                                                <br />
+                                                ไม่มีข้อมูล
+                                            </TablecellNoData>
+                                        </TableRow>
+                                    ) : (
                                         pagedResult.map((row, localIndex) => {
                                             const index = safePage * rowsPerPage + localIndex;
                                             return (
@@ -778,7 +787,7 @@ const Profit = ({ openNavbar }) => {
                                                 </TableCell>
                                             </TableRow>
                                         );})
-                                    }
+                                    )}
                                 </TableBody>
                                 {
                                     result.length !== 0 &&

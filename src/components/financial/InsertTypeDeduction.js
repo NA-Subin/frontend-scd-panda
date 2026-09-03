@@ -46,7 +46,8 @@ import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 import { apiPost, apiPut } from "../../server/apiClient";
 import theme from "../../theme/theme";
-import { IconButtonError, TablecellSelling } from "../../theme/style";
+import { IconButtonError, TablecellNoData, TablecellSelling } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
@@ -317,7 +318,15 @@ const InsertTypeDeduction = ({ onSend }) => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {
+                                        {activeDataSource.length === 0 ? (
+                                            <TableRow>
+                                                <TablecellNoData colSpan={6}>
+                                                    <Inventory fontSize="large" />
+                                                    <br />
+                                                    ไม่มีข้อมูล
+                                                </TablecellNoData>
+                                            </TableRow>
+                                        ) : (
                                             pagedDataSource.map((row, index) => (
                                                 <TableRow>
                                                     <TableCell sx={{ textAlign: "center", backgroundColor: ID === row.id && "#ffecb3" }}>
@@ -437,7 +446,7 @@ const InsertTypeDeduction = ({ onSend }) => {
                                                     </TableCell> */}
                                                 </TableRow>
                                             ))
-                                        }
+                                        )}
                                     </TableBody>
                                 </Table>
                             </TableContainer>
