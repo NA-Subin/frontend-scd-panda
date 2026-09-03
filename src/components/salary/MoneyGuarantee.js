@@ -28,7 +28,6 @@ import {
     TableCell,
     TableContainer,
     TableHead,
-    TablePagination,
     TableRow,
     TextField,
     Tooltip,
@@ -43,6 +42,7 @@ import { formatThaiFull, formatThaiYear } from "../../theme/DateTH";
 import dayjs from "dayjs";
 import { saveAs } from "file-saver";
 import ExcelJS from "exceljs";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 
 const MoneyGuarantee = ({ money, periods, name }) => {
     const [open, setOpen] = React.useState(false);
@@ -219,6 +219,24 @@ const MoneyGuarantee = ({ money, periods, name }) => {
         return acc;
     }, 0);
 
+    // ✅ Compute the running balance for every row first (it depends on the
+    // full, unsliced history), then paginate only the on-screen rows.
+    const rowsWithCumulative = money.map((row, index) => {
+        const cumulative = money
+            .slice(0, index + 1)
+            .reduce((acc, doc) =>
+                doc.Type === "รายได้"
+                    ? acc + Number(doc.Money || 0)
+                    : acc - Number(doc.Money || 0)
+                , 0);
+        return { row, cumulative, index };
+    });
+
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const moneyPageCount = Math.max(1, Math.ceil(rowsWithCumulative.length / rowsPerPage));
+    const safePage = Math.min(page, moneyPageCount - 1);
+    const pagedRows = rowsWithCumulative.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
 
     return (
         <React.Fragment>
@@ -325,16 +343,7 @@ const MoneyGuarantee = ({ money, periods, name }) => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {money.map((row, index) => {
-                                        // คำนวณยอดสะสมจนถึงแถวปัจจุบัน
-                                        const cumulative = money
-                                            .slice(0, index + 1) // ตัดเฉพาะตั้งแต่แถวแรกถึง index ปัจจุบัน
-                                            .reduce((acc, doc) => 
-                                                doc.Type === "รายได้"
-                                                    ? acc + Number(doc.Money || 0) // ถ้าเป็นรายได้ ให้บวก
-                                                    : acc - Number(doc.Money || 0) // ถ้าเป็นรายหัก ให้ลบ
-                                            , 0);
-
+                                    {pagedRows.map(({ row, cumulative, index }) => {
                                         return (
                                             <TableRow key={index}>
                                                 <TableCell sx={{ textAlign: "center" }}>
@@ -361,6 +370,13 @@ const MoneyGuarantee = ({ money, periods, name }) => {
                                 </TableBody>
                             </Table>
                         </TableContainer>
+                        <TablePaginationBar
+                            count={rowsWithCumulative.length}
+                            page={safePage}
+                            rowsPerPage={rowsPerPage}
+                            onPageChange={setPage}
+                            onRowsPerPageChange={setRowsPerPage}
+                        />
                     </Box>
                 </DialogContent>
                 {/* <DialogActions sx={{ display: "flex", textAlign: "center", alignItems: "center", justifyContent: "center", borderTop: "2px solid " + theme.palette.panda.dark }}>

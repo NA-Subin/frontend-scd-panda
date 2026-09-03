@@ -28,7 +28,6 @@ import {
     TableContainer,
     TableFooter,
     TableHead,
-    TablePagination,
     TableRow,
     TextField,
     Tooltip,
@@ -55,6 +54,7 @@ import MoneyLoan from "./MoneyLoan";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import ExcelJS from "exceljs";
+import TablePaginationBar from "../../theme/TablePaginationBar";
 
 const DocSalary = ({ openNavbar }) => {
     // const [selectedDateStart, setSelectedDateStart] = useState(dayjs().startOf('month'));
@@ -303,15 +303,6 @@ const DocSalary = ({ openNavbar }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
-
     // 1) เตรียมตัวแปร summary ไว้
     let summary = {
         costrip: 0,
@@ -422,6 +413,12 @@ const DocSalary = ({ openNavbar }) => {
             moneyLoan: moneyLoan,
         };
     })
+
+    // ✅ Pagination is applied after `processed`/`summary` are fully computed
+    // over the whole `document` array - only the on-screen rows are sliced.
+    const processedPageCount = Math.max(1, Math.ceil(processed.length / rowsPerPage));
+    const safePage = Math.min(page, processedPageCount - 1);
+    const pagedProcessed = processed.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
 
     const exportToExcel = async () => {
         const workbook = new ExcelJS.Workbook();
@@ -975,7 +972,7 @@ const DocSalary = ({ openNavbar }) => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {processed.map(({ index, row, costrip, total, moneyGuarantee, moneyLoan }) => (
+                                    {pagedProcessed.map(({ index, row, costrip, total, moneyGuarantee, moneyLoan }) => (
                                         <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#f3f6fcff" }}>
                                             <TableCell sx={{ textAlign: "center" }}>{index + 1}</TableCell>
                                             <TableCell sx={{ textAlign: "center", position: "sticky", left: 0, backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#f3f6fcff", fontWeight: "bold" }}>
@@ -1179,51 +1176,13 @@ const DocSalary = ({ openNavbar }) => {
                                 </TableFooter>
                             </Table>
                         </TableContainer>
-                        {/* {
-                            document.length <= 10 ? null :
-                                <TablePagination
-                                    rowsPerPageOptions={[10, 25, 30]}
-                                    component="div"
-                                    count={document.length}
-                                    rowsPerPage={rowsPerPage}
-                                    page={page}
-                                    onPageChange={handleChangePage}
-                                    onRowsPerPageChange={handleChangeRowsPerPage}
-                                    labelRowsPerPage="เลือกจำนวนแถวที่ต้องการ:"  // เปลี่ยนข้อความตามที่ต้องการ
-                                    labelDisplayedRows={({ from, to, count }) =>
-                                        `${from} - ${to} จากทั้งหมด ${count !== -1 ? count : `มากกว่า ${to}`}`
-                                    }
-                                    sx={{
-                                        overflow: "hidden", // ซ่อน scrollbar ที่อาจเกิดขึ้น
-                                        borderBottomLeftRadius: 5,
-                                        borderBottomRightRadius: 5,
-                                        '& .MuiTablePagination-toolbar': {
-                                            backgroundColor: "lightgray",
-                                            height: "20px", // กำหนดความสูงของ toolbar
-                                            alignItems: "center",
-                                            paddingY: 0, // ลด padding บนและล่างให้เป็น 0
-                                            overflow: "hidden", // ซ่อน scrollbar ภายใน toolbar
-                                            fontWeight: "bold", // กำหนดให้ข้อความใน toolbar เป็นตัวหนา
-                                        },
-                                        '& .MuiTablePagination-select': {
-                                            paddingY: 0,
-                                            fontWeight: "bold", // กำหนดให้ข้อความใน select เป็นตัวหนา
-                                        },
-                                        '& .MuiTablePagination-actions': {
-                                            '& button': {
-                                                paddingY: 0,
-                                                fontWeight: "bold", // กำหนดให้ข้อความใน actions เป็นตัวหนา
-                                            },
-                                        },
-                                        '& .MuiTablePagination-displayedRows': {
-                                            fontWeight: "bold", // กำหนดให้ข้อความแสดงผลตัวเลขเป็นตัวหนา
-                                        },
-                                        '& .MuiTablePagination-selectLabel': {
-                                            fontWeight: "bold", // กำหนดให้ข้อความ label ของ select เป็นตัวหนา
-                                        }
-                                    }}
-                                />
-                        } */}
+                        <TablePaginationBar
+                            count={processed.length}
+                            page={safePage}
+                            rowsPerPage={rowsPerPage}
+                            onPageChange={setPage}
+                            onRowsPerPageChange={setRowsPerPage}
+                        />
                     </Grid>
                 </Grid>
             </Box>
