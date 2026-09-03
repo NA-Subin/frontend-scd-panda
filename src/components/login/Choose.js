@@ -54,6 +54,8 @@ const Choose = () => {
 
   const [importing, setImporting] = useState(false);
   const fileInputRef = useRef(null);
+  const [importingIncremental, setImportingIncremental] = useState(false);
+  const incrementalFileInputRef = useRef(null);
 
 
 
@@ -115,6 +117,56 @@ const Choose = () => {
             ShowError("นำเข้าข้อมูลไม่สำเร็จ", err?.data?.error || err.message);
           } finally {
             setImporting(false);
+          }
+        }
+      );
+    };
+    reader.onerror = () => {
+      ShowError("อ่านไฟล์ไม่สำเร็จ", "");
+    };
+    reader.readAsText(file);
+  };
+
+  const handleIncrementalImportClick = () => {
+    incrementalFileInputRef.current?.click();
+  };
+
+  // Unlike handleFileSelected above, this never drops or replaces anything
+  // already in the database - it only inserts rows whose original Firebase
+  // key isn't already present in the corresponding table, so it's safe to
+  // run against a live database that already has real activity (new
+  // customers, transfers, tickets) since the original one-time migration.
+  const handleIncrementalFileSelected = (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      let data;
+      try {
+        data = JSON.parse(reader.result);
+      } catch (err) {
+        ShowError("ไฟล์ไม่ถูกต้อง", "อ่านไฟล์ JSON ไม่สำเร็จ กรุณาตรวจสอบไฟล์อีกครั้ง");
+        return;
+      }
+
+      ShowConfirm(
+        `เพิ่มข้อมูลใหม่จาก "${file.name}" หรือไม่? จะเพิ่มเฉพาะแถวที่ยังไม่มีในฐานข้อมูล ข้อมูลเดิมทั้งหมดจะไม่ถูกลบหรือแก้ไข`,
+        async () => {
+          setImportingIncremental(true);
+          try {
+            const result = await apiPost("/api/admin/import-incremental", { data });
+            if (result.totalNewRows === 0) {
+              ShowInfo("ไม่มีข้อมูลใหม่", result.message || "ทุกแถวในไฟล์นี้มีอยู่ในฐานข้อมูลแล้ว");
+            } else {
+              ShowSuccess(`เพิ่มข้อมูลใหม่สำเร็จ (${result.totalNewRows} แถว)`);
+              refetch?.();
+            }
+          } catch (err) {
+            ShowError("เพิ่มข้อมูลใหม่ไม่สำเร็จ", err?.data?.error || err.message);
+          } finally {
+            setImportingIncremental(false);
           }
         }
       );
@@ -245,7 +297,6 @@ const Choose = () => {
             </Button>
           </Grid>
         }
-        <Grid item xs={12} sm={3}></Grid>
         {
           showBasic && (
             <Grid item xs={12} sm={6}>
@@ -269,12 +320,39 @@ const Choose = () => {
                     <UploadFileIcon sx={{ width: 80, height: 80 }} />
                   )
                 }>
-                {importing ? "กำลังนำเข้าข้อมูล..." : "นำเข้าข้อมูล JSON"}
+                {importing ? "กำลังนำเข้าข้อมูล..." : "นำเข้าข้อมูล JSON (ทับข้อมูลเดิมทั้งหมด)"}
               </Button>
             </Grid>
           )
         }
-        <Grid item xs={12} sm={3}></Grid>
+        {
+          showBasic && (
+            <Grid item xs={12} sm={6}>
+              <input
+                type="file"
+                accept="application/json,.json"
+                ref={incrementalFileInputRef}
+                style={{ display: "none" }}
+                onChange={handleIncrementalFileSelected}
+              />
+              <Button variant="contained"
+                color="info"
+                fullWidth
+                disabled={importingIncremental}
+                sx={{ height: "20vh", borderRadius: 5, fontSize: 26, fontWeight: "bold" }}
+                onClick={handleIncrementalImportClick}
+                startIcon={
+                  importingIncremental ? (
+                    <CircularProgress color="inherit" size={40} />
+                  ) : (
+                    <UploadFileIcon sx={{ width: 80, height: 80 }} />
+                  )
+                }>
+                {importingIncremental ? "กำลังเพิ่มข้อมูล..." : "เพิ่มข้อมูลใหม่ (ไม่ลบของเดิม)"}
+              </Button>
+            </Grid>
+          )
+        }
       </Grid>
     </Container>
   );
