@@ -464,6 +464,13 @@ const PrintReport = () => {
   };
 
   const paginateRows = (rows) => {
+    // The whole invoice template - header, customer info, document number -
+    // is rendered once per entry in `pages`, so when there are zero line
+    // items this used to return [] and the page came out completely blank,
+    // with no document number visible anywhere. Always emit at least one
+    // (possibly empty) page so the header/number/totals still render.
+    if (rows.length === 0) return [[]];
+
     const pages = [];
     let i = 0;
 
