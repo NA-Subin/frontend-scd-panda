@@ -37,7 +37,8 @@ import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import InfoIcon from '@mui/icons-material/Info';
-import { IconButtonError, IconButtonInfo, TablecellHeader, TablecellSetting, TablecellTickets } from "../../theme/style";
+import { IconButtonError, IconButtonInfo, TablecellHeader, TablecellNoData, TablecellSetting, TablecellTickets } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import { apiPost, apiPut } from "../../server/apiClient";
 import InsertCompany from "./InsertCompany";
 import TablePaginationBar from "../../theme/TablePaginationBar";
@@ -503,8 +504,7 @@ const Setting = () => {
                     <InsertCompany />
                     <TableContainer
                       component={Paper}
-                      style={{ maxHeight: "90vh" }}
-                      sx={{ marginTop: 2 }}
+                      sx={{ height: "70vh", marginTop: 2 }}
                     >
                       <Table stickyHeader size="small" sx={{ width: "1280px" }}>
                         <TableHead sx={{ height: "7vh" }}>
@@ -522,7 +522,15 @@ const Setting = () => {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {
+                          {companyDetail.length === 0 ? (
+                            <TableRow>
+                              <TablecellNoData colSpan={4}>
+                                <Inventory fontSize="large" />
+                                <br />
+                                ไม่มีข้อมูล
+                              </TablecellNoData>
+                            </TableRow>
+                          ) : (
                             pagedCompanyDetail.map((row, index) => (
                               <TableRow>
                                 <TableCell sx={{ textAlign: "center" }}>{safeCompanyPage * companyRowsPerPage + index + 1}</TableCell>
@@ -902,7 +910,7 @@ const Setting = () => {
                                 </Dialog>
                               </TableRow>
                             ))
-                          }
+                          )}
                         </TableBody>
                       </Table>
                     </TableContainer>

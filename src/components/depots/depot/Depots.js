@@ -29,7 +29,8 @@ import {
   Typography,
 } from "@mui/material";
 import "dayjs/locale/th";
-import { IconButtonError, RateOils, TablecellHeader, TablecellSelling } from "../../../theme/style";
+import { IconButtonError, RateOils, TablecellHeader, TablecellNoData, TablecellSelling } from "../../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import UpdateDepot from "./UpdateDepot";
 import { ShowError, ShowSuccess } from "../../sweetalert/sweetalert";
 import InserDepot from "./InsertDepot";
@@ -111,8 +112,7 @@ const Depots = ({openNavbar}) => {
       <Box sx={{ width: "100%" }} >
         <TableContainer
           component={Paper}
-          style={{ maxHeight: "70vh" }}
-          sx={{ marginTop: 2 }}
+          sx={{ height: "70vh", marginTop: 2 }}
         >
           <Table stickyHeader size="small" sx={{ width: "100%" }}>
             <TableHead sx={{ height: "7vh" }}>
@@ -139,9 +139,17 @@ const Depots = ({openNavbar}) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {
+              {depot.length === 0 ? (
+                <TableRow>
+                  <TablecellNoData colSpan={7}>
+                    <Inventory fontSize="large" />
+                    <br />
+                    ไม่มีข้อมูล
+                  </TablecellNoData>
+                </TableRow>
+              ) : (
                 pagedDepot.map((row) => (
-                  <TableRow>
+                  <TableRow key={row.uuid}>
                     <TableCell sx={{ textAlign: "center" }}>{row.id}</TableCell>
                     <TableCell sx={{ textAlign: "center" }}>{row.Name}</TableCell>
                     <TableCell>{row.Address}</TableCell>
@@ -151,7 +159,7 @@ const Depots = ({openNavbar}) => {
                     <UpdateDepot key={row.id} depot={row} />
                   </TableRow>
                 ))
-              }
+              )}
             </TableBody>
           </Table>
         </TableContainer>

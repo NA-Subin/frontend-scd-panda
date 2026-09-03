@@ -95,8 +95,7 @@ const Customer = () => {
                       <Divider sx={{ marginBottom: 1 }} />
                       <TableContainer
                                       component={Paper}
-                                      style={{ maxHeight: "70vh" }}
-                                      sx={{ marginBottom: 2}}
+                                      sx={{ height: "70vh", marginBottom: 2}}
                                   >
                                       <Table stickyHeader size="small" sx={{ width: "1250px" }}>
             <TableHead sx={{ height: "7vh" }}>
@@ -162,12 +161,14 @@ const Customer = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {customerList === "ไม่มีข้อมูล" ? (
-                <TablecellNoData colSpan={11}>
-                  <Inventory />
-                  <br />
-                  ไม่มีออเดอร์
-                </TablecellNoData>
+              {customerList.length === 0 ? (
+                <TableRow>
+                  <TablecellNoData colSpan={9}>
+                    <Inventory fontSize="large" />
+                    <br />
+                    ไม่มีข้อมูล
+                  </TablecellNoData>
+                </TableRow>
               ) : (
                 pagedCustomerList.map((row) =>
                   <TableRow key={row.uuid}>
