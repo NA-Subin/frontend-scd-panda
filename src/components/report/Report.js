@@ -1722,7 +1722,7 @@ const Report = ({ openNavbar }) => {
                                 const transfer = transferMoneyDetail.filter(
                                   (transferRow) =>
                                     transferRow.TicketName === row.TicketName &&
-                                    transferRow.month === row.Month,
+                                    Number(transferRow.TicketNo) === Number(row.No),
                                 );
 
                                 console.log("Tranfer Detail : ", transfer);
@@ -1998,7 +1998,7 @@ const Report = ({ openNavbar }) => {
                                 const transfer = transferMoneyDetail.filter(
                                   (transferRow) =>
                                     transferRow.TicketName === row.TicketName &&
-                                    transferRow.month === row.Month,
+                                    Number(transferRow.TicketNo) === Number(row.No),
                                 );
 
                                 console.log("Tranfer Detail : ", transfer);
@@ -2505,7 +2505,7 @@ const Report = ({ openNavbar }) => {
                                 const transfer = transferMoneyDetail.filter(
                                   (transferRow) =>
                                     transferRow.TicketName === row.TicketName &&
-                                    transferRow.month === row.Month,
+                                    Number(transferRow.TicketNo) === Number(row.No),
                                 );
 
                                 console.log("Tranfer Detail : ", transfer);
@@ -2784,7 +2784,7 @@ const Report = ({ openNavbar }) => {
                                 const transfer = transferMoneyDetail.filter(
                                   (transferRow) =>
                                     transferRow.TicketName === row.TicketName &&
-                                    transferRow.month === row.Month,
+                                    Number(transferRow.TicketNo) === Number(row.No),
                                 );
 
                                 console.log("Tranfer Detail : ", transfer);
@@ -3290,7 +3290,7 @@ const Report = ({ openNavbar }) => {
                                 const transfer = transferMoneyDetail.filter(
                                   (transferRow) =>
                                     transferRow.TicketName === row.TicketName &&
-                                    transferRow.month === row.Month,
+                                    Number(transferRow.TicketNo) === Number(row.No),
                                 );
 
                                 console.log("Tranfer Detail : ", transfer);
@@ -3559,7 +3559,7 @@ const Report = ({ openNavbar }) => {
                                 const transfer = transferMoneyDetail.filter(
                                   (transferRow) =>
                                     transferRow.TicketName === row.TicketName &&
-                                    transferRow.month === row.Month,
+                                    Number(transferRow.TicketNo) === Number(row.No),
                                 );
 
                                 console.log("Tranfer Detail : ", transfer);
