@@ -28,7 +28,8 @@ import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
 import theme from "../../theme/theme";
 import InsertTickets from "./InsertTickets";
-import { IconButtonError, TablecellHeader, TablecellSelling } from "../../theme/style";
+import { IconButtonError, TablecellHeader, TablecellNoData, TablecellSelling } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import TablePaginationBar from "../../theme/TablePaginationBar";
@@ -303,7 +304,7 @@ const Tickets = ({ openNavbar }) => {
                 <Typography variant="subtitle2" color="error" fontWeight="bold" sx={{ marginBottom: -2 }} gutterBottom>*ถ้าต้องการดูรายละเอียดทั้งหมดให้คลิ๊กชื่อตั๋ว*</Typography>
                 <TableContainer
                     component={Paper}
-                    sx={{ marginTop: 2 }}
+                    sx={{ marginTop: 2, height: "70vh" }}
                 >
                     <Table stickyHeader size="small" sx={{ width: "100%" }}>
                         <TableHead sx={{ height: "7vh" }}>
@@ -331,9 +332,13 @@ const Tickets = ({ openNavbar }) => {
                         </TableHead>
                         <TableBody>
                             {
-                                ticket === null || ticket === undefined ?
+                                ticket.length === 0 ?
                                     <TableRow>
-                                        <TableCell colSpan={4} sx={{ textAlign: "center", lineHeight: 1, margin: 0 }}>ไม่มีข้อมูล</TableCell>
+                                        <TablecellNoData colSpan={8}>
+                                            <Inventory fontSize="large" />
+                                            <br />
+                                            ไม่มีข้อมูล
+                                        </TablecellNoData>
                                     </TableRow>
                                     :
                                     ticket.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage).map((row, index) => (

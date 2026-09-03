@@ -29,7 +29,8 @@ import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import theme from "../../theme/theme";
-import { IconButtonError, TablecellHeader } from "../../theme/style";
+import { IconButtonError, TablecellHeader, TablecellNoData } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import InsertTicketsTransport from "./InsertTicketsTransport";
 import InsertTicketsGasStations from "./InsertTicketsGasStations";
 import TicketsGasStation from "./TicketsGasStation";
@@ -421,7 +422,7 @@ const TicketsTransport = ({ openNavbar }) => {
                     open === 1 ?
                         <TableContainer
                             component={Paper}
-                            sx={{ marginTop: 2 }}
+                            sx={{ marginTop: 2, height: "70vh" }}
                         >
                             <Table stickyHeader size="small" sx={{ tableLayout: "fixed", "& .MuiTableCell-root": { padding: "1px" }, width: "100%" }}>
                                 <TableHead sx={{ height: "7vh" }}>
@@ -457,9 +458,13 @@ const TicketsTransport = ({ openNavbar }) => {
                                 </TableHead>
                                 <TableBody>
                                     {
-                                        filtered === null || filtered === undefined ?
+                                        filtered.length === 0 ?
                                             <TableRow>
-                                                <TableCell colSpan={9} sx={{ textAlign: "center" }}>ไม่มีข้อมูล</TableCell>
+                                                <TablecellNoData colSpan={9}>
+                                                    <Inventory fontSize="large" />
+                                                    <br />
+                                                    ไม่มีข้อมูล
+                                                </TablecellNoData>
                                             </TableRow>
                                             :
                                             filtered.sort((a, b) => a.Name.localeCompare(b.Name)).slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage).map((row, index) => (
@@ -794,7 +799,7 @@ const TicketsTransport = ({ openNavbar }) => {
                         :
                         <TableContainer
                             component={Paper}
-                            sx={{ marginTop: 2 }}
+                            sx={{ marginTop: 2, height: "70vh" }}
                         >
                             <Table stickyHeader size="small" sx={{ tableLayout: "fixed", "& .MuiTableCell-root": { padding: "1px" }, width: "100%" }}>
                                 <TableHead sx={{ height: "7vh" }} >
@@ -825,9 +830,13 @@ const TicketsTransport = ({ openNavbar }) => {
                                 </TableHead>
                                 <TableBody>
                                     {
-                                        filtered === null || filtered === undefined ?
+                                        filtered.length === 0 ?
                                             <TableRow>
-                                                <TableCell colSpan={7} sx={{ textAlign: "center" }}>ไม่มีข้อมูล</TableCell>
+                                                <TablecellNoData colSpan={8}>
+                                                    <Inventory fontSize="large" />
+                                                    <br />
+                                                    ไม่มีข้อมูล
+                                                </TablecellNoData>
                                             </TableRow>
                                             :
                                             filtered.sort((a, b) => a.ShortName.localeCompare(b.ShortName)).slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage).map((row, index) => (

@@ -41,12 +41,12 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import SettingsIcon from '@mui/icons-material/Settings';
 import PostAddIcon from '@mui/icons-material/PostAdd';
-import DescriptionIcon from '@mui/icons-material/Description';
 import dayjs from 'dayjs';
 import Cookies from 'js-cookie';
 import 'dayjs/locale/th';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import { TablecellHeader } from "../../theme/style";
+import { TablecellHeader, TablecellNoData } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import InsertTrips from "./InsertTrips";
 import TablePaginationBar from "../../theme/TablePaginationBar";
 
@@ -318,11 +318,11 @@ const TradePayable = () => {
                 <Grid item xs={12}>
                     <TableContainer
                         component={Paper}
-                        style={{ maxHeight: "90vh" }}
                         sx={{
                             maxWidth: trip.length === 0 || trip.length === null ? "100%" : "1200px",
                             overflowX: "auto", // แสดง scrollbar แนวนอน
                             marginTop: 2,
+                            height: "90vh",
                         }}
                     >
                         <Table
@@ -397,7 +397,11 @@ const TradePayable = () => {
                                 {
                                     trip.length === 0 || trip.length === null ?
                                         <TableRow>
-                                            <TableCell colSpan={10} sx={{ textAlign: "center", height: "80px", backgroundColor: "lightgray",color: "white", fontWeight: "bold", fontSize: "18px" }}><DescriptionIcon/></TableCell>
+                                            <TablecellNoData colSpan={10}>
+                                                <Inventory fontSize="large" />
+                                                <br />
+                                                ไม่มีข้อมูล
+                                            </TablecellNoData>
                                         </TableRow>
                                     : trip.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage).map((row) => (
                                         <TableRow>

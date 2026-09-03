@@ -37,7 +37,8 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import theme from "../../theme/theme";
-import { RateOils, TablecellCustomers, TablecellHeader, TablecellTickets } from "../../theme/style";
+import { RateOils, TablecellCustomers, TablecellHeader, TablecellNoData, TablecellTickets } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import TripsDetail from "./TripsDetail";
 import InsertTrips from "./InsertTrips";
 import { useTripData } from "../../server/provider/TripProvider";
@@ -343,6 +344,7 @@ const TripsBigTruck = ({ openNavbar }) => {
                                 maxWidth: "100%",
                                 overflowX: "auto", // แสดง scrollbar แนวนอน
                                 marginTop: 2,
+                                height: "70vh",
                             }}
                         >
                             <Table
@@ -470,9 +472,19 @@ const TripsBigTruck = ({ openNavbar }) => {
                                 </TableHead>
                                 <TableBody>
                                     {
-                                        tripDetail.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage).map((row, index) => (
-                                            <TripsDetail key={row.id} trips={row} windowWidth={windowWidth} index={index} />
-                                        ))
+                                        tripDetail.length === 0 ? (
+                                            <TableRow>
+                                                <TablecellNoData colSpan={19}>
+                                                    <Inventory fontSize="large" />
+                                                    <br />
+                                                    ไม่มีข้อมูล
+                                                </TablecellNoData>
+                                            </TableRow>
+                                        ) : (
+                                            tripDetail.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage).map((row, index) => (
+                                                <TripsDetail key={row.id} trips={row} windowWidth={windowWidth} index={index} />
+                                            ))
+                                        )
                                     }
                                 </TableBody>
                             </Table>

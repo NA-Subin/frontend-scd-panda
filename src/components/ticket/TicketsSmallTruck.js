@@ -25,7 +25,8 @@ import {
     Tooltip,
     Typography,
 } from "@mui/material";
-import { IconButtonError, TablecellHeader } from "../../theme/style";
+import { IconButtonError, TablecellHeader, TablecellNoData } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import BookOnlineIcon from '@mui/icons-material/BookOnline';
 import { apiPut } from "../../server/apiClient";
@@ -470,7 +471,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                 <Typography variant="subtitle2" color="error" fontWeight="bold" sx={{ marginBottom: -2 }} gutterBottom>*ถ้าต้องการดูรายละเอียดทั้งหมดให้คลิ๊กชื่อตั๋ว*</Typography>
                 <TableContainer
                     component={Paper}
-                    sx={{ marginTop: 2 }}
+                    sx={{ marginTop: 2, height: "70vh" }}
                 >
                     <Table stickyHeader size="small" sx={{ tableLayout: "fixed", "& .MuiTableCell-root": { padding: "1px" }, width: "100%" }}>
                         <TableHead sx={{ height: "7vh" }}>
@@ -514,9 +515,13 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                             {
                                 open === 1 ?
                                     (
-                                        filtered === null || filtered === undefined ?
+                                        filtered.length === 0 ?
                                             <TableRow>
-                                                <TableCell colSpan={4} sx={{ textAlign: "center" }}>ไม่มีข้อมูล</TableCell>
+                                                <TablecellNoData colSpan={8}>
+                                                    <Inventory fontSize="large" />
+                                                    <br />
+                                                    ไม่มีข้อมูล
+                                                </TablecellNoData>
                                             </TableRow>
                                             :
                                             filtered.sort((a, b) => a.Name.localeCompare(b.Name)).slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage).map((row, index) => (
@@ -952,9 +957,13 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                     )
                                     :
                                     (
-                                        filtered === null || filtered === undefined ?
+                                        filtered.length === 0 ?
                                             <TableRow>
-                                                <TableCell colSpan={4} sx={{ textAlign: "center" }}>ไม่มีข้อมูล</TableCell>
+                                                <TablecellNoData colSpan={8}>
+                                                    <Inventory fontSize="large" />
+                                                    <br />
+                                                    ไม่มีข้อมูล
+                                                </TablecellNoData>
                                             </TableRow>
                                             :
                                             filtered.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage).map((row, index) => (
