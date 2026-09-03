@@ -59,6 +59,7 @@ const Setting = () => {
   const [checkID, setCheckID] = useState(0);
   const [checkIndex, setCheckIndex] = useState(0);
   const [positionName, setPositionName] = useState("");
+  const [checkAdminData, setCheckAdminData] = useState("");
   const [checkBasicData, setCheckBasicData] = useState("");
   const [checkOrperationData, setCheckOprerationData] = useState("");
   const [checkFinancialData, setCheckFinancialData] = useState("");
@@ -136,10 +137,11 @@ const Setting = () => {
     }
   };
 
-  const handleUpdate = (newIndex, newUuid, newName, newBasicData, newOperationData, newFinancialData, newReportData, newBigTruckData, newSmallTruckData, newGasStationData, newDriverData) => {
+  const handleUpdate = (newIndex, newUuid, newName, newBasicData, newOperationData, newFinancialData, newReportData, newBigTruckData, newSmallTruckData, newGasStationData, newDriverData, newAdminData) => {
     setCheckID(newUuid);
     setCheckIndex(newIndex);
     setName(newName);
+    setCheckAdminData(newAdminData === 0 ? false : true);
     setCheckBasicData(newBasicData === 0 ? false : true);
     setCheckOprerationData(newOperationData === 0 ? false : true);
     setCheckFinancialData(newFinancialData === 0 ? false : true);
@@ -199,6 +201,7 @@ const Setting = () => {
       await apiPost("/api/positions", {
         id: (positionsDetail.length) + 1,
         Name: positionName,
+        AdminData: 0,
         BasicData: 0,
         OprerationData: 0,
         FinancialData: 0,
@@ -315,6 +318,7 @@ const Setting = () => {
     try {
       await apiPut(`/api/positions/${checkID}`, {
         Name: name,
+        AdminData: checkAdminData === false ? 0 : 1,
         BasicData: checkBasicData === false ? 0 : 1,
         OprerationData: checkOrperationData === false ? 0 : 1,
         FinancialData: checkFinancialData === false ? 0 : 1,
@@ -969,7 +973,7 @@ const Setting = () => {
                                 <TablecellSetting sx={{ textAlign: "center", fontSize: 16, width: 280 }} rowSpan={2}>
                                   ตำแหน่ง
                                 </TablecellSetting>
-                                <TablecellSetting sx={{ textAlign: "center", fontSize: 16, width: 900 }} colSpan={8}>
+                                <TablecellSetting sx={{ textAlign: "center", fontSize: 16, width: 900 }} colSpan={9}>
                                   สิทธิ์
                                 </TablecellSetting>
                                 <TablecellSetting rowSpan={2} width={50} sx={{ textAlign: "center", position: 'sticky', zIndex: 3, right: 0, }}>
@@ -1002,6 +1006,9 @@ const Setting = () => {
                                 </TablecellSetting>
                                 <TablecellSetting sx={{ textAlign: "center", fontSize: 16, width: 50 }}>
                                   พขร.
+                                </TablecellSetting>
+                                <TablecellSetting sx={{ textAlign: "center", fontSize: 16, width: 50 }}>
+                                  ผู้ดูแลระบบ
                                 </TablecellSetting>
                               </TableRow>
                             </TableHead>
@@ -1189,6 +1196,24 @@ const Setting = () => {
                                         }
                                       </Box>
                                     </TableCell>
+                                    <TableCell sx={{ textAlign: "center" }}>
+                                      <Box display="flex" justifyContent="center" alignItems="center">
+                                        {!updatePosition && checkIndex === index ?
+                                          <FormControlLabel
+                                            control={
+                                              <Checkbox
+                                                checked={checkAdminData}
+                                                onChange={() => setCheckAdminData(!checkAdminData)}
+                                                size="small"
+                                              />
+                                            }
+                                          />
+                                          :
+                                          (row.AdminData === 0 ? <CloseIcon color="error" /> : <DoneIcon color="success" />)
+
+                                        }
+                                      </Box>
+                                    </TableCell>
                                     <TableCell sx={{ textAlign: "center", position: 'sticky', right: 0, backgroundColor: "white" }}>
                                       {
                                         !updatePosition && checkIndex === index ?
@@ -1220,7 +1245,7 @@ const Setting = () => {
                                             color="warning"
                                             size="small"
                                             fullWidth
-                                            onClick={() => handleUpdate(index, row.uuid, row.Name, row.BasicData, row.OprerationData, row.FinancialData, row.ReportData, row.BigTruckData, row.SmallTruckData, row.GasStationData, row.DriverData)}
+                                            onClick={() => handleUpdate(index, row.uuid, row.Name, row.BasicData, row.OprerationData, row.FinancialData, row.ReportData, row.BigTruckData, row.SmallTruckData, row.GasStationData, row.DriverData, row.AdminData)}
                                           >
                                             แก้ไข
                                           </Button>

@@ -46,6 +46,7 @@ const Choose = () => {
   const [showDashboard, setShowDashboard] = useState(false);
   const [showQuotation, setShowQuotation] = useState(true);
 
+  const [showAdmin, setShowAdmin] = useState(false);
   const [showBasic, setShowBasic] = useState(false);
   const [showOperation, setShowOperation] = useState(false);
   const [showFinancial, setShowFinancial] = useState(false);
@@ -192,6 +193,7 @@ const Choose = () => {
 
     if (position.DriverData === 1) setShowDriver(true);
     if (position.GasStationData === 1) setShowGasStation(true);
+    if (position.AdminData === 1) setShowAdmin(true);
 
     if (position.BasicData === 1) setShowBasic(true);
     if (position.OprerationData === 1) setShowOperation(true); // ตรวจสอบชื่อ key ให้ถูก
@@ -298,7 +300,7 @@ const Choose = () => {
           </Grid>
         }
         {
-          showBasic && (
+          showAdmin && (
             <Grid item xs={12} sm={6}>
               <input
                 type="file"
@@ -326,7 +328,7 @@ const Choose = () => {
           )
         }
         {
-          showBasic && (
+          showAdmin && (
             <Grid item xs={12} sm={6}>
               <input
                 type="file"
