@@ -40,6 +40,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import InfoIcon from "@mui/icons-material/Info";
 import ImageNotSupportedIcon from "@mui/icons-material/ImageNotSupported";
+import { Inventory } from "@mui/icons-material";
 import theme from "../../../theme/theme";
 import {
   IconButtonError,
@@ -47,6 +48,7 @@ import {
   IconButtonWarning,
   RateOils,
   TablecellHeader,
+  TablecellNoData,
 } from "../../../theme/style";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
@@ -281,7 +283,7 @@ const BigTruckRegHead = (props) => {
               />
             </Box>
             <Divider sx={{ marginBottom: 1 }} />
-            <TableContainer component={Paper} sx={{ marginTop: 2 }}>
+            <TableContainer component={Paper} sx={{ height: "70vh", marginTop: 2 }}>
               <Table stickyHeader size="small" sx={{ width: "1680px" }}>
                 <TableHead sx={{ height: "7vh" }}>
                   <TableRow>
@@ -335,11 +337,21 @@ const BigTruckRegHead = (props) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {truck
-                    .slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage)
-                    .map((row,index) => (
-                      <RegHeadDetail key={row.RegHead} truck={row} index={index} />
-                    ))}
+                  {truck.length === 0 ? (
+                    <TableRow>
+                      <TablecellNoData colSpan={11}>
+                        <Inventory fontSize="large" />
+                        <br />
+                        ไม่มีข้อมูล
+                      </TablecellNoData>
+                    </TableRow>
+                  ) : (
+                    truck
+                      .slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage)
+                      .map((row,index) => (
+                        <RegHeadDetail key={row.RegHead} truck={row} index={index} />
+                      ))
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>

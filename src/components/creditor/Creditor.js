@@ -23,7 +23,8 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { IconButtonError, RateOils, TablecellGray, TablecellHeader, TablecellSelling } from "../../theme/style";
+import { IconButtonError, RateOils, TablecellGray, TablecellHeader, TablecellNoData, TablecellSelling } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import InsertCreditor from "./InsertCreditor";
 import UpdateCreditor from "./UpdateCreditor";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
@@ -109,8 +110,7 @@ const Creditor = ({ openNavbar }) => {
           <Grid item xs={12}>
             <TableContainer
               component={Paper}
-              style={{ maxHeight: "70vh" }}
-              sx={{ marginBottom: 2 }}
+              sx={{ height: "70vh", marginBottom: 2 }}
             >
               <Table stickyHeader size="small" sx={{ width: "100%" }}>
                 <TableHead sx={{ height: "7vh" }}>
@@ -137,7 +137,15 @@ const Creditor = ({ openNavbar }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {
+                  {creditor.length === 0 ? (
+                    <TableRow>
+                      <TablecellNoData colSpan={7}>
+                        <Inventory fontSize="large" />
+                        <br />
+                        ไม่มีข้อมูล
+                      </TablecellNoData>
+                    </TableRow>
+                  ) : (
                     creditor.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage).map((row) => (
                       <TableRow>
                         <TableCell sx={{ textAlign: "center" }}>{row.id}</TableCell>
@@ -149,7 +157,7 @@ const Creditor = ({ openNavbar }) => {
                         <UpdateCreditor key={row.id} employee={row} />
                       </TableRow>
                     ))
-                  }
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>

@@ -41,7 +41,8 @@ import HailIcon from "@mui/icons-material/Hail";
 import AirlineSeatReclineNormalIcon from "@mui/icons-material/AirlineSeatReclineNormal";
 import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
 import theme from "../../theme/theme";
-import { IconButtonError, RateOils, TablecellHeader } from "../../theme/style";
+import { IconButtonError, RateOils, TablecellHeader, TablecellNoData } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import { apiPut } from "../../server/apiClient";
 import InsertEmployee from "./InsertEmployee";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
@@ -348,7 +349,7 @@ const Employee = ({ openNavbar }) => {
           open === 2 ?
             <TableContainer
               component={Paper}
-              sx={{ marginTop: 2 }}
+              sx={{ height: "70vh", marginTop: 2 }}
             >
               <Table stickyHeader size="small" sx={{ tableLayout: "fixed", "& .MuiTableCell-root": { padding: "4px" } }}>
                 <TableHead sx={{ height: "7vh" }}>
@@ -375,14 +376,19 @@ const Employee = ({ openNavbar }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {
-                    // loading ? (
-                    //   <p> กำลังโหลด...</p>
-                    // ) :
+                  {dataofficers.length === 0 ? (
+                    <TableRow>
+                      <TablecellNoData colSpan={5}>
+                        <Inventory fontSize="large" />
+                        <br />
+                        ไม่มีข้อมูล
+                      </TablecellNoData>
+                    </TableRow>
+                  ) : (
                     paginatedOfficers.map((row, index) => (
                       <UpdateEmployee key={row.id} row={row} index={index} />
                     ))
-                  }
+                  )}
                 </TableBody>
               </Table>
               <TablePaginationBar
@@ -397,7 +403,7 @@ const Employee = ({ openNavbar }) => {
             // <DriverTable />
             <TableContainer
               component={Paper}
-              sx={{ marginTop: 2 }}
+              sx={{ height: "70vh", marginTop: 2 }}
             >
               <Table stickyHeader size="small" sx={{ tableLayout: "fixed", "& .MuiTableCell-root": { padding: "4px" } }}>
                 <TableHead sx={{ height: "7vh" }}>
@@ -430,14 +436,19 @@ const Employee = ({ openNavbar }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {
-                    // loading ? (
-                    //   <p> กำลังโหลด...</p>
-                    // ) :
+                  {driverDetail.length === 0 ? (
+                    <TableRow>
+                      <TablecellNoData colSpan={8}>
+                        <Inventory fontSize="large" />
+                        <br />
+                        ไม่มีข้อมูล
+                      </TablecellNoData>
+                    </TableRow>
+                  ) : (
                     paginatedDrivers.map((row, index) => (
                       <UpdateDriver key={row.id} driver={row} index={index} />
                     ))
-                  }
+                  )}
                 </TableBody>
               </Table>
               <TablePaginationBar

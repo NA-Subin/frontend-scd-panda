@@ -33,7 +33,8 @@ import dayjs from "dayjs";
 import "dayjs/locale/th";
 import Cookies from "js-cookie";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
-import { TablecellHeader, TablecellTickets } from "../../theme/style";
+import { TablecellHeader, TablecellNoData, TablecellTickets } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import TruckRepair from "./headtruck/TruckRepair";
 import TablePaginationBar from "../../theme/TablePaginationBar";
@@ -118,7 +119,7 @@ const RepairDetail = ({}) => {
 
   return (
     <React.Fragment>
-      <TableContainer component={Paper} sx={{ marginTop: 5 }}>
+      <TableContainer component={Paper} sx={{ height: "70vh", marginTop: 5 }}>
         <Table stickyHeader size="small" sx={{ width: "1250px" }}>
           <TableHead sx={{ height: "7vh" }}>
             <TableRow>
@@ -163,7 +164,16 @@ const RepairDetail = ({}) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {pagedData.map((row, index) => (
+            {data.length === 0 ? (
+              <TableRow>
+                <TablecellNoData colSpan={7}>
+                  <Inventory fontSize="large" />
+                  <br />
+                  ไม่มีข้อมูล
+                </TablecellNoData>
+              </TableRow>
+            ) : (
+            pagedData.map((row, index) => (
               <TableRow key={index}>
                 <TableCell sx={{ textAlign: "center", fontSize: 14 }}>
                   {index + 1}
@@ -208,7 +218,8 @@ const RepairDetail = ({}) => {
                   <TruckRepair key={row.id} row={row} type={"ตรวจสอบสภาพรถ"} />
                 </TableCell>
               </TableRow>
-            ))}
+            ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>

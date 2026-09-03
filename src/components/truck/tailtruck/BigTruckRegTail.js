@@ -37,7 +37,8 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import InfoIcon from '@mui/icons-material/Info';
 import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
 import theme from "../../../theme/theme";
-import { IconButtonError, RateOils, TablecellHeader } from "../../../theme/style";
+import { IconButtonError, RateOils, TablecellHeader, TablecellNoData } from "../../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import UpdateRegTail from "./UpdateRegTail";
@@ -159,7 +160,7 @@ const BigTruckRegTail = (props) => {
             <Divider sx={{ marginBottom: 1 }} />
             <TableContainer
               component={Paper}
-              sx={{ marginTop: 2 }}
+              sx={{ height: "70vh", marginTop: 2 }}
             >
               <Table stickyHeader size="small" sx={{ width: "100%" }}>
                 <TableHead sx={{ height: "7vh" }}>
@@ -204,11 +205,19 @@ const BigTruckRegTail = (props) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {
+                  {truck.length === 0 ? (
+                    <TableRow>
+                      <TablecellNoData colSpan={13}>
+                        <Inventory fontSize="large" />
+                        <br />
+                        ไม่มีข้อมูล
+                      </TablecellNoData>
+                    </TableRow>
+                  ) : (
                     truck.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage).map((row, index) => (
                       <RegTailDetail key={row.RegTail} truck={row} index={index} />
                     ))
-                  }
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>

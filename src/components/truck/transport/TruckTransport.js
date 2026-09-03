@@ -27,7 +27,8 @@ import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useBasicData } from "../../../server/provider/BasicDataProvider";
-import { TablecellHeader, TablecellSelling } from "../../../theme/style";
+import { TablecellHeader, TablecellNoData, TablecellSelling } from "../../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import InsertTruckTransport from "./InsertTruckTransport";
 import { apiPut } from "../../../server/apiClient";
 import { ShowError, ShowSuccess } from "../../sweetalert/sweetalert";
@@ -161,7 +162,7 @@ const TruckTransport = ({ openNavbar }) => {
             <Box sx={{ width: "100%" }}>
                 <TableContainer
                     component={Paper}
-                    sx={{ marginTop: 2 }}
+                    sx={{ height: "70vh", marginTop: 2 }}
                 >
                     <Table stickyHeader size="small" sx={{ width: "100%" }}>
                         <TableHead sx={{ height: "7vh" }}>
@@ -188,7 +189,15 @@ const TruckTransport = ({ openNavbar }) => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {
+                            {dataTransport.length === 0 ? (
+                                <TableRow>
+                                    <TablecellNoData colSpan={8}>
+                                        <Inventory fontSize="large" />
+                                        <br />
+                                        ไม่มีข้อมูล
+                                    </TablecellNoData>
+                                </TableRow>
+                            ) : (
                                 dataTransport.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage).map((row, index) => (
                                     <TableRow key={row.uuid || index}>
                                         <TableCell sx={{ textAlign: "center" }}>{index + 1}</TableCell>
@@ -366,7 +375,7 @@ const TruckTransport = ({ openNavbar }) => {
                                         </TableCell>
                                     </TableRow>
                                 ))
-                            }
+                            )}
                         </TableBody>
                     </Table>
                 </TableContainer>
