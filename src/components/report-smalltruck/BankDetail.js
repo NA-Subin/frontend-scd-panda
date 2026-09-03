@@ -36,7 +36,8 @@ import dayjs from "dayjs";
 import "dayjs/locale/th";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import theme from "../../theme/theme";
-import { IconButtonError, IconButtonSuccess, RateOils, TablecellHeader, TablecellSelling } from "../../theme/style";
+import { IconButtonError, IconButtonSuccess, RateOils, TablecellHeader, TablecellNoData, TablecellSelling } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import CancelIcon from '@mui/icons-material/Cancel';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import EditNoteIcon from '@mui/icons-material/EditNote';
@@ -204,7 +205,16 @@ const BankDetail = () => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {pagedBankDetail.map((row) => (
+                                        {bankDetail.length === 0 ? (
+                                            <TableRow>
+                                                <TablecellNoData colSpan={7}>
+                                                    <Inventory fontSize="large" />
+                                                    <br />
+                                                    ไม่มีข้อมูล
+                                                </TablecellNoData>
+                                            </TableRow>
+                                        ) : (
+                                        pagedBankDetail.map((row) => (
                                             <TableRow key={row.id}>
                                                 <TableCell sx={{ textAlign: "center", width: 60 }}>{row.id}</TableCell>
 
@@ -316,7 +326,8 @@ const BankDetail = () => {
                                                     </>
                                                 )}
                                             </TableRow>
-                                        ))}
+                                        ))
+                                        )}
                                     </TableBody>
                                 </Table>
                             </TableContainer>

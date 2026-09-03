@@ -41,9 +41,11 @@ import {
   TableCellG91,
   TableCellG95,
   TablecellHeader,
+  TablecellNoData,
   TablecellPink,
   TableCellPWD,
 } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import InfoIcon from "@mui/icons-material/Info";
 import UpdateReport from "./UpdateReport";
 import theme from "../../theme/theme";
@@ -1515,7 +1517,16 @@ const ReportSmallTruck = () => {
               )}
             </TableHead>
             <TableBody>
-              {pagedMatchedOrders
+              {filteredMatchedOrders.length === 0 ? (
+                <TableRow>
+                  <TablecellNoData colSpan={12 + summarizedList.length}>
+                    <Inventory fontSize="large" />
+                    <br />
+                    ไม่มีข้อมูล
+                  </TablecellNoData>
+                </TableRow>
+              ) : (
+              pagedMatchedOrders
                 .map((row, index) =>
                   row.type === "รับเข้า" ? (
                     <TableRow
@@ -1714,7 +1725,8 @@ const ReportSmallTruck = () => {
                       )}
                     </TableRow>
                   ),
-                )}
+                )
+              )}
             </TableBody>
             <TableFooter
               sx={{

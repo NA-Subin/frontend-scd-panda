@@ -27,8 +27,9 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { IconButtonError, RateOils, TablecellHeader, TablecellPink } from "../../theme/style";
+import { IconButtonError, RateOils, TablecellHeader, TablecellNoData, TablecellPink } from "../../theme/style";
 import TablePaginationBar from "../../theme/TablePaginationBar";
+import { Inventory } from "@mui/icons-material";
 import InfoIcon from '@mui/icons-material/Info';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -484,7 +485,7 @@ const InvoiceSmallTruck = ({ openNavbar }) => {
                   </Grid>
                   <TableContainer
                     component={Paper}
-                    sx={orderDetail.length <= 8 ? { marginBottom: 2 } : { marginBottom: 2, height: "250px" }}
+                    sx={{ marginBottom: 2, height: "250px" }}
                   >
                     <Table stickyHeader size="small" sx={{ tableLayout: "fixed", "& .MuiTableCell-root": { padding: "4px" }, width: "100%" }}>
                       <TableHead sx={{ height: "5vh" }}>
@@ -547,7 +548,15 @@ const InvoiceSmallTruck = ({ openNavbar }) => {
                       </TableHead>
                       <TableBody>
                         {
-                          checkOverdueTransfer ?
+                          activeRows.length === 0 ? (
+                            <TableRow>
+                              <TablecellNoData colSpan={8}>
+                                <Inventory fontSize="large" />
+                                <br />
+                                ไม่มีข้อมูล
+                              </TablecellNoData>
+                            </TableRow>
+                          ) : checkOverdueTransfer ?
                             pagedActiveRows.map((row, index) => {
                               return (
                                 <TableRow key={row.No} onClick={() => handleRowClick(row.No, index, row.TicketName, row.DateDelivery)}

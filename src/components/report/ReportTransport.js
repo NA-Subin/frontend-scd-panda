@@ -53,9 +53,11 @@ import {
   TablecellFinancial,
   TablecellFinancialHead,
   TablecellHeader,
+  TablecellNoData,
   TablecellSelling,
   TablecellTickets,
 } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";
@@ -1477,7 +1479,16 @@ const ReportTransports = ({ openNavbar }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {pagedOrderDetail.map((row, index) => (
+                  {sortedOrderDetail.length === 0 ? (
+                    <TableRow>
+                      <TablecellNoData colSpan={9}>
+                        <Inventory fontSize="large" />
+                        <br />
+                        ไม่มีข้อมูล
+                      </TablecellNoData>
+                    </TableRow>
+                  ) : (
+                  pagedOrderDetail.map((row, index) => (
                     <TableRow
                       key={index}
                       sx={{
@@ -1567,7 +1578,8 @@ const ReportTransports = ({ openNavbar }) => {
                         )}
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ))
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>

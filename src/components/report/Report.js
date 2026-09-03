@@ -26,7 +26,8 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { IconButtonError, RateOils, TablecellYellow } from "../../theme/style";
+import { IconButtonError, RateOils, TablecellNoData, TablecellYellow } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import InfoIcon from "@mui/icons-material/Info";
@@ -1583,11 +1584,7 @@ const Report = ({ openNavbar }) => {
                     )}
                     <TableContainer
                       component={Paper}
-                      sx={
-                        TicketsDetail.length <= 8
-                          ? { marginBottom: 2 }
-                          : { marginBottom: 2, height: "250px" }
-                      }
+                      sx={{ marginBottom: 2, height: "250px" }}
                     >
                       <Table
                         stickyHeader
@@ -1711,7 +1708,15 @@ const Report = ({ openNavbar }) => {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {checkOverdueTransfer
+                          {filteredTicketsDetail.length === 0 ? (
+                            <TableRow>
+                              <TablecellNoData colSpan={9}>
+                                <Inventory fontSize="large" />
+                                <br />
+                                ไม่มีข้อมูล
+                              </TablecellNoData>
+                            </TableRow>
+                          ) : checkOverdueTransfer
                             ? pagedTicketsDetail.map((row, index) => {
                                 // <<<<<< เพิ่มตรงนี้
                                 const transfer = transferMoneyDetail.filter(
@@ -2362,11 +2367,7 @@ const Report = ({ openNavbar }) => {
                     )}
                     <TableContainer
                       component={Paper}
-                      sx={
-                        TransportDetail.length <= 8
-                          ? { marginBottom: 2 }
-                          : { marginBottom: 2, height: "250px" }
-                      }
+                      sx={{ marginBottom: 2, height: "250px" }}
                     >
                       <Table
                         stickyHeader
@@ -2490,7 +2491,15 @@ const Report = ({ openNavbar }) => {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {checkOverdueTransfer
+                          {filteredTransportDetail.length === 0 ? (
+                            <TableRow>
+                              <TablecellNoData colSpan={9}>
+                                <Inventory fontSize="large" />
+                                <br />
+                                ไม่มีข้อมูล
+                              </TablecellNoData>
+                            </TableRow>
+                          ) : checkOverdueTransfer
                             ? pagedTransportDetail.map((row, index) => {
                                 // <<<<<< เพิ่มตรงนี้
                                 const transfer = transferMoneyDetail.filter(
@@ -3143,11 +3152,7 @@ const Report = ({ openNavbar }) => {
                     )}
                     <TableContainer
                       component={Paper}
-                      sx={
-                        GasStationDetail.length <= 8
-                          ? { marginBottom: 2 }
-                          : { marginBottom: 2, height: "250px" }
-                      }
+                      sx={{ marginBottom: 2, height: "250px" }}
                     >
                       <Table
                         stickyHeader
@@ -3271,7 +3276,15 @@ const Report = ({ openNavbar }) => {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {checkOverdueTransfer
+                          {filteredGasStationDetail.length === 0 ? (
+                            <TableRow>
+                              <TablecellNoData colSpan={9}>
+                                <Inventory fontSize="large" />
+                                <br />
+                                ไม่มีข้อมูล
+                              </TablecellNoData>
+                            </TableRow>
+                          ) : checkOverdueTransfer
                             ? pagedGasStationDetail.map((row, index) => {
                                 // <<<<<< เพิ่มตรงนี้
                                 const transfer = transferMoneyDetail.filter(

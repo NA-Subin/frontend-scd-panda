@@ -48,7 +48,8 @@ import FindInPageIcon from '@mui/icons-material/FindInPage';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import theme from "../../theme/theme";
-import { RateOils, TablecellFinancial, TablecellFinancialHead, TablecellHeader, TablecellPink, TablecellSelling, TablecellTickets } from "../../theme/style";
+import { RateOils, TablecellFinancial, TablecellFinancialHead, TablecellHeader, TablecellNoData, TablecellPink, TablecellSelling, TablecellTickets } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";
@@ -840,6 +841,15 @@ const ReportPaymentSmallTruck = ({ openNavbar }) => {
                                 </TableHead>
                                 <TableBody>
                                     {
+                                        sortedOrderDetail.length === 0 ? (
+                                            <TableRow>
+                                                <TablecellNoData colSpan={7}>
+                                                    <Inventory fontSize="large" />
+                                                    <br />
+                                                    ไม่มีข้อมูล
+                                                </TablecellNoData>
+                                            </TableRow>
+                                        ) :
                                         pagedOrderDetail.map((row, index) => (
                                             <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#f8f0f7fa" }} >
                                                 <TableCell sx={{ textAlign: "center" }}>{safePage * rowsPerPage + index + 1}</TableCell>

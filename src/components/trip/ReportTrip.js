@@ -47,7 +47,8 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import theme from "../../theme/theme";
-import { RateOils, TablecellFinancial, TablecellFinancialHead, TablecellHeader, TablecellInfo, TablecellSelling, TablecellTickets } from "../../theme/style";
+import { RateOils, TablecellFinancial, TablecellFinancialHead, TablecellHeader, TablecellInfo, TablecellNoData, TablecellSelling, TablecellTickets } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";
@@ -717,6 +718,15 @@ const ReportTrip = ({ openNavbar }) => {
                                 </TableHead>
                                 <TableBody>
                                     {
+                                        TripDetail.length === 0 ? (
+                                            <TableRow>
+                                                <TablecellNoData colSpan={7}>
+                                                    <Inventory fontSize="large" />
+                                                    <br />
+                                                    ไม่มีข้อมูล
+                                                </TablecellNoData>
+                                            </TableRow>
+                                        ) :
                                         pagedTripDetail.map((row, index) => (
                                             <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#f3f6fcff" }}>
                                                 <TableCell sx={{ textAlign: "center" }}>{safePage * rowsPerPage + index + 1}</TableCell>
