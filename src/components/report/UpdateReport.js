@@ -450,7 +450,7 @@ const UpdateReport = (props) => {
     const result = [];
 
     for (const row of tickets) {
-      const matchedTrip = tripMap.get(row.Trip);
+      const matchedTrip = tripMap.get(Number(row.Trip));
       if (!matchedTrip || !row.Product) continue; // กันข้อมูลเสีย
 
       const isSmallTruck = matchedTrip?.TruckType?.trim() === "รถเล็ก";
