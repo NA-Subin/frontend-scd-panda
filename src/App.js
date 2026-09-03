@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import Cookies from 'js-cookie';
 import Login from "./components/login/Login";
 import Dashboard from "./components/dashboard/Dashboard";
@@ -100,6 +100,18 @@ const ShowSessionExpired = (navigate) => {
   });
 };
 
+// Blocks direct navigation to a protected URL when there's no token cookie at
+// all - the deeper "is this token still valid" check still happens via the
+// /api/auth/me call in App()'s useEffect below, since only the backend can
+// verify a token wasn't tampered with or hasn't expired.
+function RequireAuth({ children }) {
+  const token = Cookies.get("token");
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+}
+
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -190,23 +202,24 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         {/* <Route path="/:email/*" element={ */}
-        <Route path="/gasstation-attendant" element={<GasStationDataProvider><GasStationA /></GasStationDataProvider>} />
-        <Route path="/gasStation-admin" element={<GasStationDataProvider><GasStationAdmin /></GasStationDataProvider>} />
-        <Route path="/print-invoice" element={<TripDataProvider><PrintInvoice /></TripDataProvider>} />
-        <Route path="/print-invoice-small" element={<TripDataProvider><PrintInvoiceSmallTruck /></TripDataProvider>} />
-        <Route path="/print-trips" element={<TripDataProvider><PrintTrips /></TripDataProvider>} />
-        <Route path="/print-tripssmall" element={<TripDataProvider><PrintTripsSmall /></TripDataProvider>} />
-        <Route path="/print-report" element={<TripDataProvider><PrintReport /></TripDataProvider>} />
-        <Route path="/pda-printer" element={<PdaPrinter />} />
-        <Route path="/driver-Detail" element={<TripDataProvider><DriverDetail /></TripDataProvider>} />
-        <Route path="/driver" element={<TripDataProvider><Driver /></TripDataProvider>} />
-        <Route path="/trade-payable" element={<TripDataProvider><TradePayable /></TripDataProvider>} />
-        <Route path="/choose" element={<Choose />} />
-        <Route path="/quotation" element={<TripDataProvider><Quotation /></TripDataProvider>} />
-        <Route path="/print-quotation" element={<TripDataProvider><PrintReportQ /></TripDataProvider>} />
+        <Route path="/gasstation-attendant" element={<RequireAuth><GasStationDataProvider><GasStationA /></GasStationDataProvider></RequireAuth>} />
+        <Route path="/gasStation-admin" element={<RequireAuth><GasStationDataProvider><GasStationAdmin /></GasStationDataProvider></RequireAuth>} />
+        <Route path="/print-invoice" element={<RequireAuth><TripDataProvider><PrintInvoice /></TripDataProvider></RequireAuth>} />
+        <Route path="/print-invoice-small" element={<RequireAuth><TripDataProvider><PrintInvoiceSmallTruck /></TripDataProvider></RequireAuth>} />
+        <Route path="/print-trips" element={<RequireAuth><TripDataProvider><PrintTrips /></TripDataProvider></RequireAuth>} />
+        <Route path="/print-tripssmall" element={<RequireAuth><TripDataProvider><PrintTripsSmall /></TripDataProvider></RequireAuth>} />
+        <Route path="/print-report" element={<RequireAuth><TripDataProvider><PrintReport /></TripDataProvider></RequireAuth>} />
+        <Route path="/pda-printer" element={<RequireAuth><PdaPrinter /></RequireAuth>} />
+        <Route path="/driver-Detail" element={<RequireAuth><TripDataProvider><DriverDetail /></TripDataProvider></RequireAuth>} />
+        <Route path="/driver" element={<RequireAuth><TripDataProvider><Driver /></TripDataProvider></RequireAuth>} />
+        <Route path="/trade-payable" element={<RequireAuth><TripDataProvider><TradePayable /></TripDataProvider></RequireAuth>} />
+        <Route path="/choose" element={<RequireAuth><Choose /></RequireAuth>} />
+        <Route path="/quotation" element={<RequireAuth><TripDataProvider><Quotation /></TripDataProvider></RequireAuth>} />
+        <Route path="/print-quotation" element={<RequireAuth><TripDataProvider><PrintReportQ /></TripDataProvider></RequireAuth>} />
         <Route
           path="/*"
           element={
+            <RequireAuth>
             <Box sx={{ display: "flex" }}>
               <Navbar open={open} onOpenChange={setOpen} />
               <Box
@@ -340,6 +353,7 @@ function App() {
                 </GasStationDataProvider>
               </Box>
             </Box>
+            </RequireAuth>
           }
         />
       </Routes>

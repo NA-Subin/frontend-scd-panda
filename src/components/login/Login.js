@@ -23,11 +23,13 @@ import {
 import Logo from "../../theme/img/logoPanda.jpg";
 import Cookies from 'js-cookie';
 import { apiPost } from "../../server/apiClient";
+import { useBasicData } from "../../server/provider/BasicDataProvider";
 
 const Login = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState("");
   const [password, setPassword] = useState("");
+  const { refetch: refetchBasicData } = useBasicData();
 
   const loginUser = async (event) => {
     event.preventDefault();
@@ -47,6 +49,11 @@ const Login = () => {
       Cookies.set("user", user, { expires: 30, secure: true, sameSite: "Lax" });
       Cookies.set("sessionToken", `${user}$${matchedUser.id}`, { expires: 30, secure: true, sameSite: "Lax" });
       Cookies.set("token", token, { expires: 30, secure: true, sameSite: "Lax" });
+
+      // /api/basic-data requires auth now - the pre-login poll(s) 401'd
+      // silently, so kick off a fresh authenticated fetch immediately instead
+      // of waiting up to POLL_INTERVAL_MS for the next automatic one.
+      refetchBasicData();
 
       // ✅ นำทางตามสิทธิ์
       if (accessRights.length === 1 && accessRights[0] === "DriverData") {
