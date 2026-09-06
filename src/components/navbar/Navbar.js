@@ -27,6 +27,13 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
+import WarehouseIcon from '@mui/icons-material/Warehouse';
+import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
+import HandshakeIcon from '@mui/icons-material/Handshake';
+import Groups2Icon from '@mui/icons-material/Groups2';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import PaymentsIcon from '@mui/icons-material/Payments';
 import {
   Alert,
   Avatar,
@@ -1170,23 +1177,25 @@ export default function Navbar({ open, onOpenChange }) {
                                   ) : index === 2 ? (
                                     <LocalShippingIcon />
                                   ) : index === 3 ? (
-                                    <LocalShippingIcon />
+                                    <LocalShippingOutlinedIcon />
                                   ) : index === 4 ? (
-                                    <StoreMallDirectoryIcon />
+                                    <WarehouseIcon />
                                   ) : index === 5 ? (
-                                    <BookOnlineIcon sx={{ transform: "rotate(90deg)" }} />
+                                    <ConfirmationNumberIcon />
                                   ) : index === 6 ? (
-                                    <BookOnlineIcon sx={{ transform: "rotate(90deg)" }} />
+                                    <HandshakeIcon />
                                   ) : index === 7 ? (
                                     <GroupsIcon />
                                   ) : index === 8 ? (
-                                    <GroupsIcon />
+                                    <Groups2Icon />
+                                  ) : index === 9 ? (
+                                    <CurrencyExchangeIcon />
+                                  ) : index === 10 ? (
+                                    <ReceiptLongIcon />
                                   ) : index === 11 ? (
-                                    <CurrencyExchangeIcon />
-                                  ) : index === 12 ? (
-                                    <ApartmentIcon />
+                                    <PaymentsIcon />
                                   ) : (
-                                    <CurrencyExchangeIcon />
+                                    <ApartmentIcon />
                                   )}
                                 </ListItemIcon>
                                 :
@@ -1227,19 +1236,25 @@ export default function Navbar({ open, onOpenChange }) {
                                     ) : index === 2 ? (
                                       <LocalShippingIcon />
                                     ) : index === 3 ? (
-                                      <StoreMallDirectoryIcon />
+                                      <LocalShippingOutlinedIcon />
                                     ) : index === 4 ? (
-                                      <BookOnlineIcon sx={{ transform: "rotate(90deg)" }} />
+                                      <WarehouseIcon />
                                     ) : index === 5 ? (
-                                      <BookOnlineIcon sx={{ transform: "rotate(90deg)" }} />
+                                      <ConfirmationNumberIcon />
                                     ) : index === 6 ? (
-                                      <GroupsIcon />
+                                      <HandshakeIcon />
                                     ) : index === 7 ? (
                                       <GroupsIcon />
-                                    ) : index === 11 ? (
-                                      <ApartmentIcon />
-                                    ) : (
+                                    ) : index === 8 ? (
+                                      <Groups2Icon />
+                                    ) : index === 9 ? (
                                       <CurrencyExchangeIcon />
+                                    ) : index === 10 ? (
+                                      <ReceiptLongIcon />
+                                    ) : index === 11 ? (
+                                      <PaymentsIcon />
+                                    ) : (
+                                      <ApartmentIcon />
                                     )}
                                   </ListItemIcon>
                                 </Tooltip>
