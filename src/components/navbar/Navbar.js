@@ -27,6 +27,14 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
+import WarehouseIcon from '@mui/icons-material/Warehouse';
+import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
+import HandshakeIcon from '@mui/icons-material/Handshake';
+import Groups2Icon from '@mui/icons-material/Groups2';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import PaymentsIcon from '@mui/icons-material/Payments';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import {
   Alert,
   Avatar,
@@ -49,6 +57,7 @@ import {
   Menu,
   MenuItem,
   Paper,
+  Popover,
   Snackbar,
   Table,
   TableBody,
@@ -151,6 +160,33 @@ const Drawer = styled(MuiDrawer, {
   }),
 }));
 
+// "ข้อมูลทั่วไป" (General Data) sidebar group - one entry per index, in the
+// exact order the existing path/route-sync logic expects (see group1Paths
+// in the route-sync effect below - do not reorder without updating that
+// array too). Each item previously shared an icon with 1-3 others (both
+// "รถ..." items used the same truck icon, all three finance-flavored items
+// at the end used the same currency icon, and the collapsed-drawer icon
+// list was quietly shifted out of sync with this one) - every item here
+// now has its own icon, and a one-line description shown via the (i)
+// button so someone unfamiliar with the terms doesn't have to guess what
+// a page does before opening it. `group` clusters related items with a
+// small caption divider in the rendered list.
+const GENERAL_DATA_ITEMS = [
+  { label: "หน้าหลัก", path: "/dashboard", icon: <HomeIcon />, description: "ภาพรวมข้อมูลทั้งหมดของระบบ เช่น จำนวนรถ ลูกค้า และเที่ยววิ่ง", group: "ภาพรวม" },
+  { label: "พนักงาน", path: "/employee", icon: <AccountCircleIcon />, description: "รายชื่อพนักงานบริษัท พนักงานขับรถ และเจ้าหนี้การค้า", group: "ภาพรวม" },
+  { label: "รถบรรทุก", path: "/trucks", icon: <LocalShippingIcon />, description: "ทะเบียนรถบรรทุกใหญ่และหัวลากที่บริษัทเป็นเจ้าของ", group: "ยานพาหนะ" },
+  { label: "รถรับจ้างขนส่ง", path: "/trucks-transport", icon: <LocalShippingOutlinedIcon />, description: "ทะเบียนรถบรรทุกของบริษัทภายนอกที่รับจ้างขนส่งแทน", group: "ยานพาหนะ" },
+  { label: "คลังรับน้ำมัน", path: "/depots", icon: <WarehouseIcon />, description: "รายชื่อคลังน้ำมันที่ใช้รับ-ส่งน้ำมันในแต่ละเที่ยว", group: "ยานพาหนะ" },
+  { label: "ตั๋วน้ำมัน", path: "/ticket", icon: <ConfirmationNumberIcon />, description: "รายการตั๋วสั่งซื้อน้ำมันจากลูกค้าประเภทตั๋วน้ำมัน", group: "ตั๋วและลูกค้า" },
+  { label: "ลูกค้ารับจ้างขนส่ง", path: "/transports", icon: <HandshakeIcon />, description: "ทะเบียนลูกค้าที่ว่าจ้างบริษัทให้ขนส่งน้ำมันแทน", group: "ตั๋วและลูกค้า" },
+  { label: "ลูกค้ารถใหญ่", path: "/customer-bigtrucks", icon: <GroupsIcon />, description: "ทะเบียนลูกค้าที่สั่งซื้อน้ำมันผ่านรถบรรทุกใหญ่", group: "ตั๋วและลูกค้า" },
+  { label: "ลูกค้ารถเล็ก", path: "/customer-smalltrucks", icon: <Groups2Icon />, description: "ทะเบียนลูกค้าที่สั่งซื้อน้ำมันผ่านรถบรรทุกเล็ก", group: "ตั๋วและลูกค้า" },
+  { label: "เจ้าหนี้น้ำมัน", path: "/creditor", icon: <CurrencyExchangeIcon />, description: "รายชื่อเจ้าหนี้ที่บริษัทซื้อน้ำมันมาจำหน่ายต่อ", group: "การเงิน" },
+  { label: "รายได้รายหัก", path: "/deductible-income", icon: <ReceiptLongIcon />, description: "รายการรายได้และรายการหักลดหย่อนของแต่ละงวด", group: "การเงิน" },
+  { label: "รายการค่าใช้จ่าย", path: "/expense-items", icon: <PaymentsIcon />, description: "หมวดหมู่ค่าใช้จ่ายที่ใช้บันทึกรายจ่ายของบริษัท", group: "การเงิน" },
+  { label: "บริษัทที่สั่งจ่าย", path: "/company-payment", icon: <ApartmentIcon />, description: "รายชื่อบริษัทคู่ค้าที่ใช้ในการออกเอกสารสั่งจ่ายเงิน", group: "การเงิน" },
+];
+
 export default function Navbar({ open, onOpenChange }) {
   const [pendingPath, setPendingPath] = useState(null);
   const navigate = useNavigate();
@@ -181,6 +217,17 @@ export default function Navbar({ open, onOpenChange }) {
   const [report, setReport] = useState(false);
   const [financial, setFinacieal] = useState(false);
   const [trucksmall, setTrucksmall] = useState(showSmallTruck ? true : false);
+
+  // "What does this menu item do?" popover for the ข้อมูลทั่วไป group -
+  // { anchorEl, index } so one shared Popover can serve all 13 items
+  // instead of rendering 13 of them.
+  const [infoPopover, setInfoPopover] = useState({ anchorEl: null, index: null });
+  const handleInfoClick = (event, index) => {
+    event.stopPropagation();
+    event.preventDefault();
+    setInfoPopover({ anchorEl: event.currentTarget, index });
+  };
+  const handleInfoClose = () => setInfoPopover({ anchorEl: null, index: null });
 
   const isMobileMD = useMediaQuery((theme) => theme.breakpoints.down('md'));
   const isMobileSM = useMediaQuery((theme) => theme.breakpoints.down('sm'));
@@ -1118,146 +1165,140 @@ export default function Navbar({ open, onOpenChange }) {
                       }
                     </Collapse>
                     <Collapse in={!openData} unmountOnExit={false}>
-                      {["หน้าหลัก", "พนักงาน", "รถบรรทุก", "รถรับจ้างขนส่ง", "คลังรับน้ำมัน", "ตั๋วน้ำมัน", "ลูกค้ารับจ้างขนส่ง", "ลูกค้ารถใหญ่", "ลูกค้ารถเล็ก", "เจ้าหนี้น้ำมัน", "รายได้รายหัก", "รายการค่าใช้จ่าย", "บริษัทที่สั่งจ่าย"].map((text, index) => (
-                        <ListItem
-                          key={text}
-                          disablePadding
-                          sx={{
-                            backgroundColor: show1 === index && "gray",
-                            height: 35, // กำหนดความสูงให้ ListItem
-                            paddingY: 1,
-                          }}
-                        >
-                          <ListItemButton
-                            onClick={() => {
-                              setShow1(index);
-                              setSetting(false);
-                              setShow2(null);
-                              setShow3(null);
-                              setShow4(null);
-                              setShow5(null);
-                              const path =
-                                index === 0 ? "/dashboard"
-                                  : index === 1 ? "/employee"
-                                    : index === 2 ? "/trucks"
-                                      : index === 3 ? "/trucks-transport"
-                                        : index === 4 ? "/depots"
-                                          : index === 5 ? "/ticket"
-                                            : index === 6 ? "/transports"
-                                              : index === 7 ? "/customer-bigtrucks"
-                                                : index === 8 ? "/customer-smalltrucks"
-                                                  : index === 9 ? "/creditor"
-                                                    : index === 10 ? "/deductible-income"
-                                                      : index === 11 ? "/expense-items"
-                                                        : "/company-payment";
-
-                              setPendingPath(path); // ขอไปหน้านั้น
-                            }}
-                          >
-                            {
-                              shouldDrawerOpen ?
-                                <ListItemIcon
-                                  sx={{
-                                    color: !open || show1 === index ? theme.palette.primary.contrastText : theme.palette.dark,
-                                    mr: !open || show1 === index ? -3 : -2,
-                                    ml: !open || show1 === index ? 3 : 2,
-                                  }}
-                                >
-                                  {index === 0 ? (
-                                    <HomeIcon />
-                                  ) : index === 1 ? (
-                                    <AccountCircleIcon />
-                                  ) : index === 2 ? (
-                                    <LocalShippingIcon />
-                                  ) : index === 3 ? (
-                                    <LocalShippingIcon />
-                                  ) : index === 4 ? (
-                                    <StoreMallDirectoryIcon />
-                                  ) : index === 5 ? (
-                                    <BookOnlineIcon sx={{ transform: "rotate(90deg)" }} />
-                                  ) : index === 6 ? (
-                                    <BookOnlineIcon sx={{ transform: "rotate(90deg)" }} />
-                                  ) : index === 7 ? (
-                                    <GroupsIcon />
-                                  ) : index === 8 ? (
-                                    <GroupsIcon />
-                                  ) : index === 11 ? (
-                                    <CurrencyExchangeIcon />
-                                  ) : index === 12 ? (
-                                    <ApartmentIcon />
-                                  ) : (
-                                    <CurrencyExchangeIcon />
-                                  )}
-                                </ListItemIcon>
-                                :
-                                <Tooltip
-                                  title={text}
-                                  placement="right"
-                                  PopperProps={{
-                                    modifiers: [
-                                      {
-                                        name: 'offset',
-                                        options: {
-                                          offset: [0, -25], // ขยับ tooltip เข้าไปทางซ้าย (ติด icon มากขึ้น)
-                                        },
-                                      },
-                                    ],
-                                  }}
-                                  componentsProps={{
-                                    tooltip: {
-                                      sx: {
-                                        fontSize: '15px', // ปรับขนาดตัวอักษร
-                                        textAlign: 'left', // จัดข้อความชิดซ้าย
-                                        backgroundColor: theme.palette.panda.dark,
-                                      },
-                                    },
-                                  }}
-                                >
+                      {GENERAL_DATA_ITEMS.map((item, index) => {
+                        const isActive = show1 === index;
+                        const isFirstInGroup = index === 0 || GENERAL_DATA_ITEMS[index - 1].group !== item.group;
+                        return (
+                          <React.Fragment key={item.label}>
+                            {shouldDrawerOpen && isFirstInGroup && (
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  display: "block",
+                                  px: 2,
+                                  pt: index === 0 ? 0.5 : 1.5,
+                                  pb: 0.5,
+                                  color: theme.palette.dark,
+                                  opacity: 0.6,
+                                  fontWeight: "bold",
+                                  letterSpacing: 0.5,
+                                }}
+                              >
+                                {item.group}
+                              </Typography>
+                            )}
+                            <ListItem
+                              disablePadding
+                              sx={{
+                                backgroundColor: isActive ? "gray" : "inherit",
+                                height: 42, // เพิ่มความสูงเล็กน้อยให้ไม่แน่นเกินไป
+                                paddingY: 1,
+                              }}
+                            >
+                              <ListItemButton
+                                onClick={() => {
+                                  setShow1(index);
+                                  setSetting(false);
+                                  setShow2(null);
+                                  setShow3(null);
+                                  setShow4(null);
+                                  setShow5(null);
+                                  setPendingPath(item.path); // ขอไปหน้านั้น
+                                }}
+                                sx={{ px: 2 }}
+                              >
+                                {shouldDrawerOpen ? (
                                   <ListItemIcon
                                     sx={{
-                                      color: !open || show1 === index ? theme.palette.primary.contrastText : theme.palette.dark,
-                                      mr: !open || show1 === index ? -3 : -2,
-                                      ml: !open || show1 === index ? 3 : 2,
+                                      minWidth: 34,
+                                      color: !open || isActive ? theme.palette.primary.contrastText : theme.palette.dark,
                                     }}
                                   >
-                                    {index === 0 ? (
-                                      <HomeIcon />
-                                    ) : index === 1 ? (
-                                      <AccountCircleIcon />
-                                    ) : index === 2 ? (
-                                      <LocalShippingIcon />
-                                    ) : index === 3 ? (
-                                      <StoreMallDirectoryIcon />
-                                    ) : index === 4 ? (
-                                      <BookOnlineIcon sx={{ transform: "rotate(90deg)" }} />
-                                    ) : index === 5 ? (
-                                      <BookOnlineIcon sx={{ transform: "rotate(90deg)" }} />
-                                    ) : index === 6 ? (
-                                      <GroupsIcon />
-                                    ) : index === 7 ? (
-                                      <GroupsIcon />
-                                    ) : index === 11 ? (
-                                      <ApartmentIcon />
-                                    ) : (
-                                      <CurrencyExchangeIcon />
-                                    )}
+                                    {item.icon}
                                   </ListItemIcon>
-                                </Tooltip>
-                            }
-                            <ListItemText
-                              primary={shouldDrawerOpen ? text : ""}
-                              sx={{
-                                color: show1 === index && theme.palette.primary.contrastText, fontSize: "15px"
-                              }}
-                              primaryTypographyProps={{
-                                fontSize: "14px", // กำหนดขนาดตัวอักษรที่นี่
-
-                              }}
-                            />
-                          </ListItemButton>
-                        </ListItem>
-                      ))}
+                                ) : (
+                                  <Tooltip
+                                    title={item.label}
+                                    placement="right"
+                                    PopperProps={{
+                                      modifiers: [
+                                        {
+                                          name: 'offset',
+                                          options: {
+                                            offset: [0, -25], // ขยับ tooltip เข้าไปทางซ้าย (ติด icon มากขึ้น)
+                                          },
+                                        },
+                                      ],
+                                    }}
+                                    componentsProps={{
+                                      tooltip: {
+                                        sx: {
+                                          fontSize: '15px', // ปรับขนาดตัวอักษร
+                                          textAlign: 'left', // จัดข้อความชิดซ้าย
+                                          backgroundColor: theme.palette.panda.dark,
+                                        },
+                                      },
+                                    }}
+                                  >
+                                    <ListItemIcon
+                                      sx={{
+                                        minWidth: 34,
+                                        color: !open || isActive ? theme.palette.primary.contrastText : theme.palette.dark,
+                                      }}
+                                    >
+                                      {item.icon}
+                                    </ListItemIcon>
+                                  </Tooltip>
+                                )}
+                                <ListItemText
+                                  primary={shouldDrawerOpen ? item.label : ""}
+                                  sx={{
+                                    color: isActive ? theme.palette.primary.contrastText : "inherit",
+                                  }}
+                                  primaryTypographyProps={{
+                                    fontSize: "14px", // กำหนดขนาดตัวอักษรที่นี่
+                                  }}
+                                />
+                                {shouldDrawerOpen && (
+                                  <Tooltip title="ดูคำอธิบาย">
+                                    <IconButton
+                                      size="small"
+                                      onClick={(e) => handleInfoClick(e, index)}
+                                      sx={{
+                                        color: isActive ? theme.palette.primary.contrastText : theme.palette.dark,
+                                        opacity: 0.55,
+                                        "&:hover": { opacity: 1 },
+                                      }}
+                                    >
+                                      <InfoOutlinedIcon fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                )}
+                              </ListItemButton>
+                            </ListItem>
+                          </React.Fragment>
+                        );
+                      })}
                     </Collapse>
+                    <Popover
+                      open={Boolean(infoPopover.anchorEl)}
+                      anchorEl={infoPopover.anchorEl}
+                      onClose={handleInfoClose}
+                      anchorOrigin={{ vertical: "center", horizontal: "right" }}
+                      transformOrigin={{ vertical: "center", horizontal: "left" }}
+                      slotProps={{ paper: { sx: { maxWidth: 260, p: 2 } } }}
+                    >
+                      {infoPopover.index !== null && (
+                        <>
+                          <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
+                            {GENERAL_DATA_ITEMS[infoPopover.index].label}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {GENERAL_DATA_ITEMS[infoPopover.index].description}
+                          </Typography>
+                        </>
+                      )}
+                    </Popover>
                   </List>
                 </>
               )}
