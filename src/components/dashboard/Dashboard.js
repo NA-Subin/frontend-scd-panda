@@ -30,9 +30,13 @@ import theme from "../../theme/theme";
 import { RateOils, TablecellHeader } from "../../theme/style";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ClearIcon from "@mui/icons-material/Clear";
-import Cookies from "js-cookie";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import AltRouteIcon from "@mui/icons-material/AltRoute";
+import Inventory2Icon from "@mui/icons-material/Inventory2";
+import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 import Logo from "../../theme/img/logoPanda.jpg";
-import { borderRadius, keyframes, width } from "@mui/system";
+import { borderRadius, width } from "@mui/system";
 import { BarChart, PieChart, SparkLineChart } from "@mui/x-charts";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -46,25 +50,74 @@ import JsonUploader from "../../server/UploadJson";
 
 dayjs.locale("th"); // ตั้งค่าให้ dayjs ใช้ภาษาไทย
 
-const slideOutRight = keyframes`
-  0% {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  80% {
-    transform: translateX(-20%);
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(0);
-    opacity: 1;
-  }
-`;
+// A key-metric tile: number + what it means + where to go to see the
+// underlying records, so the dashboard doubles as a jumping-off point
+// instead of just a wall of numbers.
+const StatCard = ({ icon, label, value, description, color, onClick }) => (
+  <Paper
+    onClick={onClick}
+    elevation={2}
+    sx={{
+      height: "100%",
+      minHeight: 168,
+      borderRadius: 5,
+      p: 2.5,
+      backgroundColor: color,
+      color: "white",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-between",
+      cursor: onClick ? "pointer" : "default",
+      transition: "transform 0.15s ease, box-shadow 0.15s ease",
+      "&:hover": onClick ? { transform: "translateY(-4px)", boxShadow: 6 } : {},
+    }}
+  >
+    <Stack direction="row" alignItems="center" justifyContent="space-between">
+      <Typography variant="subtitle1" fontWeight="bold">
+        {label}
+      </Typography>
+      {icon}
+    </Stack>
+    <Typography variant="h3" fontWeight="bold">
+      {Number(value || 0).toLocaleString()}
+    </Typography>
+    <Typography variant="caption" sx={{ opacity: 0.85 }}>
+      {description}
+    </Typography>
+  </Paper>
+);
+
+// Shared frame for every chart card - colored title bar (with an optional
+// one-line explanation of what the chart shows) over a white plot area.
+// Replaces several near-identical Paper/Box blocks that used to repeat
+// this structure by hand, a couple of them with an empty title bar.
+const ChartPanel = ({ title, description, height = "60vh", children }) => (
+  <Paper
+    sx={{
+      height,
+      backgroundColor: theme.palette.panda.contrastText,
+      borderRadius: 5,
+      display: "flex",
+      flexDirection: "column",
+      overflow: "hidden",
+    }}
+  >
+    <Box sx={{ backgroundColor: theme.palette.panda.main, color: "white", px: 2.5, py: 1.2 }}>
+      <Typography variant="subtitle1" fontWeight="bold">
+        {title}
+      </Typography>
+      {description && (
+        <Typography variant="caption" sx={{ opacity: 0.85, display: "block" }}>
+          {description}
+        </Typography>
+      )}
+    </Box>
+    <Box sx={{ backgroundColor: "white", flex: 1, p: 2, overflow: "auto" }}>{children}</Box>
+  </Paper>
+);
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const token = Cookies.get("token");
-  const [slideOut, setSlideOut] = useState(true);
 
   // const { officers,
   //   drivers,
@@ -829,67 +882,23 @@ const Dashboard = () => {
 
   return (
     <Container maxWidth="xl" sx={{ marginTop: 10, marginBottom: 5 }}>
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        sx={{
-          animation: slideOut ? `${slideOutRight} 0.8s forwards` : "none",
-          position: "relative",
-        }}
-      >
-        <img src={Logo} width="200" />
+      <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1 }}>
         <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          marginLeft={-6}
-          marginTop={5}
-        >
-          <Typography
-            variant="h1"
-            color={theme.palette.error.main}
-            sx={{ textShadow: "1px 1px 2px rgba(0, 0, 0, 1)" }}
-            fontWeight="bold"
-            gutterBottom
-          >
-            S
+          component="img"
+          src={Logo}
+          alt="PandaStar Oil"
+          sx={{ width: 56, height: 56, borderRadius: "50%", border: `2px solid ${theme.palette.panda.main}` }}
+        />
+        <Box>
+          <Typography variant="h4" fontWeight="bold" color={theme.palette.panda.main}>
+            แดชบอร์ดภาพรวม
           </Typography>
-          <Typography
-            variant="h1"
-            color={theme.palette.warning.light}
-            sx={{ textShadow: "1px 1px 2px rgba(0, 0, 0, 1)" }}
-            fontWeight="bold"
-            gutterBottom
-          >
-            C
+          <Typography variant="body2" color="text.secondary">
+            สรุปข้อมูลรถ ลูกค้า เที่ยววิ่ง และตั๋วทั้งหมดในระบบ ณ {dayjs().format("D MMMM YYYY")}
           </Typography>
-          <Typography
-            variant="h1"
-            color={theme.palette.info.dark}
-            sx={{ textShadow: "1px 1px 2px rgba(0, 0, 0, 1)" }}
-            fontWeight="bold"
-            gutterBottom
-          >
-            D
-          </Typography>
-          <Typography
-            variant="h2"
-            color={theme.palette.panda.dark}
-            sx={{ textShadow: "1px 1px 2px rgba(0, 0, 0, 1)" }}
-            fontWeight="bold"
-            gutterBottom
-          ></Typography>
-          <Typography
-            variant="h2"
-            color={theme.palette.panda.light}
-            sx={{ textShadow: "1px 1px 2px rgba(0, 0, 0, 1)" }}
-            fontWeight="bold"
-            gutterBottom
-          ></Typography>
         </Box>
-      </Box>
-      <Divider />
+      </Stack>
+      <Divider sx={{ mb: 3 }} />
       {/* <JsonUploader /> */}
       <Grid
         container
@@ -906,195 +915,82 @@ const Dashboard = () => {
         <Grid item xs={12} sm={12} lg={9.5}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6} lg={4}>
-              <Paper
-                sx={{
-                  height: "29vh",
-                  borderRadius: 5,
-                  backgroundColor: theme.palette.info.main,
-                  color: "white",
-                  paddingTop: 5,
-                }}
-              >
-                <Box textAlign="center">
-                  <Typography variant="h4" gutterBottom>
-                    จำนวนรถ
-                  </Typography>
-                  <Divider
-                    sx={{ marginBottom: 1, border: "1px solid white" }}
-                  />
-                  <Typography variant="h2" gutterBottom>
-                    {regheads.length + regtails.length + smalls.length}
-                  </Typography>
-                </Box>
-              </Paper>
+              <StatCard
+                icon={<LocalShippingIcon sx={{ fontSize: 34, opacity: 0.85 }} />}
+                label="จำนวนรถ"
+                value={regheads.length + regtails.length + smalls.length}
+                description="รถใหญ่ หัวลาก และรถเล็กที่ยังใช้งานอยู่ - คลิกดูรายการรถทั้งหมด"
+                color={theme.palette.info.main}
+                onClick={() => navigate("/trucks")}
+              />
             </Grid>
             <Grid item xs={12} sm={6} lg={4}>
-              <Paper
-                sx={{
-                  height: "29vh",
-                  backgroundColor: theme.palette.success.dark,
-                  borderRadius: 5,
-                  color: "white",
-                  paddingTop: 5,
-                }}
-              >
-                <Box textAlign="center">
-                  <Typography variant="h4" gutterBottom>
-                    จำนวนลูกค้า
-                  </Typography>
-                  <Divider
-                    sx={{ marginBottom: 1, border: "1px solid white" }}
-                  />
-                  <Typography variant="h2" gutterBottom>
-                    {Ctransport.length +
-                      Cgasstations.length +
-                      Cbigtruck.length +
-                      Csmalltruck.length +
-                      Ctickets.length}
-                  </Typography>
-                </Box>
-              </Paper>
+              <StatCard
+                icon={<PeopleAltIcon sx={{ fontSize: 34, opacity: 0.85 }} />}
+                label="จำนวนลูกค้า"
+                value={
+                  Ctransport.length +
+                  Cgasstations.length +
+                  Cbigtruck.length +
+                  Csmalltruck.length +
+                  Ctickets.length
+                }
+                description="รวมลูกค้าทุกประเภท (ขนส่ง ปั้ม รถใหญ่ รถเล็ก ตั๋วน้ำมัน) - คลิกดูทะเบียนลูกค้า"
+                color={theme.palette.success.dark}
+                onClick={() => navigate("/customer")}
+              />
             </Grid>
             <Grid item xs={12} sm={6} lg={4}>
-              <Paper
-                sx={{
-                  height: "29vh",
-                  backgroundColor: theme.palette.error.main,
-                  borderRadius: 5,
-                  color: "white",
-                  paddingTop: 5,
-                }}
-              >
-                <Box textAlign="center">
-                  <Typography variant="h4" gutterBottom>
-                    จำนวนปั้ม
-                  </Typography>
-                  <Divider
-                    sx={{ marginBottom: 1, border: "1px solid white" }}
-                  />
-                  <Typography variant="h2" gutterBottom>
-                    {gasstations.length}
-                  </Typography>
-                </Box>
-              </Paper>
+              <StatCard
+                icon={<LocalGasStationIcon sx={{ fontSize: 34, opacity: 0.85 }} />}
+                label="จำนวนปั้ม"
+                value={gasstations.length}
+                description="สถานีบริการน้ำมันในระบบทั้งหมด - คลิกดูรายชื่อปั้ม"
+                color={theme.palette.error.main}
+                onClick={() => navigate("/gasstations")}
+              />
             </Grid>
             <Grid item xs={12} sm={6} lg={4}>
-              <Paper
-                sx={{
-                  height: "29vh",
-                  borderRadius: 5,
-                  backgroundColor: theme.palette.primary.main,
-                  color: "white",
-                  paddingTop: 5,
-                }}
-              >
-                <Box textAlign="center">
-                  <Typography variant="h4" gutterBottom>
-                    จำนวนเที่ยววิ่ง
-                  </Typography>
-                  <Divider
-                    sx={{ marginBottom: 1, border: "1px solid white" }}
-                  />
-                  <Typography variant="h2" gutterBottom>
-                    {trips.length}
-                  </Typography>
-                </Box>
-              </Paper>
+              <StatCard
+                icon={<AltRouteIcon sx={{ fontSize: 34, opacity: 0.85 }} />}
+                label="จำนวนเที่ยววิ่ง"
+                value={trips.length}
+                description="เที่ยววิ่งขนส่งน้ำมันตั้งแต่ 1 ม.ค. 2569 - คลิกดูรายการเที่ยววิ่ง"
+                color={theme.palette.panda.main}
+                onClick={() => navigate("/trips-bigtruck")}
+              />
             </Grid>
             <Grid item xs={12} sm={6} lg={4}>
-              <Paper
-                sx={{
-                  height: "29vh",
-                  backgroundColor: theme.palette.secondary.main,
-                  borderRadius: 5,
-                  color: "white",
-                  paddingTop: 5,
-                }}
-              >
-                <Box textAlign="center">
-                  <Typography variant="h4" gutterBottom>
-                    จำนวนรายการสินค้า
-                  </Typography>
-                  <Divider
-                    sx={{ marginBottom: 1, border: "1px solid white" }}
-                  />
-                  <Typography variant="h2" gutterBottom>
-                    {orders.length}
-                  </Typography>
-                </Box>
-              </Paper>
+              <StatCard
+                icon={<Inventory2Icon sx={{ fontSize: 34, opacity: 0.85 }} />}
+                label="จำนวนรายการสินค้า"
+                value={orders.length}
+                description="รายการสั่งซื้อ/ส่งน้ำมันทั้งหมด - คลิกดูใบแจ้งหนี้"
+                color={theme.palette.secondary.main}
+                onClick={() => navigate("/invoice")}
+              />
             </Grid>
             <Grid item xs={12} sm={6} lg={4}>
-              <Paper
-                sx={{
-                  height: "29vh",
-                  backgroundColor: theme.palette.warning.dark,
-                  borderRadius: 5,
-                  color: "white",
-                  paddingTop: 5,
-                }}
-              >
-                <Box textAlign="center">
-                  <Typography variant="h4" gutterBottom>
-                    จำนวนรายการตั๋วสินค้า
-                  </Typography>
-                  <Divider
-                    sx={{ marginBottom: 1, border: "1px solid white" }}
-                  />
-                  <Typography variant="h2" gutterBottom>
-                    {ticket.length}
-                  </Typography>
-                </Box>
-              </Paper>
+              <StatCard
+                icon={<ConfirmationNumberIcon sx={{ fontSize: 34, opacity: 0.85 }} />}
+                label="จำนวนรายการตั๋วสินค้า"
+                value={ticket.length}
+                description="ตั๋วน้ำมันที่ออกตั้งแต่ 1 ม.ค. 2569 - คลิกดูรายการตั๋ว"
+                color={theme.palette.warning.dark}
+                onClick={() => navigate("/ticket")}
+              />
             </Grid>
           </Grid>
         </Grid>
         <Grid item xs={12} sm={12} lg={2.5}>
-          <Paper
-            sx={{
-              height: "60vh",
-              backgroundColor: theme.palette.panda.contrastText,
-              borderRadius: 5,
-              display: "flex",
-              flexDirection: "column",
-            }}
+          <ChartPanel
+            title="จำนวนพนักงาน"
+            description="แยกตามประเภท - คลิกส่วนไหนก็ได้เพื่อไปหน้ารายชื่อพนักงาน"
+            height="60vh"
           >
-            {/* Top Header */}
             <Box
-              sx={{
-                backgroundColor: theme.palette.panda.main,
-                borderTopLeftRadius: 15,
-                borderTopRightRadius: 15,
-                color: "white",
-                height: "5vh",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Typography
-                variant="h6"
-                textAlign="center"
-                fontWeight="bold"
-                gutterBottom
-              >
-                จำนวนพนักงาน
-              </Typography>
-            </Box>
-
-            {/* Middle Content */}
-            <Box
-              sx={{
-                backgroundColor: "white",
-                flex: 1,
-                mx: 0.5,
-                py: 1,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: 1,
-              }}
+              onClick={() => navigate("/employee")}
+              sx={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}
             >
               <Typography
                 variant="h5"
@@ -1177,18 +1073,7 @@ const Dashboard = () => {
                 </Typography>
               </Box>
             </Box>
-
-            {/* Bottom Footer */}
-            <Box
-              sx={{
-                backgroundColor: theme.palette.panda.main,
-                borderBottomLeftRadius: 15,
-                borderBottomRightRadius: 15,
-                color: "white",
-                height: "5vh",
-              }}
-            />
-          </Paper>
+          </ChartPanel>
         </Grid>
         <Grid item xs={12} sm={12} lg={12}>
           <Paper
@@ -1197,10 +1082,14 @@ const Dashboard = () => {
               alignItems: "center",
               gap: 3,
               backgroundColor: theme.palette.primary.contrastText,
-              padding: 1,
+              padding: 1.5,
               flexWrap: "wrap",
+              borderRadius: 4,
             }}
           >
+            <Typography variant="body2" fontWeight="bold" color="text.secondary" sx={{ width: "100%" }}>
+              ตัวกรองสำหรับกราฟด้านล่าง - เลือกเดือน ประเภทงาน และประเภทรถที่ต้องการดู
+            </Typography>
             {/* เดือน */}
             <TextField
               select
@@ -1309,46 +1198,11 @@ const Dashboard = () => {
           </Paper>
         </Grid>
         <Grid item xs={12} sm={12} lg={8}>
-          <Paper
-            sx={{
-              height: "60vh",
-              backgroundColor: theme.palette.panda.contrastText,
-              borderRadius: 5,
-            }}
+          <ChartPanel
+            title={`จำนวนลิตร (${selectedTruck.join(", ")})`}
+            description="ปริมาณน้ำมันรวมตามตัวกรองด้านบน แยกตามคนขับและทะเบียนรถ"
           >
-            {/* Top Header */}
-            <Box
-              sx={{
-                backgroundColor: theme.palette.panda.main,
-                borderTopLeftRadius: 15,
-                borderTopRightRadius: 15,
-                color: "white",
-                height: "5vh",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: "bold",
-              }}
-            >
-              {`จำนวนลิตร (${selectedTruck.join(", ")})`}
-            </Box>
-
-            {/* Middle Content */}
-            <Box
-              sx={{
-                backgroundColor: "white",
-                flex: 1,
-                mx: 0.5,
-                py: 1,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: 1,
-                height: "50vh",
-                p: 2,
-              }}
-            >
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1, height: "100%" }}>
               <BarChart
                 dataset={chartType1}
                 xAxis={[{ scaleType: "band", dataKey: "name" }]}
@@ -1372,112 +1226,32 @@ const Dashboard = () => {
                 ]}
               />
             </Box>
-          </Paper>
+          </ChartPanel>
         </Grid>
         <Grid item xs={12} sm={12} lg={4}>
-          <Paper
-            sx={{
-              height: "60vh",
-              backgroundColor: theme.palette.panda.contrastText,
-              borderRadius: 5,
-            }}
+          <ChartPanel
+            title="จำนวนลิตรรวม"
+            description="ผลรวมของกราฟด้านซ้ายในรูปเดียว แยกตามประเภทรถ"
           >
-            {/* Top Header */}
-            <Box
-              sx={{
-                backgroundColor: theme.palette.panda.main,
-                borderTopLeftRadius: 15,
-                borderTopRightRadius: 15,
-                color: "white",
-                height: "5vh",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            ></Box>
-
-            {/* Middle Content */}
-            <Box
-              sx={{
-                backgroundColor: "white",
-                flex: 1,
-                mx: 0.5,
-                py: 1,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: 1,
-                height: "50vh",
-                p: 2,
-              }}
-            >
-              {/* <BarChart
-                dataset={chartType2}
-                xAxis={[{ scaleType: 'band', dataKey: 'name' }]}
-                series={[
-                  {
-                    dataKey: 'volume',
-                    label: `จำนวนลิตร (ทะเบียน)`
-                  }
-                ]}
-              /> */}
-
-              <BarChart
-                dataset={chartType3}
-                xAxis={[{ scaleType: "band", dataKey: "name" }]}
-                series={[
-                  {
-                    dataKey: "volume",
-                    label: `จำนวนลิตร (รวมปริมาณ)`,
-                    color: theme.palette.primary.main,
-                  },
-                ]}
-              />
-            </Box>
-          </Paper>
+            <BarChart
+              dataset={chartType3}
+              xAxis={[{ scaleType: "band", dataKey: "name" }]}
+              series={[
+                {
+                  dataKey: "volume",
+                  label: `จำนวนลิตร (รวมปริมาณ)`,
+                  color: theme.palette.primary.main,
+                },
+              ]}
+            />
+          </ChartPanel>
         </Grid>
         <Grid item xs={12} sm={12} lg={8}>
-          <Paper
-            sx={{
-              height: "60vh",
-              backgroundColor: theme.palette.panda.contrastText,
-              borderRadius: 5,
-            }}
+          <ChartPanel
+            title={`จำนวนเที่ยววิ่ง (${selectedTruck.join(", ")})`}
+            description="จำนวนเที่ยววิ่งตามตัวกรองด้านบน แยกตามคนขับและทะเบียนรถ"
           >
-            {/* Top Header */}
-            <Box
-              sx={{
-                backgroundColor: theme.palette.panda.main,
-                borderTopLeftRadius: 15,
-                borderTopRightRadius: 15,
-                color: "white",
-                height: "5vh",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: "bold",
-              }}
-            >
-              {`จำนวนเที่ยววิ่ง (${selectedTruck.join(", ")})`}
-            </Box>
-
-            {/* Middle Content */}
-            <Box
-              sx={{
-                backgroundColor: "white",
-                flex: 1,
-                mx: 0.5,
-                py: 1,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: 1,
-                height: "50vh",
-                p: 2,
-              }}
-            >
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1, height: "100%" }}>
               <BarChart
                 dataset={tripChartType1}
                 xAxis={[{ scaleType: "band", dataKey: "name" }]}
@@ -1501,70 +1275,25 @@ const Dashboard = () => {
                 ]}
               />
             </Box>
-          </Paper>
+          </ChartPanel>
         </Grid>
         <Grid item xs={12} sm={12} lg={4}>
-          <Paper
-            sx={{
-              height: "60vh",
-              backgroundColor: theme.palette.panda.contrastText,
-              borderRadius: 5,
-            }}
+          <ChartPanel
+            title="จำนวนเที่ยวรวม"
+            description="ผลรวมของกราฟด้านซ้ายในรูปเดียว แยกตามประเภทรถ"
           >
-            {/* Top Header */}
-            <Box
-              sx={{
-                backgroundColor: theme.palette.panda.main,
-                borderTopLeftRadius: 15,
-                borderTopRightRadius: 15,
-                color: "white",
-                height: "5vh",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            ></Box>
-
-            {/* Middle Content */}
-            <Box
-              sx={{
-                backgroundColor: "white",
-                flex: 1,
-                mx: 0.5,
-                py: 1,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: 1,
-                height: "50vh",
-                p: 2,
-              }}
-            >
-              {/* <BarChart
-                dataset={chartType2}
-                xAxis={[{ scaleType: 'band', dataKey: 'name' }]}
-                series={[
-                  {
-                    dataKey: 'volume',
-                    label: `${selectedTruck.join(", ")} (ทะเบียน)`
-                  }
-                ]}
-              /> */}
-
-              <BarChart
-                dataset={tripChartType3}
-                xAxis={[{ scaleType: "band", dataKey: "name" }]}
-                series={[
-                  {
-                    dataKey: "count",
-                    label: "จำนวนเที่ยวรวม",
-                    color: theme.palette.primary.main,
-                  },
-                ]}
-              />
-            </Box>
-          </Paper>
+            <BarChart
+              dataset={tripChartType3}
+              xAxis={[{ scaleType: "band", dataKey: "name" }]}
+              series={[
+                {
+                  dataKey: "count",
+                  label: "จำนวนเที่ยวรวม",
+                  color: theme.palette.primary.main,
+                },
+              ]}
+            />
+          </ChartPanel>
         </Grid>
         <Grid item xs={12} sm={12} lg={8}>
           <Paper
@@ -1572,108 +1301,55 @@ const Dashboard = () => {
               height: "60vh",
               backgroundColor: theme.palette.panda.contrastText,
               borderRadius: 5,
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
             }}
           >
-            {/* Top Header */}
-            <Box
-              sx={{
-                backgroundColor: theme.palette.panda.main,
-                borderTopLeftRadius: 15,
-                borderTopRightRadius: 15,
-                color: "white",
-                height: "5vh",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              alignItems={{ xs: "flex-start", sm: "center" }}
+              justifyContent="space-between"
+              spacing={1}
+              sx={{ backgroundColor: theme.palette.panda.main, color: "white", px: 2.5, py: 1.2 }}
             >
-              <Grid container spacing={2}>
-                <Grid item xs={1.5} sm={2.5} lg={3.5} />
-                <Grid item xs={9} sm={7} lg={5}>
-                  <Paper
-                    component="form"
-                    sx={{
-                      width: "100%",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      backgroundColor: theme.palette.error.main,
+              <Box>
+                <Typography variant="subtitle1" fontWeight="bold">
+                  แนวโน้มรายเดือน / รายวัน
+                </Typography>
+                <Typography variant="caption" sx={{ opacity: 0.85 }}>
+                  ออร์เดอร์ ตั๋วน้ำมัน เที่ยววิ่ง และรายการที่ยกเลิก - เลือกเดือนเพื่อดูแยกรายวัน
+                </Typography>
+              </Box>
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    openTo="month"
+                    views={["month"]}
+                    value={dayjs(date)}
+                    onChange={handleDateChangeDate}
+                    format="MMMM"
+                    slotProps={{
+                      textField: {
+                        size: "small",
+                        sx: {
+                          backgroundColor: "white",
+                          borderRadius: 1,
+                          minWidth: 160,
+                          "& .MuiOutlinedInput-root": { height: "36px" },
+                        },
+                      },
                     }}
-                  >
-                    <Paper component="form">
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
-                          openTo="month" // เปิดเฉพาะเดือน
-                          views={["month"]} // เลือกเดือนเท่านั้น
-                          value={dayjs(date)} // แสดงเดือนปัจจุบัน
-                          onChange={handleDateChangeDate} // ตั้งค่าเมื่อเลือกเดือน
-                          format="MMMM" // รูปแบบเป็นชื่อเดือนเต็ม
-                          slotProps={{
-                            textField: {
-                              size: "small",
-                              fullWidth: true,
-                              sx: {
-                                "& .MuiOutlinedInput-root": {
-                                  height: "30px",
-                                  paddingRight: "8px", // ลดพื้นที่ไอคอนให้แคบลง
-                                },
-                                "& .MuiInputBase-input": {
-                                  fontSize: "14px", // ปรับขนาดตัวอักษรภายใน Input
-                                },
-                                "& .MuiInputAdornment-root": {
-                                  marginLeft: "0px", // ลดช่องว่างด้านซ้ายของไอคอน
-                                  paddingLeft: "0px", // เอาพื้นที่ด้านซ้ายของไอคอนออก
-                                },
-                              },
-                              InputProps: {
-                                startAdornment: (
-                                  <InputAdornment
-                                    position="start"
-                                    sx={{ marginRight: 2 }}
-                                  >
-                                    กรุณาเลือกเดือน :
-                                  </InputAdornment>
-                                ),
-                                sx: {
-                                  fontSize: "16px", // ขนาดตัวอักษรภายใน Input
-                                  height: "40px", // ความสูงของ Input
-                                  padding: "10px", // Padding ภายใน Input
-                                  fontWeight: "bold", // น้ำหนักตัวอักษร
-                                },
-                              },
-                            },
-                          }}
-                        />
-                      </LocalizationProvider>
-                    </Paper>
-                    {checkDate && (
-                      <IconButton
-                        onClick={handleClearDate}
-                        size="small"
-                        sx={{ color: "white" }}
-                      >
-                        <ClearIcon fontSize="small" />
-                      </IconButton>
-                    )}
-                  </Paper>
-                </Grid>
-                <Grid item xs={1.5} sm={2.5} lg={3.5} />
-              </Grid>
-            </Box>
-            <Box
-              sx={{
-                backgroundColor: "white",
-                flex: 1,
-                mx: 0.5,
-                py: 1,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: 1,
-                height: "50vh",
-              }}
-            >
+                  />
+                </LocalizationProvider>
+                {checkDate && (
+                  <IconButton onClick={handleClearDate} size="small" sx={{ color: "white" }} title="ล้างตัวกรองเดือน">
+                    <ClearIcon fontSize="small" />
+                  </IconButton>
+                )}
+              </Stack>
+            </Stack>
+            <Box sx={{ backgroundColor: "white", flex: 1, p: 2 }}>
               <BarChart
                 dataset={checkDate ? volumeAll : fullOrders}
                 xAxis={[
@@ -1713,65 +1389,42 @@ const Dashboard = () => {
                 ]}
               />
             </Box>
-
-            <Box
-              sx={{
-                backgroundColor: theme.palette.panda.main,
-                borderBottomLeftRadius: 15,
-                borderBottomRightRadius: 15,
-                color: "white",
-                height: "5vh",
-              }}
-            />
           </Paper>
         </Grid>
         <Grid item xs={12} sm={12} lg={4}>
-          <Paper
-            sx={{
-              height: "60vh",
-              backgroundColor: theme.palette.panda.contrastText,
-              borderRadius: 5,
-            }}
+          <ChartPanel
+            title="จำนวนตั๋ว"
+            description="สัดส่วนตั๋วแต่ละประเภท - ตัวเลขกลางวงคือยอดรวมทั้งหมด คลิกเพื่อไปหน้ารายการตั๋ว"
           >
-            {/* Top Header */}
             <Box
-              sx={{
-                backgroundColor: theme.palette.panda.main,
-                borderTopLeftRadius: 15,
-                borderTopRightRadius: 15,
-                color: "white",
-                height: "5vh",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+              onClick={() => navigate("/ticket")}
+              sx={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}
             >
-              <Typography
-                variant="h6"
-                textAlign="center"
-                fontWeight="bold"
-                gutterBottom
-              >
-                จำนวนตั๋ว
-              </Typography>
-            </Box>
-
-            {/* Middle Content */}
-            <Box
-              sx={{
-                backgroundColor: "white",
-                flex: 1,
-                mx: 0.5,
-                py: 1,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: 1,
-                height: "50vh",
-              }}
-            >
-              <PieChart
+              <Box sx={{ position: "relative" }}>
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    textAlign: "center",
+                    pointerEvents: "none",
+                  }}
+                >
+                  <Typography variant="h4" fontWeight="bold">
+                    {Ctransport.length +
+                      Cgasstations.length +
+                      Ctickets.length +
+                      Cbigtruck1.length +
+                      Cbigtruck2.length +
+                      Csmalltruck1.length +
+                      Csmalltruck2.length}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    ตั๋วทั้งหมด
+                  </Typography>
+                </Box>
+                <PieChart
                 series={[
                   {
                     data: [
@@ -1822,7 +1475,8 @@ const Dashboard = () => {
                   },
                 ]}
                 {...pieParamsNewSize}
-              />
+                />
+              </Box>
               {/* Legend */}
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -1933,36 +1587,9 @@ const Dashboard = () => {
                 </Typography>
               </Box>
             </Box>
-
-            {/* Bottom Footer */}
-            <Box
-              sx={{
-                backgroundColor: theme.palette.panda.main,
-                borderBottomLeftRadius: 15,
-                borderBottomRightRadius: 15,
-                color: "white",
-                height: "5vh",
-              }}
-            />
-            <Typography
-              variant="h2"
-              fontWeight="bold"
-              textAlign="center"
-              sx={{ marginTop: -39 }}
-              gutterBottom
-            >
-              {Ctransport.length +
-                Cgasstations.length +
-                Ctickets.length +
-                Cbigtruck1.length +
-                Cbigtruck2.length +
-                Csmalltruck1.length +
-                Csmalltruck2.length}
-            </Typography>
-          </Paper>
+          </ChartPanel>
         </Grid>
       </Grid>
-      {/* <DriverTable /> */}
     </Container>
   );
 };
