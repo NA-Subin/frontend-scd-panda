@@ -245,11 +245,14 @@ export default function Navbar({ open, onOpenChange }) {
 
     // Also expand whichever section the current page actually belongs to,
     // so the highlighted item isn't hiding inside a collapsed group.
-    if (idx1 !== -1) setOpenData(true);
-    if (idx2 !== -1) setOperation(true);
-    if (idx3 !== -1) setFinacieal(true);
-    if (idx4 !== -1) setReport(true);
-    if (idx5 !== -1) setTrucksmall(true);
+    // NOTE: for these 5 flags, false = expanded/showing items, true = collapsed
+    // (see the matching <Collapse in={!openData}> etc. blocks below) - so
+    // "expand" means setting the flag to false, not true.
+    if (idx1 !== -1) setOpenData(false);
+    if (idx2 !== -1) setOperation(false);
+    if (idx3 !== -1) setFinacieal(false);
+    if (idx4 !== -1) setReport(false);
+    if (idx5 !== -1) setTrucksmall(false);
   }, [location.pathname]);
 
   const creditorsDetail = Object.values(creditors || {});
