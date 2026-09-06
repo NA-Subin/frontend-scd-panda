@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
+  Avatar,
   Box,
   Button,
   CircularProgress,
@@ -8,6 +9,7 @@ import {
   Grid,
   InputAdornment,
   Paper,
+  Stack,
   TextField,
   Typography,
 } from "@mui/material";
@@ -16,6 +18,8 @@ import { Link, useNavigate } from "react-router-dom";
 import EmailIcon from "@mui/icons-material/Email";
 import PasswordIcon from "@mui/icons-material/Password";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import {
   ShowConfirm,
   ShowError,
@@ -32,6 +36,32 @@ import Cookies from 'js-cookie';
 import UpdateDatabase from "../dashboard/test";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { apiPost } from "../../server/apiClient";
+
+// One shared visual style for every main-navigation destination card -
+// icon + label, brand-colored, same footprint - so the grid re-centers
+// cleanly no matter how many of them a given user's permissions show,
+// instead of the old fixed xs/sm split with manual empty spacer Grids.
+const NavCard = ({ icon, label, color, onClick }) => (
+  <Button
+    variant="contained"
+    color={color}
+    fullWidth
+    onClick={onClick}
+    sx={{
+      height: "18vh",
+      minHeight: 160,
+      borderRadius: 4,
+      fontSize: 22,
+      fontWeight: "bold",
+      boxShadow: 3,
+      transition: "transform 0.15s ease",
+      "&:hover": { transform: "translateY(-3px)", boxShadow: 6 },
+    }}
+    startIcon={React.cloneElement(icon, { sx: { width: 56, height: 56 } })}
+  >
+    {label}
+  </Button>
+);
 
 const Choose = () => {
   const navigate = useNavigate();
@@ -52,6 +82,8 @@ const Choose = () => {
   const [showFinancial, setShowFinancial] = useState(false);
   const [showReport, setShowReport] = useState(false);
   const [showSmallTruck, setShowSmallTruck] = useState(false);
+
+  const [userName, setUserName] = useState("");
 
   const [importing, setImporting] = useState(false);
   const fileInputRef = useRef(null);
@@ -187,6 +219,8 @@ const Choose = () => {
 
     if (!matchedUser || !matchedUser.Position) return;
 
+    setUserName(matchedUser.Name || "");
+
     const positionId = matchedUser.Position;
     const position = positionsDetail.find((pos) => pos.uuid === positionId);
     if (!position) return;
@@ -208,155 +242,128 @@ const Choose = () => {
     if (hasOtherPermission) setShowDashboard(true);
   }, [officersDetail, driversDetail, creditorsDetail, positionsDetail]);
 
-  // ฟังก์ชันสำหรับเข้าสู่ระบบด้วย Email และ Password
-  return (
-    <Container sx={{ p: { xs: 2, sm: 3 }, maxWidth: { xs: "lg", sm: "md" } }}>
-      <Grid container spacing={5} sx={{ marginTop: { xs: 2, sm: 4, md: 10 } }}>
-        <Grid item xs={12}>
-          <Typography variant="h3" fontWeight="bold" textAlign="center">กรุณาเลือกหน้าที่ต้องการ</Typography>
-        </Grid>
-        {/* {
-          showGasStation && (
-            <Grid item xs={12} sm={6}>
-              <Button variant="contained"
-                color="error"
-                fullWidth
-                sx={{ height: "20vh", borderRadius: 5, fontSize: 26, fontWeight: "bold" }}
-                onClick={handleChooseGasStation}
-                startIcon={
-                  <LocalGasStationIcon
-                    sx={{
-                      width: 80,  // ความกว้างที่ต้องการ
-                      height: 80, // ความสูงที่ต้องการ
-                    }}
-                  />
-                }
-              >
-                ทดสอบหน้าลาน
-              </Button>
-            </Grid>
-          )
-        } */}
+  const navCards = [
+    showDashboard && {
+      key: "dashboard",
+      label: "หน้าหลัก",
+      color: "success",
+      icon: <DashboardIcon />,
+      onClick: handleChooseDashboard,
+    },
+    showDriver && {
+      key: "driver",
+      label: "พนักงานขับรถ",
+      color: "info",
+      icon: <DriveEtaIcon />,
+      onClick: handleChooseDriver,
+    },
+    showQuotation && {
+      key: "quotation",
+      label: "ใบเสนอราคาลูกค้า",
+      color: "warning",
+      icon: <SummarizeIcon />,
+      onClick: handleChooseQuotation,
+    },
+  ].filter(Boolean);
 
-        {
-          showDashboard && (
-            <Grid item xs={12} sm={6}>
-              <Button variant="contained"
-                color="success"
-                fullWidth
-                sx={{ height: "20vh", borderRadius: 5, fontSize: 26, fontWeight: "bold" }}
-                onClick={handleChooseDashboard}
-                startIcon={
-                  <DashboardIcon
-                    sx={{
-                      width: 80,  // ความกว้างที่ต้องการ
-                      height: 80, // ความสูงที่ต้องการ
-                    }}
-                  />
-                }>
-                หน้าหลัก
-              </Button>
-            </Grid>
+  return (
+    <Box sx={{ minHeight: "100vh", backgroundColor: "#F4F6F9", py: { xs: 4, md: 8 } }}>
+      <Container maxWidth="md">
+        <Stack alignItems="center" spacing={1} sx={{ mb: 5 }}>
+          <Avatar
+            src={Logo}
+            alt="PandaStar Oil"
+            sx={{ width: 88, height: 88, boxShadow: 3, border: `3px solid ${theme.palette.panda.main}` }}
+          />
+          <Typography variant="h4" fontWeight="bold" color={theme.palette.panda.main} textAlign="center">
+            กรุณาเลือกหน้าที่ต้องการ
+          </Typography>
+          {userName && (
+            <Typography variant="subtitle1" color="text.secondary">
+              ยินดีต้อนรับ, {userName}
+            </Typography>
           )}
-        {
-          showDriver && (
-            <Grid item xs={12} sm={6}>
-              <Button variant="contained"
-                color="info"
-                fullWidth
-                sx={{ height: "20vh", borderRadius: 5, fontSize: 26, fontWeight: "bold" }}
-                onClick={handleChooseDriver}
-                startIcon={
-                  <DriveEtaIcon
-                    sx={{
-                      width: 80,  // ความกว้างที่ต้องการ
-                      height: 80, // ความสูงที่ต้องการ
-                    }}
+        </Stack>
+
+        <Grid container spacing={3} justifyContent="center">
+          {navCards.map((card) => (
+            <Grid item xs={12} sm={6} key={card.key}>
+              <NavCard icon={card.icon} label={card.label} color={card.color} onClick={card.onClick} />
+            </Grid>
+          ))}
+        </Grid>
+
+        {showAdmin && (
+          <Box sx={{ mt: 6 }}>
+            <Divider sx={{ mb: 3 }}>
+              <Typography variant="overline" color="text.secondary" sx={{ letterSpacing: 1 }}>
+                เครื่องมือผู้ดูแลระบบ
+              </Typography>
+            </Divider>
+            <Paper
+              variant="outlined"
+              sx={{
+                p: 3,
+                borderRadius: 4,
+                borderLeft: `5px solid ${theme.palette.panda.light}`,
+                backgroundColor: "#FFF9F3",
+              }}
+            >
+              <Stack direction="row" spacing={1} alignItems="flex-start" sx={{ mb: 2.5 }}>
+                <WarningAmberIcon color="warning" />
+                <Typography variant="body2" color="text.secondary">
+                  ใช้สำหรับนำเข้าข้อมูลจากไฟล์ Firebase export เท่านั้น กรุณาตรวจสอบไฟล์ให้ถูกต้องก่อนดำเนินการทุกครั้ง
+                </Typography>
+              </Stack>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <input
+                    type="file"
+                    accept="application/json,.json"
+                    ref={fileInputRef}
+                    style={{ display: "none" }}
+                    onChange={handleFileSelected}
                   />
-                }>
-                พนักงานขับรถ
-              </Button>
-            </Grid>
-          )}
-        <Grid item xs={12} sm={3}></Grid>
-        {
-          showQuotation &&
-          <Grid item xs={12} sm={6}>
-            <Button variant="contained"
-              color="warning"
-              fullWidth
-              sx={{ height: "20vh", borderRadius: 5, fontSize: 26, fontWeight: "bold" }}
-              onClick={handleChooseQuotation}
-              startIcon={
-                <SummarizeIcon
-                  sx={{
-                    width: 80,  // ความกว้างที่ต้องการ
-                    height: 80, // ความสูงที่ต้องการ
-                  }}
-                />
-              }>
-              ใบเสนอราคาลูกค้า
-            </Button>
-          </Grid>
-        }
-        {
-          showAdmin && (
-            <Grid item xs={12} sm={6}>
-              <input
-                type="file"
-                accept="application/json,.json"
-                ref={fileInputRef}
-                style={{ display: "none" }}
-                onChange={handleFileSelected}
-              />
-              <Button variant="contained"
-                color="secondary"
-                fullWidth
-                disabled={importing}
-                sx={{ height: "20vh", borderRadius: 5, fontSize: 26, fontWeight: "bold" }}
-                onClick={handleImportClick}
-                startIcon={
-                  importing ? (
-                    <CircularProgress color="inherit" size={40} />
-                  ) : (
-                    <UploadFileIcon sx={{ width: 80, height: 80 }} />
-                  )
-                }>
-                {importing ? "กำลังนำเข้าข้อมูล..." : "นำเข้าข้อมูล JSON (ทับข้อมูลเดิมทั้งหมด)"}
-              </Button>
-            </Grid>
-          )
-        }
-        {
-          showAdmin && (
-            <Grid item xs={12} sm={6}>
-              <input
-                type="file"
-                accept="application/json,.json"
-                ref={incrementalFileInputRef}
-                style={{ display: "none" }}
-                onChange={handleIncrementalFileSelected}
-              />
-              <Button variant="contained"
-                color="info"
-                fullWidth
-                disabled={importingIncremental}
-                sx={{ height: "20vh", borderRadius: 5, fontSize: 26, fontWeight: "bold" }}
-                onClick={handleIncrementalImportClick}
-                startIcon={
-                  importingIncremental ? (
-                    <CircularProgress color="inherit" size={40} />
-                  ) : (
-                    <UploadFileIcon sx={{ width: 80, height: 80 }} />
-                  )
-                }>
-                {importingIncremental ? "กำลังเพิ่มข้อมูล..." : "เพิ่มข้อมูลใหม่ (ไม่ลบของเดิม)"}
-              </Button>
-            </Grid>
-          )
-        }
-      </Grid>
-    </Container>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    fullWidth
+                    disabled={importing}
+                    onClick={handleImportClick}
+                    sx={{ py: 1.5, borderRadius: 3, fontWeight: "bold", justifyContent: "flex-start", textAlign: "left" }}
+                    startIcon={importing ? <CircularProgress color="inherit" size={22} /> : <UploadFileIcon />}
+                  >
+                    {importing ? "กำลังนำเข้าข้อมูล..." : "นำเข้าข้อมูล JSON (ทับข้อมูลเดิมทั้งหมด)"}
+                  </Button>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <input
+                    type="file"
+                    accept="application/json,.json"
+                    ref={incrementalFileInputRef}
+                    style={{ display: "none" }}
+                    onChange={handleIncrementalFileSelected}
+                  />
+                  <Button
+                    variant="outlined"
+                    color="info"
+                    fullWidth
+                    disabled={importingIncremental}
+                    onClick={handleIncrementalImportClick}
+                    sx={{ py: 1.5, borderRadius: 3, fontWeight: "bold", justifyContent: "flex-start", textAlign: "left" }}
+                    startIcon={
+                      importingIncremental ? <CircularProgress color="inherit" size={22} /> : <AddCircleOutlineIcon />
+                    }
+                  >
+                    {importingIncremental ? "กำลังเพิ่มข้อมูล..." : "เพิ่มข้อมูลใหม่ (ไม่ลบของเดิม)"}
+                  </Button>
+                </Grid>
+              </Grid>
+            </Paper>
+          </Box>
+        )}
+      </Container>
+    </Box>
   );
 };
 
