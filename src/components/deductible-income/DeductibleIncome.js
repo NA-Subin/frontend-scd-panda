@@ -245,13 +245,13 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                 }
                             </Typography>
                         </Grid>
-                        <Grid item sm={12} lg={12} sx={{ textAlign: "right", marginTop: -10 }}>
-                            <InsertDeductibleIncome data={deductibleIncome.length} income={income.length + 1} deduction={deduction.length + 1} />
-                        </Grid>
-                        <Grid item xs={12} md={12} sx={{ textAlign: "center", marginTop: -8, mb: 1 }}>
+                        <Grid item xs={12} md={12} sx={{ textAlign: "center", mb: 1 }}>
                             <Typography variant="body2" color="text.secondary">
                                 รายการรายได้และรายหักที่ใช้ประกอบการคำนวณเงินเดือนพนักงาน
                             </Typography>
+                        </Grid>
+                        <Grid item sm={12} lg={12} sx={{ textAlign: "right" }}>
+                            <InsertDeductibleIncome data={deductibleIncome.length} income={income.length + 1} deduction={deduction.length + 1} />
                         </Grid>
                         <Grid item xs={12} md={12} sx={{ textAlign: "right" }}>
                             <FormGroup row sx={{ justifyContent: "flex-end", alignItems: "center" }}>
