@@ -578,19 +578,10 @@ export default function Navbar({ open, onOpenChange }) {
                       justifyContent="right"
                       display="flex"
                       alignItems="center"
+                      sx={{ gap: 1.5 }}
                     >
                       <Tooltip title="แจ้งเตือน">
-                        <IconButtonOnNavbar
-                          sx={{
-                            backgroundColor: !notify
-                              ? theme.palette.panda.dark
-                              : "white",
-                            marginRight: 1,
-                            marginLeft: 1,
-                          }}
-                          color={!notify ? "inherit" : theme.palette.panda.dark}
-                          onClick={handleNotify}
-                        >
+                        <IconButtonOnNavbar color="inherit" onClick={handleNotify}>
                           <Badge
                             badgeContent={activeTrips.length}
                             color="error"
@@ -662,37 +653,19 @@ export default function Navbar({ open, onOpenChange }) {
                           </Snackbar>
                         </IconButtonOnNavbar>
                       </Tooltip>
-                      <Divider
-                        orientation="vertical"
-                        variant="fullWidth"
-                        flexItem
-                        sx={{ border: "1px solid white" }}
-                      />
                       <Tooltip title="ตั้งค่า">
-                        <IconButtonOnNavbar
-                          sx={{ backgroundColor: theme.palette.panda.dark, marginRight: 1, marginLeft: 1 }}
-                          color="inherit"
-                          onClick={handleSetting}
-                        >
+                        <IconButtonOnNavbar color="inherit" onClick={handleSetting}>
                           <SettingsIcon />
                         </IconButtonOnNavbar>
                       </Tooltip>
                       <Tooltip title="กลับหน้าแรก">
-                        <IconButtonOnNavbar
-                          sx={{ backgroundColor: theme.palette.panda.dark, marginRight: 1, marginLeft: 1 }}
-                          color="inherit"
-                          onClick={handleBack}
-                        >
+                        <IconButtonOnNavbar color="inherit" onClick={handleBack}>
                           <ReplyAllIcon />
                         </IconButtonOnNavbar>
                       </Tooltip>
                       <Tooltip title="ออกจากระบบ">
-                        <IconButtonOnNavbar
-                          sx={{ backgroundColor: theme.palette.error.main, marginRight: 1, marginLeft: 1 }}
-                          color="inherit"
-                          onClick={UserSignOut}
-                        >
-                          <MeetingRoomIcon />
+                        <IconButtonOnNavbar color="inherit" onClick={UserSignOut}>
+                          <MeetingRoomIcon color="error" />
                         </IconButtonOnNavbar>
                       </Tooltip>
                     </Grid>
@@ -786,19 +759,10 @@ export default function Navbar({ open, onOpenChange }) {
                         justifyContent="right"
                         display="flex"
                         alignItems="center"
+                        sx={{ gap: 1.5 }}
                       >
                         <Tooltip title="แจ้งเตือน">
-                          <IconButtonOnNavbar
-                            sx={{
-                              backgroundColor: !notify
-                                ? theme.palette.panda.dark
-                                : "white",
-                              marginRight: 1,
-                              marginLeft: 1,
-                            }}
-                            color={!notify ? "inherit" : theme.palette.panda.dark}
-                            onClick={handleNotify}
-                          >
+                          <IconButtonOnNavbar color="inherit" onClick={handleNotify}>
                             <Badge
                               badgeContent={activeTrips.length}
                               color="error"
@@ -870,14 +834,8 @@ export default function Navbar({ open, onOpenChange }) {
                             </Snackbar>
                           </IconButtonOnNavbar>
                         </Tooltip>
-                        <Divider
-                          orientation="vertical"
-                          variant="fullWidth"
-                          flexItem
-                          sx={{ border: "1px solid white" }}
-                        />
                         <Tooltip title={Cookies.get('user') ? `เข้าสู่ระบบโดย ${Cookies.get('user')}` : "ผู้ใช้งาน"}>
-                          <Box sx={{ display: "flex", alignItems: "center", marginRight: 1, marginLeft: 1 }}>
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
                             <StyledBadge
                               overlap="circular"
                               anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
@@ -887,37 +845,19 @@ export default function Navbar({ open, onOpenChange }) {
                             </StyledBadge>
                           </Box>
                         </Tooltip>
-                        <Divider
-                          orientation="vertical"
-                          variant="fullWidth"
-                          flexItem
-                          sx={{ border: "1px solid white" }}
-                        />
                         <Tooltip title="ตั้งค่า">
-                          <IconButtonOnNavbar
-                            sx={{ backgroundColor: theme.palette.panda.dark, marginRight: 1, marginLeft: 1 }}
-                            color="inherit"
-                            onClick={handleSetting}
-                          >
+                          <IconButtonOnNavbar color="inherit" onClick={handleSetting}>
                             <SettingsIcon />
                           </IconButtonOnNavbar>
                         </Tooltip>
                         <Tooltip title="กลับหน้าแรก">
-                          <IconButtonOnNavbar
-                            sx={{ backgroundColor: theme.palette.panda.dark, marginRight: 1, marginLeft: 1 }}
-                            color="inherit"
-                            onClick={handleBack}
-                          >
+                          <IconButtonOnNavbar color="inherit" onClick={handleBack}>
                             <ReplyAllIcon />
                           </IconButtonOnNavbar>
                         </Tooltip>
                         <Tooltip title="ออกจากระบบ">
-                          <IconButtonOnNavbar
-                            sx={{ backgroundColor: theme.palette.error.main, marginRight: 1, marginLeft: 1 }}
-                            color="inherit"
-                            onClick={UserSignOut}
-                          >
-                            <MeetingRoomIcon />
+                          <IconButtonOnNavbar color="inherit" onClick={UserSignOut}>
+                            <MeetingRoomIcon color="error" />
                           </IconButtonOnNavbar>
                         </Tooltip>
                       </Grid>
