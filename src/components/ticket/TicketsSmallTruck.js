@@ -15,6 +15,7 @@ import {
     InputAdornment,
     MenuItem,
     Paper,
+    Popover,
     Table,
     TableBody,
     TableCell,
@@ -29,6 +30,7 @@ import { IconButtonError, TablecellHeader, TablecellNoData } from "../../theme/s
 import { Inventory } from "@mui/icons-material";
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import BookOnlineIcon from '@mui/icons-material/BookOnline';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { apiPut } from "../../server/apiClient";
 import theme from "../../theme/theme";
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -38,6 +40,42 @@ import InsertCustomerSmallTruck from "./InsertCustomerSmallTruck";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import TablePaginationBar from "../../theme/TablePaginationBar";
+
+// Small click-to-open explanation bubble - used next to labels/columns whose
+// meaning isn't obvious at a glance (business terms, status checkboxes...).
+// Click (not hover-only) so it also works on touch screens.
+const InfoHint = ({ title }) => {
+    const [anchorEl, setAnchorEl] = useState(null);
+    return (
+        <>
+            <IconButton
+                size="small"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    setAnchorEl(e.currentTarget);
+                }}
+                sx={{ p: 0.25, ml: 0.5, color: "inherit", verticalAlign: "middle" }}
+            >
+                <InfoOutlinedIcon sx={{ fontSize: 16 }} />
+            </IconButton>
+            <Popover
+                open={Boolean(anchorEl)}
+                anchorEl={anchorEl}
+                onClose={(e) => {
+                    if (e?.stopPropagation) e.stopPropagation();
+                    setAnchorEl(null);
+                }}
+                onClick={(e) => e.stopPropagation()}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                transformOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+                <Typography sx={{ p: 1.5, maxWidth: 280, fontSize: 13, fontWeight: "normal", textAlign: "left" }}>
+                    {title}
+                </Typography>
+            </Popover>
+        </>
+    );
+};
 
 const TicketsSmallTruck = ({ openNavbar }) => {
     const [update, setUpdate] = React.useState("");
@@ -405,29 +443,22 @@ const TicketsSmallTruck = ({ openNavbar }) => {
             >
                 ลูกค้ารถเล็ก
             </Typography>
-            <Divider sx={{ marginBottom: 1 }} />
-            <Grid container spacing={2} marginTop={1}>
+            <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mb: 1 }}>
+                จัดการข้อมูลลูกค้าตั๋วรถเล็ก แยกตามคลัง - เลือกแท็บด้านล่างแล้วคลิกชื่อตั๋วในตารางเพื่อดู/แก้ไขรายละเอียดทั้งหมด
+            </Typography>
+            <Divider sx={{ marginBottom: 2 }} />
+            <Grid container spacing={2}>
                 <Grid item xs={6}>
-                    <Button variant="contained" color={open === 1 ? "info" : "inherit"} sx={{ height: "10vh", fontSize: "22px", fontWeight: "bold", borderRadius: 3, borderBottom: open === 1 && "5px solid" + theme.palette.panda.light }} fullWidth onClick={handleClickOpen1}>เชียงใหม่</Button>
+                    <Button variant="contained" color={open === 1 ? "info" : "inherit"} sx={{ height: "8vh", fontSize: "22px", fontWeight: "bold", borderRadius: 3, borderBottom: open === 1 && "5px solid" + theme.palette.panda.light }} fullWidth onClick={handleClickOpen1}>เชียงใหม่</Button>
                 </Grid>
                 <Grid item xs={6}>
-                    <Button variant="contained" color={open === 2 ? "info" : "inherit"} sx={{ height: "10vh", fontSize: "22px", fontWeight: "bold", borderRadius: 3, borderBottom: open === 2 && "5px solid" + theme.palette.panda.light }} fullWidth onClick={handleClickOpen2}>บ้านโฮ่ง</Button>
-                </Grid>
-                <Grid item xs={6} sx={{ marginTop: -3 }}>
-                    {
-                        open === 1 && <Typography variant="h3" fontWeight="bold" textAlign="center" color={theme.palette.panda.light} gutterBottom>||</Typography>
-                    }
-                </Grid>
-                <Grid item xs={6} sx={{ marginTop: -3 }}>
-                    {
-                        open === 2 && <Typography variant="h3" fontWeight="bold" textAlign="center" color={theme.palette.panda.light} gutterBottom>||</Typography>
-                    }
+                    <Button variant="contained" color={open === 2 ? "info" : "inherit"} sx={{ height: "8vh", fontSize: "22px", fontWeight: "bold", borderRadius: 3, borderBottom: open === 2 && "5px solid" + theme.palette.panda.light }} fullWidth onClick={handleClickOpen2}>บ้านโฮ่ง</Button>
                 </Grid>
             </Grid>
-            <Paper sx={{ backgroundColor: "#fafafa", borderRadius: 3, p: 5, borderTop: "5px solid" + theme.palette.panda.light, marginTop: -2.5, width: "100%" }}>
-                <Grid container spacing={2}>
+            <Paper sx={{ backgroundColor: "#fafafa", borderRadius: 3, p: { xs: 2, sm: 3 }, borderTop: "5px solid" + theme.palette.panda.light, marginTop: 2, width: "100%" }}>
+                <Grid container spacing={2} alignItems="center">
                     <Grid item md={3} xs={12} >
-                        <Typography variant="h6" fontWeight="bold" gutterBottom>รายการลูกค้าของ{open === 1 ? "เชียงใหม่" : "บ้านโฮ่ง"}</Typography>
+                        <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ mb: 0 }}>รายการลูกค้าของ{open === 1 ? "เชียงใหม่" : "บ้านโฮ่ง"}</Typography>
                     </Grid>
                     <Grid item md={6} xs={12}>
                         <Paper >
@@ -463,17 +494,21 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                             }
                         </Paper>
                     </Grid>
-                    <Grid item md={3} xs={12} >
+                    <Grid item md={3} xs={12} sx={{ textAlign: { xs: "center", md: "right" } }}>
                         <InsertCustomerSmallTruck show={open} />
                     </Grid>
                 </Grid>
-                <Divider sx={{ marginBottom: 1, marginTop: 2 }} />
-                <Typography variant="subtitle2" color="error" fontWeight="bold" sx={{ marginBottom: -2 }} gutterBottom>*ถ้าต้องการดูรายละเอียดทั้งหมดให้คลิ๊กชื่อตั๋ว*</Typography>
+                <Divider sx={{ marginBottom: 1.5, marginTop: 2 }} />
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 1.5, color: theme.palette.panda.light }}>
+                    <InfoOutlinedIcon fontSize="small" />
+                    <Typography variant="subtitle2" fontWeight="bold">คลิกชื่อตั๋วในตารางเพื่อดูและแก้ไขรายละเอียดลูกค้าทั้งหมด</Typography>
+                </Box>
                 <TableContainer
                     component={Paper}
-                    sx={{ marginTop: 2, height: "70vh" }}
+                    variant="outlined"
+                    sx={{ marginTop: 1, height: "70vh" }}
                 >
-                    <Table stickyHeader size="small" sx={{ tableLayout: "fixed", "& .MuiTableCell-root": { padding: "1px" }, width: "100%" }}>
+                    <Table stickyHeader size="small" sx={{ tableLayout: "fixed", "& .MuiTableCell-root": { padding: "6px 8px" }, width: "100%" }}>
                         <TableHead sx={{ height: "7vh" }}>
                             <TableRow>
                                 <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 50 }}>
@@ -493,15 +528,19 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                 </TablecellHeader> */}
                                 <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 100 }}>
                                     ระยะเวลาเครดิต
+                                    <InfoHint title="จำนวนวันที่ให้ลูกค้าชำระเงินหลังวางบิล เช่น 30 = เครดิต 30 วัน" />
                                 </TablecellHeader>
                                 <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 100 }}>
                                     สถานะบริษัท
+                                    <InfoHint title={'"อยู่บริษัทในเครือ" = ลูกค้ารายนี้สังกัดบริษัทในเครือแพนด้าสตาร์ ออยล์'} />
                                 </TablecellHeader>
                                 <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 100 }}>
                                     สถานะ
+                                    <InfoHint title={'"ลูกค้าประจำ" = ลูกค้าที่ใช้บริการต่อเนื่องเป็นประจำ ต่างจาก "ลูกค้าไม่ประจำ" ที่ใช้บริการเป็นครั้งคราว'} />
                                 </TablecellHeader>
                                 <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 300 }}>
                                     วางบิลด้วย
+                                    <InfoHint title="ชื่อบริษัทที่ใช้ออกบิล/ใบแจ้งหนี้ให้ลูกค้ารายนี้" />
                                 </TablecellHeader>
                                 <TablecellHeader sx={{ position: 'sticky', right: !setting ? 20 : 60, width: !setting ? 80 : 100, textAlign: "center" }}>
 
@@ -1466,11 +1505,11 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                     <TextField size="small" fullWidth value={ticketsName} onChange={(e) => setTicketsName(e.target.value)} disabled={updateCustomer} />
                                 </Grid>
                                 <Grid item md={12} xs={12} display="flex" justifyContent="center" alignItems="center">
-                                    <Typography variant="subtitle1" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginRight: 1, marginTop: 1 }} gutterBottom>รอบการวางบิล</Typography>
+                                    <Typography variant="subtitle1" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginRight: 1, marginTop: 1 }} gutterBottom>รอบการวางบิล<InfoHint title="รอบที่ต้องวางบิล/ใบแจ้งหนี้ให้ลูกค้ารายนี้ เช่น ทุกสิ้นเดือน หรือทุก 15 วัน" /></Typography>
                                     <TextField size="small" fullWidth value={bill} onChange={(e) => setBill(e.target.value)} disabled={updateCustomer} />
                                 </Grid>
                                 <Grid item md={12} xs={12} display="flex" justifyContent="left" alignItems="center">
-                                    <Typography variant="subtitle1" fontWeight="bold" marginRight={1} sx={{ marginLeft: { md: 0, xs: 4 } }}>สถานะตั๋ว :</Typography>
+                                    <Typography variant="subtitle1" fontWeight="bold" marginRight={1} sx={{ marginLeft: { md: 0, xs: 4 } }}>สถานะตั๋ว :<InfoHint title={'"ลูกค้าประจำ" = ใช้บริการต่อเนื่องเป็นประจำ, "ลูกค้าไม่ประจำ" = ใช้บริการเป็นครั้งคราว'} /></Typography>
                                     <FormControlLabel
                                         control={
                                             <Checkbox
@@ -1495,7 +1534,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                     />
                                 </Grid>
                                 <Grid item md={12} xs={12} display="flex" justifyContent="left" alignItems="center">
-                                    <Typography variant="subtitle1" fontWeight="bold" marginRight={1} sx={{ marginLeft: { md: 0, xs: 4 } }}>สถานะบริษัท :</Typography>
+                                    <Typography variant="subtitle1" fontWeight="bold" marginRight={1} sx={{ marginLeft: { md: 0, xs: 4 } }}>สถานะบริษัท :<InfoHint title={'"อยู่บริษัทในเครือ" = ลูกค้ารายนี้สังกัดบริษัทในเครือแพนด้าสตาร์ ออยล์'} /></Typography>
                                     <FormControlLabel
                                         control={
                                             <Checkbox
@@ -1524,11 +1563,11 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                         <Grid item md={5} xs={12}>
                             <Grid container spacing={2}>
                                 <Grid item md={12} xs={12} display='flex' justifyContent="center" alignItems="center">
-                                    <Typography variant="subtitle1" fontWeight="bold" sx={{ whiteSpace: "nowrap", marginRight: 1, marginTop: 1, marginLeft: { md: 8, xs: 5 } }} gutterBottom>เครดิต :</Typography>
+                                    <Typography variant="subtitle1" fontWeight="bold" sx={{ whiteSpace: "nowrap", marginRight: 1, marginTop: 1, marginLeft: { md: 8, xs: 5 } }} gutterBottom>เครดิต :<InfoHint title="วงเงินเครดิตสูงสุดที่ให้ลูกค้ารายนี้ (บาท)" /></Typography>
                                     <TextField size="small" fullWidth value={credit} onChange={(e) => setCredit(e.target.value)} disabled={updateCustomer} />
                                 </Grid>
                                 <Grid item md={12} xs={12} display='flex' justifyContent="center" alignItems="center">
-                                    <Typography variant="subtitle1" fontWeight="bold" sx={{ whiteSpace: "nowrap", marginRight: 1, marginTop: 1, marginLeft: { md: 0, xs: -2 } }} gutterBottom>ระยะเวลาเครดิต :</Typography>
+                                    <Typography variant="subtitle1" fontWeight="bold" sx={{ whiteSpace: "nowrap", marginRight: 1, marginTop: 1, marginLeft: { md: 0, xs: -2 } }} gutterBottom>ระยะเวลาเครดิต :<InfoHint title="จำนวนวันที่ให้ลูกค้าชำระเงินหลังวางบิล เช่น 30 = เครดิต 30 วัน" /></Typography>
                                     <TextField size="small" fullWidth value={creditTime} onChange={(e) => setCreditTime(e.target.value)} disabled={updateCustomer} />
                                 </Grid>
                                 <Grid item md={12} xs={12} display='flex' justifyContent="center" alignItems="center">
@@ -1556,7 +1595,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                             </Grid>
                         </Grid>
                         <Grid item md={2.5} xs={2.5} display="flex" justifyContent="left" alignItems="center">
-                            <Typography variant="subtitle1" fontWeight="bold" marginRight={1} sx={{ marginLeft: { md: 0, xs: 4 } }}>เลือกทะเบียน :</Typography>
+                            <Typography variant="subtitle1" fontWeight="bold" marginRight={1} sx={{ marginLeft: { md: 0, xs: 4 } }}>เลือกทะเบียน :<InfoHint title="ติ๊กเมื่อลูกค้ารายนี้ใช้รถทะเบียนของบริษัทประจำ แล้วเลือกทะเบียนรถที่ใช้" /></Typography>
                             <FormControlLabel
                                 control={
                                     <Checkbox

@@ -3,6 +3,7 @@ import {
     Badge,
     Box,
     Button,
+    Chip,
     Container,
     Divider,
     Grid,
@@ -25,6 +26,7 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useBasicData } from "../../../server/provider/BasicDataProvider";
 import { TablecellHeader, TablecellNoData, TablecellSelling } from "../../../theme/style";
@@ -33,6 +35,39 @@ import InsertTruckTransport from "./InsertTruckTransport";
 import { apiPut } from "../../../server/apiClient";
 import { ShowError, ShowSuccess } from "../../sweetalert/sweetalert";
 import TablePaginationBar from "../../../theme/TablePaginationBar";
+import theme from "../../../theme/theme";
+
+// Small click-to-open explanation bubble - used next to column headers whose
+// meaning isn't obvious from the label alone. Deliberately click (not just
+// hover) so it also works on touch screens.
+const InfoHint = ({ title }) => {
+    const [anchorEl, setAnchorEl] = useState(null);
+    return (
+        <>
+            <IconButton
+                size="small"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    setAnchorEl(e.currentTarget);
+                }}
+                sx={{ p: 0.25, ml: 0.5, color: "inherit", verticalAlign: "middle" }}
+            >
+                <InfoOutlinedIcon sx={{ fontSize: 16 }} />
+            </IconButton>
+            <Popover
+                open={Boolean(anchorEl)}
+                anchorEl={anchorEl}
+                onClose={() => setAnchorEl(null)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                transformOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+                <Typography sx={{ p: 1.5, maxWidth: 260, fontSize: 13, fontWeight: "normal", textAlign: "left" }}>
+                    {title}
+                </Typography>
+            </Popover>
+        </>
+    );
+};
 
 const TruckTransport = ({ openNavbar }) => {
     const [open, setOpen] = useState(1);
@@ -141,63 +176,61 @@ const TruckTransport = ({ openNavbar }) => {
             >
                 รถรับจ้างขนส่ง
             </Typography>
-            <Divider sx={{ marginBottom: 1 }} />
-            {
-                windowWidth >= 800 ?
-                    <Grid container spacing={2} p={1} marginBottom={-2}>
-                        <Grid item sm={8} lg={10}>
-                            <Typography variant="subtitle1" fontWeight="bold" sx={{ marginTop: 1 }} gutterBottom>รายการรถรับจ้างขนส่ง</Typography>
-                        </Grid>
-                        <Grid item sm={4} lg={2} sx={{ textAlign: "right" }}>
-                            <InsertTruckTransport />
-                        </Grid>
+            <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mb: 1 }}>
+                ข้อมูลรถของบริษัทภายนอกที่รับจ้างขนส่งให้ พร้อมสถานะว่ารถคันไหนว่างหรือกำลังปฏิบัติงานอยู่
+            </Typography>
+            <Divider sx={{ marginBottom: 2 }} />
+            <Paper sx={{ borderRadius: 3, p: { xs: 1.5, sm: 3 }, borderTop: "5px solid " + theme.palette.panda.light }}>
+                <Grid container spacing={2} alignItems="center">
+                    <Grid item xs={12} sm={8} lg={10}>
+                        <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ mb: 0 }}>รายการรถรับจ้างขนส่ง</Typography>
                     </Grid>
-                    :
-                    <Grid container spacing={2} p={1} marginBottom={-2}>
-                        <Grid item xs={12} sx={{ textAlign: "center" }}>
-                            <InsertTruckTransport />
-                        </Grid>
+                    <Grid item xs={12} sm={4} lg={2} sx={{ textAlign: { xs: "center", sm: "right" } }}>
+                        <InsertTruckTransport />
                     </Grid>
-            }
-            <Box sx={{ width: "100%" }}>
-                <TableContainer
-                    component={Paper}
-                    sx={{ height: "70vh", marginTop: 2 }}
-                >
-                    <Table stickyHeader size="small" sx={{ width: "100%" }}>
-                        <TableHead sx={{ height: "7vh" }}>
-                            <TableRow>
-                                <TablecellSelling width={50} sx={{ textAlign: "center", fontSize: 16 }}>
-                                    ลำดับ
-                                </TablecellSelling>
-                                <TablecellSelling sx={{ textAlign: "center", fontSize: 16, width: 400 }}>
-                                    ชื่อ
-                                </TablecellSelling>
-                                <TablecellSelling sx={{ textAlign: "center", fontSize: 16, width: 150 }}>
-                                    ทะเบียน
-                                </TablecellSelling>
-                                <TablecellSelling sx={{ textAlign: "center", fontSize: 16, width: 100 }}>
-                                    น้ำหนัก
-                                </TablecellSelling>
-                                <TablecellSelling sx={{ textAlign: "center", fontSize: 16, width: 400 }}>
-                                    บริษัท
-                                </TablecellSelling>
-                                <TablecellSelling sx={{ textAlign: "center", fontSize: 16, width: 100 }}>
-                                    สถานะ
-                                </TablecellSelling>
-                                <TablecellSelling colSpan={2} width={50} sx={{ position: "sticky", right: 0 }} />
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {dataTransport.length === 0 ? (
+                </Grid>
+                <Box sx={{ width: "100%" }}>
+                    <TableContainer
+                        component={Paper}
+                        variant="outlined"
+                        sx={{ height: "70vh", marginTop: 2 }}
+                    >
+                        <Table stickyHeader size="small" sx={{ width: "100%" }}>
+                            <TableHead sx={{ height: "7vh" }}>
                                 <TableRow>
-                                    <TablecellNoData colSpan={8}>
-                                        <Inventory fontSize="large" />
-                                        <br />
-                                        ไม่มีข้อมูล
-                                    </TablecellNoData>
+                                    <TablecellSelling width={50} sx={{ textAlign: "center", fontSize: 16 }}>
+                                        ลำดับ
+                                    </TablecellSelling>
+                                    <TablecellSelling sx={{ textAlign: "center", fontSize: 16, width: 400 }}>
+                                        ชื่อ
+                                    </TablecellSelling>
+                                    <TablecellSelling sx={{ textAlign: "center", fontSize: 16, width: 150 }}>
+                                        ทะเบียน
+                                    </TablecellSelling>
+                                    <TablecellSelling sx={{ textAlign: "center", fontSize: 16, width: 100 }}>
+                                        น้ำหนัก
+                                        <InfoHint title="น้ำหนักบรรทุกสูงสุดของรถคันนี้ ตามที่บันทึกไว้ตอนเพิ่มข้อมูล" />
+                                    </TablecellSelling>
+                                    <TablecellSelling sx={{ textAlign: "center", fontSize: 16, width: 400 }}>
+                                        บริษัท
+                                    </TablecellSelling>
+                                    <TablecellSelling sx={{ textAlign: "center", fontSize: 16, width: 100 }}>
+                                        สถานะ
+                                        <InfoHint title={'"ว่าง" = รถพร้อมใช้งาน, ค่าอื่น (เช่น "ไม่ว่าง") = รถกำลังปฏิบัติงานอยู่'} />
+                                    </TablecellSelling>
+                                    <TablecellSelling colSpan={2} width={50} sx={{ position: "sticky", right: 0 }} />
                                 </TableRow>
-                            ) : (
+                            </TableHead>
+                            <TableBody>
+                                {dataTransport.length === 0 ? (
+                                    <TableRow>
+                                        <TablecellNoData colSpan={8}>
+                                            <Inventory fontSize="large" />
+                                            <br />
+                                            ไม่มีข้อมูล
+                                        </TablecellNoData>
+                                    </TableRow>
+                                ) : (
                                 dataTransport.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage).map((row, index) => (
                                     <TableRow key={row.uuid || index}>
                                         <TableCell sx={{ textAlign: "center" }}>{index + 1}</TableCell>
@@ -332,7 +365,14 @@ const TruckTransport = ({ openNavbar }) => {
                                                     </Paper>
                                             }
                                         </TableCell>
-                                        <TableCell sx={{ textAlign: "center" }}>{row.Status}</TableCell>
+                                        <TableCell sx={{ textAlign: "center" }}>
+                                            <Chip
+                                                label={row.Status || "-"}
+                                                size="small"
+                                                color={row.Status === "ว่าง" ? "success" : "default"}
+                                                variant={row.Status === "ว่าง" ? "filled" : "outlined"}
+                                            />
+                                        </TableCell>
                                         <TableCell sx={{ textAlign: "center", position: "sticky", right: 0, backgroundColor: "white" }}>
                                             {
                                                 !update || row.id !== rowID ?
@@ -387,6 +427,7 @@ const TruckTransport = ({ openNavbar }) => {
                     onRowsPerPageChange={setRowsPerPage}
                 />
             </Box>
+            </Paper>
         </Container>
     );
 };
