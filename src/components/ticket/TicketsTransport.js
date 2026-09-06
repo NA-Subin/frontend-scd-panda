@@ -13,6 +13,8 @@ import {
     IconButton,
     InputAdornment,
     Paper,
+    Popover,
+    Stack,
     Table,
     TableBody,
     TableCell,
@@ -28,6 +30,8 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import TouchAppIcon from '@mui/icons-material/TouchApp';
 import theme from "../../theme/theme";
 import { IconButtonError, TablecellHeader, TablecellNoData } from "../../theme/style";
 import { Inventory } from "@mui/icons-material";
@@ -37,6 +41,37 @@ import TicketsGasStation from "./TicketsGasStation";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import TablePaginationBar from "../../theme/TablePaginationBar";
+
+// Small "click-to-explain" helper - a plain Tooltip only fires on hover, which
+// is easy to miss and unusable on touch devices, so ambiguous column headers
+// use a click-triggered Popover instead. Kept local to this file since only
+// this page's headers need it.
+const InfoHint = ({ text }) => {
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    return (
+        <>
+            <IconButton
+                size="small"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    setAnchorEl(e.currentTarget);
+                }}
+                sx={{ p: 0.25, ml: 0.5, color: "inherit", verticalAlign: "middle" }}
+            >
+                <InfoOutlinedIcon sx={{ fontSize: 16 }} />
+            </IconButton>
+            <Popover
+                open={Boolean(anchorEl)}
+                anchorEl={anchorEl}
+                onClose={() => setAnchorEl(null)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                transformOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+                <Typography sx={{ p: 1.5, maxWidth: 260, fontSize: 13 }}>{text}</Typography>
+            </Popover>
+        </>
+    );
+};
 
 const TicketsTransport = ({ openNavbar }) => {
     //const [transport, setTransport] = useState([]);
@@ -352,7 +387,10 @@ const TicketsTransport = ({ openNavbar }) => {
             >
                 {open === 1 ? "ลูกค้ารับจ้างขนส่ง" : "ปั้มน้ำมัน"}
             </Typography>
-            <Divider sx={{ marginBottom: 1 }} />
+            <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mt: -1 }}>
+                จัดการรายชื่อลูกค้าที่รับจ้างขนส่ง และปั๊มน้ำมันคู่สัญญา อัตราค่าขนส่งเฉพาะคลัง และเงื่อนไขเครดิตของแต่ละราย
+            </Typography>
+            <Divider sx={{ marginBottom: 1, marginTop: 1 }} />
             <Grid container spacing={2} marginTop={1}>
                 <Grid item xs={6}>
                     <Button variant="contained" color={open === 1 ? "info" : "inherit"} sx={{ height: "10vh", fontSize: "22px", fontWeight: "bold", borderRadius: 3, borderBottom: open === 1 && "5px solid" + theme.palette.panda.light }} fullWidth onClick={handleClickOpen1}>ลูกค้ารับจ้างขนส่ง</Button>
@@ -371,13 +409,13 @@ const TicketsTransport = ({ openNavbar }) => {
                     }
                 </Grid>
             </Grid>
-            <Paper sx={{ backgroundColor: "#fafafa", borderRadius: 3, p: 5, borderTop: "5px solid" + theme.palette.panda.light, marginTop: -2.5, width: "100%" }}>
-                <Grid container spacing={2}>
+            <Paper sx={{ backgroundColor: "#fafafa", borderRadius: 3, p: { xs: 2, md: 4 }, borderTop: "5px solid" + theme.palette.panda.light, marginTop: -2.5, width: "100%" }}>
+                <Grid container spacing={2} alignItems="center">
                     <Grid item md={3} xs={12}>
-                        <Typography variant="h6" fontWeight="bold" sx={{ marginTop: 1 }} gutterBottom>{open === 1 ? "รายการลูกค้ารับจ้างขนส่ง" : "รายการปั้มน้ำมัน"}</Typography>
+                        <Typography variant="h6" fontWeight="bold" sx={{ marginTop: 1, mb: 0 }} gutterBottom>{open === 1 ? "รายการลูกค้ารับจ้างขนส่ง" : "รายการปั้มน้ำมัน"}</Typography>
                     </Grid>
                     <Grid item md={6} xs={12}>
-                        <Paper >
+                        <Paper variant="outlined">
                             {
                                 open === 1 ?
                                     <TextField
@@ -416,15 +454,33 @@ const TicketsTransport = ({ openNavbar }) => {
                         }
                     </Grid>
                 </Grid>
-                <Divider sx={{ marginBottom: 1, marginTop: 2 }} />
-                <Typography variant="subtitle2" color="error" fontWeight="bold" sx={{ marginBottom: -2 }} gutterBottom>*ถ้าต้องการดูรายละเอียดทั้งหมดให้คลิ๊กชื่อตั๋ว*</Typography>
+                <Divider sx={{ marginBottom: 2, marginTop: 2 }} />
+                <Stack
+                    direction="row"
+                    spacing={1}
+                    alignItems="center"
+                    sx={{
+                        backgroundColor: theme.palette.info.light + "22",
+                        border: "1px solid " + theme.palette.info.light,
+                        borderRadius: 2,
+                        px: 2,
+                        py: 1,
+                        mb: 2,
+                    }}
+                >
+                    <TouchAppIcon color="info" fontSize="small" />
+                    <Typography variant="body2" fontWeight="bold" color={theme.palette.info.dark}>
+                        คลิกที่ชื่อตั๋วในตารางเพื่อดูและแก้ไขรายละเอียดทั้งหมดของลูกค้ารายนั้น
+                    </Typography>
+                </Stack>
                 {
                     open === 1 ?
                         <TableContainer
                             component={Paper}
+                            variant="outlined"
                             sx={{ marginTop: 2, height: "70vh" }}
                         >
-                            <Table stickyHeader size="small" sx={{ tableLayout: "fixed", "& .MuiTableCell-root": { padding: "1px" }, width: "100%" }}>
+                            <Table stickyHeader size="small" sx={{ tableLayout: "fixed", "& .MuiTableCell-root": { padding: "4px 8px" }, width: "100%" }}>
                                 <TableHead sx={{ height: "7vh" }}>
                                     <TableRow>
                                         <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 50 }}>
@@ -435,6 +491,7 @@ const TicketsTransport = ({ openNavbar }) => {
                                         </TablecellHeader>
                                         <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 100, whiteSpace: "nowrap" }}>
                                             ระยะเครดิต
+                                            <InfoHint text="จำนวนวันที่ลูกค้าสามารถค้างชำระค่าขนส่งได้ หลังจากวันวางบิล" />
                                         </TablecellHeader>
                                         <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: !setting ? 150 : 100 }}>
                                             เรทคลังลำปาง
@@ -444,9 +501,11 @@ const TicketsTransport = ({ openNavbar }) => {
                                         </TablecellHeader>
                                         <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: !setting ? 150 : 100 }}>
                                             เรทคลังสระบุรี/บางปะอิน/IR
+                                            <InfoHint text="ราคาค่าขนส่งที่ตกลงกับลูกค้ารายนี้ แยกตามคลังต้นทางที่รับน้ำมัน" />
                                         </TablecellHeader>
                                         <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: !setting ? 100 : 150 }}>
                                             สถานะ
+                                            <InfoHint text="บทบาทของลูกค้ารายนี้ในระบบตั๋ว ('ตั๋ว' และ/หรือ 'ผู้รับ') ใช้ในการออกและจับคู่เอกสารตั๋วขนส่ง" />
                                         </TablecellHeader>
                                         <TablecellHeader sx={{ position: 'sticky', right: !setting ? 20 : 60, width: !setting ? 50 : 100, textAlign: "center" }}>
 
@@ -799,9 +858,10 @@ const TicketsTransport = ({ openNavbar }) => {
                         :
                         <TableContainer
                             component={Paper}
+                            variant="outlined"
                             sx={{ marginTop: 2, height: "70vh" }}
                         >
-                            <Table stickyHeader size="small" sx={{ tableLayout: "fixed", "& .MuiTableCell-root": { padding: "1px" }, width: "100%" }}>
+                            <Table stickyHeader size="small" sx={{ tableLayout: "fixed", "& .MuiTableCell-root": { padding: "4px 8px" }, width: "100%" }}>
                                 <TableHead sx={{ height: "7vh" }} >
                                     <TableRow>
                                         <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 50 }}>
@@ -812,6 +872,7 @@ const TicketsTransport = ({ openNavbar }) => {
                                         </TablecellHeader>
                                         <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 80 }}>
                                             ระยะเครดิต
+                                            <InfoHint text="จำนวนวันที่ลูกค้าสามารถค้างชำระค่าขนส่งได้ หลังจากวันวางบิล" />
                                         </TablecellHeader>
                                         <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 80 }}>
                                             เรทคลังลำปาง
@@ -821,6 +882,7 @@ const TicketsTransport = ({ openNavbar }) => {
                                         </TablecellHeader>
                                         <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 150 }}>
                                             เรทคลังสระบุรี/บางปะอิน/IR
+                                            <InfoHint text="ราคาค่าขนส่งที่ตกลงกับลูกค้ารายนี้ แยกตามคลังต้นทางที่รับน้ำมัน" />
                                         </TablecellHeader>
                                         <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 100 }}>
                                             สถานะ
@@ -888,6 +950,7 @@ const TicketsTransport = ({ openNavbar }) => {
                                 </Grid>
                                 <Grid item md={12} xs={12} display="flex" justifyContent="center" alignItems="center">
                                     <Typography variant="subtitle1" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginRight: 1, marginTop: 1 }} gutterBottom>รอบการวางบิล</Typography>
+                                    <InfoHint text="รอบที่ใช้ออกใบวางบิล/ใบแจ้งหนี้ให้ลูกค้ารายนี้ เช่น ทุกสิ้นเดือน หรือทุก 15 วัน" />
                                     <TextField size="small" fullWidth value={bill} onChange={(e) => setBill(e.target.value)} disabled={updateCustomer} />
                                 </Grid>
                                 <Grid item md={12} xs={12} display="flex" justifyContent="left" alignItems="center">
@@ -980,6 +1043,7 @@ const TicketsTransport = ({ openNavbar }) => {
                         </Grid>
                         <Grid item md={6} xs={12} display="flex" justifyContent="center" alignItems="center">
                             <Typography variant="subtitle1" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginRight: 1, marginTop: 1 }} gutterBottom>ระยะเวลาเครดิต</Typography>
+                            <InfoHint text="จำนวนวันที่ลูกค้าสามารถค้างชำระได้หลังจากวันวางบิล ใช้ตรวจสอบยอดหนี้ค้างชำระ" />
                             <TextField size="small" fullWidth value={creditTime} onChange={(e) => setCreditTime(e.target.value)} disabled={updateCustomer} />
                         </Grid>
                         <Grid item md={12} xs={12}>

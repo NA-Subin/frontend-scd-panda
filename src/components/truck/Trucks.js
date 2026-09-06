@@ -9,6 +9,7 @@ import {
   IconButton,
   Paper,
   Popover,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -34,6 +35,7 @@ import BentoIcon from "@mui/icons-material/Bento";
 import CommuteIcon from "@mui/icons-material/Commute";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import ReplyAllIcon from "@mui/icons-material/ReplyAll";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import theme from "../../theme/theme";
 import { RateOils, TablecellHeader } from "../../theme/style";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -51,6 +53,37 @@ import {
 } from "../../theme/icon";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import RepairDetail from "./RepairDetail";
+
+// Small "click-to-explain" helper - a plain Tooltip only fires on hover, which
+// is easy to miss and unusable on touch devices, so ambiguous actions use a
+// click-triggered Popover instead. Kept local to this file since only this
+// page needs it.
+const InfoHint = ({ text }) => {
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  return (
+    <>
+      <IconButton
+        size="small"
+        onClick={(e) => {
+          e.stopPropagation();
+          setAnchorEl(e.currentTarget);
+        }}
+        sx={{ p: 0.25, ml: 0.5, color: "inherit", verticalAlign: "middle" }}
+      >
+        <InfoOutlinedIcon sx={{ fontSize: 18 }} />
+      </IconButton>
+      <Popover
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={() => setAnchorEl(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        transformOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Typography sx={{ p: 1.5, maxWidth: 260, fontSize: 13 }}>{text}</Typography>
+      </Popover>
+    </>
+  );
+};
 
 const Trucks = ({ openNavbar }) => {
   const [open, setOpen] = useState(1);
@@ -152,17 +185,26 @@ const Trucks = ({ openNavbar }) => {
                 : ""
           : "รายการตรวจสอบสภาพรถ"}
       </Typography>
-      <Divider />
-      <Box textAlign="right" marginTop={-8}>
+      <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mt: -1 }}>
+        {repair === false
+          ? "ทะเบียนและรายละเอียดของรถบรรทุกที่ใช้งานอยู่ในระบบ แยกตามประเภทรถ"
+          : "รายชื่อรถที่ยังไม่ผ่านการตรวจสอบสภาพก่อนนำไปใช้งาน"}
+      </Typography>
+      <Divider sx={{ mt: 1 }} />
+      <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", mt: 2, mb: -1 }}>
         {repair === false ? (
-          <Button
-            variant="contained"
-            color="warning"
-            endIcon={<HandymanIcon />}
-            onClick={() => setRepair(true)}
-          >
-            รายการตรวจสอบสภาพรถ
-          </Button>
+          <>
+            <InfoHint text="แสดงเฉพาะรถที่ยังไม่ผ่านการตรวจสอบสภาพ (สถานะ 'ยังไม่ตรวจสอบสภาพรถ') เพื่อติดตามให้ตรวจเช็คก่อนนำไปใช้งาน" />
+            <Button
+              variant="contained"
+              color="warning"
+              endIcon={<HandymanIcon />}
+              onClick={() => setRepair(true)}
+              sx={{ ml: 0.5 }}
+            >
+              รายการตรวจสอบสภาพรถ
+            </Button>
+          </>
         ) : (
           <Button
             variant="contained"

@@ -12,6 +12,8 @@ import {
     Grid,
     IconButton,
     Paper,
+    Popover,
+    Stack,
     Table,
     TableBody,
     TableCell,
@@ -26,6 +28,8 @@ import { apiPut } from "../../server/apiClient";
 import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import TouchAppIcon from '@mui/icons-material/TouchApp';
 import theme from "../../theme/theme";
 import InsertTickets from "./InsertTickets";
 import { IconButtonError, TablecellHeader, TablecellNoData, TablecellSelling } from "../../theme/style";
@@ -33,6 +37,37 @@ import { Inventory } from "@mui/icons-material";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import TablePaginationBar from "../../theme/TablePaginationBar";
+
+// Small "click-to-explain" helper - a plain Tooltip only fires on hover, which
+// is easy to miss and unusable on touch devices, so ambiguous column headers
+// use a click-triggered Popover instead. Kept local to this file since only
+// this page's headers need it.
+const InfoHint = ({ text }) => {
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    return (
+        <>
+            <IconButton
+                size="small"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    setAnchorEl(e.currentTarget);
+                }}
+                sx={{ p: 0.25, ml: 0.5, color: "inherit", verticalAlign: "middle" }}
+            >
+                <InfoOutlinedIcon sx={{ fontSize: 16 }} />
+            </IconButton>
+            <Popover
+                open={Boolean(anchorEl)}
+                anchorEl={anchorEl}
+                onClose={() => setAnchorEl(null)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                transformOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+                <Typography sx={{ p: 1.5, maxWidth: 260, fontSize: 13 }}>{text}</Typography>
+            </Popover>
+        </>
+    );
+};
 
 const Tickets = ({ openNavbar }) => {
     const [update, setUpdate] = React.useState("");
@@ -296,14 +331,35 @@ const Tickets = ({ openNavbar }) => {
             >
                 ตั๋วน้ำมัน
             </Typography>
-            <Box textAlign="right" marginRight={3} marginTop={-10}>
+            <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mt: -1 }}>
+                จัดการรายชื่อลูกค้าตั๋วน้ำมัน อัตราค่าขนส่งเฉพาะคลัง และประเภทรถที่ใช้บริการของแต่ละราย
+            </Typography>
+            <Box textAlign="right" marginRight={3} marginTop={1}>
                 <InsertTickets />
             </Box>
-            <Divider sx={{ marginBottom: 1, marginTop: 5 }} />
+            <Divider sx={{ marginBottom: 2, marginTop: 1 }} />
             <Box sx={{ width: "100%" }}>
-                <Typography variant="subtitle2" color="error" fontWeight="bold" sx={{ marginBottom: -2 }} gutterBottom>*ถ้าต้องการดูรายละเอียดทั้งหมดให้คลิ๊กชื่อตั๋ว*</Typography>
+                <Stack
+                    direction="row"
+                    spacing={1}
+                    alignItems="center"
+                    sx={{
+                        backgroundColor: theme.palette.info.light + "22",
+                        border: "1px solid " + theme.palette.info.light,
+                        borderRadius: 2,
+                        px: 2,
+                        py: 1,
+                        mb: 2,
+                    }}
+                >
+                    <TouchAppIcon color="info" fontSize="small" />
+                    <Typography variant="body2" fontWeight="bold" color={theme.palette.info.dark}>
+                        คลิกที่ชื่อตั๋วในตารางเพื่อดูและแก้ไขรายละเอียดทั้งหมดของลูกค้ารายนั้น
+                    </Typography>
+                </Stack>
                 <TableContainer
                     component={Paper}
+                    variant="outlined"
                     sx={{ marginTop: 2, height: "70vh" }}
                 >
                     <Table stickyHeader size="small" sx={{ width: "100%" }}>
@@ -323,9 +379,11 @@ const Tickets = ({ openNavbar }) => {
                                 </TablecellSelling>
                                 <TablecellSelling sx={{ textAlign: "center", fontSize: 16, width: 300 }}>
                                     เรทคลังสระบุรี/บางปะอิน/IR
+                                    <InfoHint text="ราคาค่าขนส่งที่ตกลงกับลูกค้ารายนี้ แยกตามคลังต้นทางที่รับน้ำมัน" />
                                 </TablecellSelling>
                                 <TablecellSelling sx={{ textAlign: "center", fontSize: 16, width: 200 }}>
                                     ประเภทรถ
+                                    <InfoHint text="กำหนดว่าลูกค้ารายนี้ใช้บริการรถใหญ่ รถเล็ก หรือทั้งสองประเภทในการขนส่ง" />
                                 </TablecellSelling>
                                 <TablecellSelling sx={{ position: "sticky", right: 0 }} colSpan={2} />
                             </TableRow>
@@ -632,6 +690,7 @@ const Tickets = ({ openNavbar }) => {
                                 </Grid>
                                 <Grid item md={12} xs={12} display="flex" justifyContent="center" alignItems="center">
                                     <Typography variant="subtitle1" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginRight: 1, marginTop: 1 }} gutterBottom>รอบการวางบิล</Typography>
+                                    <InfoHint text="รอบที่ใช้ออกใบวางบิล/ใบแจ้งหนี้ให้ลูกค้ารายนี้ เช่น ทุกสิ้นเดือน หรือทุก 15 วัน" />
                                     <TextField size="small" fullWidth value={bill} onChange={(e) => setBill(e.target.value)} disabled={updateCustomer} />
                                 </Grid>
                                 {/* <Grid item md={6} display="flex" justifyContent="left" alignItems="center">
@@ -747,6 +806,7 @@ const Tickets = ({ openNavbar }) => {
                         </Grid>
                         <Grid item md={6} xs={12} display="flex" justifyContent="center" alignItems="center">
                             <Typography variant="subtitle1" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginRight: 1, marginTop: 1 }} gutterBottom>ระยะเวลาเครดิต</Typography>
+                            <InfoHint text="จำนวนวันที่ลูกค้าสามารถค้างชำระได้หลังจากวันวางบิล ใช้ตรวจสอบยอดหนี้ค้างชำระ" />
                             <TextField size="small" fullWidth value={creditTime} onChange={(e) => setCreditTime(e.target.value)} disabled={updateCustomer} />
                         </Grid>
                         <Grid item md={12} xs={12}>
