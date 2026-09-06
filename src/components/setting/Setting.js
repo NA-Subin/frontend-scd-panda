@@ -4,6 +4,8 @@ import {
   Button,
   Card,
   Checkbox,
+  Avatar,
+  Chip,
   Container,
   Dialog,
   DialogActions,
@@ -15,6 +17,7 @@ import {
   IconButton,
   InputAdornment,
   Paper,
+  Popover,
   Table,
   TableBody,
   TableCell,
@@ -22,6 +25,7 @@ import {
   TableHead,
   TableRow,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
@@ -37,6 +41,8 @@ import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import InfoIcon from '@mui/icons-material/Info';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import PersonIcon from '@mui/icons-material/Person';
 import { IconButtonError, IconButtonInfo, TablecellHeader, TablecellNoData, TablecellSetting, TablecellTickets } from "../../theme/style";
 import { Inventory } from "@mui/icons-material";
 import { apiPost, apiPut } from "../../server/apiClient";
@@ -48,6 +54,59 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 
+
+// Small "click to explain" hint - a subtle info icon that opens a short
+// one-line explanation in a Popover on click (works on touch devices too,
+// unlike a hover-only tooltip). Used next to labels/columns whose meaning
+// isn't obvious at a glance (e.g. the permission-matrix column headers).
+const InfoHint = ({ text, color = "#616161" }) => {
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  return (
+    <>
+      <IconButton
+        size="small"
+        onClick={(e) => {
+          e.stopPropagation();
+          setAnchorEl(e.currentTarget);
+        }}
+        sx={{ p: 0.25, ml: 0.5, verticalAlign: "middle" }}
+      >
+        <InfoOutlinedIcon sx={{ fontSize: 16 }} htmlColor={color} />
+      </IconButton>
+      <Popover
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={() => setAnchorEl(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        transformOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Typography sx={{ p: 1.5, maxWidth: 280, fontSize: 13 }}>{text}</Typography>
+      </Popover>
+    </>
+  );
+};
+
+// The 9 access-right columns in the permission matrix, in the exact order
+// they're rendered - each explanation names the actual sidebar section /
+// pages that permission unlocks, so a first-time viewer doesn't have to
+// guess what an abbreviation like "พขร." means.
+const PERMISSION_COLUMNS = [
+  { label: "ข้อมูลทั่วไป", field: "BasicData", hint: "เปิดเมนู \"ข้อมูลทั่วไป\" ทั้งหมด เช่น พนักงาน รถบรรทุก ตั๋วน้ำมัน ลูกค้า และข้อมูลพื้นฐานอื่น ๆ" },
+  { label: "ปฎิบัติงาน", field: "OprerationData", hint: "เปิดเมนูงานปฏิบัติการ เช่น การจัดเที่ยววิ่ง ใบสั่งซื้อ และข้อมูลหน้าลานน้ำมัน" },
+  { label: "ชำระเงิน", field: "FinancialData", hint: "เปิดเมนูการเงิน เช่น ใบแจ้งหนี้ ใบวางบิล ค่าใช้จ่าย เงินเดือน และปิดงบบัญชี" },
+  { label: "รายงาน", field: "ReportData", hint: "เปิดเมนูรายงานสรุปต่าง ๆ เช่น รายงานการวิ่งงาน รายงานการจ่ายเงิน และกำไรขาดทุน" },
+  { label: "รถใหญ่", field: "BigTruckData", hint: "เปิดเมนูที่เกี่ยวกับรถบรรทุกใหญ่และรถรับจ้างขนส่งของบริษัท" },
+  { label: "รถเล็ก", field: "SmallTruckData", hint: "เปิดเมนูที่เกี่ยวกับรถบรรทุกเล็ก" },
+  { label: "หน้าลาน", field: "GasStationData", hint: "ให้สิทธิ์เข้าใช้งานหน้าจอสำหรับพนักงานหน้าลานน้ำมัน (คนละหน้ากับระบบหลัง)" },
+  { label: "พขร.", field: "DriverData", hint: "พขร. ย่อมาจาก \"พนักงานขับรถ\" - ให้สิทธิ์เข้าใช้งานหน้าจอสำหรับคนขับรถ" },
+  { label: "ผู้ดูแลระบบ", field: "AdminData", hint: "สิทธิ์ผู้ดูแลระบบ (admin) เท่านั้น เช่น การนำเข้าข้อมูลชุดใหญ่เข้าสู่ระบบ - ควรให้เฉพาะผู้ที่ดูแลระบบจริง ๆ" },
+];
+
+const SETTING_TABS = [
+  { key: 1, icon: AssignmentIndIcon, title: "ข้อมูลส่วนตัว", desc: "ดูข้อมูลผู้ใช้งานและเปลี่ยนรหัสผ่าน" },
+  { key: 3, icon: PrivacyTipIcon, title: "จัดการสิทธิ์การใช้งาน", desc: "กำหนดสิทธิ์เข้าถึงแต่ละส่วนตามตำแหน่งงาน" },
+  { key: 2, icon: BusinessIcon, title: "ข้อมูลบริษัท", desc: "ข้อมูลบริษัทในเครือและประวัติการแก้ไข" },
+];
 
 const Setting = () => {
   const [open, setOpen] = useState(1);
@@ -349,56 +408,88 @@ const Setting = () => {
       >
         ตั้งค่า
       </Typography>
+      <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mb: 1 }}>
+        จัดการข้อมูลผู้ใช้งาน สิทธิ์การเข้าถึงระบบ และข้อมูลบริษัท
+      </Typography>
       <Divider />
       <Box sx={{ width: windowWidth <= 900 && windowWidth > 600 ? (windowWidth - 130) : windowWidth <= 600 ? (windowWidth) : (windowWidth - 280) }}>
         <Grid container spacing={2} marginTop={2}>
-          <Grid item xs={12} sm={1.5} md={3} />
-          <Grid item xs={4} sm={3} md={2}>
-            <Button variant="contained" color={open === 1 ? "warning" : "inherit"} fullWidth sx={{ height: "20vh", borderRadius: 5 }} onClick={() => setOpen(1)}>
-              <AssignmentIndIcon fontSize="large" />
-            </Button>
-          </Grid>
-          <Grid item xs={4} sm={3} md={2}>
-            <Button variant="contained" color={open === 3 ? "warning" : "inherit"} fullWidth sx={{ height: "20vh", borderRadius: 5 }} onClick={() => setOpen(3)}>
-              <PrivacyTipIcon fontSize="large" />
-            </Button>
-          </Grid>
-          <Grid item xs={4} sm={3} md={2}>
-            <Button variant="contained" color={open === 2 ? "warning" : "inherit"} fullWidth sx={{ height: "20vh", borderRadius: 5 }} onClick={() => setOpen(2)}>
-              <BusinessIcon fontSize="large" />
-            </Button>
-          </Grid>
-          <Grid item xs={12} sm={1.5} md={3} />
+          {SETTING_TABS.map(({ key, icon: TabIcon, title, desc }) => {
+            const isActive = open === key;
+            return (
+              <Grid item xs={12} sm={4} key={key}>
+                <Paper
+                  onClick={() => setOpen(key)}
+                  elevation={isActive ? 4 : 0}
+                  sx={{
+                    cursor: "pointer",
+                    borderRadius: 4,
+                    p: 2.5,
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    border: "2px solid",
+                    borderColor: isActive ? theme.palette.panda.main : theme.palette.grey[300],
+                    backgroundColor: isActive ? theme.palette.panda.main : "white",
+                    color: isActive ? "white" : "inherit",
+                    transition: "all 0.15s ease-in-out",
+                    "&:hover": {
+                      borderColor: theme.palette.panda.main,
+                      backgroundColor: isActive ? theme.palette.panda.main : theme.palette.grey[50],
+                    },
+                  }}
+                >
+                  <TabIcon sx={{ fontSize: 36, flexShrink: 0 }} />
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography variant="subtitle1" fontWeight="bold" noWrap>
+                      {title}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: isActive ? "rgba(255,255,255,0.85)" : "text.secondary" }}
+                    >
+                      {desc}
+                    </Typography>
+                  </Box>
+                </Paper>
+              </Grid>
+            );
+          })}
           <Grid item xs={12} marginTop={3}>
             {
               open === 1 ?
-                <Paper sx={{ height: "70vh", borderRadius: 5, padding: 2 }}>
+                <Paper sx={{ height: "70vh", borderRadius: 5, padding: 2, overflowY: "auto" }}>
                   <Typography variant="h6" fontWeight="bold" textAlign="center">ข้อมูลส่วนตัว</Typography>
                   <Divider sx={{ marginTop: 1 }} />
-                  <Grid container spacing={2} marginTop={2} padding={5}>
-                    <Grid item xs={6}>
-                      <Box display="flex" textAlign="center" justifyContent="left" alignItems="center">
-                        <Typography variant="subtitle1" fontWeight="bold" sx={{ whiteSpace: "nowrap", marginRight: 2 }} gutterBottom>ชื่อ-สกุล : </Typography>
-                        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>{userDetail?.Name}</Typography>
-                      </Box>
+                  <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 3, mb: 1 }}>
+                    <Avatar sx={{ width: 72, height: 72, bgcolor: theme.palette.panda.main, mb: 1 }}>
+                      <PersonIcon sx={{ fontSize: 40 }} />
+                    </Avatar>
+                    <Typography variant="h6" fontWeight="bold">{userDetail?.Name || "-"}</Typography>
+                    <Typography variant="body2" color="text.secondary">{userDetail?.PositionName || "-"}</Typography>
+                  </Box>
+                  <Grid container spacing={2} marginTop={1} padding={5} justifyContent="center">
+                    <Grid item xs={12} sm={4}>
+                      <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 3, height: "100%" }}>
+                        <Box display="flex" alignItems="center">
+                          <Typography variant="caption" color="text.secondary">ตำแหน่ง</Typography>
+                          <InfoHint text={'สิทธิ์การใช้งานของคุณถูกกำหนดตามตำแหน่งนี้ หากต้องการเปลี่ยนสิทธิ์ ให้ไปที่แท็บ "จัดการสิทธิ์การใช้งาน" หรือติดต่อผู้ดูแลระบบ'} />
+                        </Box>
+                        <Typography variant="subtitle1" fontWeight="bold">{userDetail?.PositionName || "-"}</Typography>
+                      </Paper>
                     </Grid>
-                    <Grid item xs={6}>
-                      <Box display="flex" textAlign="center" justifyContent="left" alignItems="center">
-                        <Typography variant="subtitle1" fontWeight="bold" sx={{ whiteSpace: "nowrap", marginRight: 2 }} gutterBottom>ตำแหน่ง : </Typography>
-                        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>{userDetail?.PositionName}</Typography>
-                      </Box>
+                    <Grid item xs={12} sm={4}>
+                      <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 3, height: "100%" }}>
+                        <Typography variant="caption" color="text.secondary">User</Typography>
+                        <Typography variant="subtitle1" fontWeight="bold">{userDetail?.User || "-"}</Typography>
+                      </Paper>
                     </Grid>
-                    <Grid item xs={6}>
-                      <Box display="flex" textAlign="center" justifyContent="left" alignItems="center">
-                        <Typography variant="subtitle1" fontWeight="bold" sx={{ whiteSpace: "nowrap", marginRight: 2 }} gutterBottom>User : </Typography>
-                        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>{userDetail?.User}</Typography>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Box display="flex" textAlign="center" justifyContent="left" alignItems="center">
-                        <Typography variant="subtitle1" fontWeight="bold" sx={{ whiteSpace: "nowrap", marginRight: 2 }} gutterBottom>เบอร์โทร : </Typography>
-                        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>{userDetail?.Phone}</Typography>
-                      </Box>
+                    <Grid item xs={12} sm={4}>
+                      <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 3, height: "100%" }}>
+                        <Typography variant="caption" color="text.secondary">เบอร์โทร</Typography>
+                        <Typography variant="subtitle1" fontWeight="bold">{userDetail?.Phone || "-"}</Typography>
+                      </Paper>
                     </Grid>
                     {
                       !openEditePassword &&
@@ -504,6 +595,9 @@ const Setting = () => {
                 : open === 2 ?
                   <Paper sx={{ height: "70vh", borderRadius: 5, padding: 2 }}>
                     <Typography variant="h6" fontWeight="bold" textAlign="center">บริษัท</Typography>
+                    <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mb: 0.5 }}>
+                      รายชื่อบริษัทในเครือทั้งหมด {companyDetail.length} บริษัท - แก้ไขข้อมูลบริษัทจะถูกบันทึกเป็นประวัติอัตโนมัติ
+                    </Typography>
                     <Divider sx={{ marginTop: 1 }} />
                     <InsertCompany />
                     <TableContainer
@@ -929,6 +1023,19 @@ const Setting = () => {
                   :
                   <Paper sx={{ height: "70vh", borderRadius: 5, padding: 2 }}>
                     <Typography variant="h6" fontWeight="bold" textAlign="center">จัดการสิทธิ์เข้าใช้งานระบบ</Typography>
+                    <Box display="flex" justifyContent="center" alignItems="center" flexWrap="wrap" gap={2} sx={{ mb: 0.5 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        ติ๊กเพื่อกำหนดว่าตำแหน่งงานแต่ละตำแหน่งเข้าถึงเมนูส่วนใดได้บ้าง (กดไอคอน ⓘ ที่หัวตารางเพื่อดูคำอธิบาย)
+                      </Typography>
+                      <Box display="flex" alignItems="center" gap={0.5}>
+                        <DoneIcon color="success" fontSize="small" />
+                        <Typography variant="caption">มีสิทธิ์</Typography>
+                      </Box>
+                      <Box display="flex" alignItems="center" gap={0.5}>
+                        <CloseIcon color="error" fontSize="small" />
+                        <Typography variant="caption">ไม่มีสิทธิ์</Typography>
+                      </Box>
+                    </Box>
                     <Divider sx={{ marginTop: 1 }} />
                     {
                       !insertPositions &&
@@ -977,39 +1084,20 @@ const Setting = () => {
                                   สิทธิ์
                                 </TablecellSetting>
                                 <TablecellSetting rowSpan={2} width={50} sx={{ textAlign: "center", position: 'sticky', zIndex: 3, right: 0, }}>
-                                  <IconButtonInfo onClick={() => setInsertPositions(false)}>
-                                    <AddBoxIcon />
-                                  </IconButtonInfo>
+                                  <Tooltip title="เพิ่มตำแหน่งใหม่">
+                                    <IconButtonInfo onClick={() => setInsertPositions(false)}>
+                                      <AddBoxIcon />
+                                    </IconButtonInfo>
+                                  </Tooltip>
                                 </TablecellSetting>
                               </TableRow>
                               <TableRow>
-                                <TablecellSetting sx={{ textAlign: "center", fontSize: 16, width: 50 }}>
-                                  ข้อมูลทั่วไป
-                                </TablecellSetting>
-                                <TablecellSetting sx={{ textAlign: "center", fontSize: 16, width: 50 }}>
-                                  ปฎิบัติงาน
-                                </TablecellSetting>
-                                <TablecellSetting sx={{ textAlign: "center", fontSize: 16, width: 50 }}>
-                                  ชำระเงิน
-                                </TablecellSetting>
-                                <TablecellSetting sx={{ textAlign: "center", fontSize: 16, width: 50 }}>
-                                  รายงาน
-                                </TablecellSetting>
-                                <TablecellSetting sx={{ textAlign: "center", fontSize: 16, width: 50 }}>
-                                  รถใหญ่
-                                </TablecellSetting>
-                                <TablecellSetting sx={{ textAlign: "center", fontSize: 16, width: 50 }}>
-                                  รถเล็ก
-                                </TablecellSetting>
-                                <TablecellSetting sx={{ textAlign: "center", fontSize: 16, width: 50 }}>
-                                  หน้าลาน
-                                </TablecellSetting>
-                                <TablecellSetting sx={{ textAlign: "center", fontSize: 16, width: 50 }}>
-                                  พขร.
-                                </TablecellSetting>
-                                <TablecellSetting sx={{ textAlign: "center", fontSize: 16, width: 50 }}>
-                                  ผู้ดูแลระบบ
-                                </TablecellSetting>
+                                {PERMISSION_COLUMNS.map((col) => (
+                                  <TablecellSetting key={col.field} sx={{ textAlign: "center", fontSize: 16, width: 50 }}>
+                                    {col.label}
+                                    <InfoHint color="#fff" text={col.hint} />
+                                  </TablecellSetting>
+                                ))}
                               </TableRow>
                             </TableHead>
                             <TableBody>
