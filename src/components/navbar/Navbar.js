@@ -154,6 +154,7 @@ const Drawer = styled(MuiDrawer, {
 export default function Navbar({ open, onOpenChange }) {
   const [pendingPath, setPendingPath] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const { loading } = useBasicData();
   const { positions, officers, drivers, creditors } = useBasicData();
   const [isLoading, setIsLoading] = useState(true);
@@ -175,7 +176,6 @@ export default function Navbar({ open, onOpenChange }) {
   const [show5, setShow5] = React.useState(false);
   const [logo, setLogo] = React.useState(false);
   const [notify, setNotify] = React.useState(false);
-  const [activeButton, setActiveButton] = useState(null); // เก็บสถานะของปุ่มที่ถูกคลิก
   const [openData, setOpenData] = useState(true);
   const [operation, setOperation] = useState(false);
   const [report, setReport] = useState(false);
@@ -207,6 +207,43 @@ export default function Navbar({ open, onOpenChange }) {
       setPendingPath(null);
     }
   }, [loading, pendingPath, navigate]);
+
+  // Which sidebar item is "active" (show1..show5) used to be tracked purely
+  // by which item was last clicked - so on a page refresh, a direct link, or
+  // the browser back/forward buttons, nothing was highlighted at all (or the
+  // wrong, stale item stayed highlighted from before). Re-deriving the
+  // active item from the actual URL on every route change keeps the
+  // highlight correctly "stuck" on whichever menu you're really on. The
+  // path lists below mirror each group's own to={...} exactly.
+  useEffect(() => {
+    const path = location.pathname;
+
+    const group1Paths = ["/dashboard", "/employee", "/trucks", "/trucks-transport", "/depots", "/ticket", "/transports", "/customer-bigtrucks", "/customer-smalltrucks", "/creditor", "/deductible-income", "/expense-items", "/company-payment"];
+    const group2Paths = ["/gasstations", "/report-gasstations", "/trips-bigtruck"];
+    const group3Paths = ["/invoice", "/report"];
+    const group4Paths = ["/summary-oil-balance", "/report-driver-trip", "/report-fuel-payment", "/report-transport-payment", "/expenses", "/salary", "/close-financial", "/profit-loss"];
+    const group5Paths = ["/trips-smalltruck", "/invoice-smalltruck", "/oil-balance-smalltruck", "/payment-smalltruck", "/report-smalltruck", "/close-financial-smalltruck", "/profit-loss-smalltruck"];
+
+    const idx1 = group1Paths.indexOf(path);
+    const idx2 = group2Paths.indexOf(path);
+    const idx3 = group3Paths.indexOf(path);
+    const idx4 = group4Paths.indexOf(path);
+    const idx5 = group5Paths.indexOf(path);
+
+    setShow1(idx1 !== -1 ? idx1 : null);
+    setShow2(idx2 !== -1 ? idx2 : null);
+    setShow3(idx3 !== -1 ? idx3 : null);
+    setShow4(idx4 !== -1 ? idx4 : null);
+    setShow5(idx5 !== -1 ? idx5 : null);
+
+    // Also expand whichever section the current page actually belongs to,
+    // so the highlighted item isn't hiding inside a collapsed group.
+    if (idx1 !== -1) setOpenData(true);
+    if (idx2 !== -1) setOperation(true);
+    if (idx3 !== -1) setFinacieal(true);
+    if (idx4 !== -1) setReport(true);
+    if (idx5 !== -1) setTrucksmall(true);
+  }, [location.pathname]);
 
   const creditorsDetail = Object.values(creditors || {});
   const driversDetail = Object.values(drivers || {});
@@ -254,10 +291,6 @@ export default function Navbar({ open, onOpenChange }) {
   }, []);
 
   console.log("OpenData : ", openData);
-
-  const handleButtonClick = (index) => {
-    setActiveButton(index); // อัพเดตสถานะของปุ่มที่ถูกคลิก
-  };
 
   // debug
   console.log("Open : ", open);
@@ -457,23 +490,25 @@ export default function Navbar({ open, onOpenChange }) {
 
                     // การตั้งค่า
                     { to: "/setting", icon: <SettingsIcon />, color: theme.palette.panda.dark },
-                  ].map((item, index) => (
-                    <Button
-                      key={index}
-                      component={Link}
-                      to={item.to}
-                      onClick={() => handleButtonClick(index)}
-                      sx={{
-                        backgroundColor: activeButton === index ? "white" : "inherit",
-                        color: activeButton === index ? item.color : "inherit",
-                        fontWeight: activeButton === index ? "bold" : "normal",
-                        paddingLeft: 4,
-                        paddingRight: 4
-                      }}
-                    >
-                      {item.icon}
-                    </Button>
-                  ))}
+                  ].map((item, index) => {
+                    const isActive = location.pathname === item.to;
+                    return (
+                      <Button
+                        key={index}
+                        component={Link}
+                        to={item.to}
+                        sx={{
+                          backgroundColor: isActive ? "white" : "inherit",
+                          color: isActive ? item.color : "inherit",
+                          fontWeight: isActive ? "bold" : "normal",
+                          paddingLeft: 4,
+                          paddingRight: 4
+                        }}
+                      >
+                        {item.icon}
+                      </Button>
+                    );
+                  })}
 
                   {/* ปุ่มย้อนกลับ */}
                   <Button
