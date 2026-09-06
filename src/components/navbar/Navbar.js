@@ -68,7 +68,8 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import { IconButtonOnNavbar, TablecellHeader } from "../../theme/style";
+import { IconButtonOnNavbar, TablecellHeader, TablecellNoData } from "../../theme/style";
+import { Inventory } from "@mui/icons-material";
 import Logo from "../../theme/img/logoPanda.jpg";
 import {
   ShowError,
@@ -84,6 +85,7 @@ import BadgeIcon from '@mui/icons-material/Badge';
 import SummarizeIcon from '@mui/icons-material/Summarize';
 import Cookies from 'js-cookie';
 import { BasicDataProvider, useBasicData } from "../../server/provider/BasicDataProvider";
+import { useTripData } from "../../server/provider/TripProvider";
 import FullPageLoading from "./Loading";
 const drawerWidth = 200;
 
@@ -164,6 +166,23 @@ export default function Navbar({ open, onOpenChange }) {
   const location = useLocation();
   const { loading } = useBasicData();
   const { positions, officers, drivers, creditors } = useBasicData();
+  const { trip } = useTripData();
+
+  // Real notification list: any trip (big truck, small truck, or contracted
+  // transport truck) that's currently being arranged. This is a plain,
+  // read-only heads-up (no per-user read/unread tracking) - it just reflects
+  // whatever is "กำลังจัดเที่ยววิ่ง" right now.
+  const parseDMY = (str) => {
+    if (!str) return 0;
+    const [d, m, y] = str.split("/").map(Number);
+    if (!d || !m || !y) return 0;
+    return new Date(y, m - 1, d).getTime();
+  };
+  const activeTrips = React.useMemo(() => {
+    return Object.values(trip || {})
+      .filter((t) => t.StatusTrip === "กำลังจัดเที่ยววิ่ง")
+      .sort((a, b) => parseDMY(b.DateStart) - parseDMY(a.DateStart));
+  }, [trip]);
   const [isLoading, setIsLoading] = useState(true);
   const [showBasicData, setShowBasicData] = useState(false);
   const [showBigTruck, setShowBigTruck] = useState(false);
@@ -585,9 +604,10 @@ export default function Navbar({ open, onOpenChange }) {
                           onClick={handleNotify}
                         >
                           <Badge
-                            badgeContent={20}
+                            badgeContent={activeTrips.length}
                             color="error"
                             max={9}
+                            invisible={activeTrips.length === 0}
                             sx={{
                               "& .MuiBadge-badge": {
                                 fontSize: 11, // ขนาดตัวเลขใน Badge
@@ -624,10 +644,29 @@ export default function Navbar({ open, onOpenChange }) {
                                     </TableRow>
                                   </TableHead>
                                   <TableBody>
-                                    <TableRow>
-                                      <TableCell>1</TableCell>
-                                      <TableCell>มีการอนุมัติเที่ยววิ่งแล้ว</TableCell>
-                                    </TableRow>
+                                    {activeTrips.length === 0 ? (
+                                      <TableRow>
+                                        <TablecellNoData colSpan={2}>
+                                          <Inventory fontSize="large" />
+                                          <br />
+                                          ไม่มีการแจ้งเตือน
+                                        </TablecellNoData>
+                                      </TableRow>
+                                    ) : (
+                                      activeTrips.map((t, index) => (
+                                        <TableRow key={t.uuid || index}>
+                                          <TableCell sx={{ textAlign: "center" }}>{index + 1}</TableCell>
+                                          <TableCell>
+                                            <Typography variant="body2" fontWeight="bold">
+                                              {t.TruckType || "รถ"}กำลังจัดเที่ยววิ่ง
+                                            </Typography>
+                                            <Typography variant="caption" color="text.secondary">
+                                              ทะเบียน {t.RegistrationName || "-"} • คนขับ {t.DriverName || "-"} • เริ่ม {t.DateStart || "-"}
+                                            </Typography>
+                                          </TableCell>
+                                        </TableRow>
+                                      ))
+                                    )}
                                   </TableBody>
                                 </Table>
                               </TableContainer>
@@ -794,9 +833,10 @@ export default function Navbar({ open, onOpenChange }) {
                             onClick={handleNotify}
                           >
                             <Badge
-                              badgeContent={20}
+                              badgeContent={activeTrips.length}
                               color="error"
                               max={9}
+                              invisible={activeTrips.length === 0}
                               sx={{
                                 "& .MuiBadge-badge": {
                                   fontSize: 11, // ขนาดตัวเลขใน Badge
@@ -833,10 +873,29 @@ export default function Navbar({ open, onOpenChange }) {
                                       </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                      <TableRow>
-                                        <TableCell>1</TableCell>
-                                        <TableCell>มีการอนุมัติเที่ยววิ่งแล้ว</TableCell>
-                                      </TableRow>
+                                      {activeTrips.length === 0 ? (
+                                        <TableRow>
+                                          <TablecellNoData colSpan={2}>
+                                            <Inventory fontSize="large" />
+                                            <br />
+                                            ไม่มีการแจ้งเตือน
+                                          </TablecellNoData>
+                                        </TableRow>
+                                      ) : (
+                                        activeTrips.map((t, index) => (
+                                          <TableRow key={t.uuid || index}>
+                                            <TableCell sx={{ textAlign: "center" }}>{index + 1}</TableCell>
+                                            <TableCell>
+                                              <Typography variant="body2" fontWeight="bold">
+                                                {t.TruckType || "รถ"}กำลังจัดเที่ยววิ่ง
+                                              </Typography>
+                                              <Typography variant="caption" color="text.secondary">
+                                                ทะเบียน {t.RegistrationName || "-"} • คนขับ {t.DriverName || "-"} • เริ่ม {t.DateStart || "-"}
+                                              </Typography>
+                                            </TableCell>
+                                          </TableRow>
+                                        ))
+                                      )}
                                     </TableBody>
                                   </Table>
                                 </TableContainer>

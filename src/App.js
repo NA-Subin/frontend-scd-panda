@@ -221,7 +221,9 @@ function App() {
           element={
             <RequireAuth>
             <Box sx={{ display: "flex" }}>
-              <Navbar open={open} onOpenChange={setOpen} />
+              <TripDataProvider>
+                <Navbar open={open} onOpenChange={setOpen} />
+              </TripDataProvider>
               <Box
                 sx={{
                   flexGrow: 1,
