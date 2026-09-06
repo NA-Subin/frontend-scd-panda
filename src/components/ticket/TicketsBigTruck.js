@@ -15,6 +15,8 @@ import {
     InputAdornment,
     MenuItem,
     Paper,
+    Popover,
+    Stack,
     Table,
     TableBody,
     TableCell,
@@ -29,6 +31,8 @@ import { IconButtonError, TablecellHeader, TablecellNoData } from "../../theme/s
 import { Inventory } from "@mui/icons-material";
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import BookOnlineIcon from '@mui/icons-material/BookOnline';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import TouchAppIcon from '@mui/icons-material/TouchApp';
 import { apiPut } from "../../server/apiClient";
 import theme from "../../theme/theme";
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -39,6 +43,37 @@ import ExcelUploader from "../excel/ImportExcel";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import TablePaginationBar from "../../theme/TablePaginationBar";
+
+// Small "click-to-explain" helper - a plain Tooltip only fires on hover, which
+// is easy to miss and unusable on touch devices, so ambiguous column headers
+// use a click-triggered Popover instead. Kept local to this file since only
+// this page's headers need it.
+const InfoHint = ({ text }) => {
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    return (
+        <>
+            <IconButton
+                size="small"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    setAnchorEl(e.currentTarget);
+                }}
+                sx={{ p: 0.25, ml: 0.5, color: "inherit", verticalAlign: "middle" }}
+            >
+                <InfoOutlinedIcon sx={{ fontSize: 16 }} />
+            </IconButton>
+            <Popover
+                open={Boolean(anchorEl)}
+                anchorEl={anchorEl}
+                onClose={() => setAnchorEl(null)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                transformOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+                <Typography sx={{ p: 1.5, maxWidth: 260, fontSize: 13 }}>{text}</Typography>
+            </Popover>
+        </>
+    );
+};
 
 const TicketsBigTruck = ({ openNavbar }) => {
     const [update, setUpdate] = React.useState("");
@@ -426,33 +461,26 @@ const TicketsBigTruck = ({ openNavbar }) => {
             >
                 ลูกค้ารถใหญ่
             </Typography>
+            <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mt: -1 }}>
+                จัดการรายชื่อลูกค้ารถบรรทุกขนาดใหญ่ เรทค่าขนส่งเฉพาะคลัง และเงื่อนไขเครดิตของแต่ละราย
+            </Typography>
             {/* <ExcelUploader /> */}
-            <Divider sx={{ marginBottom: 1 }} />
-            <Grid container spacing={2} marginTop={1}>
+            <Divider sx={{ marginBottom: 2, marginTop: 2 }} />
+            <Grid container spacing={2}>
                 <Grid item xs={6}>
-                    <Button variant="contained" color={open === 1 ? "info" : "inherit"} sx={{ height: "10vh", fontSize: "22px", fontWeight: "bold", borderRadius: 3, borderBottom: open === 1 && "5px solid" + theme.palette.panda.light }} fullWidth onClick={handleClickOpen1}>เชียงใหม่</Button>
+                    <Button variant="contained" color={open === 1 ? "info" : "inherit"} sx={{ height: "8vh", fontSize: "20px", fontWeight: "bold", borderRadius: 3, borderBottom: open === 1 && "5px solid" + theme.palette.panda.light }} fullWidth onClick={handleClickOpen1}>เชียงใหม่</Button>
                 </Grid>
                 <Grid item xs={6}>
-                    <Button variant="contained" color={open === 2 ? "info" : "inherit"} sx={{ height: "10vh", fontSize: "22px", fontWeight: "bold", borderRadius: 3, borderBottom: open === 2 && "5px solid" + theme.palette.panda.light }} fullWidth onClick={handleClickOpen2}>เชียงราย</Button>
-                </Grid>
-                <Grid item xs={6} sx={{ marginTop: -3 }}>
-                    {
-                        open === 1 && <Typography variant="h3" fontWeight="bold" textAlign="center" color={theme.palette.panda.light} gutterBottom>||</Typography>
-                    }
-                </Grid>
-                <Grid item xs={6} sx={{ marginTop: -3 }}>
-                    {
-                        open === 2 && <Typography variant="h3" fontWeight="bold" textAlign="center" color={theme.palette.panda.light} gutterBottom>||</Typography>
-                    }
+                    <Button variant="contained" color={open === 2 ? "info" : "inherit"} sx={{ height: "8vh", fontSize: "20px", fontWeight: "bold", borderRadius: 3, borderBottom: open === 2 && "5px solid" + theme.palette.panda.light }} fullWidth onClick={handleClickOpen2}>เชียงราย</Button>
                 </Grid>
             </Grid>
-            <Paper sx={{ backgroundColor: "#fafafa", borderRadius: 3, p: 5, borderTop: "5px solid" + theme.palette.panda.light, marginTop: -2.5, width: "100%" }}>
-                <Grid container spacing={2}>
+            <Paper sx={{ backgroundColor: "#fafafa", borderRadius: 3, p: { xs: 2, md: 4 }, borderTop: "5px solid" + theme.palette.panda.light, marginTop: 2, width: "100%" }}>
+                <Grid container spacing={2} alignItems="center">
                     <Grid item md={3} xs={12}>
-                        <Typography variant="h6" fontWeight="bold" gutterBottom>ลูกค้าของ{open === 1 ? "เชียงใหม่" : "เชียงราย"}</Typography>
+                        <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ mb: 0 }}>ลูกค้าของ{open === 1 ? "เชียงใหม่" : "เชียงราย"}</Typography>
                     </Grid>
                     <Grid item md={6} xs={12}>
-                        <Paper >
+                        <Paper variant="outlined">
                             {
                                 open === 1 ?
                                     <TextField
@@ -489,13 +517,31 @@ const TicketsBigTruck = ({ openNavbar }) => {
                         <InsertCustomerBigTruck show={open} />
                     </Grid>
                 </Grid>
-                <Divider sx={{ marginBottom: 1, marginTop: 2 }} />
-                <Typography variant="subtitle2" color="error" fontWeight="bold" sx={{ marginBottom: -2 }} gutterBottom>*ถ้าต้องการดูรายละเอียดทั้งหมดให้คลิ๊กชื่อตั๋ว*</Typography>
+                <Divider sx={{ marginBottom: 2, marginTop: 3 }} />
+                <Stack
+                    direction="row"
+                    spacing={1}
+                    alignItems="center"
+                    sx={{
+                        backgroundColor: theme.palette.info.light + "22",
+                        border: "1px solid " + theme.palette.info.light,
+                        borderRadius: 2,
+                        px: 2,
+                        py: 1,
+                        mb: 2,
+                    }}
+                >
+                    <TouchAppIcon color="info" fontSize="small" />
+                    <Typography variant="body2" fontWeight="bold" color={theme.palette.info.dark}>
+                        คลิกที่ชื่อตั๋วในตารางเพื่อดูและแก้ไขรายละเอียดทั้งหมดของลูกค้ารายนั้น
+                    </Typography>
+                </Stack>
                 <TableContainer
                     component={Paper}
-                    sx={{ marginTop: 2, height: "70vh" }}
+                    variant="outlined"
+                    sx={{ height: "68vh" }}
                 >
-                    <Table stickyHeader size="small" sx={{ tableLayout: "fixed", "& .MuiTableCell-root": { padding: "1px" }, width: "100%" }}>
+                    <Table stickyHeader size="small" sx={{ tableLayout: "fixed", "& .MuiTableCell-root": { padding: "4px 8px" }, width: "100%" }}>
                         <TableHead sx={{ height: "7vh" }}>
                             <TableRow>
                                 <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 50 }}>
@@ -515,15 +561,19 @@ const TicketsBigTruck = ({ openNavbar }) => {
                                 </TablecellHeader>
                                 <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 200 }}>
                                     เรทคลังสระบุรี/บางปะอิน/IR
+                                    <InfoHint text="ราคาค่าขนส่งที่ตกลงกับลูกค้ารายนี้ แยกตามคลังต้นทางที่รับน้ำมัน" />
                                 </TablecellHeader>
                                 <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 120 }}>
                                     อยู่บริษัทในเครือ
+                                    <InfoHint text="ลูกค้ารายนี้เป็นบริษัทในเครือของเราเองหรือไม่ ใช้แยกจากลูกค้าภายนอกทั่วไป" />
                                 </TablecellHeader>
                                 <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 120 }}>
                                     ลูกค้าประจำ
+                                    <InfoHint text="ลูกค้าประจำ = สั่งซื้อสม่ำเสมอ / ลูกค้าไม่ประจำ = สั่งซื้อเป็นครั้งคราว ใช้เป็นข้อมูลอ้างอิงในการดูแลลูกค้า" />
                                 </TablecellHeader>
                                 <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 350 }}>
                                     วางบิลด้วย
+                                    <InfoHint text="บริษัทที่จะออกใบวางบิล/ใบแจ้งหนี้แทนลูกค้ารายนี้ ถ้าไม่ได้ระบุจะแสดงเป็น 'ไม่มี'" />
                                 </TablecellHeader>
                                 {/* ... คอลัมน์อื่นๆ ... */}
                                 <TablecellHeader sx={{ position: 'sticky', right: !setting ? 20 : 60, width: !setting ? 80 : 100, textAlign: "center" }}>

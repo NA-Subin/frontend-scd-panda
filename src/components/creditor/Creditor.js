@@ -3,6 +3,7 @@ import {
   Badge,
   Box,
   Button,
+  Chip,
   Container,
   Dialog,
   DialogActions,
@@ -13,6 +14,7 @@ import {
   IconButton,
   Paper,
   Popover,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -25,10 +27,42 @@ import {
 } from "@mui/material";
 import { IconButtonError, RateOils, TablecellGray, TablecellHeader, TablecellNoData, TablecellSelling } from "../../theme/style";
 import { Inventory } from "@mui/icons-material";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import InsertCreditor from "./InsertCreditor";
 import UpdateCreditor from "./UpdateCreditor";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import TablePaginationBar from "../../theme/TablePaginationBar";
+
+// Small "click-to-explain" helper - a plain Tooltip only fires on hover, which
+// is easy to miss and unusable on touch devices, so ambiguous labels use a
+// click-triggered Popover instead. Kept local to this file since only this
+// page's labels need it.
+const InfoHint = ({ text }) => {
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  return (
+    <>
+      <IconButton
+        size="small"
+        onClick={(e) => {
+          e.stopPropagation();
+          setAnchorEl(e.currentTarget);
+        }}
+        sx={{ p: 0.25, ml: 0.5, color: "inherit", verticalAlign: "middle" }}
+      >
+        <InfoOutlinedIcon sx={{ fontSize: 16 }} />
+      </IconButton>
+      <Popover
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={() => setAnchorEl(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        transformOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Typography sx={{ p: 1.5, maxWidth: 260, fontSize: 13 }}>{text}</Typography>
+      </Popover>
+    </>
+  );
+};
 
 const Creditor = ({ openNavbar }) => {
   const [update, setUpdate] = React.useState(true);
@@ -86,31 +120,46 @@ const Creditor = ({ openNavbar }) => {
         gutterBottom
       >
         เจ้าหนี้น้ำมัน
+        <InfoHint text="บริษัท/บุคคลที่เราซื้อน้ำมันมาเพื่อขายต่อ (ไม่ใช่ลูกค้าที่ซื้อจากเรา) ใช้หน้านี้บันทึกข้อมูลติดต่อและเงื่อนไขเครดิตของแต่ละเจ้าหนี้" />
       </Typography>
-      <Divider sx={{ marginBottom: 1 }} />
-      <Box sx={{ width: "100%" }}>
+      <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mt: -1 }}>
+        รายชื่อผู้ขายน้ำมันให้กับบริษัท พร้อมข้อมูลติดต่อและระยะเวลาเครดิต
+      </Typography>
+      <Divider sx={{ marginBottom: 2, marginTop: 2 }} />
+      <Paper sx={{ p: 2 }}>
         {
           windowWidth >= 800 ?
-            <Grid container spacing={2} p={1}>
+            <Grid container spacing={2} alignItems="center">
               <Grid item sm={8} lg={10}>
-                <Typography variant="subtitle1" fontWeight="bold" sx={{ marginTop: 1 }} gutterBottom>รายชื่อเจ้าหนี้น้ำมัน</Typography>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Typography variant="subtitle1" fontWeight="bold" gutterBottom sx={{ mb: 0 }}>รายชื่อเจ้าหนี้น้ำมัน</Typography>
+                  <Chip size="small" color="info" variant="outlined" label={`ทั้งหมด ${creditor.length} ราย`} />
+                </Stack>
               </Grid>
               <Grid item sm={4} lg={2} sx={{ textAlign: "right" }}>
                 <InsertCreditor creditor={creditor.length} />
               </Grid>
             </Grid>
             :
-            <Grid container spacing={2} p={1}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Stack direction="row" spacing={1} alignItems="center" justifyContent="center">
+                  <Typography variant="subtitle1" fontWeight="bold" gutterBottom sx={{ mb: 0 }}>รายชื่อเจ้าหนี้น้ำมัน</Typography>
+                  <Chip size="small" color="info" variant="outlined" label={`ทั้งหมด ${creditor.length} ราย`} />
+                </Stack>
+              </Grid>
               <Grid item xs={12} sx={{ textAlign: "center" }}>
                 <InsertCreditor creditor={creditor.length} />
               </Grid>
             </Grid>
         }
+        <Divider sx={{ marginBottom: 2, marginTop: 2 }} />
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <TableContainer
               component={Paper}
-              sx={{ height: "70vh", marginBottom: 2 }}
+              variant="outlined"
+              sx={{ height: "68vh" }}
             >
               <Table stickyHeader size="small" sx={{ width: "100%" }}>
                 <TableHead sx={{ height: "7vh" }}>
@@ -129,9 +178,11 @@ const Creditor = ({ openNavbar }) => {
                     </TablecellSelling>
                     <TablecellSelling sx={{ textAlign: "center", fontSize: 16 }}>
                       User
+                      <InfoHint text="ชื่อผู้ใช้งานที่ผูกกับเจ้าหนี้รายนี้ในระบบ (ถ้ามี)" />
                     </TablecellSelling>
                     <TablecellSelling sx={{ textAlign: "center", fontSize: 16 }}>
                       ระยะเครดิต
+                      <InfoHint text="จำนวนวันที่สามารถค้างชำระค่าน้ำมันให้เจ้าหนี้รายนี้ได้ก่อนครบกำหนด" />
                     </TablecellSelling>
                     <TablecellSelling />
                   </TableRow>
@@ -147,13 +198,15 @@ const Creditor = ({ openNavbar }) => {
                     </TableRow>
                   ) : (
                     creditor.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage).map((row) => (
-                      <TableRow>
+                      <TableRow key={row.uuid} hover>
                         <TableCell sx={{ textAlign: "center" }}>{row.id}</TableCell>
-                        <TableCell sx={{ textAlign: "center" }}>{row.Name}</TableCell>
+                        <TableCell sx={{ textAlign: "center", fontWeight: 600 }}>{row.Name}</TableCell>
                         <TableCell sx={{ textAlign: "center" }}>{row.IDCard}</TableCell>
                         <TableCell sx={{ textAlign: "center" }}>{row.Phone}</TableCell>
                         <TableCell sx={{ textAlign: "center" }}>{row.User}</TableCell>
-                        <TableCell sx={{ textAlign: "center" }}>{row.Credit}</TableCell>
+                        <TableCell sx={{ textAlign: "center" }}>
+                          {row.Credit || row.Credit === 0 ? `${row.Credit} วัน` : "-"}
+                        </TableCell>
                         <UpdateCreditor key={row.id} employee={row} />
                       </TableRow>
                     ))
@@ -170,7 +223,7 @@ const Creditor = ({ openNavbar }) => {
             />
           </Grid>
         </Grid>
-      </Box>
+      </Paper>
     </Container>
   );
 };
