@@ -31,12 +31,44 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { TablecellNoData, TablecellSelling } from "../../theme/style";
 import { Inventory } from "@mui/icons-material";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { apiPost, apiPut } from "../../server/apiClient";
 import TablePaginationBar from "../../theme/TablePaginationBar";
+
+// Small "click to explain" hint - a subtle info icon that opens a short
+// one-line explanation in a Popover on click (works on touch devices too,
+// unlike a hover-only tooltip). Used next to labels/columns whose meaning
+// isn't obvious at a glance.
+const InfoHint = ({ text, color = "#fff" }) => {
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    return (
+        <>
+            <IconButton
+                size="small"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    setAnchorEl(e.currentTarget);
+                }}
+                sx={{ p: 0.25, ml: 0.5, verticalAlign: "middle" }}
+            >
+                <InfoOutlinedIcon sx={{ fontSize: 16 }} htmlColor={color} />
+            </IconButton>
+            <Popover
+                open={Boolean(anchorEl)}
+                anchorEl={anchorEl}
+                onClose={() => setAnchorEl(null)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                transformOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+                <Typography sx={{ p: 1.5, maxWidth: 280, fontSize: 13 }}>{text}</Typography>
+            </Popover>
+        </>
+    );
+};
 
 const ExpenseDetail = ({ openNavbar }) => {
     const [update, setUpdate] = React.useState(true);
@@ -188,8 +220,11 @@ const ExpenseDetail = ({ openNavbar }) => {
             >
                 ค่าใช้จ่าย
             </Typography>
+            <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mb: 1 }}>
+                รายการหมวดค่าใช้จ่ายที่ใช้อ้างอิงเวลาบันทึกรายจ่ายในระบบ
+            </Typography>
             {/* <ImportExcel /> */}
-            <Divider sx={{ marginBottom: 1 }} />
+            <Divider sx={{ marginBottom: 2 }} />
             <Box sx={{ width: "100%" }}>
                 {
                     windowWidth >= 800 ?
@@ -246,17 +281,20 @@ const ExpenseDetail = ({ openNavbar }) => {
                                         />
                                     </Box>
 
-                                    <FormControlLabel
-                                        sx={{ minWidth: 160, justifyContent: "flex-end", m: 0 }}
-                                        control={
-                                            <Checkbox
-                                                checked={check}
-                                                color="info"
-                                                onChange={() => setCheck(!check)}
-                                            />
-                                        }
-                                        label="อยู่ในระบบ"
-                                    />
+                                    <Box sx={{ display: "flex", alignItems: "center", minWidth: 160, justifyContent: "flex-end" }}>
+                                        <FormControlLabel
+                                            sx={{ m: 0 }}
+                                            control={
+                                                <Checkbox
+                                                    checked={check}
+                                                    color="info"
+                                                    onChange={() => setCheck(!check)}
+                                                />
+                                            }
+                                            label="อยู่ในระบบ"
+                                        />
+                                        <InfoHint color="#616161" text="อยู่ในระบบ = แสดงเฉพาะรายการที่ยังใช้งานอยู่ ยกเลิกติ๊กเพื่อดูรายการที่ถูกลบ (ไม่อยู่ในระบบ)" />
+                                    </Box>
                                 </Box>
 
                             </Grid>
@@ -285,9 +323,11 @@ const ExpenseDetail = ({ openNavbar }) => {
                                         </TablecellSelling>
                                         <TablecellSelling sx={{ textAlign: "center", fontSize: 16, width: 150 }}>
                                             ประเภท
+                                            <InfoHint text="หมวดหมู่ของรายการค่าใช้จ่าย ใช้อ้างอิงเวลาบันทึกรายจ่ายจริงในระบบ" />
                                         </TablecellSelling>
                                         <TablecellSelling sx={{ textAlign: "center", fontSize: 16, width: 150 }}>
                                             สถานะ
+                                            <InfoHint text="อยู่ในระบบ = ใช้งานได้ตามปกติ, ไม่อยู่ในระบบ = ถูกลบออกจากรายการที่เลือกได้ แต่ยังกู้คืนได้" />
                                         </TablecellSelling>
                                         <TablecellSelling width={50} />
                                     </TableRow>

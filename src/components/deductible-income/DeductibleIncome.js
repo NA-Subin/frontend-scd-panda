@@ -30,6 +30,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { IconButtonWarning, TablecellSelling, TablecellNoData } from "../../theme/style";
 import { Inventory } from "@mui/icons-material";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
@@ -37,6 +38,37 @@ import InsertDeductibleIncome from "./InsertDeductibleIncome";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import { apiPut } from "../../server/apiClient";
 import TablePaginationBar from "../../theme/TablePaginationBar";
+
+// Small "click to explain" hint - a subtle info icon that opens a short
+// one-line explanation in a Popover on click (works on touch devices too,
+// unlike a hover-only tooltip). Used next to labels/columns whose meaning
+// isn't obvious (e.g. deduction-vs-income logic, "ประจำ" status).
+const InfoHint = ({ text, color = "#fff" }) => {
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    return (
+        <>
+            <IconButton
+                size="small"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    setAnchorEl(e.currentTarget);
+                }}
+                sx={{ p: 0.25, ml: 0.5, verticalAlign: "middle" }}
+            >
+                <InfoOutlinedIcon sx={{ fontSize: 16 }} htmlColor={color} />
+            </IconButton>
+            <Popover
+                open={Boolean(anchorEl)}
+                anchorEl={anchorEl}
+                onClose={() => setAnchorEl(null)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                transformOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+                <Typography sx={{ p: 1.5, maxWidth: 280, fontSize: 13 }}>{text}</Typography>
+            </Popover>
+        </>
+    );
+};
 
 const DeductibleIncomeDetail = ({ openNavbar }) => {
     const [update, setUpdate] = React.useState({});
@@ -216,9 +248,18 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                         <Grid item sm={12} lg={12} sx={{ textAlign: "right", marginTop: -10 }}>
                             <InsertDeductibleIncome data={deductibleIncome.length} income={income.length + 1} deduction={deduction.length + 1} />
                         </Grid>
-                        <Grid item xs={12} md={12} sx={{ textAlign: "right", marginTop: -10 }}>
-                            <FormGroup row>
-                                <Typography variant="subtitle1" sx={{ marginRight: 1, marginTop: 1 }} gutterBottom>เลือกเพื่อแสดงข้อมูล</Typography>
+                        <Grid item xs={12} md={12} sx={{ textAlign: "center", marginTop: -8, mb: 1 }}>
+                            <Typography variant="body2" color="text.secondary">
+                                รายการรายได้และรายหักที่ใช้ประกอบการคำนวณเงินเดือนพนักงาน
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={12} md={12} sx={{ textAlign: "right" }}>
+                            <FormGroup row sx={{ justifyContent: "flex-end", alignItems: "center" }}>
+                                <Typography variant="subtitle1" sx={{ marginRight: 1 }}>เลือกเพื่อแสดงข้อมูล</Typography>
+                                <InfoHint
+                                    color="#616161"
+                                    text="รายได้ = เงินที่จ่ายเพิ่มให้พนักงาน (เช่น ค่าคอมมิชชั่น), รายหัก = เงินที่หักออกจากพนักงาน (เช่น ค่าปรับ, ประกันสังคม) ใช้ติ๊กเพื่อเลือกแสดงตารางที่ต้องการ"
+                                />
                                 <FormControlLabel control={<Checkbox checked={typeIncome} color="info" onChange={() => setTypeIncome(!typeIncome)} />} label="รายได้" />
                                 <FormControlLabel control={<Checkbox checked={typeDeduction} color="info" onChange={() => setTypeDeduction(!typeDeduction)} />} label="รายหัก" />
                                 <FormControlLabel
@@ -230,6 +271,10 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                         />
                                     }
                                     label="อยู่ในระบบ"
+                                />
+                                <InfoHint
+                                    color="#616161"
+                                    text="อยู่ในระบบ = แสดงเฉพาะรายการที่ยังใช้งานอยู่ ยกเลิกติ๊กเพื่อดูรายการที่ถูกลบ (ไม่อยู่ในระบบ)"
                                 />
                             </FormGroup>
                         </Grid>
@@ -244,6 +289,11 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                 gutterBottom
                             >
                                 รายได้รายหัก
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={12} sx={{ textAlign: "center" }}>
+                            <Typography variant="body2" color="text.secondary">
+                                รายการรายได้และรายหักที่ใช้ประกอบการคำนวณเงินเดือนพนักงาน
                             </Typography>
                         </Grid>
                         <Grid item xs={12} sx={{ textAlign: "center" }}>
@@ -299,7 +349,10 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                     mb: 1
                                 }}
                             >
-                                <Typography variant="subtitle1" fontWeight="bold" gutterBottom>รายละเอียดรายได้</Typography>
+                                <Box sx={{ display: "flex", alignItems: "center" }}>
+                                    <Typography variant="subtitle1" fontWeight="bold" gutterBottom={false}>รายละเอียดรายได้</Typography>
+                                    <InfoHint color="#616161" text="ติ๊ก 'ประจำ' เพื่อแสดงเฉพาะรายได้ที่เกิดขึ้นทุกงวดเงินเดือน (ไม่รวมรายการที่เกิดขึ้นเป็นครั้งคราว)" />
+                                </Box>
                                 <FormControlLabel
                                     control={
                                         <Checkbox
@@ -329,6 +382,7 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                             </TablecellSelling>
                                             <TablecellSelling sx={{ textAlign: "center", fontSize: 16 }}>
                                                 สถานะ
+                                                <InfoHint text="ประจำ = รายการนี้เกิดขึ้นทุกงวดเงินเดือน, ไม่ประจำ = เกิดขึ้นเป็นครั้งคราวเท่านั้น" />
                                             </TablecellSelling>
                                             <TablecellSelling width={50} />
                                         </TableRow>
@@ -490,7 +544,10 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                     mb: 1
                                 }}
                             >
-                                <Typography variant="subtitle1" fontWeight="bold" gutterBottom>รายละเอียดรายหัก</Typography>
+                                <Box sx={{ display: "flex", alignItems: "center" }}>
+                                    <Typography variant="subtitle1" fontWeight="bold" gutterBottom={false}>รายละเอียดรายหัก</Typography>
+                                    <InfoHint color="#616161" text="ติ๊ก 'ประจำ' เพื่อแสดงเฉพาะรายหักที่เกิดขึ้นทุกงวดเงินเดือน (ไม่รวมรายการที่เกิดขึ้นเป็นครั้งคราว)" />
+                                </Box>
                                 <FormControlLabel
                                     control={
                                         <Checkbox
@@ -520,6 +577,7 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                             </TablecellSelling>
                                             <TablecellSelling sx={{ textAlign: "center", fontSize: 16 }}>
                                                 สถานะ
+                                                <InfoHint text="ประจำ = รายการนี้เกิดขึ้นทุกงวดเงินเดือน, ไม่ประจำ = เกิดขึ้นเป็นครั้งคราวเท่านั้น" />
                                             </TablecellSelling>
                                             <TablecellSelling width={50} />
                                         </TableRow>

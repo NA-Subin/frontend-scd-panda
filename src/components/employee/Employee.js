@@ -36,7 +36,7 @@ import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 import SettingsIcon from '@mui/icons-material/Settings';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import InfoIcon from '@mui/icons-material/Info';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import HailIcon from "@mui/icons-material/Hail";
 import AirlineSeatReclineNormalIcon from "@mui/icons-material/AirlineSeatReclineNormal";
 import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
@@ -50,6 +50,37 @@ import UpdateDriver from "./UpdateDriver";
 import UpdateEmployee from "./UpdateEmployee";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import TablePaginationBar from "../../theme/TablePaginationBar";
+
+// Small "click to explain" hint - a subtle info icon that opens a short
+// one-line explanation in a Popover on click (works on touch devices too,
+// unlike a hover-only tooltip). Used next to column headers / controls whose
+// meaning isn't obvious from the label alone.
+const InfoHint = ({ text, color = "#fff" }) => {
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  return (
+    <>
+      <IconButton
+        size="small"
+        onClick={(e) => {
+          e.stopPropagation();
+          setAnchorEl(e.currentTarget);
+        }}
+        sx={{ p: 0.25, ml: 0.5, verticalAlign: "middle" }}
+      >
+        <InfoOutlinedIcon sx={{ fontSize: 16 }} htmlColor={color} />
+      </IconButton>
+      <Popover
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={() => setAnchorEl(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        transformOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Typography sx={{ p: 1.5, maxWidth: 280, fontSize: 13 }}>{text}</Typography>
+      </Popover>
+    </>
+  );
+};
 
 const Employee = ({ openNavbar }) => {
   //const [update, setUpdate] = React.useState(true);
@@ -305,46 +336,72 @@ const Employee = ({ openNavbar }) => {
       >
         พนักงาน
       </Typography>
-      <Divider sx={{ marginBottom: 1 }} />
-      <Grid container spacing={2} marginTop={1} sx={{ width: "100%" }}>
+      <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mb: 2 }}>
+        จัดการข้อมูลพนักงานขับรถและพนักงานบริษัท พร้อมกำหนดทะเบียนรถให้พนักงานขับรถ
+      </Typography>
+      <Divider sx={{ marginBottom: 2 }} />
+      <Grid container spacing={2} sx={{ width: "100%" }}>
         <Grid item xs={6}>
-          <Button variant="contained" color={open === 1 ? "info" : "inherit"} sx={{ height: "10vh", fontSize: "22px", fontWeight: "bold", borderRadius: 3, borderBottom: open === 1 && "5px solid" + theme.palette.panda.light }} fullWidth onClick={() => setOpen(1)}>พนักงานขับรถ</Button>
+          <Button
+            variant="contained"
+            color={open === 1 ? "info" : "inherit"}
+            sx={{
+              py: 2,
+              fontSize: "18px",
+              fontWeight: "bold",
+              borderRadius: 3,
+              boxShadow: open === 1 ? 4 : 0,
+              border: open === 1 ? "none" : `2px solid ${theme.palette.grey[300]}`,
+            }}
+            fullWidth
+            onClick={() => setOpen(1)}
+            startIcon={<AirlineSeatReclineNormalIcon />}
+          >
+            พนักงานขับรถ
+          </Button>
         </Grid>
         <Grid item xs={6}>
-          <Button variant="contained" color={open === 2 ? "info" : "inherit"} sx={{ height: "10vh", fontSize: "22px", fontWeight: "bold", borderRadius: 3, borderBottom: open === 2 && "5px solid" + theme.palette.panda.light }} fullWidth onClick={() => setOpen(2)}>พนักงานบริษัท</Button>
-        </Grid>
-        <Grid item xs={6} sx={{ marginTop: -3 }}>
-          {
-            open === 1 && <Typography variant="h3" fontWeight="bold" textAlign="center" color={theme.palette.panda.light} gutterBottom>||</Typography>
-          }
-        </Grid>
-        <Grid item xs={6} sx={{ marginTop: -3 }}>
-          {
-            open === 2 && <Typography variant="h3" fontWeight="bold" textAlign="center" color={theme.palette.panda.light} gutterBottom>||</Typography>
-          }
+          <Button
+            variant="contained"
+            color={open === 2 ? "info" : "inherit"}
+            sx={{
+              py: 2,
+              fontSize: "18px",
+              fontWeight: "bold",
+              borderRadius: 3,
+              boxShadow: open === 2 ? 4 : 0,
+              border: open === 2 ? "none" : `2px solid ${theme.palette.grey[300]}`,
+            }}
+            fullWidth
+            onClick={() => setOpen(2)}
+            startIcon={<HailIcon />}
+          >
+            พนักงานบริษัท
+          </Button>
         </Grid>
       </Grid>
-      <Paper sx={{ backgroundColor: "#fafafa", borderRadius: 3, p: 5, borderTop: "5px solid" + theme.palette.panda.light, marginTop: -2.5, width: "100%" }}>
-        <Grid container spacing={2}>
+      <Paper sx={{ backgroundColor: "#fafafa", borderRadius: 3, p: { xs: 2, sm: 3, md: 4 }, borderTop: "5px solid" + theme.palette.panda.light, mt: 2, width: "100%" }}>
+        <Grid container spacing={2} alignItems="center">
           <Grid item md={open === 1 ? 3 : 5} xs={12} >
-            <Typography variant="h6" fontWeight="bold" gutterBottom>รายชื่อพนักงาน{open === 2 ? "ภายในบริษัท" : "ขับรถ"}</Typography>
+            <Typography variant="h6" fontWeight="bold" gutterBottom={false}>รายชื่อพนักงาน{open === 2 ? "ภายในบริษัท" : "ขับรถ"}</Typography>
           </Grid>
           <Grid item md={open === 1 ? 6 : 4} xs={12}>
             {
               open === 1 &&
-              <FormGroup row sx={{ marginBottom: -2 }}>
-                <Typography variant="subtitle1" fontWeight="bold" sx={{ marginTop: 1, marginRight: 2 }} gutterBottom>กรุณาเลือกประเภทที่ต้องการ : </Typography>
+              <FormGroup row sx={{ alignItems: "center" }}>
+                <Typography variant="subtitle2" fontWeight="bold" sx={{ mr: 1 }}>กรุณาเลือกประเภทที่ต้องการ : </Typography>
+                <InfoHint color={theme.palette.text.secondary} text="รถใหญ่ = รถหัวลาก/รถพ่วง, รถเล็ก = รถบรรทุกขนาดเล็ก ใช้กรองรายชื่อพนักงานขับรถตามประเภทรถที่ขับ" />
                 <FormControlLabel control={<Checkbox checked={check === 1 ? true : false} />} onChange={() => setCheck(1)} label="ทั้งหมด" />
                 <FormControlLabel control={<Checkbox checked={check === 2 ? true : false} />} onChange={() => setCheck(2)} label="รถใหญ่" />
                 <FormControlLabel control={<Checkbox checked={check === 3 ? true : false} />} onChange={() => setCheck(3)} label="รถเล็ก" />
               </FormGroup>
             }
           </Grid>
-          <Grid item md={3} xs={12}>
+          <Grid item md={3} xs={12} sx={{ textAlign: { xs: "left", md: "right" } }}>
             <InsertEmployee type={open} driver={driverDetail} officer={dataofficers} truck={registrationHead} smallTruck={registrationSmallTruck} />
           </Grid>
         </Grid>
-        <Divider sx={{ marginBottom: 1, marginTop: 2 }} />
+        <Divider sx={{ mb: 2, mt: 2 }} />
         {
           open === 2 ?
             <TableContainer
@@ -371,6 +428,7 @@ const Employee = ({ openNavbar }) => {
                     </TablecellHeader> */}
                     <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 150 }}>
                       UserID
+                      <InfoHint text="รหัสบัญชีผู้ใช้งานที่พนักงานคนนี้ใช้เข้าสู่ระบบ" />
                     </TablecellHeader>
                     {/* <TablecellHeader sx={{ width: 50 }} /> */}
                   </TableRow>
@@ -419,6 +477,7 @@ const Employee = ({ openNavbar }) => {
                     </TablecellHeader>
                     <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 150 }}>
                       ทะเบียนรถ
+                      <InfoHint text="ทะเบียนรถบรรทุกที่พนักงานคนนี้ขับอยู่ในปัจจุบัน" />
                     </TablecellHeader>
                     <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 100 }}>
                       ประเภทรถ
@@ -431,6 +490,7 @@ const Employee = ({ openNavbar }) => {
                     </TablecellHeader>
                     <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 80 }}>
                       UserID
+                      <InfoHint text="รหัสบัญชีผู้ใช้งานที่พนักงานคนนี้ใช้เข้าสู่ระบบ" />
                     </TablecellHeader>
                     {/* <TablecellHeader sx={{ width: 50 }} /> */}
                   </TableRow>
