@@ -53,8 +53,6 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Menu,
-  MenuItem,
   Paper,
   Snackbar,
   Table,
@@ -78,7 +76,6 @@ import {
   showWelcome,
 } from "../sweetalert/sweetalert";
 import ReplyAllIcon from '@mui/icons-material/ReplyAll';
-import ListIcon from '@mui/icons-material/List';
 import PaidIcon from '@mui/icons-material/Paid';
 import ContactPageIcon from '@mui/icons-material/ContactPage';
 import BadgeIcon from '@mui/icons-material/Badge';
@@ -366,15 +363,6 @@ export default function Navbar({ open, onOpenChange }) {
   //   Cookies.remove('token');
   //   navigate("/")
   // }
-
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const menu = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
   const UserSignOut = () => {
     withReactContent(Swal)
@@ -680,54 +668,33 @@ export default function Navbar({ open, onOpenChange }) {
                         flexItem
                         sx={{ border: "1px solid white" }}
                       />
-                      <Tooltip title="เมนู">
+                      <Tooltip title="ตั้งค่า">
                         <IconButtonOnNavbar
-                          sx={{
-                            backgroundColor: !menu ? theme.palette.panda.dark : "white",
-                            marginRight: 1,
-                            marginLeft: 1,
-                          }}
-                          color={!menu ? "inherit" : theme.palette.panda.dark}
-                          id="demo-positioned-button"
-                          aria-controls={!menu ? "demo-positioned-menu" : undefined}
-                          aria-haspopup="true"
-                          aria-expanded={!menu ? "true" : undefined}
-                          onClick={handleClick}
+                          sx={{ backgroundColor: theme.palette.panda.dark, marginRight: 1, marginLeft: 1 }}
+                          color="inherit"
+                          onClick={handleSetting}
                         >
-                          <ListIcon />
+                          <SettingsIcon />
                         </IconButtonOnNavbar>
                       </Tooltip>
-                      <Divider
-                        orientation="vertical"
-                        variant="fullWidth"
-                        flexItem
-                        sx={{ border: "1px solid white" }}
-                      />
-                      <Menu
-                        anchorEl={anchorEl}
-                        open={Boolean(anchorEl)}
-                        onClose={handleClose}
-                      >
-                        <MenuItem onClick={handleSetting}>
-                          <ListItemIcon>
-                            <SettingsIcon fontSize="small" />
-                          </ListItemIcon>
-                          <ListItemText>ตั้งค่า</ListItemText>
-                        </MenuItem>
-                        <MenuItem onClick={handleBack}>
-                          <ListItemIcon>
-                            <ReplyAllIcon fontSize="small" />
-                          </ListItemIcon>
-                          <ListItemText>กลับหน้าแรก</ListItemText>
-                        </MenuItem>
-                        <Divider />
-                        <MenuItem onClick={UserSignOut}>
-                          <ListItemIcon>
-                            <MeetingRoomIcon fontSize="small" />
-                          </ListItemIcon>
-                          <ListItemText>ออกจากระบบ</ListItemText>
-                        </MenuItem>
-                      </Menu>
+                      <Tooltip title="กลับหน้าแรก">
+                        <IconButtonOnNavbar
+                          sx={{ backgroundColor: theme.palette.panda.dark, marginRight: 1, marginLeft: 1 }}
+                          color="inherit"
+                          onClick={handleBack}
+                        >
+                          <ReplyAllIcon />
+                        </IconButtonOnNavbar>
+                      </Tooltip>
+                      <Tooltip title="ออกจากระบบ">
+                        <IconButtonOnNavbar
+                          sx={{ backgroundColor: theme.palette.error.main, marginRight: 1, marginLeft: 1 }}
+                          color="inherit"
+                          onClick={UserSignOut}
+                        >
+                          <MeetingRoomIcon />
+                        </IconButtonOnNavbar>
+                      </Tooltip>
                     </Grid>
                   </Grid>
                 </>
@@ -909,40 +876,16 @@ export default function Navbar({ open, onOpenChange }) {
                           flexItem
                           sx={{ border: "1px solid white" }}
                         />
-                        <Tooltip title="เมนู">
-                          <IconButtonOnNavbar
-                            sx={{
-                              backgroundColor: !menu ? theme.palette.panda.dark : "white",
-                              marginRight: 1,
-                              marginLeft: 1,
-                            }}
-                            color={!menu ? "inherit" : theme.palette.panda.dark}
-                            id="demo-positioned-button"
-                            aria-controls={!menu ? "demo-positioned-menu" : undefined}
-                            aria-haspopup="true"
-                            aria-expanded={!menu ? "true" : undefined}
-                            onClick={handleClick}
-                          >
-                            <Box
-                              sx={{
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                              }}
+                        <Tooltip title={Cookies.get('user') ? `เข้าสู่ระบบโดย ${Cookies.get('user')}` : "ผู้ใช้งาน"}>
+                          <Box sx={{ display: "flex", alignItems: "center", marginRight: 1, marginLeft: 1 }}>
+                            <StyledBadge
+                              overlap="circular"
+                              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                              variant="dot"
                             >
-                              <StyledBadge
-                                overlap="circular"
-                                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                                variant="dot"
-                              >
-                                <Avatar
-              /*alt={token.split("#")[0]}*/ src="/static/images/avatar/2.jpg"
-                                  sx={{ width: 30, height: 30 }}
-                                />
-                              </StyledBadge>
-                            </Box>
-                            {/* <ListIcon /> */}
-                          </IconButtonOnNavbar>
+                              <Avatar src="/static/images/avatar/2.jpg" sx={{ width: 30, height: 30 }} />
+                            </StyledBadge>
+                          </Box>
                         </Tooltip>
                         <Divider
                           orientation="vertical"
@@ -950,31 +893,33 @@ export default function Navbar({ open, onOpenChange }) {
                           flexItem
                           sx={{ border: "1px solid white" }}
                         />
-                        <Menu
-                          anchorEl={anchorEl}
-                          open={Boolean(anchorEl)}
-                          onClose={handleClose}
-                        >
-                          <MenuItem onClick={handleSetting}>
-                            <ListItemIcon>
-                              <SettingsIcon fontSize="small" />
-                            </ListItemIcon>
-                            <ListItemText>ตั้งค่า</ListItemText>
-                          </MenuItem>
-                          <MenuItem onClick={handleBack}>
-                            <ListItemIcon>
-                              <ReplyAllIcon fontSize="small" />
-                            </ListItemIcon>
-                            <ListItemText>กลับหน้าแรก</ListItemText>
-                          </MenuItem>
-                          <Divider />
-                          <MenuItem onClick={UserSignOut}>
-                            <ListItemIcon>
-                              <MeetingRoomIcon fontSize="small" />
-                            </ListItemIcon>
-                            <ListItemText>ออกจากระบบ</ListItemText>
-                          </MenuItem>
-                        </Menu>
+                        <Tooltip title="ตั้งค่า">
+                          <IconButtonOnNavbar
+                            sx={{ backgroundColor: theme.palette.panda.dark, marginRight: 1, marginLeft: 1 }}
+                            color="inherit"
+                            onClick={handleSetting}
+                          >
+                            <SettingsIcon />
+                          </IconButtonOnNavbar>
+                        </Tooltip>
+                        <Tooltip title="กลับหน้าแรก">
+                          <IconButtonOnNavbar
+                            sx={{ backgroundColor: theme.palette.panda.dark, marginRight: 1, marginLeft: 1 }}
+                            color="inherit"
+                            onClick={handleBack}
+                          >
+                            <ReplyAllIcon />
+                          </IconButtonOnNavbar>
+                        </Tooltip>
+                        <Tooltip title="ออกจากระบบ">
+                          <IconButtonOnNavbar
+                            sx={{ backgroundColor: theme.palette.error.main, marginRight: 1, marginLeft: 1 }}
+                            color="inherit"
+                            onClick={UserSignOut}
+                          >
+                            <MeetingRoomIcon />
+                          </IconButtonOnNavbar>
+                        </Tooltip>
                       </Grid>
                     </Grid>
                   </>
