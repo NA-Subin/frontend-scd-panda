@@ -104,8 +104,8 @@ const PERMISSION_COLUMNS = [
 
 const SETTING_TABS = [
   { key: 1, icon: AssignmentIndIcon, title: "ข้อมูลส่วนตัว", desc: "ดูข้อมูลผู้ใช้งานและเปลี่ยนรหัสผ่าน" },
-  { key: 3, icon: PrivacyTipIcon, title: "จัดการสิทธิ์การใช้งาน", desc: "กำหนดสิทธิ์เข้าถึงแต่ละส่วนตามตำแหน่งงาน" },
-  { key: 2, icon: BusinessIcon, title: "ข้อมูลบริษัท", desc: "ข้อมูลบริษัทในเครือและประวัติการแก้ไข" },
+  { key: 3, icon: PrivacyTipIcon, title: "จัดการสิทธิ์การใช้งาน", desc: "กำหนดสิทธิ์เข้าถึงแต่ละส่วนตามตำแหน่งงาน", adminOnly: true },
+  { key: 2, icon: BusinessIcon, title: "ข้อมูลบริษัท", desc: "ข้อมูลบริษัทในเครือและประวัติการแก้ไข", adminOnly: true },
 ];
 
 const Setting = () => {
@@ -165,6 +165,20 @@ const Setting = () => {
   );
 
   const userDetail = officersDetail.find((row) => (row.id === Number(userId.split("$")[1])));
+
+  // จัดการสิทธิ์การใช้งาน / จัดการบริษัท ให้เฉพาะ admin เข้าถึงได้เท่านั้น
+  // (การเขียนจริงถูกล็อกไว้ที่ backend ด้วย requireAdmin อยู่แล้ว - ส่วนนี้แค่ซ่อน
+  // แท็บสำหรับ user ทั่วไปเพื่อไม่ให้สับสน)
+  const userPosition = positionsDetail.find((row) => row.uuid === userDetail?.Position);
+  const isAdmin = userPosition?.AdminData === 1;
+
+  // ถ้าเผลอค้างอยู่ที่แท็บ admin-only (เช่น สิทธิ์เพิ่งถูกถอนระหว่างเปิดหน้านี้ทิ้งไว้)
+  // ให้เด้งกลับไปแท็บข้อมูลส่วนตัวทันที
+  useEffect(() => {
+    if (!isAdmin && (open === 2 || open === 3)) {
+      setOpen(1);
+    }
+  }, [isAdmin, open]);
 
   console.log("User : ", userId);
   console.log("User Detail : ", userDetail);
@@ -414,7 +428,7 @@ const Setting = () => {
       <Divider />
       <Box sx={{ width: windowWidth <= 900 && windowWidth > 600 ? (windowWidth - 130) : windowWidth <= 600 ? (windowWidth) : (windowWidth - 280) }}>
         <Grid container spacing={2} marginTop={2}>
-          {SETTING_TABS.map(({ key, icon: TabIcon, title, desc }) => {
+          {SETTING_TABS.filter((tab) => !tab.adminOnly || isAdmin).map(({ key, icon: TabIcon, title, desc }) => {
             const isActive = open === key;
             return (
               <Grid item xs={12} sm={4} key={key}>
