@@ -10,6 +10,7 @@ import {
   DialogTitle,
   Divider,
   FormControl,
+  FormControlLabel,
   Grid,
   IconButton,
   InputAdornment,
@@ -17,6 +18,8 @@ import {
   MenuItem,
   Paper,
   Popover,
+  Radio,
+  RadioGroup,
   Select,
   Table,
   TableBody,
@@ -54,6 +57,7 @@ import AddBoxIcon from "@mui/icons-material/AddBox";
 import AddIcon from "@mui/icons-material/Add";
 import SaveIcon from "@mui/icons-material/Save";
 import PrintIcon from "@mui/icons-material/Print";
+import EventIcon from "@mui/icons-material/Event";
 import theme from "../../theme/theme";
 import { apiPost, apiPut } from "../../server/apiClient";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
@@ -85,6 +89,12 @@ const UpdateReport = (props) => {
   const [show, setShow] = useState(false);
   const [test, setTest] = useState([]);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  // กำหนดชำระเงินบนใบวางบิล - เลือกได้ว่าจะใช้ตามที่คำนวณไว้ (วันที่วางบิล + จำนวนวันเครดิต)
+  // กำหนดวันที่เองแบบ manual หรือไม่ระบุวันที่เลยก็ได้ ค่าที่เลือกจะถูกส่งไปกับ
+  // invoiceData ตอนเปิดหน้าต่างพิมพ์ ("/print-report" อ่านค่านี้จาก sessionStorage)
+  const [dueDateMode, setDueDateMode] = useState("fixed"); // "fixed" | "manual" | "none"
+  const [manualDueDate, setManualDueDate] = useState(dayjs().format("DD/MM/YYYY"));
 
   // ใช้ useEffect เพื่อรับฟังการเปลี่ยนแปลงของขนาดหน้าจอ
   useEffect(() => {
@@ -811,6 +821,8 @@ const UpdateReport = (props) => {
       CompanyName: ticket.CompanyName,
       CompanyAddress: ticket.CompanyAddress,
       CodeIDCustomer: ticket.CodeID,
+      DueDateMode: dueDateMode,
+      ManualDueDate: dueDateMode === "manual" ? manualDueDate : null,
       // DateStart: ticket.Date,
       // DateEnd: calculateDueDate(ticket.Date, ticket.CreditTime)
     };
@@ -901,6 +913,8 @@ const UpdateReport = (props) => {
       CompanyName: ticket.CompanyName,
       CompanyAddress: ticket.CompanyAddress,
       CodeIDCustomer: ticket.CodeID,
+      DueDateMode: dueDateMode,
+      ManualDueDate: dueDateMode === "manual" ? manualDueDate : null,
       // DateStart: ticket.Date,
       // DateEnd: calculateDueDate(ticket.Date, ticket.CreditTime)
     };
@@ -1241,6 +1255,51 @@ const UpdateReport = (props) => {
               </Typography>
             </Grid>
           )}
+
+          <Grid item xs={12}>
+            <Paper
+              variant="outlined"
+              sx={{
+                p: 1,
+                mb: 0.5,
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                flexWrap: "wrap",
+              }}
+            >
+              <Box display="flex" alignItems="center" gap={0.5}>
+                <EventIcon color="action" fontSize="small" />
+                <Typography variant="body2" fontWeight="bold" sx={{ whiteSpace: "nowrap" }}>
+                  กำหนดชำระเงินบนใบวางบิล :
+                </Typography>
+              </Box>
+              <RadioGroup
+                row
+                value={dueDateMode}
+                onChange={(e) => setDueDateMode(e.target.value)}
+                sx={{ "& .MuiFormControlLabel-label": { fontSize: "14px" } }}
+              >
+                <FormControlLabel value="fixed" control={<Radio size="small" />} label="ตามที่กำหนดไว้ (วันที่วางบิล + 3 วัน)" />
+                <FormControlLabel value="manual" control={<Radio size="small" />} label="กำหนดเอง" />
+                <FormControlLabel value="none" control={<Radio size="small" />} label="ไม่ระบุวันที่" />
+              </RadioGroup>
+              {dueDateMode === "manual" && (
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="th">
+                  <DatePicker
+                    openTo="day"
+                    views={["year", "month", "day"]}
+                    value={dayjs(manualDueDate, "DD/MM/YYYY")}
+                    onChange={(newValue) =>
+                      newValue && setManualDueDate(dayjs(newValue).format("DD/MM/YYYY"))
+                    }
+                    format="DD/MM/YYYY"
+                    slotProps={{ textField: { size: "small", sx: { width: 160 } } }}
+                  />
+                </LocalizationProvider>
+              )}
+            </Paper>
+          </Grid>
 
           <Grid item md={5.5} xs={12}>
             <Typography
