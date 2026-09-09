@@ -176,7 +176,7 @@ const Backup = () => {
                   <TablecellHeader sx={{ textAlign: "center" }} width={220}>
                     วันที่สร้าง
                   </TablecellHeader>
-                  <TablecellHeader width={120} sx={{ textAlign: "center" }}>
+                  <TablecellHeader width={180} sx={{ textAlign: "center" }}>
                     จัดการ
                   </TablecellHeader>
                 </TableRow>
@@ -204,22 +204,24 @@ const Backup = () => {
                       <TableCell sx={{ textAlign: "center" }}>{formatSize(b.size)}</TableCell>
                       <TableCell sx={{ textAlign: "center" }}>{formatDate(b.createdAt)}</TableCell>
                       <TableCell sx={{ textAlign: "center" }}>
-                        <Box display="flex" justifyContent="center" alignItems="center">
-                          <Tooltip title="ดาวน์โหลด">
-                            <span>
-                              <IconButton
-                                size="small"
-                                disabled={downloadingFile === b.filename}
-                                onClick={() => handleDownload(b.filename)}
-                              >
-                                {downloadingFile === b.filename ? (
-                                  <CircularProgress size={18} />
-                                ) : (
-                                  <CloudDownloadIcon fontSize="small" color="info" />
-                                )}
-                              </IconButton>
-                            </span>
-                          </Tooltip>
+                        <Box display="flex" justifyContent="center" alignItems="center" gap={0.5}>
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="info"
+                            disabled={downloadingFile === b.filename}
+                            onClick={() => handleDownload(b.filename)}
+                            startIcon={
+                              downloadingFile === b.filename ? (
+                                <CircularProgress size={14} color="inherit" />
+                              ) : (
+                                <CloudDownloadIcon fontSize="small" />
+                              )
+                            }
+                            sx={{ borderRadius: 2, whiteSpace: "nowrap" }}
+                          >
+                            ดาวน์โหลด
+                          </Button>
                           <Tooltip title="ลบไฟล์สำรองนี้">
                             <IconButton size="small" onClick={() => handleDelete(b.filename)}>
                               <DeleteForeverIcon fontSize="small" color="error" />
