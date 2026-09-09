@@ -5,7 +5,9 @@ import {
   CircularProgress,
   Container,
   Divider,
+  Grid,
   IconButton,
+  InputAdornment,
   Paper,
   Stack,
   Table,
@@ -14,6 +16,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -21,6 +24,9 @@ import BackupIcon from "@mui/icons-material/Backup";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import LockResetIcon from "@mui/icons-material/LockReset";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { Inventory } from "@mui/icons-material";
 import theme from "../../theme/theme";
 import { TablecellHeader, TablecellNoData } from "../../theme/style";
@@ -52,6 +58,13 @@ const Backup = () => {
   const [running, setRunning] = useState(false);
   const [downloadingFile, setDownloadingFile] = useState(null);
   const [error, setError] = useState(null);
+
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPasswords, setShowPasswords] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
 
   const refetch = useCallback(async () => {
     setLoading(true);
@@ -108,6 +121,30 @@ const Backup = () => {
       },
       () => {}
     );
+  };
+
+  const handleChangePassword = async () => {
+    if (!oldPassword || !newPassword) {
+      ShowError("กรุณากรอกรหัสผ่านเดิมและรหัสผ่านใหม่");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      ShowError("รหัสผ่านใหม่ทั้งสองช่องไม่ตรงกัน");
+      return;
+    }
+    setChangingPassword(true);
+    try {
+      await apiPost("/api/admin/backup-access/reset", { oldPassword, newPassword });
+      ShowSuccess("เปลี่ยนรหัสผ่านสำหรับหน้านี้สำเร็จ");
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setShowChangePassword(false);
+    } catch (err) {
+      ShowError(err?.data?.error || "เปลี่ยนรหัสผ่านไม่สำเร็จ");
+    } finally {
+      setChangingPassword(false);
+    }
   };
 
   const isForbidden = error?.status === 403;
@@ -235,6 +272,78 @@ const Backup = () => {
               </TableBody>
             </Table>
           </TableContainer>
+
+          <Box sx={{ mt: 3 }}>
+            <Button
+              variant="text"
+              color="inherit"
+              startIcon={<LockResetIcon />}
+              onClick={() => setShowChangePassword((v) => !v)}
+              sx={{ fontWeight: "bold" }}
+            >
+              เปลี่ยนรหัสผ่านสำหรับเข้าหน้านี้
+            </Button>
+            {showChangePassword && (
+              <Paper variant="outlined" sx={{ p: 2.5, mt: 1, borderRadius: 3, maxWidth: 500 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  ต้องกรอกรหัสผ่านเดิมให้ถูกต้องก่อน จึงจะตั้งรหัสผ่านใหม่ได้
+                </Typography>
+                <Grid container spacing={1.5}>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="รหัสผ่านเดิม"
+                      type={showPasswords ? "text" : "password"}
+                      value={oldPassword}
+                      onChange={(e) => setOldPassword(e.target.value)}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="รหัสผ่านใหม่"
+                      type={showPasswords ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="ยืนยันรหัสผ่านใหม่"
+                      type={showPasswords ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton size="small" onClick={() => setShowPasswords((v) => !v)}>
+                              {showPasswords ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} textAlign="right">
+                    <Button
+                      variant="contained"
+                      color="success"
+                      disabled={changingPassword}
+                      onClick={handleChangePassword}
+                      startIcon={changingPassword ? <CircularProgress size={16} color="inherit" /> : null}
+                      sx={{ borderRadius: 3, fontWeight: "bold" }}
+                    >
+                      บันทึกรหัสผ่านใหม่
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Paper>
+            )}
+          </Box>
         </>
       )}
     </Container>

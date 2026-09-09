@@ -243,7 +243,7 @@ const Choose = () => {
     }
     setVerifyingBackupPassword(true);
     try {
-      await apiPost("/api/auth/verify-password", { password: backupPassword });
+      await apiPost("/api/admin/backup-access/verify", { password: backupPassword });
       setBackupConfirmOpen(false);
       navigate("/backup");
     } catch (err) {
@@ -425,7 +425,7 @@ const Choose = () => {
           </DialogTitle>
           <DialogContent>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              เพื่อความปลอดภัย กรุณากรอกรหัสผ่านของคุณอีกครั้งก่อนเข้าหน้าสำรอง/ดาวน์โหลดข้อมูล
+              เพื่อความปลอดภัย กรุณากรอกรหัสผ่านสำหรับเข้าหน้าสำรองข้อมูล (ค่าเริ่มต้นคือ admin เปลี่ยนได้ในหน้าสำรองข้อมูล)
             </Typography>
             <TextField
               autoFocus
