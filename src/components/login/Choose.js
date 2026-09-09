@@ -5,8 +5,13 @@ import {
   Button,
   CircularProgress,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   Grid,
+  IconButton,
   InputAdornment,
   Paper,
   Stack,
@@ -21,6 +26,9 @@ import UploadFileIcon from "@mui/icons-material/UploadFile";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import BackupIcon from "@mui/icons-material/Backup";
+import LockIcon from "@mui/icons-material/Lock";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import {
   ShowConfirm,
   ShowError,
@@ -90,6 +98,12 @@ const Choose = () => {
   const fileInputRef = useRef(null);
   const [importingIncremental, setImportingIncremental] = useState(false);
   const incrementalFileInputRef = useRef(null);
+
+  // ยืนยันรหัสผ่านซ้ำก่อนเข้าหน้าสำรองข้อมูล - ป้องกันกรณีเปิดหน้านี้ทิ้งไว้บนเครื่องที่ใช้ร่วมกัน
+  const [backupConfirmOpen, setBackupConfirmOpen] = useState(false);
+  const [backupPassword, setBackupPassword] = useState("");
+  const [showBackupPassword, setShowBackupPassword] = useState(false);
+  const [verifyingBackupPassword, setVerifyingBackupPassword] = useState(false);
 
 
 
@@ -209,6 +223,34 @@ const Choose = () => {
       ShowError("อ่านไฟล์ไม่สำเร็จ", "");
     };
     reader.readAsText(file);
+  };
+
+  const handleOpenBackupConfirm = () => {
+    setBackupPassword("");
+    setShowBackupPassword(false);
+    setBackupConfirmOpen(true);
+  };
+
+  const handleCloseBackupConfirm = () => {
+    if (verifyingBackupPassword) return;
+    setBackupConfirmOpen(false);
+  };
+
+  const handleConfirmBackupPassword = async () => {
+    if (!backupPassword) {
+      ShowError("กรุณากรอกรหัสผ่าน");
+      return;
+    }
+    setVerifyingBackupPassword(true);
+    try {
+      await apiPost("/api/auth/verify-password", { password: backupPassword });
+      setBackupConfirmOpen(false);
+      navigate("/backup");
+    } catch (err) {
+      ShowError(err?.data?.error || "รหัสผ่านไม่ถูกต้อง");
+    } finally {
+      setVerifyingBackupPassword(false);
+    }
   };
 
   useEffect(() => {
@@ -364,7 +406,7 @@ const Choose = () => {
                     variant="outlined"
                     color="success"
                     fullWidth
-                    onClick={() => navigate("/backup")}
+                    onClick={handleOpenBackupConfirm}
                     sx={{ py: 1.5, borderRadius: 3, fontWeight: "bold", justifyContent: "flex-start", textAlign: "left" }}
                     startIcon={<BackupIcon />}
                   >
@@ -375,6 +417,53 @@ const Choose = () => {
             </Paper>
           </Box>
         )}
+
+        <Dialog open={backupConfirmOpen} onClose={handleCloseBackupConfirm} maxWidth="xs" fullWidth>
+          <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <LockIcon color="warning" />
+            ยืนยันรหัสผ่านก่อนเข้าหน้าสำรองข้อมูล
+          </DialogTitle>
+          <DialogContent>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              เพื่อความปลอดภัย กรุณากรอกรหัสผ่านของคุณอีกครั้งก่อนเข้าหน้าสำรอง/ดาวน์โหลดข้อมูล
+            </Typography>
+            <TextField
+              autoFocus
+              fullWidth
+              size="small"
+              type={showBackupPassword ? "text" : "password"}
+              label="รหัสผ่าน"
+              value={backupPassword}
+              onChange={(e) => setBackupPassword(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleConfirmBackupPassword();
+              }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowBackupPassword((v) => !v)} edge="end">
+                      {showBackupPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2 }}>
+            <Button onClick={handleCloseBackupConfirm} disabled={verifyingBackupPassword}>
+              ยกเลิก
+            </Button>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={handleConfirmBackupPassword}
+              disabled={verifyingBackupPassword}
+              startIcon={verifyingBackupPassword ? <CircularProgress color="inherit" size={16} /> : null}
+            >
+              ยืนยัน
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Container>
     </Box>
   );
