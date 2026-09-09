@@ -20,6 +20,7 @@ import PasswordIcon from "@mui/icons-material/Password";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import BackupIcon from "@mui/icons-material/Backup";
 import {
   ShowConfirm,
   ShowError,
@@ -356,6 +357,18 @@ const Choose = () => {
                     }
                   >
                     {importingIncremental ? "กำลังเพิ่มข้อมูล..." : "เพิ่มข้อมูลใหม่ (ไม่ลบของเดิม)"}
+                  </Button>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Button
+                    variant="outlined"
+                    color="success"
+                    fullWidth
+                    onClick={() => navigate("/backup")}
+                    sx={{ py: 1.5, borderRadius: 3, fontWeight: "bold", justifyContent: "flex-start", textAlign: "left" }}
+                    startIcon={<BackupIcon />}
+                  >
+                    สำรองข้อมูล
                   </Button>
                 </Grid>
               </Grid>

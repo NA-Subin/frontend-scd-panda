@@ -11,6 +11,7 @@ import GasStations from "./components/depots/GasStations";
 import Customer from "./components/customer/Customer";
 import Tickets from "./components/ticket/Tickets";
 import Setting from "./components/setting/Setting";
+import Backup from "./components/backup/Backup";
 import Trucks from "./components/truck/Trucks";
 import Creditor from "./components/creditor/Creditor";
 import './App.css';
@@ -273,6 +274,9 @@ function App() {
                 </Routes>
                 <Routes>
                   <Route path="/setting" element={<Setting openNavbar={open} />} />
+                </Routes>
+                <Routes>
+                  <Route path="/backup" element={<Backup />} />
                 </Routes>
                 <Routes>
                   <Route path="/edit-firebase" element={<Editfirebase openNavbar={open} />} />
