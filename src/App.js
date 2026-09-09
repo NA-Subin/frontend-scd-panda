@@ -215,6 +215,7 @@ function App() {
         <Route path="/driver" element={<RequireAuth><TripDataProvider><Driver /></TripDataProvider></RequireAuth>} />
         <Route path="/trade-payable" element={<RequireAuth><TripDataProvider><TradePayable /></TripDataProvider></RequireAuth>} />
         <Route path="/choose" element={<RequireAuth><Choose /></RequireAuth>} />
+        <Route path="/backup" element={<RequireAuth><Backup /></RequireAuth>} />
         <Route path="/quotation" element={<RequireAuth><TripDataProvider><Quotation /></TripDataProvider></RequireAuth>} />
         <Route path="/print-quotation" element={<RequireAuth><TripDataProvider><PrintReportQ /></TripDataProvider></RequireAuth>} />
         <Route
@@ -274,9 +275,6 @@ function App() {
                 </Routes>
                 <Routes>
                   <Route path="/setting" element={<Setting openNavbar={open} />} />
-                </Routes>
-                <Routes>
-                  <Route path="/backup" element={<Backup />} />
                 </Routes>
                 <Routes>
                   <Route path="/edit-firebase" element={<Editfirebase openNavbar={open} />} />

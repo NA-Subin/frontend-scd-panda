@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -20,6 +21,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import BackupIcon from "@mui/icons-material/Backup";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
@@ -53,6 +55,7 @@ const formatDate = (isoString) => {
 };
 
 const Backup = () => {
+  const navigate = useNavigate();
   const [backups, setBackups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
@@ -150,23 +153,31 @@ const Backup = () => {
   const isForbidden = error?.status === 403;
 
   return (
-    <Container maxWidth="lg" sx={{ marginTop: 13, marginBottom: 5 }}>
-      <Typography variant="h3" fontWeight="bold" textAlign="center" gutterBottom>
-        สำรองข้อมูล
-      </Typography>
-      <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mb: 1 }}>
-        สำรองฐานข้อมูลอัตโนมัติทุกวัน เวลา 01:00 น. และเก็บไฟล์สำรองไว้ 30 วันล่าสุดเท่านั้น
-      </Typography>
-      <Divider sx={{ mb: 3 }} />
+    <Box sx={{ minHeight: "100vh", backgroundColor: "#F4F6F9", py: { xs: 4, md: 8 } }}>
+      <Container maxWidth="lg">
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={() => navigate("/choose")}
+          sx={{ mb: 2, fontWeight: "bold" }}
+        >
+          กลับหน้าเลือกเมนู
+        </Button>
+        <Typography variant="h3" fontWeight="bold" textAlign="center" gutterBottom>
+          สำรองข้อมูล
+        </Typography>
+        <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mb: 1 }}>
+          สำรองฐานข้อมูลอัตโนมัติทุกวัน เวลา 01:00 น. และเก็บไฟล์สำรองไว้ 30 วันล่าสุดเท่านั้น
+        </Typography>
+        <Divider sx={{ mb: 3 }} />
 
-      {isForbidden ? (
-        <Paper variant="outlined" sx={{ p: 4, borderRadius: 4, textAlign: "center" }}>
-          <Typography variant="subtitle1" fontWeight="bold" color="error">
-            ต้องมีสิทธิ์ผู้ดูแลระบบ (admin) จึงจะเข้าถึงหน้านี้ได้
-          </Typography>
-        </Paper>
-      ) : (
-        <>
+        {isForbidden ? (
+          <Paper variant="outlined" sx={{ p: 4, borderRadius: 4, textAlign: "center" }}>
+            <Typography variant="subtitle1" fontWeight="bold" color="error">
+              ต้องมีสิทธิ์ผู้ดูแลระบบ (admin) จึงจะเข้าถึงหน้านี้ได้
+            </Typography>
+          </Paper>
+        ) : (
+          <>
           <Paper
             variant="outlined"
             sx={{
@@ -344,9 +355,10 @@ const Backup = () => {
               </Paper>
             )}
           </Box>
-        </>
-      )}
-    </Container>
+          </>
+        )}
+      </Container>
+    </Box>
   );
 };
 
