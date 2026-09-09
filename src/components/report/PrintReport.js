@@ -430,14 +430,14 @@ const PrintReport = () => {
   };
 
   // กำหนดชำระเงินบนใบวางบิล ตั้งค่าได้จากปุ่มในหน้า UpdateReport ก่อนกดพิมพ์:
-  // "fixed" (ค่าเริ่มต้น รวมถึงข้อมูลเก่าก่อนมีตัวเลือกนี้) = คำนวณจากวันที่วางบิล + 3 วัน,
+  // "fixed" (ค่าเริ่มต้น) = คำนวณจากวันที่วางบิล + ระยะเวลาเครดิตของตั๋วนั้น (แต่ละประเภทตั๋วไม่เท่ากัน),
   // "manual" = ใช้วันที่ที่กำหนดเอง, "none" = ไม่ระบุวันที่
   const dueDateDisplay =
     invoiceData?.DueDateMode === "none"
       ? "-"
       : invoiceData?.DueDateMode === "manual"
         ? invoiceData?.ManualDueDate || "-"
-        : calculateDueDate(invoiceData?.Date, 3);
+        : calculateDueDate(invoiceData?.Date, invoiceData?.CreditTime);
 
   const formatThai = (date) => {
     if (!date) return "";

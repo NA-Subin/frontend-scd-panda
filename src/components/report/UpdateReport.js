@@ -823,6 +823,7 @@ const UpdateReport = (props) => {
       CodeIDCustomer: ticket.CodeID,
       DueDateMode: dueDateMode,
       ManualDueDate: dueDateMode === "manual" ? manualDueDate : null,
+      CreditTime: ticket.CreditTime,
       // DateStart: ticket.Date,
       // DateEnd: calculateDueDate(ticket.Date, ticket.CreditTime)
     };
@@ -915,6 +916,7 @@ const UpdateReport = (props) => {
       CodeIDCustomer: ticket.CodeID,
       DueDateMode: dueDateMode,
       ManualDueDate: dueDateMode === "manual" ? manualDueDate : null,
+      CreditTime: ticket.CreditTime,
       // DateStart: ticket.Date,
       // DateEnd: calculateDueDate(ticket.Date, ticket.CreditTime)
     };
@@ -1280,7 +1282,7 @@ const UpdateReport = (props) => {
                 onChange={(e) => setDueDateMode(e.target.value)}
                 sx={{ "& .MuiFormControlLabel-label": { fontSize: "14px" } }}
               >
-                <FormControlLabel value="fixed" control={<Radio size="small" />} label="ตามที่กำหนดไว้ (วันที่วางบิล + 3 วัน)" />
+                <FormControlLabel value="fixed" control={<Radio size="small" />} label={`ตามที่กำหนดไว้ (วันที่วางบิล + เครดิต ${ticket.CreditTime || 0} วัน ตามประเภทตั๋วนี้)`} />
                 <FormControlLabel value="manual" control={<Radio size="small" />} label="กำหนดเอง" />
                 <FormControlLabel value="none" control={<Radio size="small" />} label="ไม่ระบุวันที่" />
               </RadioGroup>

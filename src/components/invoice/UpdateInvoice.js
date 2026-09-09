@@ -10,6 +10,7 @@ import {
   DialogTitle,
   Divider,
   FormControl,
+  FormControlLabel,
   Grid,
   IconButton,
   InputAdornment,
@@ -17,6 +18,8 @@ import {
   MenuItem,
   Paper,
   Popover,
+  Radio,
+  RadioGroup,
   Select,
   Table,
   TableBody,
@@ -56,6 +59,7 @@ import NoteIcon from "@mui/icons-material/Note";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import PrintIcon from "@mui/icons-material/Print";
+import EventIcon from "@mui/icons-material/Event";
 import { apiPost, apiPut } from "../../server/apiClient";
 import theme from "../../theme/theme";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
@@ -88,6 +92,11 @@ const UpdateInvoice = (props) => {
   const [paperSize, setPaperSize] = useState("แนวตั้ง");
   const FUEL_ORDER = ["G95", "B95", "B7", "G91", "E20", "PWD", "B20"];
   const [windowWidths, setWindowWidths] = useState(window.innerWidth);
+
+  // กำหนดชำระเงินบนใบวางบิล - เลือกได้ว่าจะใช้ตามที่คำนวณไว้ (วันที่ส่งมอบ + ระยะเวลาเครดิตของตั๋วนี้)
+  // กำหนดวันที่เองแบบ manual หรือไม่ระบุวันที่เลยก็ได้
+  const [dueDateMode, setDueDateMode] = useState("fixed"); // "fixed" | "manual" | "none"
+  const [manualDueDate, setManualDueDate] = useState(dayjs().format("DD/MM/YYYY"));
 
   // ใช้ useEffect เพื่อรับฟังการเปลี่ยนแปลงของขนาดหน้าจอ
   useEffect(() => {
@@ -383,6 +392,25 @@ const UpdateInvoice = (props) => {
     return `วันที่ ${dueDay} เดือน${dueMonth} พ.ศ.${dueYear}`;
   };
 
+  const thaiMonthsForDueDate = [
+    "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+    "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม",
+  ];
+
+  // เลือกได้ 3 แบบจากปุ่มด้านบน: "fixed" ใช้สูตรเดิม (วันที่ส่งมอบ + เครดิตของตั๋วนี้),
+  // "manual" ใช้วันที่ที่กำหนดเอง, "none" ไม่ระบุวันที่กำหนดชำระเลย
+  const resolveDueDateText = () => {
+    if (dueDateMode === "none") return "ไม่ระบุกำหนดชำระเงิน";
+    if (dueDateMode === "manual") {
+      const d = dayjs(manualDueDate, "DD/MM/YYYY");
+      return `วันที่ ${d.date()} เดือน${thaiMonthsForDueDate[d.month()]} พ.ศ.${d.year() + 543}`;
+    }
+    return calculateDueDate(
+      ticket.DateDelivery,
+      ticket.CreditTime === "-" ? "0" : ticket.CreditTime,
+    );
+  };
+
   // 🔥 ทดสอบโค้ด
   console.log("Date:", ticket.Date);
   console.log("Credit Time:", ticket.CreditTime);
@@ -547,10 +575,7 @@ const UpdateInvoice = (props) => {
       Volume: ticket.TotalVolume || 0,
       Amount: ticket.TotalAmount || 0,
       Date: invoices[0]?.DateStart,
-      DateEnd: calculateDueDate(
-        ticket.DateDelivery,
-        ticket.CreditTime === "-" ? "0" : ticket.CreditTime,
-      ),
+      DateEnd: resolveDueDateText(),
       Company:
         customer?.Company
           ? (customer.CompanyRefName ?? companyName.Name)
@@ -881,6 +906,50 @@ const UpdateInvoice = (props) => {
             ตั๋ว : {ticket.TicketNameName}
           </Typography>
           {/* <Typography variant='subtitle1' fontWeight="bold" sx={{ marginTop: -2.5, fontSize: "12px", color: "red", textAlign: "right" }} gutterBottom>*กรอกราคาน้ำมันและพิมพ์ใบวางบิลตรงนี้*</Typography> */}
+        </Grid>
+        <Grid item md={12} xs={12}>
+          <Paper
+            variant="outlined"
+            sx={{
+              p: 1,
+              mb: 0.5,
+              display: "flex",
+              alignItems: "center",
+              gap: 1.5,
+              flexWrap: "wrap",
+            }}
+          >
+            <Box display="flex" alignItems="center" gap={0.5}>
+              <EventIcon color="action" fontSize="small" />
+              <Typography variant="body2" fontWeight="bold" sx={{ whiteSpace: "nowrap" }}>
+                กำหนดชำระเงินบนใบวางบิล :
+              </Typography>
+            </Box>
+            <RadioGroup
+              row
+              value={dueDateMode}
+              onChange={(e) => setDueDateMode(e.target.value)}
+              sx={{ "& .MuiFormControlLabel-label": { fontSize: "14px" } }}
+            >
+              <FormControlLabel value="fixed" control={<Radio size="small" />} label={`ตามที่กำหนดไว้ (วันที่ส่งมอบ + เครดิต ${ticket.CreditTime === "-" ? 0 : ticket.CreditTime || 0} วัน ตามประเภทตั๋วนี้)`} />
+              <FormControlLabel value="manual" control={<Radio size="small" />} label="กำหนดเอง" />
+              <FormControlLabel value="none" control={<Radio size="small" />} label="ไม่ระบุวันที่" />
+            </RadioGroup>
+            {dueDateMode === "manual" && (
+              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="th">
+                <DatePicker
+                  openTo="day"
+                  views={["year", "month", "day"]}
+                  value={dayjs(manualDueDate, "DD/MM/YYYY")}
+                  onChange={(newValue) =>
+                    newValue && setManualDueDate(dayjs(newValue).format("DD/MM/YYYY"))
+                  }
+                  format="DD/MM/YYYY"
+                  slotProps={{ textField: { size: "small", sx: { width: 160 } } }}
+                />
+              </LocalizationProvider>
+            )}
+          </Paper>
         </Grid>
         <Grid item md={3.5} xs={12}></Grid>
         <Grid item md={5.5} xs={7} textAlign="right">

@@ -10,6 +10,7 @@ import {
     DialogTitle,
     Divider,
     FormControl,
+    FormControlLabel,
     Grid,
     IconButton,
     InputAdornment,
@@ -17,6 +18,8 @@ import {
     MenuItem,
     Paper,
     Popover,
+    Radio,
+    RadioGroup,
     Select,
     Table,
     TableBody,
@@ -39,6 +42,7 @@ import AddBoxIcon from '@mui/icons-material/AddBox';
 import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
 import PrintIcon from '@mui/icons-material/Print';
+import EventIcon from '@mui/icons-material/Event';
 import theme from "../../theme/theme";
 import { apiPost, apiPut } from "../../server/apiClient";
 import { ShowError, ShowSuccess } from "../sweetalert/sweetalert";
@@ -65,6 +69,11 @@ const UpdateReport = (props) => {
     const [show, setShow] = useState(false);
     const [test, setTest] = useState([]);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+    // กำหนดชำระเงินบนใบวางบิล - เลือกได้ว่าจะใช้ตามที่คำนวณไว้ (วันที่วางบิล + ระยะเวลาเครดิตของตั๋วนี้)
+    // กำหนดวันที่เองแบบ manual หรือไม่ระบุวันที่เลยก็ได้
+    const [dueDateMode, setDueDateMode] = useState("fixed"); // "fixed" | "manual" | "none"
+    const [manualDueDate, setManualDueDate] = useState(dayjs().format("DD/MM/YYYY"));
 
     // ใช้ useEffect เพื่อรับฟังการเปลี่ยนแปลงของขนาดหน้าจอ
     useEffect(() => {
@@ -245,6 +254,21 @@ const UpdateReport = (props) => {
         }).format(date);
 
         return `กำหนดชำระเงินวันที่ ${formattedDate}`;
+    };
+
+    // เลือกได้ 3 แบบจากปุ่มด้านบน: "fixed" ใช้สูตรเดิม (วันที่ตั๋ว + เครดิตของตั๋วนี้),
+    // "manual" ใช้วันที่ที่กำหนดเอง, "none" ไม่ระบุวันที่กำหนดชำระเลย
+    const resolveDueDateText = () => {
+        if (dueDateMode === "none") return "ไม่ระบุกำหนดชำระเงิน";
+        if (dueDateMode === "manual") {
+            const formattedDate = new Intl.DateTimeFormat("th-TH", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+            }).format(dayjs(manualDueDate, "DD/MM/YYYY").toDate());
+            return `กำหนดชำระเงินวันที่ ${formattedDate}`;
+        }
+        return calculateDueDate(ticket.Date, ticket.CreditTime);
     };
 
     // 🔥 ทดสอบโค้ด
@@ -480,7 +504,7 @@ const UpdateReport = (props) => {
             Code: Code,
             Date: invoices1[0].DateStart,
             DateStart: ticket.Date,
-            DateEnd: calculateDueDate(ticket.Date, ticket.CreditTime)
+            DateEnd: resolveDueDateText()
         };
 
         // บันทึกข้อมูลลง sessionStorage
@@ -554,7 +578,7 @@ const UpdateReport = (props) => {
             Code: Code,
             Date: invoices2[0].DateStart,
             DateStart: ticket.Date,
-            DateEnd: calculateDueDate(ticket.Date, ticket.CreditTime)
+            DateEnd: resolveDueDateText()
         };
 
         // บันทึกข้อมูลลง sessionStorage
@@ -791,6 +815,51 @@ const UpdateReport = (props) => {
                             <Typography variant='subtitle1' fontWeight="bold" sx={{ marginBottom: -3, fontSize: "12px", color: "red", textAlign: "right" }} gutterBottom>*พิมพ์ใบวางบิลของบจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่) ตรงนี้*</Typography>
                         </Grid>
                     }
+
+                    <Grid item xs={12}>
+                        <Paper
+                            variant="outlined"
+                            sx={{
+                                p: 1,
+                                mb: 0.5,
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1.5,
+                                flexWrap: "wrap",
+                            }}
+                        >
+                            <Box display="flex" alignItems="center" gap={0.5}>
+                                <EventIcon color="action" fontSize="small" />
+                                <Typography variant="body2" fontWeight="bold" sx={{ whiteSpace: "nowrap" }}>
+                                    กำหนดชำระเงินบนใบวางบิล :
+                                </Typography>
+                            </Box>
+                            <RadioGroup
+                                row
+                                value={dueDateMode}
+                                onChange={(e) => setDueDateMode(e.target.value)}
+                                sx={{ "& .MuiFormControlLabel-label": { fontSize: "14px" } }}
+                            >
+                                <FormControlLabel value="fixed" control={<Radio size="small" />} label={`ตามที่กำหนดไว้ (วันที่วางบิล + เครดิต ${ticket.CreditTime || 0} วัน ตามประเภทตั๋วนี้)`} />
+                                <FormControlLabel value="manual" control={<Radio size="small" />} label="กำหนดเอง" />
+                                <FormControlLabel value="none" control={<Radio size="small" />} label="ไม่ระบุวันที่" />
+                            </RadioGroup>
+                            {dueDateMode === "manual" && (
+                                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="th">
+                                    <DatePicker
+                                        openTo="day"
+                                        views={["year", "month", "day"]}
+                                        value={dayjs(manualDueDate, "DD/MM/YYYY")}
+                                        onChange={(newValue) =>
+                                            newValue && setManualDueDate(dayjs(newValue).format("DD/MM/YYYY"))
+                                        }
+                                        format="DD/MM/YYYY"
+                                        slotProps={{ textField: { size: "small", sx: { width: 160 } } }}
+                                    />
+                                </LocalizationProvider>
+                            )}
+                        </Paper>
+                    </Grid>
 
                     <Grid item md={7.5} xs={12}>
                         <Typography variant="subtitle1" sx={{ marginTop: 1, fontSize: "18px" }} fontWeight="bold" gutterBottom>
