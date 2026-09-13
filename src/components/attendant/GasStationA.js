@@ -47,9 +47,10 @@ const GasStationA = () => {
     const employee = Object.values(officers || {});
     const gasstations = Object.values(gasstationDetail || {});
     const employeeDetail = employee.find((emp) => (emp.id === Number(userId.split("$")[1])));
-    const gasStationsDetail = gasstations.find((gas) => gas.id === Number(employeeDetail?.GasStation.split(":")[0]));
+    // employee_officers.GasStation is a real UUID FK into depot_gas_stations
+    // now, not "id:name" text - match on uuid directly.
+    const gasStationsDetail = gasstations.find((gas) => gas.uuid === employeeDetail?.GasStation);
 
-    console.log("GasStation : : :", Number(employeeDetail?.GasStation.split(":")[0]));
     console.log("GasStation : :", employeeDetail?.GasStation);
 
     const [open, setOpen] = React.useState(true);
@@ -148,8 +149,9 @@ const GasStationA = () => {
             return;
         }
 
-        const stationName = gasstationDetails.split(":")[1];
-        const matchedStation = gasstations.find((gas) => gas.Name === stationName);
+        // gasstationDetails (employee_officers.GasStation) is a real UUID FK
+        // into depot_gas_stations now, not "id:name" text - match on uuid.
+        const matchedStation = gasstations.find((gas) => gas.uuid === gasstationDetails);
 
         if (!matchedStation) {
             setGasStationsOil([]);

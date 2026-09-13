@@ -166,6 +166,13 @@ const InsertEmployee = (props) => {
             const positionRow = positionDetail.find(
                 (p) => p.id === Number(position.split(":")[0])
             );
+            // GasStation is a real UUID FK into depot_gas_stations now, not
+            // "id:name" text - gasStations here is still built as "id:name"
+            // by the <Select> below (same pattern as position above), so
+            // resolve it to the real uuid before sending it to the backend.
+            const gasStationRow = gasStation.find(
+                (g) => g.id === Number(gasStations.split(":")[0])
+            );
 
             // =======================
             // OFFICER
@@ -188,7 +195,7 @@ const InsertEmployee = (props) => {
                             Position: positionRow?.uuid || null,
                             PositionName: positionRow?.Name || "",
                             Phone: phone,
-                            GasStation: gasStations,
+                            GasStation: gasStationRow?.uuid || null,
                             Rights: check === 1 ? "แอดมิน" : check === 2 ? "หน้าลาน" : check === 3 ? "เจ้าหนี้น้ำมัน" : ""
                         },
                     });

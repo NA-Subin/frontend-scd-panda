@@ -232,6 +232,7 @@ const UpdateFinancial = (props) => {
             dateInvoice: item.SelectedDateInvoice,
             dateTranfer: item.SelectedDateTransfer,
             registration: item.Registration,
+            registrationName: item.RegistrationName,
             company: item.Company,
             details: item.Details,
             Group: group,
@@ -249,7 +250,7 @@ const UpdateFinancial = (props) => {
 
     const [selectedValue, setSelectedValue] = useState(row.Group !== "กลุ่ม" ? (
         getRegistration().find((item) =>
-            item.TruckType === row.TruckType && item.id === Number(row.Registration?.split(":")[0]))) : null
+            item.TruckType === row.TruckType && item.uuid === row.Registration)) : null
     );
 
     console.log("List : ", list);
@@ -368,7 +369,7 @@ const UpdateFinancial = (props) => {
         setSelectedDateTransfer(dayjs(row.SelectedDateTransfer, "DD/MM/YYYY"));
         setSelectedValue(row.Group !== "กลุ่ม" ? (
             getRegistration().find((item) =>
-                item.TruckType === row.TruckType && item.id === Number(row.Registration?.split(":")[0]))) : null
+                item.TruckType === row.TruckType && item.uuid === row.Registration)) : null
         );
         setList(formattedList);
         setGroup(row.Group !== "กลุ่ม" ? "เดี่ยว" : "กลุ่ม");
@@ -496,6 +497,7 @@ const UpdateFinancial = (props) => {
                 SelectedDateInvoice: dayjs(selectedDateInvoice, "DD/MM/YYYY").format("DD/MM/YYYY"),
                 SelectedDateTransfer: dayjs(selectedDateTransfer, "DD/MM/YYYY").format("DD/MM/YYYY"),
                 Registration: item.registration,
+                RegistrationName: item.registrationName,
                 Company: company?.uuid,
                 CompanyName: company?.Name,
                 Details: details,
@@ -758,7 +760,11 @@ const UpdateFinancial = (props) => {
                                                         invoiceID: invoiceID,
                                                         dateInvoice: dayjs(selectedDateInvoice, "DD/MM/YYYY").format("DD/MM/YYYY"),
                                                         dateTranfer: dayjs(selectedDateTransfer, "DD/MM/YYYY").format("DD/MM/YYYY"),
-                                                        registration: `${newValue.id}:${newValue.Registration}`,
+                                                        // report_invoice.Registration is a real UUID FK into
+                                                        // truck_registration now, not "id:name" text - newValue
+                                                        // is already that row, so its own uuid is the value.
+                                                        registration: newValue.uuid,
+                                                        registrationName: newValue.Registration,
                                                         company: company,
                                                         details: details,
                                                         Group: group,
@@ -1220,9 +1226,7 @@ const UpdateFinancial = (props) => {
                                                         <TableRow key={item.id}>
                                                             <TableCell sx={{ textAlign: "center", color: !edit ? "gray" : "black" }}>{index + 1}</TableCell>
                                                             <TableCell sx={{ textAlign: "center", color: !edit ? "gray" : "black" }}>
-                                                                {item.registration?.includes(":")
-                                                                    ? item.registration.split(":")[1]
-                                                                    : item.registration}
+                                                                {item.registrationName || item.registration}
                                                             </TableCell>
                                                             <TableCell sx={{ textAlign: "center", color: !edit ? "gray" : "black" }}>{item.truckType}</TableCell>
                                                             <TableCell sx={{ textAlign: "center" }}>

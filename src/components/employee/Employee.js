@@ -132,15 +132,15 @@ const Employee = ({ openNavbar }) => {
   const datareghead = useMemo(() => Object.values(reghead || {}), [reghead]).filter((item) => item.StatusTruck !== "ยกเลิก");
   const datasmall = useMemo(() => Object.values(small || {}), [small]).filter((item) => item.StatusTruck !== "ยกเลิก");
 
-  // ตัวกรองรถที่ไม่มีคนขับ - Driver is a real UUID FK (null when unassigned) on
-  // truck_registration, but a plain "no driver" TEXT placeholder on truck_small.
+  // ตัวกรองรถที่ไม่มีคนขับ - Driver is a real UUID FK (null when unassigned)
+  // on both truck_registration and truck_small.
   const registrationHead = useMemo(() =>
     datareghead.filter(row => !row.Driver),
     [datareghead]
   );
 
   const registrationSmallTruck = useMemo(() =>
-    datasmall.filter(row => row.Driver === "0:ไม่มี" || row.Driver === "ไม่มี" || !row.Driver),
+    datasmall.filter(row => !row.Driver),
     [datasmall]
   );
 

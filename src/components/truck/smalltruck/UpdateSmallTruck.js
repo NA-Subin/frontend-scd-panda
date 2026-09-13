@@ -73,12 +73,22 @@ const UpdateSmallTruck = (props) => {
         return value.includes(":") ? value.split(":")[1] : value;
     };
 
+    // truck_small.Driver is a real UUID FK into employee_drivers now, not
+    // "id:name" text - but the Select below (and the rest of this component)
+    // still works internally in that "id:name" shape, so rebuild it once
+    // from the FK + the DriverName companion column.
+    const resolveInitialDriverValue = (t) => {
+        if (!t.Driver) return t.DriverName && t.DriverName !== "ไม่มี" ? t.DriverName : "0:ไม่มี";
+        const row = employees.find((e) => e.uuid === t.Driver);
+        return row ? `${row.id}:${row.Name}` : (t.DriverName || "0:ไม่มี");
+    };
+
     const toggleDrawer = (newOpen) => () => {
         setOpenTab(newOpen);
     };
 
     const [companies, setCompanies] = React.useState(truck.Company);
-    const [driver, setDriver] = React.useState(truck.Driver);
+    const [driver, setDriver] = React.useState(resolveInitialDriverValue(truck));
     const [registration, setRegistration] = React.useState(truck.RegHead);
     const [weight, setWeight] = React.useState(truck.Weight);
     const [insurance, setInsurance] = React.useState(truck.Insurance);
@@ -109,7 +119,7 @@ const UpdateSmallTruck = (props) => {
 
     const handleCancle = () => {
         setCompanies(truck.Company);
-        setDriver(truck.Driver);
+        setDriver(resolveInitialDriverValue(truck));
         setRegistration(truck.RegHead);
         setWeight(truck.Weight);
         setInsurance(truck.Insurance);
@@ -156,15 +166,26 @@ const UpdateSmallTruck = (props) => {
 
             // employees Select only produces a fresh "id:Name" value when the
             // user actually picks someone new - anything else (unchanged plain
-            // text, or the "0:ไม่มี" sentinel) means the driver text is unchanged.
+            // text, or the "0:ไม่มี" sentinel) means the driver is unchanged.
             const newlySelectedDriver = driver?.includes(":") && driver !== "0:ไม่มี"
                 ? employees.find((e) => e.id === Number(driver.split(":")[0]))
                 : null;
-            const driverText = driver === "0:ไม่มี"
-                ? "ไม่มี"
-                : newlySelectedDriver
-                    ? newlySelectedDriver.Name
-                    : driver;
+
+            // truck_small.Driver is a real UUID FK into employee_drivers now -
+            // resolve to the actual uuid instead of sending display text.
+            let driverUuid = null;
+            let driverName = "ไม่มี";
+            if (driver === "0:ไม่มี" || driver === "ไม่มี") {
+                driverUuid = null;
+                driverName = "ไม่มี";
+            } else if (newlySelectedDriver) {
+                driverUuid = newlySelectedDriver.uuid;
+                driverName = newlySelectedDriver.Name;
+            } else {
+                // Unchanged - keep whatever the truck already had.
+                driverUuid = truck.Driver;
+                driverName = truck.DriverName;
+            }
 
             await apiPut(`/api/truck_small/${truck.uuid}`, {
                 RegHead: registration,
@@ -175,7 +196,8 @@ const UpdateSmallTruck = (props) => {
                 VehExpirationDate: vehExpirationDate,
                 Company: companyRow?.uuid || null,
                 CompanyName: companyRow?.Name || "",
-                Driver: driverText,
+                Driver: driverUuid,
+                DriverName: driverName,
                 Path: vehicleRegistration ? img : "ไม่แนบไฟล์"
             });
 

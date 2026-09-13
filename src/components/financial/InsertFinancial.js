@@ -421,6 +421,7 @@ const InsertFinancial = () => {
               "DD/MM/YYYY",
             ).format("DD/MM/YYYY"),
             Registration: item.registration,
+            RegistrationName: item.registrationName,
             Company: company?.uuid,
             CompanyName: company?.Name,
             Details: details,
@@ -791,14 +792,13 @@ const InsertFinancial = () => {
                       setSelectedRegistration(newValue);
                       if (!newValue) return;
 
-                      const reg =
-                        type === "หัวรถ" || type === "รถเล็ก"
-                          ? `${newValue?.id}:${newValue?.RegHead}`
-                          : `${newValue?.id}:${newValue?.RegTail}`;
-
+                      // report_invoice.Registration is a real UUID FK into
+                      // truck_registration now, not "id:name" text - newValue
+                      // is already that row, so its own uuid is the value.
                       const newItem = {
                         id: Date.now(),
-                        registration: reg,
+                        registration: newValue?.uuid,
+                        registrationName: newValue?.Registration,
                         truckType: newValue?.TruckType,
                       };
 
@@ -810,7 +810,7 @@ const InsertFinancial = () => {
 
                         // ✅ แบบกลุ่ม เพิ่มได้หลายตัว
                         const exists = prev.some(
-                          (item) => item.registration === reg,
+                          (item) => item.registration === newItem.registration,
                         );
 
                         if (exists) return prev;
@@ -1331,9 +1331,7 @@ const InsertFinancial = () => {
                                 {index + 1}
                               </TableCell>
                               <TableCell sx={{ textAlign: "center" }}>
-                                {item.registration?.includes(":")
-                                  ? item.registration.split(":")[1]
-                                  : item.registration}
+                                {item.registrationName || item.registration}
                               </TableCell>
                               <TableCell sx={{ textAlign: "center" }}>
                                 {item.truckType}

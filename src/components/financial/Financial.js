@@ -108,16 +108,10 @@ const Financial = () => {
 
     console.log("getRegistration : ", getRegistration());
 
-    // Registration on report_invoice is stored as the legacy "id:PlateText"
-    // composite (never split into a real FK column), so the plate has to be
-    // resolved back from the numeric id every time it's displayed.
-    const resolveRegistrationDisplay = (composite) => {
-        if (!composite) return "";
-        const [idPart, ...rest] = String(composite).split(":");
-        const fallback = rest.join(":") || composite;
-        const found = getRegistration().find((item) => item.id === Number(idPart));
-        return found ? found.Registration : fallback;
-    };
+    // report_invoice.Registration is a real UUID FK into truck_registration
+    // now, not "id:PlateText" text - the plate name is already on the row as
+    // RegistrationName, no lookup needed.
+    const resolveRegistrationDisplay = (row) => row?.RegistrationName || "";
 
     const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
@@ -141,7 +135,7 @@ const Financial = () => {
 
     const reportDetail = reports.filter((item) => {
         const itemDate = dayjs(item.SelectedDateInvoice, "DD/MM/YYYY");
-        const registrations = resolveRegistrationDisplay(item?.Registration);
+        const registrations = resolveRegistrationDisplay(item);
         const company = item?.CompanyName || item?.Company || "";
         const bank = item?.BankName || item?.Bank || "";
 
@@ -314,7 +308,7 @@ const Financial = () => {
                 invoice: row.InvoiceID,
                 dateInvoice: formatThaiSlash(dayjs(row.SelectedDateInvoice, "DD/MM/YYYY")),
                 dateTransfer: formatThaiSlash(dayjs(row.SelectedDateTransfer, "DD/MM/YYYY")),
-                registration: `${resolveRegistrationDisplay(row.Registration)} (${row.TruckType})`,
+                registration: `${resolveRegistrationDisplay(row)} (${row.TruckType})`,
                 company: row.CompanyName,
                 bank: row.BankName,
                 price: row.Price,
@@ -605,7 +599,12 @@ const Financial = () => {
                 InvoiceID: invoiceID,
                 SelectedDateInvoice: dayjs(selectedDateInvoice, "DD/MM/YYYY").format("DD/MM/YYYY"),
                 SelectedDateTransfer: dayjs(selectedDateTransfer, "DD/MM/YYYY").format("DD/MM/YYYY"),
-                Registration: registration,
+                // report_invoice.Registration is a real UUID FK now - regID
+                // already holds the clean uuid (see handleUpdateBill), and
+                // this form never lets the user change it, so just resubmit
+                // both parts of what was loaded.
+                Registration: regID,
+                RegistrationName: registration.includes(":") ? registration.split(":").slice(1).join(":") : "",
                 Company: company,
                 CompanyName: companyRow?.Name,
                 Bank: bank,
@@ -1216,7 +1215,7 @@ const Financial = () => {
                                             }}>
                                                 {
                                                     row.Group !== "กลุ่ม" &&
-                                                    <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{`${resolveRegistrationDisplay(row.Registration)} (${row.TruckType})`}</Typography>
+                                                    <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{`${resolveRegistrationDisplay(row)} (${row.TruckType})`}</Typography>
                                                     // (billID !== row.id ?
                                                     //     <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{`${row.RegistrationName} (${row.TruckType})`}</Typography>
                                                     //     :
