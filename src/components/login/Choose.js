@@ -47,10 +47,10 @@ import UpdateDatabase from "../dashboard/test";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { apiPost } from "../../server/apiClient";
 
-// Published as a Claude Artifact - not part of this codebase, so there's
-// nothing to keep in sync here beyond this URL if the manual is ever
-// republished somewhere else.
-const MANUAL_URL = "https://claude.ai/code/artifact/afd8858a-158a-45e9-80a7-863e730ddd3c";
+// Static HTML file served straight from the public/ folder (not a React
+// route) - anyone with a login can open it, no separate sharing/access
+// step needed the way the earlier Claude Artifact version required.
+const MANUAL_URL = "/manual.html";
 
 // One shared visual style for every main-navigation destination card -
 // icon + label, brand-colored, same footprint - so the grid re-centers

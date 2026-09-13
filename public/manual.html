@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>คู่มือใช้งาน PandaStar Oil</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap');
+
+  :root{
+    --navy:#244873; --navy-deep:#172e4a; --navy-soft:#e8eef5;
+    --red:#cf444a; --red-soft:#fbe9ea; --red-ink:#8a1f26;
+    --bg:#F4F6F9; --surface:#ffffff;
+    --ink:#1e293b; --muted:#5b6b82;
+    --line:#dfe6ee;
+    --success:#1f7a3d; --success-soft:#e6f4ea;
+    --amber:#a05a00; --amber-soft:#fdf1df; --amber-ink:#6b4700;
+    --blue-soft:#eaf0fb; --blue-ink:#3454a3;
+    --pink-soft:#fbe9f3; --pink-ink:#a3345f;
+    --purple-soft:#eef0fb; --purple-ink:#4b3fa3;
+    --neutral-soft:#eef1f4;
+    --radius:14px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --navy:#5f8fc2; --navy-deep:#0f1f33; --navy-soft:#152a42;
+      --red:#e08186; --red-soft:#3a2023; --red-ink:#f3b4b8;
+      --bg:#0d1420; --surface:#131f30;
+      --ink:#e6ecf5; --muted:#9fb0c6;
+      --line:#243348;
+      --success:#6fce8f; --success-soft:#122a1c;
+      --amber:#e0b876; --amber-soft:#332711; --amber-ink:#f2cd98;
+      --blue-soft:#1a2740; --blue-ink:#9db3e8;
+      --pink-soft:#3a1f2c; --pink-ink:#e89ab8;
+      --purple-soft:#221f3a; --purple-ink:#b3abf0;
+      --neutral-soft:#1c2839;
+    }
+  }
+  :root[data-theme="dark"]{
+    --navy:#5f8fc2; --navy-deep:#0f1f33; --navy-soft:#152a42;
+    --red:#e08186; --red-soft:#3a2023; --red-ink:#f3b4b8;
+    --bg:#0d1420; --surface:#131f30;
+    --ink:#e6ecf5; --muted:#9fb0c6;
+    --line:#243348;
+    --success:#6fce8f; --success-soft:#122a1c;
+    --amber:#e0b876; --amber-soft:#332711; --amber-ink:#f2cd98;
+    --blue-soft:#1a2740; --blue-ink:#9db3e8;
+    --pink-soft:#3a1f2c; --pink-ink:#e89ab8;
+    --purple-soft:#221f3a; --purple-ink:#b3abf0;
+    --neutral-soft:#1c2839;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Sarabun",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  code, .mono, .route{
+    font-family:"JetBrains Mono","Consolas",monospace;
+  }
+  h1,h2,h3,h4{ text-wrap:balance; margin:0; }
+  p{ margin:0; }
+
+  .layout{ display:flex; min-height:100vh; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    width:280px; flex-shrink:0; background:var(--navy-deep); color:#fff;
+    position:sticky; top:0; height:100vh; overflow-y:auto;
+    padding:22px 16px 24px; display:flex; flex-direction:column; gap:18px;
+  }
+  .brand{ padding:2px 8px 14px; border-bottom:1px solid rgba(255,255,255,.12); }
+  .brand .name{ font-weight:800; font-size:19px; letter-spacing:.2px; }
+  .brand .sub{ font-size:12.5px; color:#b9c7db; margin-top:3px; }
+
+  .searchbox{ position:relative; padding:0 8px; }
+  .searchbox input{
+    width:100%; padding:9px 12px 9px 32px; border-radius:10px; border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.08); color:#fff; font-family:inherit; font-size:14px;
+  }
+  .searchbox input::placeholder{ color:#9fb0c6; }
+  .searchbox svg{ position:absolute; left:20px; top:50%; transform:translateY(-50%); opacity:.7; }
+
+  .navgroups{ display:flex; flex-direction:column; gap:2px; padding:0 4px; overflow-y:auto; }
+  .navlink{
+    display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:10px;
+    color:#dbe4f0; text-decoration:none; font-size:14px; font-weight:600;
+    border:1px solid transparent; transition:background .12s;
+  }
+  .navlink:hover{ background:rgba(255,255,255,.08); }
+  .navlink .dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .navlink .count{
+    margin-left:auto; font-size:11.5px; font-weight:700; color:#9fb0c6;
+    background:rgba(255,255,255,.08); padding:1px 7px; border-radius:20px;
+  }
+  .navlink.top{ color:#fff; }
+
+  .sidebar-foot{
+    margin-top:auto; padding:12px 8px 0; border-top:1px solid rgba(255,255,255,.12);
+    font-size:12px; color:#8ea1ba; line-height:1.6;
+  }
+
+  /* ---------- Main ---------- */
+  .main{ flex:1; min-width:0; }
+  .topbar{
+    position:sticky; top:0; z-index:5; background:var(--bg);
+    border-bottom:1px solid var(--line); padding:14px 40px; display:flex; align-items:center; justify-content:space-between; gap:16px;
+  }
+  .topbar .crumb{ font-size:13px; color:var(--muted); font-weight:600; }
+  .printbtn{
+    display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:10px;
+    background:var(--surface); border:1px solid var(--line); color:var(--ink);
+    font-family:inherit; font-size:13.5px; font-weight:700; cursor:pointer;
+  }
+  .printbtn:hover{ border-color:var(--navy); color:var(--navy); }
+
+  .content{ max-width:980px; margin:0 auto; padding:36px 40px 100px; }
+
+  .hero{ padding-bottom:28px; border-bottom:1px solid var(--line); margin-bottom:36px; }
+  .hero .eyebrow{
+    font-size:12.5px; font-weight:700; color:var(--red); letter-spacing:.06em; text-transform:uppercase;
+  }
+  .hero h1{ font-size:34px; font-weight:800; color:var(--navy); margin-top:8px; }
+  .hero .lede{ font-size:16px; color:var(--muted); margin-top:12px; line-height:1.75; max-width:70ch; }
+
+  .role-legend{ display:flex; flex-wrap:wrap; gap:8px; margin-top:20px; }
+  .role-chip{
+    display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700;
+    padding:6px 12px; border-radius:20px; background:var(--navy-soft); color:var(--navy); border:1px solid var(--line);
+  }
+
+  section.group{ margin-bottom:52px; scroll-margin-top:80px; }
+  .group-head{ display:flex; align-items:baseline; gap:12px; margin-bottom:6px; flex-wrap:wrap; }
+  .group-head h2{ font-size:24px; font-weight:800; color:var(--navy); }
+  .group-head .flag{
+    font-size:12px; font-weight:700; padding:3px 10px; border-radius:20px;
+  }
+  .flag.basic{ background:var(--navy-soft); color:var(--navy); }
+  .flag.op{ background:var(--success-soft); color:var(--success); }
+  .flag.fin{ background:var(--amber-soft); color:var(--amber); }
+  .flag.report{ background:var(--blue-soft); color:var(--blue-ink); }
+  .flag.small{ background:var(--pink-soft); color:var(--pink-ink); }
+  .flag.gas{ background:var(--success-soft); color:var(--success); }
+  .flag.driver{ background:var(--purple-soft); color:var(--purple-ink); }
+  .flag.admin{ background:var(--red-soft); color:var(--red); }
+  .flag.everyone{ background:var(--neutral-soft); color:var(--muted); }
+  .group-desc{ font-size:14.5px; color:var(--muted); margin-bottom:22px; max-width:75ch; line-height:1.7; }
+
+  .pagecard{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:22px 24px; margin-bottom:16px;
+  }
+  .pagecard-head{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+  .pagecard-head h3{ font-size:18px; font-weight:800; color:var(--ink); }
+  .route{
+    font-size:12px; font-weight:500; color:var(--navy); background:var(--navy-soft);
+    padding:2px 9px; border-radius:6px;
+  }
+  .purpose{ font-size:14.5px; line-height:1.75; color:var(--ink); margin-bottom:14px; }
+
+  .pagecard h4{
+    font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;
+    margin:14px 0 8px;
+  }
+  .pagecard ul{ margin:0; padding-left:20px; display:flex; flex-direction:column; gap:6px; }
+  .pagecard li{ font-size:14px; line-height:1.65; }
+  .pagecard li b{ color:var(--ink); }
+
+  .note{
+    display:flex; gap:10px; align-items:flex-start; margin-top:14px; padding:11px 14px;
+    background:var(--amber-soft); border-radius:10px; font-size:13.5px; line-height:1.65; color:var(--amber-ink);
+  }
+  .note svg{ flex-shrink:0; margin-top:2px; }
+
+  .admin-note{ background:var(--red-soft); color:var(--red-ink); }
+
+  table.perm{ width:100%; border-collapse:collapse; font-size:13.5px; margin-top:8px; }
+  table.perm th, table.perm td{ text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); }
+  table.perm th{ color:var(--muted); font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+  table.perm td.yes{ color:var(--success); font-weight:700; }
+  table.perm td.no{ color:var(--muted); }
+
+  .tablewrap{ overflow-x:auto; }
+
+  .shot-wrap{
+    margin-top:14px; border:1px solid var(--line); border-radius:10px; overflow:hidden;
+    max-height:420px; overflow-y:auto; position:relative; background:var(--bg);
+  }
+  .shot-wrap img{ display:block; width:100%; height:auto; }
+  .shot-link{
+    display:inline-flex; align-items:center; gap:5px; margin-top:8px; font-size:12.5px;
+    font-weight:700; color:var(--navy); text-decoration:none;
+  }
+  .shot-link:hover{ text-decoration:underline; }
+
+  ::selection{ background:var(--navy-soft); }
+  [hidden]{ display:none !important; }
+
+  @media print{
+    .sidebar, .topbar{ display:none; }
+    .content{ max-width:none; padding:0 12px; }
+    .pagecard{ break-inside:avoid; }
+    body{ background:#fff; }
+  }
+
+  @media (max-width:900px){
+    .sidebar{ display:none; }
+    .content, .topbar{ padding-left:20px; padding-right:20px; }
+  }
+</style>
+
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="name">คู่มือใช้งาน</div>
+      <div class="sub">ระบบบริหารจัดการขนส่งน้ำมัน PandaStar Oil</div>
+    </div>
+    <div class="searchbox">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9fb0c6" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="searchInput" type="text" placeholder="ค้นหาหน้า เช่น ตั๋ว, บริษัท..." autocomplete="off">
+    </div>
+    <div class="navgroups" id="navgroups"></div>
+    <div class="sidebar-foot">แยกเนื้อหาตามสิทธิ์การใช้งาน (ตำแหน่งงาน) ที่กำหนดในหน้า "จัดการสิทธิ์การใช้งาน"</div>
+  </nav>
+
+  <div class="main">
+    <div class="topbar">
+      <span class="crumb" id="crumb">ภาพรวมคู่มือ</span>
+      <button class="printbtn" onclick="window.print()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        พิมพ์คู่มือ
+      </button>
+    </div>
+    <div class="content" id="content">
+      <div id="top"></div>
+      <div class="hero">
+        <div class="eyebrow">คู่มือฉบับสมบูรณ์ · แยกตามสิทธิ์การใช้งาน</div>
+        <h1>คู่มือใช้งานระบบ PandaStar Oil</h1>
+        <p class="lede">
+          ระบบนี้แสดงเมนูไม่เท่ากันให้แต่ละคน ขึ้นอยู่กับ "ตำแหน่งงาน" ที่ผูกไว้กับบัญชีผู้ใช้ และสิทธิ์
+          9 อย่างที่ตำแหน่งนั้นได้รับ (ดูและแก้ไขได้ที่หน้า "ตั้งค่า → จัดการสิทธิ์การใช้งาน" สำหรับผู้ดูแลระบบเท่านั้น)
+          คู่มือนี้จึงจัดกลุ่มตามสิทธิ์ ไม่ใช่ตามเมนู — เลือกกลุ่มสิทธิ์ที่ตรงกับบัญชีของท่านทางด้านซ้าย
+          หรือพิมพ์คำค้นหาเพื่อหาหน้าที่ต้องการโดยตรง
+        </p>
+        <div class="role-legend">
+          <span class="role-chip">🔑 ข้อมูลทั่วไป (BasicData)</span>
+          <span class="role-chip">⚙️ ปฏิบัติงาน (OprerationData)</span>
+          <span class="role-chip">💰 การเงิน (FinancialData)</span>
+          <span class="role-chip">📊 รายงาน (ReportData)</span>
+          <span class="role-chip">🚐 รถเล็ก (SmallTruckData)</span>
+          <span class="role-chip">⛽ หน้าลาน (GasStationData)</span>
+          <span class="role-chip">🚚 พขร. (DriverData)</span>
+          <span class="role-chip">🛡️ ผู้ดูแลระบบ (AdminData)</span>
+        </div>
+      </div>
+
+      <section class="group" id="grp-everyone">
+        <div class="group-head">
+          <h2>เริ่มต้นใช้งาน — ทุกคนที่ล็อกอินได้เข้าถึง</h2>
+          <span class="flag everyone">ไม่ต้องมีสิทธิ์พิเศษ</span>
+        </div>
+        <p class="group-desc">
+          4 หน้านี้เข้าได้โดยไม่ต้องมีสิทธิ์ 9 อย่างข้างต้นเลยแม้แต่อย่างเดียว — ทุกคนที่มีบัญชีและล็อกอินสำเร็จจะเห็นเหมือนกันหมด
+        </p>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>เข้าสู่ระบบ</h3><span class="route">/ , /login</span></div>
+          <p class="purpose">หน้าแรกสุดของระบบ ใช้กรอก User และ Password เพื่อเข้าใช้งาน</p>
+          <h4>วิธีใช้งาน</h4>
+          <ul>
+            <li>กรอกช่อง <b>User</b> และ <b>Password</b> แล้วกดปุ่ม <b>"เข้าสู่ระบบ"</b></li>
+            <li>ระบบจะพาไปหน้าที่เหมาะกับสิทธิ์ของบัญชีนั้นโดยอัตโนมัติ: มีสิทธิ์ <b>พขร. อย่างเดียว</b> → ไปหน้าพนักงานขับรถ, มีสิทธิ์ <b>หน้าลานอย่างเดียว</b> → ไปหน้าลงข้อมูลน้ำมัน, นอกนั้น → ไปหน้า "เลือกเมนู"</li>
+          </ul>
+          <div class="note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>ไม่มีปุ่ม "ลืมรหัสผ่าน" — หากลืมรหัสผ่านต้องให้ผู้ดูแลระบบช่วยตั้งรหัสใหม่ให้ผ่านหน้าจัดการพนักงาน</div>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>เลือกเมนู</h3><span class="route">/choose</span></div>
+          <p class="purpose">หน้ากลางหลังล็อกอิน รวมทางลัดไปหน้าหลักที่ตรงกับสิทธิ์ของบัญชีนั้น ๆ ให้เลือกเข้า</p>
+          <div class="shot-wrap"><a href="manual-assets/choose.png" target="_blank" rel="noopener"><img src="manual-assets/choose.png" alt="ภาพหน้าจอหน้าเลือกเมนู" loading="lazy"></a></div>
+          <h4>ปุ่ม/การ์ดที่อาจเห็น (แสดงตามสิทธิ์)</h4>
+          <ul>
+            <li><b>"หน้าหลัก"</b> — แสดงเมื่อมีสิทธิ์อย่างน้อย 1 อย่างจาก 6 สิทธิ์หลัก กดแล้วพาไปหน้าที่เหมาะกับสิทธิ์แรงสุดของบัญชี (มี BasicData → หน้า Dashboard, ไม่มีแต่มีรถเล็ก → หน้าจัดเที่ยววิ่งรถเล็ก, ไม่มีแต่มีปฏิบัติงาน → เที่ยววิ่งรถใหญ่, ไม่มีแต่มีการเงิน → ชำระค่าน้ำมัน, ไม่มีแต่มีรายงาน → หน้าชำระค่าขนส่ง)</li>
+            <li><b>"พนักงานขับรถ"</b> — แสดงเมื่อมีสิทธิ์ พขร. ควบคู่กับสิทธิ์อื่น (ไม่ใช่บัญชีคนขับรถโดยตรง) กดแล้วไปหน้าจัดการ/ติดตามเที่ยววิ่งของพนักงานขับรถ</li>
+            <li><b>"ใบเสนอราคาลูกค้า"</b> — แสดงให้ทุกคนเสมอ ไม่ขึ้นกับสิทธิ์ใด ๆ</li>
+          </ul>
+          <h4>ส่วนเครื่องมือผู้ดูแลระบบ (แสดงเฉพาะมีสิทธิ์ AdminData)</h4>
+          <ul>
+            <li>ปุ่ม <b>"นำเข้าข้อมูล JSON (ทับข้อมูลเดิมทั้งหมด)"</b> และ <b>"เพิ่มข้อมูลใหม่ (ไม่ลบของเดิม)"</b> — ดูรายละเอียดในหมวดผู้ดูแลระบบด้านล่าง</li>
+            <li>ปุ่ม <b>"สำรองข้อมูล"</b> — เปิดกล่องให้ยืนยันรหัสผ่านก่อนเข้าหน้าสำรองข้อมูล (ดูหมวดผู้ดูแลระบบ)</li>
+          </ul>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>ใบเสนอราคาลูกค้า</h3><span class="route">/quotation</span></div>
+          <p class="purpose">สร้าง แก้ไข และพิมพ์เอกสารใบเสนอราคาน้ำมันให้ลูกค้า เปิดให้ทุกบัญชีใช้ได้เสมอ ไม่ผูกกับสิทธิ์ใดเลย</p>
+          <div class="shot-wrap"><a href="manual-assets/quotation.png" target="_blank" rel="noopener"><img src="manual-assets/quotation.png" alt="ภาพหน้าจอใบเสนอราคาลูกค้า" loading="lazy"></a></div>
+          <h4>ส่วนประกอบหลัก</h4>
+          <ul>
+            <li>หน้าสร้างใบเสนอราคาใหม่ — ติ๊กเลือกประเภท <b>"รถใหญ่"</b> หรือ <b>"รถเล็ก"</b> แล้วกรอกรายละเอียด</li>
+            <li>ปุ่ม <b>"ตรวจสอบใบวางบิลที่เคยกรอกข้อมูล"</b> — สลับไปหน้ารายการใบเสนอราคาที่มีอยู่แล้ว เพื่อดู/แก้ไข/ยกเลิก</li>
+          </ul>
+          <h4>ในหน้าแก้ไขรายการที่มีอยู่</h4>
+          <ul>
+            <li><b>"แก้ไข"</b> — เปิดแก้ไขรายละเอียดใบเสนอราคา</li>
+            <li><b>"พิมพ์ใบเสนอราคาลูกค้า"</b> — ส่งออกเป็น PDF ทันทีในเบราว์เซอร์ (ไม่ต้องเปิดหน้าต่างพิมพ์แยก)</li>
+            <li><b>"ยกเลิก"</b> — ยกเลิกใบเสนอราคานั้น</li>
+            <li><b>"กลับไปยังหน้าสำหรับเพิ่มข้อมูล"</b> — กลับไปหน้าสร้างใหม่</li>
+          </ul>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>ตั้งค่า — ข้อมูลส่วนตัว</h3><span class="route">/setting</span></div>
+          <p class="purpose">ทุกบัญชีเข้าดูข้อมูลของตัวเองและเปลี่ยนรหัสผ่านได้ที่แท็บนี้เสมอ (อีก 2 แท็บของหน้านี้สงวนไว้เฉพาะผู้ดูแลระบบ — ดูหมวดผู้ดูแลระบบด้านล่าง)</p>
+          <div class="shot-wrap"><a href="manual-assets/setting-personal.png" target="_blank" rel="noopener"><img src="manual-assets/setting-personal.png" alt="ภาพหน้าจอตั้งค่า ข้อมูลส่วนตัว" loading="lazy"></a></div>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul>
+            <li>ดูข้อมูล <b>ชื่อ-สกุล ตำแหน่ง User เบอร์โทร</b> ของตนเอง</li>
+            <li>กดปุ่ม <b>"แก้ไขรหัสผ่าน"</b> → กรอกรหัสผ่านเดิม รหัสผ่านใหม่ ยืนยันรหัสผ่านใหม่ แล้วกด <b>"บันทึก"</b></li>
+            <li>ไอคอน ⓘ ข้าง "ตำแหน่ง" อธิบายว่าสิทธิ์การใช้งานผูกกับตำแหน่งนี้ หากต้องการเปลี่ยนสิทธิ์ให้ติดต่อผู้ดูแลระบบ</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="group" id="grp-basic">
+        <div class="group-head">
+          <h2>🔑 ข้อมูลทั่วไป</h2>
+          <span class="flag basic">สิทธิ์ BasicData</span>
+        </div>
+        <p class="group-desc">
+          กลุ่มสิทธิ์ที่กว้างที่สุด ครอบคลุมข้อมูลพื้นฐานของกิจการทั้งหมด 13 หน้า — ข้อมูลพนักงาน รถ ลูกค้า
+          และคู่ค้าต่าง ๆ ที่หน้าอื่น ๆ ในระบบดึงไปใช้ต่อ ผู้ที่มีสิทธิ์นี้จะเห็นเมนู "ข้อมูลทั่วไป" ในแถบด้านข้าง
+        </p>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>หน้าหลัก</h3><span class="route">/dashboard</span></div>
+          <p class="purpose">ภาพรวมกิจการแบบสรุปในหน้าเดียว ใช้ดูตัวเลขสำคัญและแนวโน้มธุรกิจแบบเร็ว ๆ</p>
+          <div class="shot-wrap"><a href="manual-assets/dashboard.png" target="_blank" rel="noopener"><img src="manual-assets/dashboard.png" alt="ภาพหน้าจอหน้าหลัก Dashboard" loading="lazy"></a></div>
+          <h4>ส่วนประกอบหลัก</h4>
+          <ul>
+            <li>การ์ดสรุปตัวเลข 6 ใบ (รถบรรทุก, ลูกค้า, ปั้มน้ำมัน, เที่ยววิ่งรถใหญ่, ใบแจ้งหนี้, ตั๋วน้ำมัน) — <b>กดที่การ์ดเพื่อลิงก์ตรงไปหน้านั้น ๆ ได้ทันที</b></li>
+            <li>กราฟแนวโน้มยอดขายรายเดือน พร้อมตัวเลือกวันที่และปุ่มล้างตัวกรอง</li>
+            <li>กราฟวงกลมสรุปสัดส่วนตั๋วน้ำมันแต่ละประเภท</li>
+          </ul>
+          <div class="note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>เป็นหน้าสรุปอย่างเดียว ไม่มีการเพิ่ม/แก้ไขข้อมูลใด ๆ ในหน้านี้</div>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>พนักงาน</h3><span class="route">/employee</span></div>
+          <p class="purpose">ทะเบียนพนักงานทั้งหมด ทั้งพนักงานบริษัทและพนักงานขับรถ พร้อมข้อมูลเงินเดือนและตำแหน่ง</p>
+          <div class="shot-wrap"><a href="manual-assets/employee.png" target="_blank" rel="noopener"><img src="manual-assets/employee.png" alt="ภาพหน้าจอพนักงาน แท็บพนักงานขับรถ" loading="lazy"></a></div>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul>
+            <li>สลับดูระหว่างแท็บ <b>พนักงานขับรถ</b> และ <b>พนักงานบริษัท</b></li>
+            <li>ปุ่ม <b>"เพิ่มพนักงาน"</b> เปิดฟอร์มกรอกข้อมูลใหม่ (รวมถึงกำหนด User/Password และตำแหน่งงาน)</li>
+            <li>คลิกแถวเพื่อดู/แก้ไขข้อมูลพนักงานแต่ละคน</li>
+            <li>ไอคอน ⓘ อธิบายความหมายของคอลัมน์ที่อาจไม่คุ้นเคย เช่น ประเภทรถที่ผูกกับคนขับ</li>
+          </ul>
+          <div class="shot-wrap"><a href="manual-assets/employee-office-tab.png" target="_blank" rel="noopener"><img src="manual-assets/employee-office-tab.png" alt="ภาพหน้าจอพนักงาน แท็บพนักงานบริษัท" loading="lazy"></a></div>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>รถบรรทุก</h3><span class="route">/trucks</span></div>
+          <p class="purpose">ทะเบียนรถบรรทุกของบริษัทเอง ทั้งรถใหญ่ (หัว-หาง) และรถเล็ก พร้อมรายการตรวจสอบสภาพรถ</p>
+          <div class="shot-wrap"><a href="manual-assets/trucks.png" target="_blank" rel="noopener"><img src="manual-assets/trucks.png" alt="ภาพหน้าจอรถบรรทุก แท็บรถใหญ่" loading="lazy"></a></div>
+          <h4>แท็บภายในหน้า</h4>
+          <ul>
+            <li><b>รถใหญ่ / หางรถ</b> — ข้อมูลรถหัว-หางแยกกัน เพราะจับคู่ใช้งานได้หลายแบบ</li>
+            <li><b>รถเล็ก</b> — ทะเบียนรถเล็กของบริษัท</li>
+          </ul>
+          <div class="shot-wrap"><a href="manual-assets/trucks-small-tab.png" target="_blank" rel="noopener"><img src="manual-assets/trucks-small-tab.png" alt="ภาพหน้าจอรถบรรทุก แท็บรถเล็ก" loading="lazy"></a></div>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul>
+            <li>เพิ่ม/แก้ไขทะเบียนรถในแต่ละแท็บ</li>
+            <li>ปุ่ม <b>"รายการตรวจสอบสภาพรถ"</b> สลับไปดูเฉพาะรถที่ยังไม่ผ่านการตรวจสภาพ</li>
+          </ul>
+          <div class="shot-wrap"><a href="manual-assets/trucks-inspection-list.png" target="_blank" rel="noopener"><img src="manual-assets/trucks-inspection-list.png" alt="ภาพหน้าจอรายการตรวจสอบสภาพรถ" loading="lazy"></a></div>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>รถรับจ้างขนส่ง</h3><span class="route">/trucks-transport</span></div>
+          <p class="purpose">ทะเบียนรถบรรทุกของ "บริษัทรับจ้างขนส่ง" ภายนอก ที่มาวิ่งงานให้ (ไม่ใช่รถของบริษัทเอง)</p>
+          <div class="shot-wrap"><a href="manual-assets/trucks-transport.png" target="_blank" rel="noopener"><img src="manual-assets/trucks-transport.png" alt="ภาพหน้าจอรถรับจ้างขนส่ง" loading="lazy"></a></div>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul><li>เพิ่ม/แก้ไขทะเบียนรถรับจ้าง ผูกกับบริษัทขนส่งที่เป็นเจ้าของรถ ใช้เป็นข้อมูลตั้งต้นตอนจัดเที่ยววิ่งรถรับจ้าง</li></ul>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>คลังรับน้ำมัน</h3><span class="route">/depots</span></div>
+          <p class="purpose">รายชื่อคลัง/โซนรับน้ำมัน (เช่น ลำปาง, พิจิตร, สระบุรี, บางปะอิน, IR) ที่ใช้อ้างอิงอัตราค่าขนส่งตามระยะทาง</p>
+          <div class="shot-wrap"><a href="manual-assets/depots.png" target="_blank" rel="noopener"><img src="manual-assets/depots.png" alt="ภาพหน้าจอคลังรับน้ำมัน" loading="lazy"></a></div>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul><li>เพิ่ม/แก้ไข/ลบ (ปิดใช้งาน) รายชื่อคลังรับน้ำมัน — หน้านี้เป็นข้อมูลอ้างอิงที่หน้าตั๋วต่าง ๆ ดึงไปใช้คำนวณราคาต่อโซน</li></ul>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>ตั๋วน้ำมัน</h3><span class="route">/ticket</span></div>
+          <p class="purpose">ทะเบียนลูกค้า "ตั๋วน้ำมัน" ของรถใหญ่ที่ไม่ใช่ลูกค้าประจำ/ไม่ใช่รถรับจ้าง พร้อมเงื่อนไขราคา/เครดิตต่อราย</p>
+          <div class="shot-wrap"><a href="manual-assets/ticket.png" target="_blank" rel="noopener"><img src="manual-assets/ticket.png" alt="ภาพหน้าจอตั๋วน้ำมัน" loading="lazy"></a></div>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul>
+            <li>เพิ่ม/แก้ไขข้อมูลลูกค้าตั๋วน้ำมัน (ที่อยู่, ระยะเวลาเครดิต, สถานะ)</li>
+            <li>ไอคอน ⓘ อธิบายคอลัมน์ประเภทรถและอัตราค่าขนส่งต่อคลัง</li>
+          </ul>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>ลูกค้ารับจ้างขนส่ง</h3><span class="route">/transports</span></div>
+          <p class="purpose">ทะเบียนลูกค้าที่ใช้บริการแบบ "รับจ้างขนส่ง" (ใช้รถของบริษัทรับจ้างภายนอกวิ่งให้)</p>
+          <div class="shot-wrap"><a href="manual-assets/transports.png" target="_blank" rel="noopener"><img src="manual-assets/transports.png" alt="ภาพหน้าจอลูกค้ารับจ้างขนส่ง" loading="lazy"></a></div>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul><li>เพิ่ม/แก้ไขข้อมูลลูกค้ากลุ่มรับจ้างขนส่ง, ตั้งเงื่อนไขราคา/เครดิตเช่นเดียวกับตั๋วน้ำมัน</li></ul>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>ลูกค้ารถใหญ่</h3><span class="route">/customer-bigtrucks</span></div>
+          <p class="purpose">ทะเบียนลูกค้าประจำที่ใช้รถใหญ่ของบริษัทเองขนส่งให้ (แยกจาก "ตั๋วน้ำมัน" ที่เป็นลูกค้าจร)</p>
+          <div class="shot-wrap"><a href="manual-assets/customer-bigtrucks.png" target="_blank" rel="noopener"><img src="manual-assets/customer-bigtrucks.png" alt="ภาพหน้าจอลูกค้ารถใหญ่ แท็บเชียงใหม่" loading="lazy"></a></div>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul>
+            <li>เพิ่ม/แก้ไขข้อมูลลูกค้า มีแท็บแยกโซน (เชียงใหม่/เชียงราย) ตามพื้นที่ให้บริการ</li>
+            <li>คลิกชื่อตั๋วเพื่อดูรายละเอียดเพิ่มเติม, ไอคอน ⓘ อธิบาย "อยู่บริษัทในเครือ", "ลูกค้าประจำ", "วางบิลด้วย" และอัตราค่าขนส่งต่อคลัง</li>
+          </ul>
+          <div class="shot-wrap"><a href="manual-assets/customer-bigtrucks-chiangrai-tab.png" target="_blank" rel="noopener"><img src="manual-assets/customer-bigtrucks-chiangrai-tab.png" alt="ภาพหน้าจอลูกค้ารถใหญ่ แท็บเชียงราย" loading="lazy"></a></div>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>ลูกค้ารถเล็ก</h3><span class="route">/customer-smalltrucks</span></div>
+          <p class="purpose">ทะเบียนลูกค้าที่ใช้บริการรถเล็กของบริษัท เทียบเท่าหน้าลูกค้ารถใหญ่แต่สำหรับรถเล็ก</p>
+          <div class="shot-wrap"><a href="manual-assets/customer-smalltrucks.png" target="_blank" rel="noopener"><img src="manual-assets/customer-smalltrucks.png" alt="ภาพหน้าจอลูกค้ารถเล็ก" loading="lazy"></a></div>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul><li>เพิ่ม/แก้ไขข้อมูลลูกค้ารถเล็ก, ตั้งรอบวางบิล/เครดิต/สถานะ พร้อมไอคอน ⓘ อธิบายฟิลด์ที่ไม่คุ้นเคย</li></ul>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>เจ้าหนี้น้ำมัน</h3><span class="route">/creditor</span></div>
+          <p class="purpose">รายชื่อบริษัทที่บริษัทเรา<b>ซื้อน้ำมันมาจาก</b> (ไม่ใช่ลูกค้า — เป็นคู่ค้าฝั่งต้นทาง)</p>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul><li>เพิ่ม/แก้ไขข้อมูลเจ้าหนี้น้ำมันและระยะเวลาเครดิตที่ได้รับจากเจ้าหนี้แต่ละราย</li></ul>
+          <div class="shot-wrap"><a href="manual-assets/creditor.png" target="_blank" rel="noopener"><img src="manual-assets/creditor.png" alt="ภาพหน้าจอเจ้าหนี้น้ำมัน" loading="lazy"></a></div>
+          <div class="note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>ชื่อหน้านี้ทำให้สับสนได้ง่าย — "เจ้าหนี้" ในที่นี้คือคนที่เรา<b>ซื้อของจาก</b> ไม่ใช่ลูกค้าที่ค้างเงินเรา</div>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>รายได้รายหัก</h3><span class="route">/deductible-income</span></div>
+          <p class="purpose">บัญชีรายชื่อ "รายการ" รายได้เสริม/รายการหักเงินที่ใช้ประกอบการคำนวณเงินเดือนพนักงาน (เป็นตัวเลือกตั้งต้น ไม่ใช่การกรอกยอดจริงรายเดือน — การกรอกยอดจริงทำที่หน้า "ค่าใช้จ่าย" ในหมวดรายงาน/การเงิน)</p>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul>
+            <li>ติ๊กเลือกแสดงเฉพาะ "รายได้" หรือ "รายหัก" หรือทั้งคู่</li>
+            <li>เพิ่ม/แก้ไข/ปิดใช้งานรายการ พร้อมกำหนดว่าเป็นรายการ "ประจำ" (เกิดทุกงวด) หรือไม่</li>
+          </ul>
+          <div class="shot-wrap"><a href="manual-assets/deductible-income.png" target="_blank" rel="noopener"><img src="manual-assets/deductible-income.png" alt="ภาพหน้าจอรายได้รายหัก" loading="lazy"></a></div>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>รายการค่าใช้จ่าย</h3><span class="route">/expense-items</span></div>
+          <p class="purpose">บัญชีรายชื่อประเภทค่าใช้จ่ายของกิจการ (ใช้เป็นตัวเลือกตั้งต้นตอนบันทึกบิลค่าใช้จ่ายจริง)</p>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul><li>เพิ่ม/แก้ไข/ปิดใช้งานประเภทค่าใช้จ่าย</li></ul>
+          <div class="shot-wrap"><a href="manual-assets/expense-items.png" target="_blank" rel="noopener"><img src="manual-assets/expense-items.png" alt="ภาพหน้าจอรายการค่าใช้จ่าย" loading="lazy"></a></div>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>บริษัทที่สั่งจ่าย</h3><span class="route">/company-payment</span></div>
+          <p class="purpose">บัญชีรายชื่อบริษัท/นิติบุคคลที่ใช้เป็นผู้จ่ายเงินในเอกสารการเงินต่าง ๆ</p>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul><li>เพิ่ม/แก้ไข/ปิดใช้งานรายชื่อบริษัทที่สั่งจ่าย</li></ul>
+          <div class="shot-wrap"><a href="manual-assets/company-payment.png" target="_blank" rel="noopener"><img src="manual-assets/company-payment.png" alt="ภาพหน้าจอบริษัทที่สั่งจ่าย" loading="lazy"></a></div>
+        </div>
+      </section>
+
+      <section class="group" id="grp-operation">
+        <div class="group-head">
+          <h2>⚙️ ปฏิบัติงาน</h2>
+          <span class="flag op">สิทธิ์ OprerationData</span>
+        </div>
+        <p class="group-desc">
+          งานหน้างานของฝ่ายปฏิบัติการ — บันทึกสต็อกหน้าลานรายวัน ดูรายงานสต็อก และจัดเที่ยววิ่งของรถใหญ่/รถรับจ้างขนส่ง
+        </p>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>สต็อกหน้าลาน</h3><span class="route">/gasstations</span></div>
+          <p class="purpose">จุดบันทึกข้อมูลสต็อกน้ำมันหน้าลานประจำวัน และจัดการบัญชีรายชื่อปั้ม/คลังสต็อก</p>
+          <div class="shot-wrap"><a href="manual-assets/gasstations.png" target="_blank" rel="noopener"><img src="manual-assets/gasstations.png" alt="ภาพหน้าจอสต็อกหน้าลาน" loading="lazy"></a></div>
+          <h4>2 โหมดของหน้านี้ (สลับด้วยปุ่มไอคอนด้านบน)</h4>
+          <ul>
+            <li><b>ปั้มน้ำมัน</b> — เลือกวันที่ (ปกติคือวันนี้) และตัวกรองคลัง แล้วกรอกปริมาณ/ผลิตภัณฑ์ของแต่ละปั้มในวันนั้น กดบันทึกเพื่อยืนยัน</li>
+            <li><b>คลังสต็อกน้ำมัน</b> — จัดการรายชื่อคลังและผลิตภัณฑ์/ความจุถังของแต่ละคลัง (ไอคอนรูปเฟืองเพื่อแก้ไข, ปุ่ม "เพิ่มผลิตภัณฑ์")</li>
+          </ul>
+          <h4>ปุ่มหลัก</h4>
+          <ul><li><b>"เพิ่มปั้มน้ำมัน"</b> / <b>"เพิ่มคลังสต็อกน้ำมัน"</b> (ข้อความเปลี่ยนตามโหมดที่เลือก) — เปิดฟอร์มเพิ่มรายการใหม่</li></ul>
+          <div class="note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>ถ้าแก้ไขข้อมูลค้างไว้แล้วพยายามเปลี่ยนวันที่หรือเปลี่ยนคลังทันที ระบบจะเตือนให้ <b>บันทึกก่อน</b> ไม่งั้นการเปลี่ยนจะถูกยกเลิก ตัวเลขบางช่องที่ขึ้นให้อัตโนมัติ (ดึงจากเมื่อวาน) ก็ยังไม่ถูกบันทึกจริงจนกว่าจะกดบันทึก</div>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>รายงานสต๊อก</h3><span class="route">/report-gasstations</span></div>
+          <p class="purpose">ตารางเทียบยอดสต็อกในระบบกับเลขมิเตอร์หน้าปั้มจริง (CBP) รายวันตลอดทั้งเดือน ต่อปั้ม ต่อผลิตภัณฑ์ ใช้หาส่วนต่างที่ขาด/เกิน</p>
+          <div class="shot-wrap"><a href="manual-assets/report-gasstations.png" target="_blank" rel="noopener"><img src="manual-assets/report-gasstations.png" alt="ภาพหน้าจอรายงานสต๊อก" loading="lazy"></a></div>
+          <h4>วิธีใช้งาน</h4>
+          <ul>
+            <li>เลือก <b>ปี</b> และ <b>เดือน</b> ที่ต้องการ แล้วเลือกกรองคลัง/ปั้ม</li>
+            <li>แต่ละแถวผลิตภัณฑ์กรอกเลขมิเตอร์ (CBP) ของแต่ละวันได้ในตารางเดียวกัน แล้วกด <b>"บันทึก CBP"</b></li>
+            <li>ปั้มที่มีของขาย "หลังร้าน" (Backyard) จะมีตารางย่อยแยกให้กรอก CBP ต่างหาก</li>
+          </ul>
+          <div class="note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>หน้านี้เป็นทั้งรายงานและช่องกรอกข้อมูลในตารางเดียวกัน — ไม่มีโหมด "ดูอย่างเดียว" แยกจากโหมด "กรอกข้อมูล"</div>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>เที่ยววิ่งรถใหญ่</h3><span class="route">/trips-bigtruck</span></div>
+          <p class="purpose">รายการเที่ยววิ่งของรถใหญ่และรถรับจ้างขนส่งทั้งหมด เป็นจุดเริ่มจัดเที่ยววิ่งใหม่และติดตามเที่ยวที่กำลังวิ่งอยู่</p>
+          <div class="shot-wrap"><a href="manual-assets/trips-bigtruck.png" target="_blank" rel="noopener"><img src="manual-assets/trips-bigtruck.png" alt="ภาพหน้าจอเที่ยววิ่งรถใหญ่" loading="lazy"></a></div>
+          <h4>ตัวกรอง</h4>
+          <ul>
+            <li>ช่วงวันที่รับ (ค่าเริ่มต้น: เดือนปัจจุบัน)</li>
+            <li>สถานะ: <b>ทั้งหมด / กำลังจัดเที่ยววิ่ง (ค่าเริ่มต้น) / ยกเลิก / จบทริป</b></li>
+          </ul>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul>
+            <li>ปุ่ม <b>"เพิ่มเที่ยววิ่ง"</b> เปิดฟอร์มจัดเที่ยววิ่งใหม่ (เลือกรถ คนขับ คลัง และปลายทางได้สูงสุด 8 จุดส่ง)</li>
+            <li>คลิกที่แถวเพื่อดูรายละเอียด แก้ไขจุดส่งแต่ละจุด หรือกด "จบทริป" — ทำที่ท้ายแถวของแต่ละเที่ยว ไม่มีปุ่มแยกต่างหาก</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="group" id="grp-financial">
+        <div class="group-head">
+          <h2>💰 การเงิน</h2>
+          <span class="flag fin">สิทธิ์ FinancialData</span>
+        </div>
+        <p class="group-desc">
+          งานฝ่ายการเงินฝั่งรถใหญ่ — ติดตามเงินที่ลูกค้าต้องโอนเข้า และออกใบวางบิลให้ลูกค้ารับจ้างขนส่ง
+          เมนูด้านข้างมีให้กด 2 หน้า ส่วนอีก 2 หน้าด้านล่างเปิดได้จากลิงก์ตรง/แถบไอคอนย่อเท่านั้น (ไม่ได้อยู่ในเมนูขยายหลัก)
+        </p>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>ชำระค่าน้ำมัน</h3><span class="route">/invoice</span></div>
+          <p class="purpose">ติดตามยอดค้างชำระค่าน้ำมันของลูกค้าตั๋วรถใหญ่ และบันทึกยอดเงินโอนเข้าจริง</p>
+          <div class="shot-wrap"><a href="manual-assets/invoice.png" target="_blank" rel="noopener"><img src="manual-assets/invoice.png" alt="ภาพหน้าจอชำระค่าน้ำมัน" loading="lazy"></a></div>
+          <h4>ตัวกรอง</h4>
+          <ul>
+            <li>สถานะลูกค้า: ทั้งหมด / อยู่บริษัทในเครือ / ไม่อยู่บริษัทในเครือ</li>
+            <li>ช่วงวันที่ส่ง และติ๊ก <b>"ค้างโอน"</b> เพื่อดูเฉพาะรายการที่ยังไม่ครบยอด (ติ๊กนี้จะยกเลิกตัวกรองวันที่ชั่วคราว)</li>
+          </ul>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul><li><b>คลิกชื่อลูกค้า/ตั๋วในตาราง</b> เพื่อเปิดฟอร์มบันทึกยอดโอนด้านล่างตาราง — กรอกวันที่โอน ธนาคาร และยอดเงิน</li></ul>
+          <div class="note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>ตารางแสดงเฉพาะรายการตั้งแต่ 1 ม.ค. 2569 เป็นต้นไป (ข้อมูลก่อนหน้านั้นเป็นข้อมูลย้ายระบบเก่า จะไม่แสดงในหน้านี้)</div>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>ชำระค่าขนส่ง <span style="font-weight:400;color:var(--muted);font-size:13px">(ใบวางบิลรถรับจ้างขนส่ง)</span></h3><span class="route">/report</span></div>
+          <p class="purpose">ออกใบวางบิลให้บริษัทที่ต้องจ่ายค่าขนส่ง แยกยอดตามแต่ละบริษัทในตั๋วเดียวกันได้ พร้อมกำหนดวันครบกำหนดชำระ</p>
+          <div class="shot-wrap"><a href="manual-assets/report.png" target="_blank" rel="noopener"><img src="manual-assets/report.png" alt="ภาพหน้าจอชำระค่าขนส่ง" loading="lazy"></a></div>
+          <h4>วิธีใช้งาน</h4>
+          <ul>
+            <li>เลือกกลุ่มตั๋ว/ลูกค้าที่ต้องการออกบิล จะเห็นตารางรายการที่รอวางบิล แยกเป็น 2 บริษัทถ้าตั๋วนั้นมีเจ้าของร่วม</li>
+            <li>ก่อนกด <b>"พิมพ์ใบวางบิล"</b> เลือกได้ว่ากำหนดชำระเงินจะเป็นแบบ <b>"ตามที่กำหนดไว้"</b> (คำนวณจากระยะเวลาเครดิตของตั๋วนั้นอัตโนมัติ) <b>"กำหนดเอง"</b> (เลือกวันที่เอง) หรือ <b>"ไม่ระบุวันที่"</b></li>
+            <li>ปุ่ม <b>"NEW"</b> รีเซ็ตเลขที่/วันที่วางบิลของกลุ่มนั้นใหม่</li>
+            <li>กด <b>"พิมพ์ใบวางบิล"</b> เพื่อเปิดหน้าต่างพิมพ์เอกสารใบวางบิล</li>
+          </ul>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>บิลค่าใช้จ่าย</h3><span class="route">/invoice-financial</span></div>
+          <p class="purpose">บันทึกบิลค่าใช้จ่ายต่าง ๆ ของรถ (ผูกกับทะเบียนรถ บริษัท และบัญชีธนาคารที่จ่าย) พร้อมแนบไฟล์ใบเสร็จ</p>
+          <div class="shot-wrap"><a href="manual-assets/invoice-financial.png" target="_blank" rel="noopener"><img src="manual-assets/invoice-financial.png" alt="ภาพหน้าจอบิลค่าใช้จ่าย" loading="lazy"></a></div>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul>
+            <li>ติ๊กกรอง <b>ทั้งหมด / เดี่ยว / กลุ่ม</b> (บิลกลุ่มคือบิลที่มีธนาคาร+บริษัท+เลขที่บิลตรงกันหลายรายการ ถูกรวมยอดเป็นแถวเดียว)</li>
+            <li>ปุ่ม <b>"เพิ่มบิล"</b> — กรอกบริษัท บัญชีธนาคาร ประเภทเดี่ยว/กลุ่ม ทะเบียนรถ และแนบไฟล์</li>
+            <li>คลิกแถวเพื่อแก้ไขบิล, ไอคอนถังขยะเพื่อยกเลิกบิล</li>
+            <li><b>Export to Excel</b> ออกรายงานบิลตามช่วงวันที่</li>
+          </ul>
+          <div class="note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>ไอคอนถังขยะไม่ได้ลบข้อมูลจริง แค่เปลี่ยนสถานะเป็น "ยกเลิก" แล้วซ่อนออกจากรายการ; บิลประเภท "กลุ่ม" ยกเลิกทีละรายการไม่ได้ (ปุ่มถูกปิดใช้งาน) ต้องหน้านี้เข้าได้อีกทางผ่านแท็บ "บิลค่าใช้จ่าย" ในหน้า "ค่าใช้จ่าย" (หมวดรายงาน) ด้วย เป็นหน้าจอเดียวกันทุกประการ</div>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>รายได้รายหัก (บันทึกยอดจริง)</h3><span class="route">/financial-deduction</span></div>
+          <p class="purpose">กรอกยอดรายได้เสริม/รายการหักเงินจริงของพนักงานแต่ละคนในแต่ละงวดจ่ายเงินเดือน โดยเลือกจากรายการที่ตั้งไว้ในหน้า "รายได้รายหัก" (หมวดข้อมูลทั่วไป)</p>
+          <div class="shot-wrap"><a href="manual-assets/financial-deduction.png" target="_blank" rel="noopener"><img src="manual-assets/financial-deduction.png" alt="ภาพหน้าจอรายได้รายหัก บันทึกยอดจริง" loading="lazy"></a></div>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul>
+            <li>เลือก <b>ปีงวดการจ่าย</b> และ <b>ลำดับงวด</b> ระบบแสดงช่วงวันที่ของงวดนั้นให้อัตโนมัติ</li>
+            <li>ปุ่ม <b>"เพิ่มรายได้รายหัก"</b> — เลือกพนักงาน เลือกว่าเป็นรายได้หรือรายหัก แล้วเลือกรายการ เพิ่มได้หลายรายการพร้อมกัน</li>
+            <li>ไอคอนถังขยะยกเลิกรายการ, <b>Export to Excel</b> ออกรายงานของงวดนั้น</li>
+          </ul>
+          <div class="note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>เช่นเดียวกับบิลค่าใช้จ่าย การ "ลบ" ที่นี่คือเปลี่ยนสถานะเป็นยกเลิกเท่านั้น และหน้านี้เข้าได้อีกทางผ่านแท็บ "รายได้รายหัก" ในหน้า "ค่าใช้จ่าย" (หมวดรายงาน)</div>
+        </div>
+      </section>
+
+      <section class="group" id="grp-report">
+        <div class="group-head">
+          <h2>📊 รายงาน</h2>
+          <span class="flag report">สิทธิ์ ReportData</span>
+        </div>
+        <p class="group-desc">
+          รายงานสรุปฝั่งรถใหญ่ทั้งหมด 8 หน้า ส่วนใหญ่เป็นรายงานดูอย่างเดียว + ส่งออก Excel มีบางหน้าที่แก้ไขข้อมูลได้ในตัว
+        </p>
+        <div class="note" style="margin:-8px 0 24px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          รายงานหลายหน้าในหมวดนี้ (ชำระค่าน้ำมัน, สรุปค่าเที่ยว, เงินเดือน, กำไรขายส่งน้ำมัน) แสดงเฉพาะข้อมูลตั้งแต่ <b>1 มกราคม 2569</b> เป็นต้นไปเท่านั้น เป็นข้อจำกัดของระบบ ไม่ใช่ตัวกรองที่ปรับได้
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>สรุปยอดส่งน้ำมัน</h3><span class="route">/summary-oil-balance</span></div>
+          <p class="purpose">รายงานยอดน้ำมันที่จัดส่งสำเร็จทั้งหมดในช่วงวันที่ที่เลือก แยกตามประเภทน้ำมัน</p>
+          <div class="shot-wrap"><a href="manual-assets/summary-oil-balance.png" target="_blank" rel="noopener"><img src="manual-assets/summary-oil-balance.png" alt="ภาพหน้าจอสรุปยอดส่งน้ำมัน" loading="lazy"></a></div>
+          <h4>ตัวกรอง / ปุ่ม</h4>
+          <ul>
+            <li>ช่วงวันที่ และ Autocomplete <b>"กรุณาเลือกตั๋ว"</b> (เลือกตั๋วเดียวหรือ "แสดงทั้งหมด")</li>
+            <li>หัวคอลัมน์วันที่ส่ง/ผู้ขับ-ป้ายทะเบียน/ตั๋ว กดเพื่อเรียงลำดับได้</li>
+            <li><b>Export to Excel</b> ออกรายงานพร้อมยอดรวมท้ายตาราง</li>
+          </ul>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>สรุปค่าเที่ยว</h3><span class="route">/report-driver-trip</span></div>
+          <p class="purpose">ดูค่าเที่ยวและปริมาณน้ำมันที่ส่งของพนักงานขับรถแต่ละคน เฉพาะเที่ยวที่ "จบทริป" แล้วในช่วงวันที่เลือก</p>
+          <div class="shot-wrap"><a href="manual-assets/report-driver-trip.png" target="_blank" rel="noopener"><img src="manual-assets/report-driver-trip.png" alt="ภาพหน้าจอสรุปค่าเที่ยว" loading="lazy"></a></div>
+          <h4>วิธีใช้งาน</h4>
+          <ul>
+            <li>เลือกพนักงานขับรถ/ทะเบียนจาก Autocomplete <b>(จำเป็นต้องเลือกก่อนตารางถึงจะมีข้อมูล)</b> และช่วงวันที่รับ</li>
+            <li><b>Export to Excel</b> ออกรายงานค่าเที่ยวของคนขับที่เลือก</li>
+          </ul>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>การชำระค่าน้ำมัน</h3><span class="route">/report-fuel-payment</span></div>
+          <p class="purpose">รายงานสรุปยอดค้างชำระของลูกค้าตั๋วรถใหญ่ทุกราย เทียบยอดบิลกับยอดโอนจริง (เป็นรายงานคู่กับหน้า "ชำระค่าน้ำมัน" ในหมวดการเงิน)</p>
+          <div class="shot-wrap"><a href="manual-assets/report-fuel-payment.png" target="_blank" rel="noopener"><img src="manual-assets/report-fuel-payment.png" alt="ภาพหน้าจอการชำระค่าน้ำมัน" loading="lazy"></a></div>
+          <h4>ตัวกรอง / ปุ่ม</h4>
+          <ul>
+            <li>สถานะ: ทั้งหมด / อยู่บริษัทในเครือ / ไม่อยู่บริษัทในเครือ + ช่วงวันที่</li>
+            <li>ไอคอนท้ายแถวเปิดกล่อง <b>"ตรวจสอบข้อมูลรายงานการชำระค่าน้ำมัน"</b> ดูรายละเอียดการโอนของตั๋วนั้น พร้อมปุ่ม <b>"บันทึกเป็น PDF"</b></li>
+            <li><b>Export to Excel</b> และแถบสรุปยอดรวม/ยอดโอน/ค้างโอนท้ายตาราง</li>
+          </ul>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>การชำระค่าขนส่ง</h3><span class="route">/report-transport-payment</span></div>
+          <p class="purpose">รายงานสรุปยอดที่ต้องจ่ายให้รถรับจ้างขนส่งแต่ละราย ต่องวดการจ่าย หักภาษี ณ ที่จ่าย 1% ให้อัตโนมัติ</p>
+          <div class="shot-wrap"><a href="manual-assets/report-transport-payment.png" target="_blank" rel="noopener"><img src="manual-assets/report-transport-payment.png" alt="ภาพหน้าจอการชำระค่าขนส่ง" loading="lazy"></a></div>
+          <h4>ตัวกรอง</h4>
+          <ul>
+            <li>เลือก <b>ปี</b> และ <b>เดือน</b> ของงวดจ่าย (มีปุ่ม ▲▼ เลื่อนเดือนได้), เลือกบริษัท, ติ๊กประเภทตั๋วที่ต้องการ (ตั๋วน้ำมัน/ตั๋วปั้ม/ตั๋วรับจ้างขนส่ง)</li>
+          </ul>
+          <div class="note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>อัตราค่าขนส่งต่อลิตรไม่เท่ากันทุกตั๋ว — ขึ้นกับคลังที่ไปรับน้ำมัน (ลำปาง/พิจิตร/สระบุรี-บางปะอิน-IR ใช้อัตราคนละชุด) ระบบเลือกอัตราให้อัตโนมัติตามคลังของแต่ละเที่ยว</div>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>ค่าใช้จ่าย</h3><span class="route">/expenses</span></div>
+          <p class="purpose">หน้ารวมทางลัดไปหน้าบันทึกค่าใช้จ่าย 2 แบบ สำหรับผู้ที่มีสิทธิ์รายงาน (แทนที่จะต้องมีสิทธิ์การเงินโดยตรง)</p>
+          <div class="shot-wrap"><a href="manual-assets/expenses.png" target="_blank" rel="noopener"><img src="manual-assets/expenses.png" alt="ภาพหน้าจอค่าใช้จ่าย" loading="lazy"></a></div>
+          <h4>แท็บภายในหน้า</h4>
+          <ul>
+            <li><b>รายได้รายหัก</b> — เหมือนหน้า "รายได้รายหัก (บันทึกยอดจริง)" ในหมวดการเงินทุกประการ</li>
+            <li><b>บิลค่าใช้จ่าย</b> — เหมือนหน้า "บิลค่าใช้จ่าย" ในหมวดการเงินทุกประการ</li>
+          </ul>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>เงินเดือน</h3><span class="route">/salary</span></div>
+          <p class="purpose">สรุปเงินเดือนพนักงานขับรถต่องวด รวมค่าเที่ยวที่ทำได้จริงเข้ากับรายได้/รายหักทุกรายการที่บันทึกไว้ พร้อมยอดเงินค้ำประกัน/เงินกู้ยืมสะสม</p>
+          <div class="shot-wrap"><a href="manual-assets/salary.png" target="_blank" rel="noopener"><img src="manual-assets/salary.png" alt="ภาพหน้าจอเงินเดือน" loading="lazy"></a></div>
+          <h4>วิธีใช้งาน</h4>
+          <ul>
+            <li>เลือกปีและลำดับงวดจ่าย, ค้นหาด้วยชื่อ/ทะเบียนได้</li>
+            <li>ไอคอนท้ายแถวเปิดดูประวัติ <b>"ยอดสะสมเงินค้ำประกัน"</b> หรือเงินกู้ยืมของพนักงานคนนั้น พร้อม Export Excel และปุ่มบันทึก/ยกเลิกของตัวเอง</li>
+            <li><b>Export to Excel</b> ออกรายงานเงินเดือนทั้งงวด</li>
+          </ul>
+          <div class="note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>ค่าเที่ยวที่นับในเงินเดือนนับเฉพาะเที่ยวที่สถานะ "จบทริป" แล้วภายในงวดนั้นเท่านั้น เที่ยวที่ยังไม่จบจะไม่ถูกนับ</div>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>ปิดงบบัญชีการเงิน</h3><span class="route">/close-financial</span></div>
+          <p class="purpose">งบกำไรขาดทุนของแต่ละคนขับ/รถ ต่อเดือนหรือต่อปี เทียบรายได้ (ตั๋วน้ำมัน/ตั๋วรับจ้างขนส่ง/ตั๋วปั้ม) กับค่าใช้จ่ายทุกประเภท จบด้วยยอดกำไรสุทธิ</p>
+          <div class="shot-wrap"><a href="manual-assets/close-financial.png" target="_blank" rel="noopener"><img src="manual-assets/close-financial.png" alt="ภาพหน้าจอปิดงบบัญชีการเงิน" loading="lazy"></a></div>
+          <h4>ตัวกรอง</h4>
+          <ul>
+            <li>ติ๊กเลือก <b>รายปี</b> หรือ <b>รายเดือน</b> แล้วเลือกช่วงเวลา, เลือกบริษัทที่ต้องการดู</li>
+            <li>ติ๊กเลือกแสดงผลแบบ <b>ค่าขนส่ง</b> หรือ <b>จำนวนลิตร</b></li>
+          </ul>
+          <div class="note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>เป็นรายงานดูอย่างเดียว (ไม่มีปุ่ม "ปิดงบ" จริง ๆ ในหน้านี้) ต้องเลือกทั้งงวดเวลาและบริษัทก่อนตัวเลขจึงจะแสดงครบ</div>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>กำไรขายส่งน้ำมัน</h3><span class="route">/profit-loss</span></div>
+          <p class="purpose">กำไร/ขาดทุนต่อรายการขายน้ำมันแต่ละเที่ยว เทียบราคาขาย ราคาทุน และค่าขนส่ง พร้อมแก้ไขราคาทุนได้ในตาราง</p>
+          <div class="shot-wrap"><a href="manual-assets/profit-loss.png" target="_blank" rel="noopener"><img src="manual-assets/profit-loss.png" alt="ภาพหน้าจอกำไรขายส่งน้ำมัน" loading="lazy"></a></div>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul>
+            <li>สลับมุมมอง <b>ราคา/ลิตร</b> หรือ <b>จำนวนเงินรวม</b></li>
+            <li><b>คลิกที่ช่อง "ราคาทุน/ลิตร"</b> ของแต่ละแถวเพื่อกรอก/แก้ไขราคาทุนได้ทันที แล้วกดติ๊กถูกสีเขียวเพื่อบันทึก</li>
+            <li><b>Export to Excel</b></li>
+          </ul>
+          <div class="note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>ติ๊ก "บริษัทในเครือ" ของหน้านี้สลับความหมายที่อาจเข้าใจผิดได้ — ค่าเริ่มต้น (ติ๊กอยู่) จะโชว์ลูกค้าที่<b>ไม่ได้</b>อยู่บริษัทในเครือ ลองสลับดูถ้าหาแถวที่ต้องการไม่เจอ</div>
+        </div>
+      </section>
+
+      <section class="group" id="grp-small">
+        <div class="group-head">
+          <h2>🚐 รถเล็ก</h2>
+          <span class="flag small">สิทธิ์ SmallTruckData</span>
+        </div>
+        <p class="group-desc">
+          ชุดหน้าจอฝั่งรถเล็กทั้ง 7 หน้า ทำหน้าที่เทียบเท่าหมวด "ปฏิบัติงาน + การเงิน + รายงาน" ของรถใหญ่ แต่รวบเป็นสิทธิ์เดียวและเมนูเดียว
+        </p>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>จัดเที่ยววิ่ง</h3><span class="route">/trips-smalltruck</span></div>
+          <p class="purpose">รายการเที่ยววิ่งของรถเล็กทั้งหมด เทียบเท่าหน้า "เที่ยววิ่งรถใหญ่" ของฝั่งรถใหญ่</p>
+          <div class="shot-wrap"><a href="manual-assets/trips-smalltruck.png" target="_blank" rel="noopener"><img src="manual-assets/trips-smalltruck.png" alt="ภาพหน้าจอจัดเที่ยววิ่งรถเล็ก" loading="lazy"></a></div>
+          <h4>ตัวกรอง / ปุ่ม</h4>
+          <ul>
+            <li>ช่วงวันที่รับ-ส่ง (ค่าเริ่มต้น: เดือนปัจจุบัน)</li>
+            <li>สถานะ: ทั้งหมด / กำลังจัดเที่ยววิ่ง (ค่าเริ่มต้น) / ยกเลิก / จบทริป</li>
+            <li>ปุ่มเพิ่มเที่ยววิ่งใหม่ที่มุมขวาบน, คลิกแถวเพื่อดูรายละเอียด/แก้ไข/กดจบทริป</li>
+          </ul>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>ชำระค่าน้ำมัน</h3><span class="route">/invoice-smalltruck</span></div>
+          <p class="purpose">ติดตามยอดค้างชำระของลูกค้ารถเล็ก และบันทึกยอดโอนเข้าจริง (เทียบเท่าหน้า "ชำระค่าน้ำมัน" รถใหญ่)</p>
+          <div class="shot-wrap"><a href="manual-assets/invoice-smalltruck.png" target="_blank" rel="noopener"><img src="manual-assets/invoice-smalltruck.png" alt="ภาพหน้าจอชำระค่าน้ำมันรถเล็ก" loading="lazy"></a></div>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul>
+            <li>กรองสถานะ อยู่/ไม่อยู่บริษัทในเครือ, ช่วงวันที่, ติ๊ก <b>"ค้างโอน"</b> ดูเฉพาะรายการค้าง</li>
+            <li>คลิกชื่อลูกค้าเพื่อเปิดฟอร์มบันทึกยอดโอนด้านล่างตาราง</li>
+          </ul>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>สรุปยอดน้ำมัน</h3><span class="route">/oil-balance-smalltruck</span></div>
+          <p class="purpose">รายงานยอดขายน้ำมันของรถเล็กที่จัดส่งสำเร็จแล้ว แยกตามคนขับ/ตั๋ว/ชนิดน้ำมัน</p>
+          <div class="shot-wrap"><a href="manual-assets/oil-balance-smalltruck.png" target="_blank" rel="noopener"><img src="manual-assets/oil-balance-smalltruck.png" alt="ภาพหน้าจอสรุปยอดน้ำมันรถเล็ก" loading="lazy"></a></div>
+          <h4>ตัวกรอง / ปุ่ม</h4>
+          <ul>
+            <li>ช่วงวันที่ และเลือกตั๋วเฉพาะราย (หรือแสดงทั้งหมด)</li>
+            <li><b>Export to Excel</b> พร้อมยอดรวมลิตร/ยอดเงินท้ายหน้า</li>
+          </ul>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>รายงานชำระน้ำมัน</h3><span class="route">/payment-smalltruck</span></div>
+          <p class="purpose">รายงานสรุปยอดค้างชำระของลูกค้ารถเล็กทุกราย (คู่กับหน้า "ชำระค่าน้ำมัน" รถเล็ก) พร้อมดูรายละเอียดรายตั๋ว</p>
+          <div class="shot-wrap"><a href="manual-assets/payment-smalltruck.png" target="_blank" rel="noopener"><img src="manual-assets/payment-smalltruck.png" alt="ภาพหน้าจอรายงานชำระน้ำมันรถเล็ก" loading="lazy"></a></div>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul>
+            <li>กรองสถานะ/ช่วงวันที่, ไอคอนท้ายแถวเปิดดูรายละเอียดรายการโอน</li>
+            <li><b>Export to Excel</b> พร้อมสรุปยอดลิตร/ยอดเงิน/ยอดโอน/ค้างโอนท้ายตาราง</li>
+          </ul>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>รายงานเที่ยววิ่ง</h3><span class="route">/report-smalltruck</span></div>
+          <p class="purpose">รายงานเดินบัญชีน้ำมันของรถเล็กแต่ละคัน (รับเข้า-ส่งออก-ยอดยกมา) และเป็นจุดเริ่มออกใบวางบิลให้ลูกค้ารถเล็ก</p>
+          <div class="shot-wrap"><a href="manual-assets/report-smalltruck.png" target="_blank" rel="noopener"><img src="manual-assets/report-smalltruck.png" alt="ภาพหน้าจอรายงานเที่ยววิ่งรถเล็ก" loading="lazy"></a></div>
+          <h4>วิธีใช้งาน</h4>
+          <ul>
+            <li>เลือกช่วงวันที่และรถขนส่งที่ต้องการดู (หรือแสดงทั้งหมด)</li>
+            <li>ตารางแสดงยอดรับเข้า/ส่งออกต่อวัน แยกตามชนิดน้ำมัน พร้อมยอดยกมาและยอดคงเหลือ</li>
+            <li>เปิดเข้าไปในกลุ่มตั๋วเพื่อ<b>ออกใบวางบิล</b> — ก่อนพิมพ์เลือกได้ว่ากำหนดชำระเงินแบบตามที่กำหนดไว้/กำหนดเอง/ไม่ระบุวันที่ เหมือนหน้าออกบิลรถใหญ่</li>
+            <li><b>Export to Excel</b></li>
+          </ul>
+          <div class="note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>ปริมาณน้ำมันของรถเล็กในหน้านี้เป็นหน่วยลิตรอยู่แล้ว ไม่ต้องคูณ 1000 เหมือนตัวเลขฝั่งรถใหญ่ — อย่าตกใจถ้าตัวเลขดูน้อยกว่าที่คุ้นเคย</div>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>ปิดงบบัญชีการเงิน</h3><span class="route">/close-financial-smalltruck</span></div>
+          <p class="purpose">งบกำไรขาดทุนต่อรถเล็กแต่ละคัน เทียบรายได้ (ค่าขนส่ง+กำไร) กับค่าใช้จ่ายทุกประเภท เทียบเท่าเวอร์ชันรถใหญ่</p>
+          <div class="shot-wrap"><a href="manual-assets/close-financial-smalltruck.png" target="_blank" rel="noopener"><img src="manual-assets/close-financial-smalltruck.png" alt="ภาพหน้าจอปิดงบบัญชีการเงินรถเล็ก" loading="lazy"></a></div>
+          <h4>ตัวกรอง</h4>
+          <ul><li>ติ๊กเลือกรายปี/รายเดือนแล้วเลือกช่วงเวลา, <b>Export to Excel</b></li></ul>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>กำไรขายส่งน้ำมัน</h3><span class="route">/profit-loss-smalltruck</span></div>
+          <p class="purpose">กำไร/ขาดทุนต่อรายการขายของรถเล็กแต่ละเที่ยว พร้อมแก้ไขราคาทุนได้ในตาราง</p>
+          <div class="shot-wrap"><a href="manual-assets/profit-loss-smalltruck.png" target="_blank" rel="noopener"><img src="manual-assets/profit-loss-smalltruck.png" alt="ภาพหน้าจอกำไรขายส่งน้ำมันรถเล็ก" loading="lazy"></a></div>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul>
+            <li>สลับมุมมองราคา/ลิตร หรือจำนวนเงินรวม, ติ๊กกรองบริษัทในเครือ</li>
+            <li>คลิกช่อง "ราคาทุน/ลิตร" ในแถวเพื่อกรอก/แก้ไขราคาทุนได้ทันที แล้วกดบันทึก</li>
+            <li><b>Export to Excel</b></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="group" id="grp-gasstation">
+        <div class="group-head">
+          <h2>⛽ หน้าลานน้ำมัน</h2>
+          <span class="flag gas">สิทธิ์ GasStationData</span>
+        </div>
+        <p class="group-desc">
+          สิทธิ์นี้ไม่ได้เปิดเมนูในระบบหลัก — บัญชีที่มี <b>เฉพาะ</b> สิทธิ์นี้อย่างเดียวจะถูกพาไปหน้าเฉพาะทางหน้านี้ทันทีตั้งแต่ล็อกอิน โดยไม่เห็นแถบเมนูด้านข้างเลย
+        </p>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>ลงข้อมูลน้ำมันหน้าลาน</h3><span class="route">/gasstation-attendant</span></div>
+          <p class="purpose">หน้าจอเฉพาะของพนักงานหน้าลาน ใช้บันทึกยอดน้ำมันรับเข้า/จ่ายออกของปั้มที่ตนเองประจำอยู่ ในแต่ละวัน</p>
+          <h4>สิ่งที่เห็น</h4>
+          <ul>
+            <li>ข้อมูลตัวเอง (คำนำหน้า/ชื่อ/สกุล/ตำแหน่ง) และชื่อปั้มที่ตนประจำ (กำหนดไว้ล่วงหน้าแล้ว เลือกปั้มอื่นเองไม่ได้)</li>
+            <li><b>"เลือกวันที่"</b> เพื่อดู/กรอกข้อมูลของวันนั้น (ค่าเริ่มต้นคือวันนี้)</li>
+            <li>รายการช่องกรอกข้อมูลต่อผลิตภัณฑ์น้ำมันของปั้มนั้น พร้อมปุ่มบันทึก</li>
+          </ul>
+          <h4>ปุ่มอื่น</h4>
+          <ul><li><b>"ออกจากระบบ"</b> (มุมขวาบน, มีถามยืนยันก่อนออก)</li></ul>
+        </div>
+      </section>
+
+      <section class="group" id="grp-driver">
+        <div class="group-head">
+          <h2>🚚 พนักงานขับรถ</h2>
+          <span class="flag driver">สิทธิ์ DriverData</span>
+        </div>
+        <p class="group-desc">
+          บัญชีที่มี <b>เฉพาะ</b> สิทธิ์นี้อย่างเดียวจะถูกพาเข้าหน้าพอร์ทัลส่วนตัวทันที (ไม่เห็นเมนูหลัก) ส่วนบัญชีที่มีสิทธิ์นี้<b>ร่วมกับ</b>สิทธิ์อื่น (เช่น ฝ่ายปฏิบัติการ) จะเห็นการ์ด "พนักงานขับรถ" ในหน้าเลือกเมนู เพื่อเข้าไปติดตาม/จัดการเที่ยววิ่งของคนขับแทน
+        </p>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>หน้าพนักงานขับรถ (ของตัวเอง)</h3><span class="route">/driver-detail</span></div>
+          <p class="purpose">พอร์ทัลส่วนตัวของคนขับ ดูข้อมูลรถ/เที่ยววิ่งของตัวเอง และอัปเดตสถานะการจัดส่งระหว่างวิ่งงาน</p>
+          <h4>สิ่งที่เห็น</h4>
+          <ul>
+            <li>ข้อมูลตัวเอง: คำนำหน้า ชื่อ สกุล ตำแหน่ง ทะเบียนหัว/หาง</li>
+            <li>เที่ยววิ่งปัจจุบัน (ถ้ามี) พร้อมรายการจุดส่งทั้งหมดของเที่ยวนั้น</li>
+          </ul>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul>
+            <li><b>"ตรวจสอบสภาพรถ"</b> — เปิดแบบฟอร์มตรวจเช็คสภาพรถก่อนออกเดินทาง (กดได้ครั้งเดียวต่อเที่ยว)</li>
+            <li><b>"จัดส่งแล้ว"</b> ต่อแต่ละจุดส่ง — เปิดกล่องแนบรูปภาพหลักฐานการส่ง แล้วกดบันทึกเพื่อปรับสถานะเป็น "จัดส่งสำเร็จ"</li>
+            <li>ไอคอนพิมพ์ต่อแถว — พิมพ์ใบส่งของจุดนั้น</li>
+            <li><b>"เช็คลำดับในการจัดส่งสินค้า"</b> — เปิด/ปิดแผนผังเส้นทางการวิ่งงาน พร้อมลิงก์เปิด Google Maps นำทางไปแต่ละจุด</li>
+            <li><b>"ออกจากระบบ"</b> (มุมขวาบน)</li>
+          </ul>
+          <div class="note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>เมื่อกด "จัดส่งแล้ว" ครบทุกจุดของเที่ยวนั้น ระบบจะปิดเที่ยววิ่งเป็น "จบทริป" และปลดสถานะรถกลับเป็น "ว่าง" ให้อัตโนมัติ — ไม่มีปุ่ม "จบทริป" แยกให้กดเอง</div>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>พนักงานขับรถ (มุมมองผู้ดูแล)</h3><span class="route">/driver</span></div>
+          <p class="purpose">หน้าเดียวกับข้างบนในเชิงฟังก์ชัน แต่สำหรับผู้ที่มีสิทธิ์ พขร. ควบคู่กับสิทธิ์อื่น ใช้เลือกดู/อัปเดตเที่ยววิ่งของ<b>คนขับคนไหนก็ได้</b> แทนที่จะถูกล็อกไว้ที่ตัวเอง</p>
+          <div class="shot-wrap"><a href="manual-assets/driver.png" target="_blank" rel="noopener"><img src="manual-assets/driver.png" alt="ภาพหน้าจอพนักงานขับรถ มุมมองผู้ดูแล" loading="lazy"></a></div>
+          <h4>ต่างจากหน้าของคนขับเองตรงไหน</h4>
+          <ul>
+            <li>มี Dropdown เลือก <b>"ชื่อพนักงานขับรถ/ทะเบียนรถ"</b> ที่ต้องการดูก่อน จึงจะเห็นเที่ยววิ่งของคนนั้น</li>
+            <li>ปุ่มมุมขวาบนเป็น <b>"กลับหน้าแรก"</b> แทนปุ่มออกจากระบบ</li>
+            <li>ปุ่ม/การทำงานอื่น (ตรวจสอบสภาพรถ, จัดส่งแล้ว, พิมพ์, เช็คเส้นทาง, ปิดทริปอัตโนมัติ) เหมือนกันทุกประการ</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="group" id="grp-admin">
+        <div class="group-head">
+          <h2>🛡️ ผู้ดูแลระบบ</h2>
+          <span class="flag admin">สิทธิ์ AdminData</span>
+        </div>
+        <p class="group-desc">
+          สิทธิ์นี้ไม่ได้เปิดเมนูใหม่ทั้งหน้า แต่จะ<b>เพิ่มปุ่ม/แท็บพิเศษ</b> เข้าไปในหน้าที่มีอยู่แล้ว 2 หน้า (หน้าเลือกเมนู และหน้าตั้งค่า)
+          บวกกับหน้าสำรองข้อมูลที่เข้าถึงได้เฉพาะสิทธิ์นี้เท่านั้น ควรให้เฉพาะผู้ที่ดูแลระบบจริง ๆ เท่านั้น เพราะแก้ไขข้อมูลระดับรากฐานของทั้งระบบได้
+        </p>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>เครื่องมือผู้ดูแลระบบ ในหน้าเลือกเมนู</h3><span class="route">/choose</span></div>
+          <p class="purpose">ปุ่มพิเศษ 3 ปุ่มที่จะโผล่มาในกล่อง "เครื่องมือผู้ดูแลระบบ" ท้ายหน้าเลือกเมนู เมื่อบัญชีมีสิทธิ์ AdminData</p>
+          <div class="shot-wrap"><a href="manual-assets/choose.png" target="_blank" rel="noopener"><img src="manual-assets/choose.png" alt="ภาพหน้าจอเครื่องมือผู้ดูแลระบบในหน้าเลือกเมนู" loading="lazy"></a></div>
+          <h4>ปุ่มที่มี</h4>
+          <ul>
+            <li><b>"นำเข้าข้อมูล JSON (ทับข้อมูลเดิมทั้งหมด)"</b> — เลือกไฟล์ Firebase export แล้วระบบจะ<b>ล้างข้อมูลเดิมทุกตารางแล้วแทนที่ด้วยไฟล์ใหม่ทั้งหมด</b></li>
+            <li><b>"เพิ่มข้อมูลใหม่ (ไม่ลบของเดิม)"</b> — เลือกไฟล์ Firebase export แล้วระบบจะเพิ่มเฉพาะแถวที่ยังไม่มีในฐานข้อมูล ข้อมูลเดิมไม่ถูกแตะต้อง</li>
+            <li><b>"สำรองข้อมูล"</b> — เปิดกล่องให้กรอกรหัสผ่านเข้าหน้าสำรองข้อมูลก่อน (ดูหัวข้อถัดไป)</li>
+          </ul>
+          <div class="note admin-note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg><b>ปุ่มแรกทำลายข้อมูลเดิมทั้งหมด</b> ควรใช้เฉพาะกรณีตั้งระบบใหม่หรือได้รับคำยืนยันชัดเจนแล้วเท่านั้น ปกติควรใช้ปุ่มที่สอง ("เพิ่มข้อมูลใหม่") เพื่อความปลอดภัย</div>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>สำรองข้อมูล</h3><span class="route">/backup</span></div>
+          <p class="purpose">สำรองฐานข้อมูลทั้งระบบเป็นไฟล์ ดาวน์โหลดเก็บไว้ หรือกู้คืนได้ในภายหลัง เข้าถึงได้ต้องผ่าน 2 ชั้น: มีสิทธิ์ AdminData และกรอกรหัสผ่านเฉพาะของหน้านี้ให้ถูกต้อง</p>
+          <div class="shot-wrap"><a href="manual-assets/backup.png" target="_blank" rel="noopener"><img src="manual-assets/backup.png" alt="ภาพหน้าจอสำรองข้อมูล" loading="lazy"></a></div>
+          <h4>ระบบสำรองข้อมูลอัตโนมัติ</h4>
+          <ul>
+            <li>ระบบสำรองข้อมูลให้อัตโนมัติทุกวัน เวลา <b>01:00 น.</b> โดยไม่ต้องทำอะไร</li>
+            <li>เก็บไฟล์สำรองไว้เพียง <b>30 วันล่าสุด</b> ไฟล์ที่เก่ากว่านั้นจะถูกลบทิ้งให้อัตโนมัติ</li>
+          </ul>
+          <h4>สิ่งที่ทำได้ในหน้านี้</h4>
+          <ul>
+            <li><b>"สำรองข้อมูลเดี๋ยวนี้"</b> — สั่งสำรองข้อมูลทันทีนอกเวลาปกติ</li>
+            <li>ตารางไฟล์สำรองทั้งหมด (ชื่อไฟล์/ขนาด/วันที่สร้าง) พร้อมปุ่ม <b>"ดาวน์โหลด"</b> และไอคอนลบต่อไฟล์</li>
+            <li><b>"เปลี่ยนรหัสผ่านสำหรับเข้าหน้านี้"</b> — ต้องกรอกรหัสผ่านเดิมให้ถูกก่อน จึงตั้งรหัสผ่านใหม่ได้ (รหัสผ่านเริ่มต้นของระบบคือ <span class="mono">admin</span> แนะนำให้เปลี่ยนทันทีหลังติดตั้งระบบ)</li>
+          </ul>
+          <div class="note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>รหัสผ่านของหน้านี้เป็นคนละตัวกับรหัสผ่านล็อกอินส่วนตัว — เป็นรหัสผ่านกลางเฉพาะสำหรับหน้าสำรองข้อมูลเท่านั้น ใครก็ตามที่รู้รหัสนี้และมีสิทธิ์ AdminData จะเข้าได้</div>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>ตั้งค่า — จัดการสิทธิ์การใช้งาน</h3><span class="route">/setting</span></div>
+          <p class="purpose">แท็บนี้ในหน้าตั้งค่าจะ<b>มองไม่เห็นเลยสำหรับผู้ที่ไม่มีสิทธิ์ AdminData</b> ใช้กำหนดว่าแต่ละ "ตำแหน่งงาน" เปิดเมนูส่วนไหนได้บ้าง เป็นจุดศูนย์กลางที่ควบคุมทุกอย่างในคู่มือเล่มนี้</p>
+          <div class="shot-wrap"><a href="manual-assets/setting-permissions.png" target="_blank" rel="noopener"><img src="manual-assets/setting-permissions.png" alt="ภาพหน้าจอจัดการสิทธิ์การใช้งาน" loading="lazy"></a></div>
+          <h4>วิธีใช้งาน</h4>
+          <ul>
+            <li>ตารางแสดงตำแหน่งงานทุกตำแหน่งเป็นแถว และสิทธิ์ 9 อย่างเป็นคอลัมน์ — ✓ สีเขียวคือมีสิทธิ์ ✗ สีแดงคือไม่มี</li>
+            <li>กดไอคอน ⓘ ที่หัวคอลัมน์แต่ละอันเพื่อดูคำอธิบายว่าสิทธิ์นั้นเปิดอะไรบ้าง</li>
+            <li>กด <b>"แก้ไข"</b> ท้ายแถวเพื่อเปลี่ยนชื่อตำแหน่งหรือติ๊กสิทธิ์ใหม่ แล้วกด <b>"บันทึก"</b></li>
+            <li>ไอคอน ➕ มุมขวาบนของตารางเพิ่มตำแหน่งงานใหม่</li>
+          </ul>
+          <div class="note admin-note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>สิทธิ์ <b>ผู้ดูแลระบบ</b> ที่กำหนดในตารางนี้เอง ก็ควบคุมว่าใครแก้ตารางนี้ได้ — ติ๊กให้ตำแหน่งไหนไปแล้ว คนที่อยู่ตำแหน่งนั้นจะมีสิทธิ์เท่าเทียมกับผู้ดูแลระบบทันที ต้องระวังเป็นพิเศษ (ระบบล็อกฝั่งเซิร์ฟเวอร์ไว้แล้วว่าการแก้ไข/ลบตำแหน่งต้องมีสิทธิ์นี้เท่านั้น ไม่ใช่แค่ซ่อนปุ่มไว้เฉย ๆ)</div>
+        </div>
+
+        <div class="pagecard">
+          <div class="pagecard-head"><h3>ตั้งค่า — ข้อมูลบริษัท</h3><span class="route">/setting</span></div>
+          <p class="purpose">แท็บนี้ก็มองไม่เห็นสำหรับผู้ไม่มีสิทธิ์ AdminData เช่นกัน ใช้จัดการข้อมูลนิติบุคคลของบริษัทในเครือที่ใช้พิมพ์บนเอกสารทุกใบ (ใบวางบิล ใบเสนอราคา ฯลฯ)</p>
+          <div class="shot-wrap"><a href="manual-assets/setting-company.png" target="_blank" rel="noopener"><img src="manual-assets/setting-company.png" alt="ภาพหน้าจอข้อมูลบริษัท" loading="lazy"></a></div>
+          <h4>สิ่งที่ทำได้</h4>
+          <ul>
+            <li>ดูรายชื่อบริษัททั้งหมด กดไอคอน ⓘ เพื่อเปิดรายละเอียด (ชื่อ, เลขผู้เสียภาษี, ที่อยู่)</li>
+            <li>กด <b>"แก้ไข"</b> ในกล่องรายละเอียดเพื่อเปลี่ยนข้อมูล — ระบบจะ<b>บันทึกข้อมูลเดิมเป็นประวัติอัตโนมัติ</b>ก่อนบันทึกค่าใหม่ทุกครั้งที่มีการแก้ไขจริง</li>
+            <li>ปุ่ม <b>"พิมพ์"</b> ในกล่องรายละเอียดบริษัท</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="group" id="grp-note">
+        <div class="group-head"><h2>หมายเหตุ: สิทธิ์ "รถใหญ่" (BigTruckData)</h2></div>
+        <div class="pagecard">
+          <p class="purpose">
+            ในตารางจัดการสิทธิ์จะเห็นคอลัมน์ <b>"รถใหญ่"</b> (BigTruckData) แยกต่างหาก แต่ปัจจุบันสิทธิ์นี้<b>ไม่ได้เปิดเมนูหรือหน้าใดเป็นพิเศษด้วยตัวเอง</b>
+            — มีผลแค่อย่างเดียวคือช่วยให้การ์ด "หน้าหลัก" ปรากฏในหน้าเลือกเมนู (ร่วมกับสิทธิ์หลักอื่น ๆ) เพจฝั่งรถบรรทุกใหญ่จริง ๆ (ทะเบียนรถ ลูกค้า ตั๋ว) อยู่ภายใต้สิทธิ์ <b>ข้อมูลทั่วไป</b> ทั้งหมด ไม่ใช่สิทธิ์นี้
+          </p>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // Build the sidebar nav from the actual section headings in the document.
+  // Sections without a .flag (e.g. the closing "หมายเหตุ" note) are supplementary
+  // asides, not permission groups, so they're left out of the nav list.
+  const groups = [...document.querySelectorAll('section.group')]
+    .filter(sec => sec.querySelector('.flag'))
+    .map(sec => ({
+      id: sec.id,
+      title: sec.querySelector('h2').textContent,
+      color: getComputedStyle(sec.querySelector('.flag')).color,
+      count: sec.querySelectorAll('.pagecard').length,
+    }));
+  const navHtml = [
+    `<a class="navlink top" href="#top"><span class="dot" style="background:var(--red)"></span>ภาพรวม / เริ่มต้นใช้งาน</a>`,
+    ...groups.map(g => `<a class="navlink" href="#${g.id}"><span class="dot" style="background:${g.color}"></span>${g.title}<span class="count">${g.count}</span></a>`)
+  ].join('');
+  document.getElementById('navgroups').innerHTML = navHtml;
+
+  // Active-section highlight + breadcrumb on scroll.
+  const links = [...document.querySelectorAll('.navlink')];
+  const sections = [document.getElementById('top'), ...document.querySelectorAll('section.group')];
+  const crumb = document.getElementById('crumb');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(!e.isIntersecting) return;
+      const id = e.target.id;
+      links.forEach(l => l.style.background = '');
+      const active = links.find(l => l.getAttribute('href') === '#' + id);
+      if(active){ active.style.background = 'rgba(255,255,255,.12)'; crumb.textContent = active.textContent.replace(/\d+$/,'').trim(); }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => s && io.observe(s));
+
+  // Live filter by page name / route / body text.
+  const searchInput = document.getElementById('searchInput');
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim().toLowerCase();
+    document.querySelectorAll('.pagecard').forEach(card => {
+      card.hidden = q.length > 0 && !card.textContent.toLowerCase().includes(q);
+    });
+    document.querySelectorAll('section.group').forEach(sec => {
+      const anyVisible = [...sec.querySelectorAll('.pagecard')].some(c => !c.hidden);
+      sec.hidden = q.length > 0 && !anyVisible;
+    });
+  });
+</script>
+
+</body>
+</html>
