@@ -1,7 +1,5 @@
 // src/providers/TripDataProvider.js
-import { createContext, useContext, useEffect, useState, useMemo, useCallback, useRef } from "react";
-import { ref, onValue } from "firebase/database";
-import { database } from "../firebase";
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import { apiGet } from "../apiClient";
 
 const TripDataContext = createContext();
@@ -22,30 +20,19 @@ const BACKEND_TABLES = {
     report: "report_invoice",
 };
 
-// typeFinancial/reportType live under Firebase paths ("/financial/type",
-// "/report/type") that weren't present in the Firebase export imported into
-// Postgres. Left on Firebase until that data is backfilled.
-const FIREBASE_ONLY_REFS = {
-    typeFinancial: "/financial/type/",
-    reportType: "/report/type",
-};
-
 export const TripDataProvider = ({ children }) => {
     const [tripData, setTripData] = useState({
         banks: {},
         order: {},
         trip: {},
         tickets: {},
-        typeFinancial: {},
         reportFinancial: {},
         transferMoney: {},
         invoiceReport: {},
         report: {},
-        reportType: {},
     });
 
     const [backendLoaded, setBackendLoaded] = useState(false);
-    const [firebaseLoaded, setFirebaseLoaded] = useState(false);
     const mounted = useRef(true);
 
     const refetchBackend = useCallback(async () => {
@@ -72,27 +59,7 @@ export const TripDataProvider = ({ children }) => {
         };
     }, [refetchBackend]);
 
-    const firebaseRefs = useMemo(
-        () => Object.fromEntries(Object.entries(FIREBASE_ONLY_REFS).map(([key, path]) => [key, ref(database, path)])),
-        []
-    );
-
-    useEffect(() => {
-        let loadedCount = 0;
-        const totalRefs = Object.keys(firebaseRefs).length;
-
-        const unsubscribes = Object.entries(firebaseRefs).map(([key, refItem]) =>
-            onValue(refItem, (snapshot) => {
-                setTripData((prev) => ({ ...prev, [key]: snapshot.val() || {} }));
-                loadedCount++;
-                if (loadedCount === totalRefs) setFirebaseLoaded(true);
-            })
-        );
-
-        return () => unsubscribes.forEach((unsub) => unsub());
-    }, [firebaseRefs]);
-
-    const loading = !backendLoaded || !firebaseLoaded;
+    const loading = !backendLoaded;
 
     return (
         <TripDataContext.Provider value={{ ...tripData, loading, refetch: refetchBackend }}>
