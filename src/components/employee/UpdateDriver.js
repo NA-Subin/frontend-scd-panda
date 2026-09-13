@@ -70,11 +70,13 @@ const UpdateDriver = (props) => {
     const allReghead = Object.values(reghead || {});
     const allSmall = Object.values(small || {});
 
-    // driver.Registration is a real reghead/small uuid, so the "id:plate:type"
-    // composite this dialog edits in-state has to be rebuilt from that row.
+    // employee_drivers has two separate FK pairs now - Registration (big
+    // trucks, -> truck_registration) and RegistrationSmall (-> truck_small) -
+    // a driver can hold one of each. The "id:plate:type" composite this
+    // dialog edits in-state is rebuilt from whichever pair matches TruckType.
     const currentTruckRow = driver.TruckType !== "รถเล็ก"
         ? allReghead.find((row) => row.uuid === driver.Registration)
-        : allSmall.find((row) => row.uuid === driver.Registration);
+        : allSmall.find((row) => row.uuid === driver.RegistrationSmall);
     const currentTruckType = driver.TruckType !== "รถเล็ก" ? "รถใหญ่" : "รถเล็ก";
 
     const [name, setName] = React.useState(driver.Name);
@@ -121,7 +123,7 @@ const UpdateDriver = (props) => {
     // already assigned to - the currently-assigned one is shown separately
     // via the "current value" MenuItem below, so it doesn't need to be here.
     const registrationHead = allReghead.filter((row) => !row.Driver);
-    const registrationSmallTruck = allSmall.filter((row) => row.Driver === "0:ไม่มี" || row.Driver === "ไม่มี" || !row.Driver);
+    const registrationSmallTruck = allSmall.filter((row) => !row.Driver);
     const [bigTrucks, setBigTrucks] = useState(driver.TruckType !== "รถเล็ก" ? false : true);
     const [smallTrucks, setSmallTrucks] = useState(driver.TruckType !== "รถใหญ่" ? false : true);
 
@@ -149,11 +151,18 @@ const UpdateDriver = (props) => {
                     ? allReghead.find((row) => row.id === selectedId)
                     : allSmall.find((row) => row.id === selectedId);
 
+            // Registration (-> truck_registration) and RegistrationSmall
+            // (-> truck_small) are separate FK pairs now - only send the one
+            // matching the selected truck type, so the other stays whatever
+            // it already was (a driver can hold one of each).
+            const registrationFields = selectedType === "รถใหญ่"
+                ? { Registration: newTruckRow?.uuid || null, RegistrationName: newTruckRow?.RegHead || "ไม่มี" }
+                : { RegistrationSmall: newTruckRow?.uuid || null, RegistrationSmallName: newTruckRow?.RegHead || "ไม่มี" };
+
             await apiPut(`/api/employee_drivers/${driver.uuid}`, {
                 Name: name,
                 IDCard: idCard,
-                Registration: newTruckRow?.uuid || null,
-                RegistrationName: newTruckRow?.RegHead || "ไม่มี",
+                ...registrationFields,
                 BankName: bank,
                 BankID: bankID,
                 Salary: salary,
@@ -179,7 +188,8 @@ const UpdateDriver = (props) => {
                     });
                 } else {
                     await apiPut(`/api/truck_small/${currentTruckRow.uuid}`, {
-                        Driver: "ไม่มี",
+                        Driver: null,
+                        DriverName: "ไม่มี",
                     });
                 }
             }
@@ -193,7 +203,8 @@ const UpdateDriver = (props) => {
                     });
                 } else {
                     await apiPut(`/api/truck_small/${newTruckRow.uuid}`, {
-                        Driver: name,
+                        Driver: driver.uuid,
+                        DriverName: name,
                     });
                 }
             }
@@ -223,7 +234,7 @@ const UpdateDriver = (props) => {
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{index + 1}</TableCell>
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{driver.Name}</TableCell>
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{driver.IDCard}</TableCell>
-                <TableCell sx={{ textAlign: "center", height: "35px" }}>{driver.RegistrationName}</TableCell>
+                <TableCell sx={{ textAlign: "center", height: "35px" }}>{driver.TruckType !== "รถเล็ก" ? driver.RegistrationName : driver.RegistrationSmallName}</TableCell>
                 {/* {renderSettingCell(driver)} */}
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{driver.TruckType}</TableCell>
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{driver.BankID}</TableCell>

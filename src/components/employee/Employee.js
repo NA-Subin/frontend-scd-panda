@@ -256,7 +256,7 @@ const Employee = ({ openNavbar }) => {
 
   const renderSettingCell = (row) => {
     const rowName = row.Name;
-    const regText = row.RegistrationName || "";
+    const regText = (row.TruckType !== "รถเล็ก" ? row.RegistrationName : row.RegistrationSmallName) || "";
 
     if (!setting || setting === "") {
       return (

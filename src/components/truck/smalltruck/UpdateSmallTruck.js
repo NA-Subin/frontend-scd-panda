@@ -61,7 +61,10 @@ const UpdateSmallTruck = (props) => {
     const { company, drivers, refetch: refetchBasicData } = useBasicData();
     const dataCompany = Object.values(company || {});
     const dataDrivers = Object.values(drivers || {});
-    const employees = dataDrivers.filter(row => !row.Registration && (row.TruckType === "รถเล็ก" || row.TruckType === "รถใหญ่/รถเล็ก"));
+    // Availability for a small-truck assignment depends on RegistrationSmall
+    // (the small-truck FK), not Registration (the big-truck FK) - a driver
+    // can hold one of each.
+    const employees = dataDrivers.filter(row => !row.RegistrationSmall && (row.TruckType === "รถเล็ก" || row.TruckType === "รถใหญ่/รถเล็ก"));
 
     const resolveCompanyDisplay = (value) =>
         value?.includes(":")
@@ -202,9 +205,11 @@ const UpdateSmallTruck = (props) => {
             });
 
             if (newlySelectedDriver?.uuid) {
+                // employee_drivers.RegistrationSmall is the small-truck FK -
+                // Registration is for big trucks only (see importData.js).
                 await apiPut(`/api/employee_drivers/${newlySelectedDriver.uuid}`, {
-                    Registration: truck.uuid,
-                    RegistrationName: registration,
+                    RegistrationSmall: truck.uuid,
+                    RegistrationSmallName: registration,
                 });
             }
 

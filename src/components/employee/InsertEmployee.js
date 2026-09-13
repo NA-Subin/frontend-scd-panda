@@ -252,6 +252,13 @@ const InsertEmployee = (props) => {
                             ? smallTruck.find((t) => t.id === regId)
                             : null;
 
+                // Registration (-> truck_registration) and RegistrationSmall
+                // (-> truck_small) are separate FK pairs now - only send the
+                // one matching the selected truck's type.
+                const registrationFields = regTruckType === "รถเล็ก"
+                    ? { RegistrationSmall: truckRow?.uuid || null, RegistrationSmallName: truckRow?.RegHead || "ไม่มี" }
+                    : { Registration: truckRow?.uuid || null, RegistrationName: truckRow?.RegHead || "ไม่มี" };
+
                 try {
                     const { uuid: newDriverUuid } = await apiPost("/api/auth/register", {
                         table: "employee_drivers",
@@ -261,8 +268,7 @@ const InsertEmployee = (props) => {
                             Name: name + " " + lastname,
                             User: `t${driver.length.toString().padStart(4, '0')}`,
                             Phone: phone,
-                            Registration: truckRow?.uuid || null,
-                            RegistrationName: truckRow?.RegHead || "ไม่มี",
+                            ...registrationFields,
                             BankID: bankID,
                             BankName: bank,
                             IDCard: idCard,
@@ -289,7 +295,8 @@ const InsertEmployee = (props) => {
                         });
                     } else if (truckRow?.uuid && regTruckType === "รถเล็ก") {
                         await apiPut(`/api/truck_small/${truckRow.uuid}`, {
-                            Driver: name + " " + lastname,
+                            Driver: newDriverUuid,
+                            DriverName: name + " " + lastname,
                         });
                     }
 
