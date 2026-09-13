@@ -130,6 +130,42 @@
     padding:6px 12px; border-radius:20px; background:var(--navy-soft); color:var(--navy); border:1px solid var(--line);
   }
 
+  .preface{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:26px 28px; margin-bottom:36px;
+  }
+  .preface h2{ font-size:20px; font-weight:800; color:var(--navy); margin-bottom:14px; scroll-margin-top:80px; }
+  .preface > div + div{ margin-top:28px; padding-top:28px; border-top:1px solid var(--line); }
+  .preface h3{
+    font-size:15px; font-weight:800; color:var(--ink); margin-bottom:10px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .preface p{ font-size:14.5px; line-height:1.8; color:var(--ink); margin-bottom:10px; }
+  .preface p:last-child{ margin-bottom:0; }
+  .preface ol, .preface ul{ margin:8px 0 10px; padding-left:22px; display:flex; flex-direction:column; gap:8px; }
+  .preface li{ font-size:14.5px; line-height:1.75; }
+  .compare-table{ width:100%; border-collapse:collapse; margin:10px 0 14px; font-size:13.5px; }
+  .compare-table th, .compare-table td{ text-align:left; padding:9px 12px; border:1px solid var(--line); vertical-align:top; }
+  .compare-table th{ background:var(--navy-soft); color:var(--navy); font-weight:800; }
+  .compare-table td.old-sys{ color:var(--muted); }
+
+  .toc{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:22px 24px; margin-bottom:36px;
+  }
+  .toc h2{ font-size:18px; font-weight:800; color:var(--navy); margin-bottom:14px; }
+  .toc-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:8px; }
+  .toc-grid a{
+    display:flex; align-items:center; gap:8px; padding:9px 12px; border-radius:10px;
+    background:var(--bg); border:1px solid var(--line); color:var(--ink); text-decoration:none; font-size:14px; font-weight:600;
+  }
+  .toc-grid a:hover{ border-color:var(--navy); color:var(--navy); }
+  .toc-grid .n{
+    display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%;
+    background:var(--navy); color:#fff; font-size:11.5px; font-weight:800; flex-shrink:0;
+  }
+  .toc-grid .cnt{ margin-left:auto; font-size:11.5px; color:var(--muted); font-weight:700; }
+
   section.group{ margin-bottom:52px; scroll-margin-top:80px; }
   .group-head{ display:flex; align-items:baseline; gap:12px; margin-bottom:6px; flex-wrap:wrap; }
   .group-head h2{ font-size:24px; font-weight:800; color:var(--navy); }
@@ -254,6 +290,117 @@
           <span class="role-chip">⛽ หน้าลาน (GasStationData)</span>
           <span class="role-chip">🚚 พขร. (DriverData)</span>
           <span class="role-chip">🛡️ ผู้ดูแลระบบ (AdminData)</span>
+        </div>
+      </div>
+
+      <div class="preface" id="preface">
+        <h2>คำนำ — ทำไมระบบถึงหน้าตาเป็นแบบนี้</h2>
+
+        <div>
+          <h3>🗄️ ระบบเดิมเป็นอย่างไร</h3>
+          <p>
+            ก่อนหน้านี้ระบบ PandaStar Oil ทั้งหมด (ทั้งหน้าเว็บและฐานข้อมูล) รันอยู่บน <b>Firebase</b> ของ Google —
+            เก็บข้อมูลทุกอย่างไว้ใน <b>Firebase Realtime Database</b> ซึ่งเป็นฐานข้อมูลแบบ "ต้นไม้ JSON" ก้อนเดียวยักษ์ ๆ
+            (ไม่ใช่ตารางแบบฐานข้อมูลทั่วไป) และใช้ <b>Firebase Authentication</b> จัดการระบบล็อกอิน โค้ดหน้าเว็บกับ
+            ส่วนจัดการข้อมูลอยู่รวมเป็นโปรเจกต์เดียวกันทั้งหมด
+          </p>
+        </div>
+
+        <div>
+          <h3>🔄 ทำไมถึงเปลี่ยนมาใช้ระบบนี้</h3>
+          <p>
+            ระบบปัจจุบันย้ายฐานข้อมูลมาเป็น <b>PostgreSQL</b> (ฐานข้อมูลเชิงสัมพันธ์ / SQL แบบมาตรฐาน) รันผ่านเซิร์ฟเวอร์
+            backend แยกต่างหาก และแยกโค้ดหน้าเว็บ (frontend) ออกจากเซิร์ฟเวอร์ (backend) เป็นคนละโปรเจกต์กันชัดเจน
+            ด้วยเหตุผลหลัก ๆ ดังนี้:
+          </p>
+          <table class="compare-table">
+            <thead><tr><th style="width:22%">ประเด็น</th><th>ระบบเดิม (Firebase)</th><th>ระบบปัจจุบัน (PostgreSQL)</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>ความสัมพันธ์ของข้อมูล</td>
+                <td class="old-sys">ไม่มี foreign key จริง ต้องใช้ตัวหลอกแบบ "id:ชื่อ" ผูกไว้ในข้อความ (เช่น เลขลูกค้ารวมกับชื่อในช่องเดียว) เสี่ยงข้อมูลไม่ตรงกันโดยไม่รู้ตัว</td>
+                <td>มี foreign key จริง เชื่อมตารางกันถูกต้องแน่นอน ลดบั๊กประเภท "จับคู่ข้อมูลผิดแถว" ที่เจอบ่อยตอนย้ายระบบ</td>
+              </tr>
+              <tr>
+                <td>รหัสอ้างอิงแต่ละแถว (Primary Key)</td>
+                <td class="old-sys">ใช้เลข id หรือ key ของ Firebase ซึ่งซ้ำกันได้ข้ามชุดข้อมูล เสี่ยงข้อมูลทับกันถ้ารวมข้อมูลจากหลายแหล่ง</td>
+                <td>ทุกแถวมี UUID เฉพาะตัวจริง ไม่มีทางซ้ำกัน ปลอดภัยกว่าเวลาต้องนำเข้า/รวมข้อมูล</td>
+              </tr>
+              <tr>
+                <td>รายงานสรุป/ยอดต่าง ๆ</td>
+                <td class="old-sys">ต้องดึงข้อมูลก้อน JSON ทั้งหมดมาคำนวณเองฝั่งหน้าเว็บ ยิ่งข้อมูลเยอะยิ่งช้าและเสี่ยงคำนวณผิด</td>
+                <td>ใช้คำสั่ง SQL คำนวณ/เชื่อมตารางที่ฐานข้อมูลได้โดยตรง แม่นยำและรองรับข้อมูลปริมาณมากได้ดีกว่า</td>
+              </tr>
+              <tr>
+                <td>สิทธิ์การใช้งาน</td>
+                <td class="old-sys">พึ่งพาการซ่อนเมนูฝั่งหน้าเว็บเป็นหลัก</td>
+                <td>ฝั่งเซิร์ฟเวอร์ตรวจสิทธิ์ซ้ำอีกชั้นสำหรับข้อมูลสำคัญ (เช่น การแก้ตำแหน่ง/สิทธิ์ ข้อมูลบริษัท) ต่อให้รู้ลิงก์ตรงก็เข้าไม่ได้ถ้าไม่มีสิทธิ์จริง</td>
+              </tr>
+              <tr>
+                <td>การสำรองข้อมูล</td>
+                <td class="old-sys">ต้องเข้าไปกดสำรองผ่านหน้า Firebase Console เอง</td>
+                <td>ระบบสำรองข้อมูลอัตโนมัติทุกวันในตัว (ดูหน้า "สำรองข้อมูล" ในหมวดผู้ดูแลระบบ)</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            พูดง่าย ๆ คือเปลี่ยนจาก "ที่เก็บข้อมูลก้อนเดียวไม่มีโครงสร้างตายตัว" มาเป็น "ฐานข้อมูลที่มีโครงสร้างชัดเจน
+            ตรวจสอบได้ ปลอดภัยกว่า และรองรับการออกรายงานที่ซับซ้อนของกิจการได้ดีกว่าในระยะยาว"
+          </p>
+        </div>
+
+        <div>
+          <h3>📥 ถ้าต้องการข้อมูลล่าสุดจากระบบเดิม ต้อง import อะไรบ้าง</h3>
+          <p>
+            ระบบใหม่ไม่ได้เชื่อมต่อกับ Firebase ของระบบเดิมแบบอัตโนมัติ ถ้าระบบเดิมยังมีข้อมูลที่เกิดขึ้นใหม่
+            (เช่น ยังใช้คู่ขนานกันอยู่ช่วงเปลี่ยนผ่าน) แล้วต้องการดึงข้อมูลล่าสุดเข้ามาไว้ในระบบนี้ ให้ทำตามขั้นตอนนี้:
+          </p>
+          <ol>
+            <li>
+              เข้า <b>Firebase Console</b> (console.firebase.google.com) ของโปรเจกต์เดิม → เมนู
+              <b>Realtime Database</b> → กดไอคอนจุดสามจุด (⋮) ที่มุมขวาบนของหน้าข้อมูล → เลือก <b>"Export JSON"</b>
+              เพื่อดาวน์โหลดข้อมูลทั้งหมดของระบบเดิมออกมาเป็นไฟล์ .json ไฟล์เดียว
+            </li>
+            <li>
+              เข้าสู่ระบบด้วยบัญชีที่มีสิทธิ์ <b>ผู้ดูแลระบบ (AdminData)</b> แล้วไปที่หน้า <b>"เลือกเมนู"</b> เลื่อนลงไปที่
+              กล่อง <b>"เครื่องมือผู้ดูแลระบบ"</b>
+            </li>
+            <li>
+              เลือกปุ่มให้ถูกกับสถานการณ์ (สำคัญมาก เลือกผิดข้อมูลหายได้):
+              <ul>
+                <li>
+                  <b>"เพิ่มข้อมูลใหม่ (ไม่ลบของเดิม)"</b> — <u>แนะนำสำหรับการใช้งานทั่วไป</u> ใช้เมื่อระบบนี้มีข้อมูลจริง
+                  เกิดขึ้นแล้ว (ลูกค้าใหม่ ตั๋วใหม่ การโอนเงินใหม่ ฯลฯ) จะเพิ่มเฉพาะรายการที่ยังไม่มีในระบบนี้เท่านั้น
+                  ข้อมูลเดิมที่มีอยู่แล้วจะไม่ถูกแตะต้องหรือลบทิ้งเลย
+                </li>
+                <li>
+                  <b>"นำเข้าข้อมูล JSON (ทับข้อมูลเดิมทั้งหมด)"</b> — ใช้เฉพาะตอนตั้งระบบใหม่ครั้งแรก หรือได้รับการยืนยัน
+                  ชัดเจนแล้วว่าต้องการล้างข้อมูลปัจจุบันทั้งหมดแล้วแทนที่ด้วยไฟล์ที่เพิ่ง export มา
+                </li>
+              </ul>
+            </li>
+            <li>เลือกไฟล์ .json ที่ export มาจากขั้นตอนที่ 1 แล้วรอระบบประมวลผลจนขึ้นข้อความแจ้งผลสำเร็จ</li>
+          </ol>
+          <p>
+            <b>หมายเหตุ:</b> บัญชีพนักงาน/คนขับที่มาจากไฟล์เดิมจะมีรหัสผ่านเป็นตัวอักษรธรรมดา (ยังไม่เข้ารหัส)
+            ระบบจะเข้ารหัสให้อัตโนมัติทันทีหลัง import เสร็จ ไม่ต้องทำอะไรเพิ่ม บัญชีเหล่านั้นจะยังล็อกอินด้วยรหัสผ่านเดิมได้ตามปกติ
+          </p>
+        </div>
+      </div>
+
+      <div class="toc" id="toc">
+        <h2>📑 สารบัญ</h2>
+        <div class="toc-grid">
+          <a href="#preface"><span class="n">0</span>คำนำ</a>
+          <a href="#grp-everyone"><span class="n">1</span>เริ่มต้นใช้งาน — ทุกคน<span class="cnt">4</span></a>
+          <a href="#grp-basic"><span class="n">2</span>ข้อมูลทั่วไป<span class="cnt">13</span></a>
+          <a href="#grp-operation"><span class="n">3</span>ปฏิบัติงาน<span class="cnt">3</span></a>
+          <a href="#grp-financial"><span class="n">4</span>การเงิน<span class="cnt">4</span></a>
+          <a href="#grp-report"><span class="n">5</span>รายงาน<span class="cnt">8</span></a>
+          <a href="#grp-small"><span class="n">6</span>รถเล็ก<span class="cnt">7</span></a>
+          <a href="#grp-gasstation"><span class="n">7</span>หน้าลานน้ำมัน<span class="cnt">1</span></a>
+          <a href="#grp-driver"><span class="n">8</span>พนักงานขับรถ<span class="cnt">2</span></a>
+          <a href="#grp-admin"><span class="n">9</span>ผู้ดูแลระบบ<span class="cnt">4</span></a>
         </div>
       </div>
 
@@ -947,14 +1094,15 @@
       count: sec.querySelectorAll('.pagecard').length,
     }));
   const navHtml = [
-    `<a class="navlink top" href="#top"><span class="dot" style="background:var(--red)"></span>ภาพรวม / เริ่มต้นใช้งาน</a>`,
+    `<a class="navlink top" href="#top"><span class="dot" style="background:var(--red)"></span>ภาพรวม</a>`,
+    `<a class="navlink top" href="#preface"><span class="dot" style="background:var(--red)"></span>คำนำ</a>`,
     ...groups.map(g => `<a class="navlink" href="#${g.id}"><span class="dot" style="background:${g.color}"></span>${g.title}<span class="count">${g.count}</span></a>`)
   ].join('');
   document.getElementById('navgroups').innerHTML = navHtml;
 
   // Active-section highlight + breadcrumb on scroll.
   const links = [...document.querySelectorAll('.navlink')];
-  const sections = [document.getElementById('top'), ...document.querySelectorAll('section.group')];
+  const sections = [document.getElementById('top'), document.getElementById('preface'), ...document.querySelectorAll('section.group')];
   const crumb = document.getElementById('crumb');
   const io = new IntersectionObserver((entries) => {
     entries.forEach(e => {
