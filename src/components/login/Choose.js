@@ -52,6 +52,21 @@ import { apiPost } from "../../server/apiClient";
 // step needed the way the earlier Claude Artifact version required.
 const MANUAL_URL = "/manual.html";
 
+// Both import endpoints can succeed (rows got inserted) while still flagging
+// things worth a human's attention - an "id:name" reference that pointed at
+// nothing (fkReferencesNotResolved), or a warning from the importer itself
+// (e.g. an unrecognized customers/* category, or a duplicate id that could
+// have linked a row to the wrong target). Previously these were computed on
+// the backend and then silently discarded here - a plain success toast even
+// when something didn't actually link up correctly.
+const buildImportIssuesList = (result) => {
+  const issues = [...(result.warnings || [])];
+  for (const fk of result.fkReferencesNotResolved || []) {
+    issues.push(`เชื่อมข้อมูลไม่สำเร็จ ${fk.unresolvedRefs} รายการที่ "${fk.field}" (ไม่พบแถวปลายทางที่อ้างอิงถึง)`);
+  }
+  return issues;
+};
+
 // One shared visual style for every main-navigation destination card -
 // icon + label, brand-colored, same footprint - so the grid re-centers
 // cleanly no matter how many of them a given user's permissions show,
@@ -169,7 +184,19 @@ const Choose = () => {
           setImporting(true);
           try {
             const result = await apiPost("/api/admin/import", { data });
-            ShowSuccess(`นำเข้าข้อมูลสำเร็จ (${result.tables} ตาราง, ${result.totalRows} แถว)`);
+            const issues = buildImportIssuesList(result);
+            if (issues.length) {
+              ShowWarning(
+                `นำเข้าข้อมูลสำเร็จ (${result.tables} ตาราง, ${result.totalRows} แถว) แต่พบข้อควรตรวจสอบ`,
+                <ul style={{ textAlign: "left", margin: 0, paddingLeft: 18 }}>
+                  {issues.map((line, i) => (
+                    <li key={i}>{line}</li>
+                  ))}
+                </ul>
+              );
+            } else {
+              ShowSuccess(`นำเข้าข้อมูลสำเร็จ (${result.tables} ตาราง, ${result.totalRows} แถว)`);
+            }
             refetch?.();
           } catch (err) {
             ShowError("นำเข้าข้อมูลไม่สำเร็จ", err?.data?.error || err.message);
@@ -215,8 +242,30 @@ const Choose = () => {
           setImportingIncremental(true);
           try {
             const result = await apiPost("/api/admin/import-incremental", { data });
+            const issues = buildImportIssuesList(result);
             if (result.totalNewRows === 0) {
-              ShowInfo("ไม่มีข้อมูลใหม่", result.message || "ทุกแถวในไฟล์นี้มีอยู่ในฐานข้อมูลแล้ว");
+              if (issues.length) {
+                ShowWarning(
+                  "ไม่มีข้อมูลใหม่ แต่พบข้อควรตรวจสอบ",
+                  <ul style={{ textAlign: "left", margin: 0, paddingLeft: 18 }}>
+                    {issues.map((line, i) => (
+                      <li key={i}>{line}</li>
+                    ))}
+                  </ul>
+                );
+              } else {
+                ShowInfo("ไม่มีข้อมูลใหม่", result.message || "ทุกแถวในไฟล์นี้มีอยู่ในฐานข้อมูลแล้ว");
+              }
+            } else if (issues.length) {
+              ShowWarning(
+                `เพิ่มข้อมูลใหม่สำเร็จ (${result.totalNewRows} แถว) แต่พบข้อควรตรวจสอบ`,
+                <ul style={{ textAlign: "left", margin: 0, paddingLeft: 18 }}>
+                  {issues.map((line, i) => (
+                    <li key={i}>{line}</li>
+                  ))}
+                </ul>
+              );
+              refetch?.();
             } else {
               ShowSuccess(`เพิ่มข้อมูลใหม่สำเร็จ (${result.totalNewRows} แถว)`);
               refetch?.();
