@@ -1,70 +1,130 @@
-# Getting Started with Create React App
+# PandaStar Oil — Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React (Create React App) + MUI v5 หน้าเว็บของระบบบริหารจัดการขนส่งน้ำมัน PandaStar Oil
 
-## Available Scripts
+คู่กับ backend repo แยกต่างหาก (Bun + Elysia + PostgreSQL) — **ต้องมี backend รันอยู่ก่อน**
+ถึงจะใช้งานหน้าเว็บนี้ได้ ดูวิธีติดตั้ง backend ได้ที่ README ของ repo นั้น:
+https://github.com/NA-Subin/backend-scd-panda
 
-In the project directory, you can run:
+คู่มือนี้เขียนไว้สำหรับผู้ที่จะ **นำระบบไปติดตั้งบนเครื่อง/เซิร์ฟเวอร์ใหม่** (เช่น ส่งมอบให้ลูกค้า)
+ถ้าต้องการคู่มือการ**ใช้งาน**ระบบ (สำหรับผู้ใช้ทั่วไป แยกตามสิทธิ์) เปิดเว็บขึ้นมาแล้วดูได้ที่หน้า
+`/manual.html` โดยตรง (หรือกดปุ่ม "คู่มือการใช้งาน" ในหน้า "เลือกเมนู" หลังล็อกอิน)
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## สิ่งที่ต้องมีก่อนเริ่ม (Prerequisites)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+| โปรแกรม | ใช้ทำอะไร | ดาวน์โหลด |
+|---|---|---|
+| **Node.js** (แนะนำเวอร์ชัน LTS ล่าสุด) | build หน้าเว็บ | https://nodejs.org |
+| **git** | โคลนโค้ด | https://git-scm.com |
+| เว็บเซิร์ฟเวอร์สำหรับเสิร์ฟไฟล์ static (nginx / Apache / IIS / Firebase Hosting ฯลฯ) | เผยแพร่หน้าเว็บให้ผู้ใช้จริงเข้าถึง | แล้วแต่เลือกใช้ |
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## ขั้นตอนที่ 1 — โคลนโค้ด
 
-### `npm run build`
+```bash
+git clone https://github.com/NA-Subin/frontend-scd-panda.git
+cd frontend-scd-panda
+npm install
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## ขั้นตอนที่ 2 — ตั้งค่าไฟล์ `.env.local`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+cp .env.local.example .env.local
+```
 
-### `npm run eject`
+แก้ค่าในไฟล์ให้ชี้ไปที่ backend จริง:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```
+REACT_APP_API_URL=https://api.โดเมนลูกค้า.com
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+(ถ้าเทสในเครื่องตัวเองคู่กับ backend ที่รันอยู่ที่ `localhost:4000` ก็ปล่อยเป็นค่าเริ่มต้นได้เลย)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+**สำคัญ:** ค่า `REACT_APP_API_URL` นี้จะถูกฝังเข้าไปในไฟล์ที่ build ออกมาแบบถาวร (React ทำงานแบบนี้เป็นปกติ)
+ถ้าเปลี่ยนที่อยู่ backend ในภายหลัง ต้องแก้ค่านี้แล้ว **build ใหม่** เสมอ แก้แค่ `.env.local` เฉย ๆ
+โดยไม่ build ใหม่จะไม่มีผลอะไร
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+อย่าลืมตั้งค่า `CORS_ORIGIN` ฝั่ง backend (ไฟล์ `.env` ของ backend) ให้ตรงกับโดเมนที่จะ deploy หน้าเว็บนี้ไปด้วย
+ไม่งั้นเบราว์เซอร์จะบล็อกการเรียก API ทั้งหมด
 
-## Learn More
+---
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## ขั้นตอนที่ 3 — Build เว็บสำหรับใช้งานจริง
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+npm run build
+```
 
-### Code Splitting
+จะได้โฟลเดอร์ `build/` ที่มีไฟล์ static ล้วน (HTML/CSS/JS/รูปภาพ) พร้อมเอาไปวางบนเว็บเซิร์ฟเวอร์ใดก็ได้
+ไม่มีการรันโค้ด Node.js ฝั่งนี้เลยหลัง build เสร็จ
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+## ขั้นตอนที่ 4 — เผยแพร่ (Deploy) โฟลเดอร์ `build/`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+เลือกวิธีใดวิธีหนึ่งตามที่เซิร์ฟเวอร์ปลายทางรองรับ:
 
-### Making a Progressive Web App
+### วิธีที่ 1 — เว็บเซิร์ฟเวอร์ทั่วไป (nginx / Apache / IIS) — แนะนำสำหรับติดตั้งบนเซิร์ฟเวอร์ของลูกค้าเอง
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+คัดลอกเนื้อหาทั้งหมดในโฟลเดอร์ `build/` ไปไว้ในโฟลเดอร์ที่เว็บเซิร์ฟเวอร์ชี้ถึง (เช่น
+`/var/www/html` สำหรับ nginx บน Linux) แล้วตั้งค่าเว็บเซิร์ฟเวอร์ให้ **rewrite ทุก path ที่ไม่ตรงกับไฟล์จริง
+ไปที่ `index.html`** (จำเป็น เพราะเป็น Single Page Application ที่จัดการเส้นทางฝั่งเบราว์เซอร์เอง) ตัวอย่าง
+config ของ nginx:
 
-### Advanced Configuration
+```nginx
+server {
+  listen 80;
+  server_name app.โดเมนลูกค้า.com;
+  root /var/www/html;
+  index index.html;
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+  location / {
+    try_files $uri /index.html;
+  }
+}
+```
 
-### Deployment
+แนะนำให้ตั้ง HTTPS ผ่าน nginx (เช่นด้วย Let's Encrypt/Certbot) แทนการเปิด HTTP เปล่า ๆ ออกอินเทอร์เน็ต
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### วิธีที่ 2 — Firebase Hosting (ถ้าต้องการใช้ต่อแบบเดียวกับที่ตั้งไว้เดิม)
 
-### `npm run build` fails to minify
+repo นี้มีไฟล์ `firebase.json`/`.firebaserc` เตรียมไว้แล้ว **แต่ `.firebaserc` ปัจจุบันชี้ไปที่โปรเจกต์ Firebase
+เดิมของผู้พัฒนา (`scd-panda-1bc5a`) — ห้ามใช้ค่านี้ต่อกับลูกค้ารายใหม่โดยตรงเด็ดขาด** เพราะจะ deploy
+ทับเว็บเดิมไปโดยไม่ตั้งใจ ถ้าจะใช้ Firebase Hosting กับลูกค้าใหม่ ต้องสร้างโปรเจกต์ Firebase ของลูกค้าเอง
+ก่อน แล้วรัน:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```bash
+npm install -g firebase-tools
+firebase login
+firebase use --add   # เลือกโปรเจกต์ Firebase ใหม่ของลูกค้า แล้วตั้งชื่อ alias เอง
+firebase deploy --only hosting
+```
+
+---
+
+## เกี่ยวกับหน้าคู่มือการใช้งาน (`/manual.html`)
+
+คู่มือการใช้งาน (แยกตามสิทธิ์ พร้อมภาพหน้าจอ) เป็นไฟล์ static เก็บอยู่ที่ `public/manual.html` และ
+`public/manual-assets/*.png` — ถูก build/deploy ไปพร้อมกับเว็บหลักโดยอัตโนมัติ ไม่ต้องทำอะไรเพิ่มเติม
+เข้าถึงได้ที่ `<โดเมนเว็บ>/manual.html` โดยตรง (ต้องล็อกอินเข้าเว็บหลักก่อน 1 ครั้ง เพื่อเซสชันจะได้ไม่หมด
+อายุ แต่ตัวไฟล์คู่มือเองไม่ได้เช็คสิทธิ์อะไรเพิ่มเติม)
+
+เนื้อหาคู่มือนี้เขียนขึ้นตอนใดตอนหนึ่ง — ถ้าฟีเจอร์ของระบบมีการเปลี่ยนแปลงไปมากในอนาคต ควรพิจารณาปรับ
+เนื้อหาคู่มือให้ตรงกับของจริงอีกครั้ง
+
+---
+
+## สรุปลำดับการติดตั้งทั้งระบบ (backend + frontend)
+
+1. ติดตั้งและตั้งค่า **backend** ให้เสร็จก่อน (ดู README ของ backend repo) จนกว่า `curl <backend-url>/health`
+   จะตอบ `{"ok":true}` และนำเข้าข้อมูลเรียบร้อยแล้ว
+2. ตั้งค่า `.env.local` ของ frontend นี้ให้ชี้ไปที่ backend จากข้อ 1
+3. `npm run build` แล้ว deploy โฟลเดอร์ `build/` ตามวิธีที่เลือกไว้ด้านบน
+4. เปิดเว็บที่ deploy ไว้ ทดสอบล็อกอินด้วยบัญชีที่มีอยู่ในข้อมูลที่นำเข้ามา
+5. เข้าไปเปลี่ยนรหัสผ่านหน้า "สำรองข้อมูล" จากค่าเริ่มต้น `admin` ทันที (ดูรายละเอียดใน README ของ backend)
