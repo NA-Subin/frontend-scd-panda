@@ -26,6 +26,7 @@ import UploadFileIcon from "@mui/icons-material/UploadFile";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import BackupIcon from "@mui/icons-material/Backup";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
 import LockIcon from "@mui/icons-material/Lock";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -45,6 +46,11 @@ import Cookies from 'js-cookie';
 import UpdateDatabase from "../dashboard/test";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { apiPost } from "../../server/apiClient";
+
+// Published as a Claude Artifact - not part of this codebase, so there's
+// nothing to keep in sync here beyond this URL if the manual is ever
+// republished somewhere else.
+const MANUAL_URL = "https://claude.ai/code/artifact/afd8858a-158a-45e9-80a7-863e730ddd3c";
 
 // One shared visual style for every main-navigation destination card -
 // icon + label, brand-colored, same footprint - so the grid re-centers
@@ -132,6 +138,10 @@ const Choose = () => {
 
   const handleChooseQuotation = () => {
     window.location.href = "/quotation";
+  };
+
+  const handleOpenManual = () => {
+    window.open(MANUAL_URL, "_blank", "noopener,noreferrer");
   };
 
   const handleImportClick = () => {
@@ -306,6 +316,13 @@ const Choose = () => {
       color: "warning",
       icon: <SummarizeIcon />,
       onClick: handleChooseQuotation,
+    },
+    {
+      key: "manual",
+      label: "คู่มือการใช้งาน",
+      color: "secondary",
+      icon: <MenuBookIcon />,
+      onClick: handleOpenManual,
     },
   ].filter(Boolean);
 
