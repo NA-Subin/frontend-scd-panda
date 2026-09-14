@@ -17,10 +17,8 @@ import Creditor from "./components/creditor/Creditor";
 import './App.css';
 import theme from "./theme/theme";
 import GasStationA from "./components/attendant/GasStationA";
-import TradePayable from "./components/payable/TradePayable";
 import Choose from "./components/login/Choose";
 import GasStationAdmin from "./components/login/attendant/GasStationA";
-import Editfirebase from "./components/navbar/editefirebase";
 import TicketsGasStation from "./components/ticket/TicketsGasStation";
 import TicketsTransport from "./components/ticket/TicketsTransport";
 import TicketsBigTruck from "./components/ticket/TicketsBigTruck";
@@ -213,7 +211,6 @@ function App() {
         <Route path="/pda-printer" element={<RequireAuth><PdaPrinter /></RequireAuth>} />
         <Route path="/driver-Detail" element={<RequireAuth><TripDataProvider><DriverDetail /></TripDataProvider></RequireAuth>} />
         <Route path="/driver" element={<RequireAuth><TripDataProvider><Driver /></TripDataProvider></RequireAuth>} />
-        <Route path="/trade-payable" element={<RequireAuth><TripDataProvider><TradePayable /></TripDataProvider></RequireAuth>} />
         <Route path="/choose" element={<RequireAuth><Choose /></RequireAuth>} />
         <Route path="/backup" element={<RequireAuth><Backup /></RequireAuth>} />
         <Route path="/quotation" element={<RequireAuth><TripDataProvider><Quotation /></TripDataProvider></RequireAuth>} />
@@ -275,9 +272,6 @@ function App() {
                 </Routes>
                 <Routes>
                   <Route path="/setting" element={<Setting openNavbar={open} />} />
-                </Routes>
-                <Routes>
-                  <Route path="/edit-firebase" element={<Editfirebase openNavbar={open} />} />
                 </Routes>
                 <Routes>
                   <Route path="/employee" element={<Employee openNavbar={open} />} />

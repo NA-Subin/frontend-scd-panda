@@ -61,7 +61,6 @@ import {
   TableCellPWD,
   TableCellB20,
 } from "../../theme/style";
-import { useData } from "../../server/path";
 import withReactContent from "sweetalert2-react-content";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";

@@ -32,7 +32,6 @@ import dayjs from 'dayjs';
 import Cookies from 'js-cookie';
 import 'dayjs/locale/th';
 import GasStationDetail from "./GasStationDetail";
-import { useData } from "../../server/path";
 import withReactContent from "sweetalert2-react-content";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useGasStationData } from "../../server/provider/GasStationProvider";

@@ -37,8 +37,6 @@ import FactCheckIcon from '@mui/icons-material/FactCheck';
 import dayjs from 'dayjs';
 import Cookies from 'js-cookie';
 import 'dayjs/locale/th';
-import ReceiveOil from "./ReceiveOil";
-import OilBalance from "./OilBalance";
 import GasStationDetail from "./GasStationDetail";
 import { formatThaiSlash } from "../../../theme/DateTH";
 import { useGasStationData } from "../../../server/provider/GasStationProvider";

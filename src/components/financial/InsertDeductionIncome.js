@@ -45,7 +45,6 @@ import theme from "../../theme/theme";
 import { IconButtonError, TablecellSelling } from "../../theme/style";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { useData } from "../../server/path";
 import dayjs from "dayjs";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import InsertTypeDeduction from "./InsertTypeDeduction";

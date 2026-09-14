@@ -43,7 +43,6 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import DriveEtaIcon from '@mui/icons-material/DriveEta';
 import SummarizeIcon from '@mui/icons-material/Summarize';
 import Cookies from 'js-cookie';
-import UpdateDatabase from "../dashboard/test";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { apiPost } from "../../server/apiClient";
 

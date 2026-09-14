@@ -39,7 +39,6 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
 import InsertCustomerBigTruck from "./InsertCustomerBigTruck";
-import ExcelUploader from "../excel/ImportExcel";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { ShowConfirm, ShowError, ShowSuccess } from "../sweetalert/sweetalert";
 import TablePaginationBar from "../../theme/TablePaginationBar";

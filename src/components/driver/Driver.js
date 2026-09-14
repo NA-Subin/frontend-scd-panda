@@ -59,7 +59,6 @@ import {
   TableCellPWD,
   TableCellB20,
 } from "../../theme/style";
-import { useData } from "../../server/path";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";
 import RepairTruck from "../truck/RepairTruck";

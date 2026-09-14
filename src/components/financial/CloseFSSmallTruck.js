@@ -43,7 +43,6 @@ import { buildPeriodsForYear, findCurrentPeriod } from "./Paid";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import theme from "../../theme/theme";
 import { RateOils, TablecellFinancial, TablecellFinancialHead, TablecellHeader, TablecellPink, TablecellTickets } from "../../theme/style";
-import InsertType from "./InsertType";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
 import { useTripData } from "../../server/provider/TripProvider";
 
