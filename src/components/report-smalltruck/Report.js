@@ -598,8 +598,9 @@ const ReportSmallTruck = () => {
   // console.log("tripdetail : ", tripdetail.Depot);
 
   const detail = filtered.map((row) => {
-    const regId = row.Registration; // สมมติว่า Registration = "123:1กข1234"
-    const regInfo = registration.find((r) => r.id === regId);
+    // row.Registration is a real truck_registration/truck_small uuid now,
+    // not "id:plate" text - match on uuid.
+    const regInfo = registration.find((r) => r.uuid === row.Registration);
 
     return {
       Date: row.Date,
