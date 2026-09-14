@@ -178,11 +178,17 @@ const UpdateReport = (props) => {
 
   console.log("transferMoneyDetail : ", transferMoneyDetail);
 
+  // PeriodStart/PeriodEnd are the robust match (see the comment where they're
+  // written below), but records from before that field existed only have
+  // "month" - fall back to it so those older payments still match (kept in
+  // sync with report/Report.js's own matching).
   const transfer = transferMoneyDetail.filter(
     (row) =>
       row.TicketName === ticket.TicketName &&
       row.Status !== "ยกเลิก" &&
-      row.month === months,
+      (row.PeriodStart
+        ? row.PeriodStart === ticket.DateStart && row.PeriodEnd === ticket.DateEnd
+        : row.month === months),
   );
 
   let CountCompany1 = 0;
@@ -213,7 +219,9 @@ const UpdateReport = (props) => {
         trans.TicketName === ticket.TicketName &&
         trans.TicketType === "ตั๋วรับจ้างขนส่ง" &&
         trans.Status !== "ยกเลิก" &&
-        trans.month === months,
+        (trans.PeriodStart
+          ? trans.PeriodStart === ticket.DateStart && trans.PeriodEnd === ticket.DateEnd
+          : trans.month === months),
     )
     .reduce((sum, trans) => {
       const value = parseFloat(trans.IncomingMoney) || 0;

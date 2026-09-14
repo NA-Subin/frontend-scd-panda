@@ -120,9 +120,11 @@ const TripsBigTruck = ({ openNavbar }) => {
         const itemDate = dayjs(item.DateReceive, "DD/MM/YYYY");
         return (
             check === 2 ?
+                // A trip still in progress should always show here regardless
+                // of the selected date range - matches the original app,
+                // which deliberately left this date filter out.
                 (item.TruckType === "รถใหญ่" || item.TruckType === "รถรับจ้างขนส่ง") &&
-                item.StatusTrip === "กำลังจัดเที่ยววิ่ง" &&
-                itemDate.isBetween(selectedDateStart, selectedDateEnd, null, "[]")
+                item.StatusTrip === "กำลังจัดเที่ยววิ่ง"
                 : check === 3 ?
                     (item.TruckType === "รถใหญ่" || item.TruckType === "รถรับจ้างขนส่ง") &&
                     item.StatusTrip === "ยกเลิก" &&

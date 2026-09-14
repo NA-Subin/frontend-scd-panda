@@ -1732,8 +1732,13 @@ const Report = ({ openNavbar }) => {
                                 const transfer = transferMoneyDetail.filter(
                                   (transferRow) =>
                                     transferRow.TicketName === row.TicketName &&
-                                    transferRow.PeriodStart === row.DateStart &&
-                                    transferRow.PeriodEnd === row.DateEnd,
+                                    // PeriodStart/PeriodEnd are the robust match, but records
+                                    // from before that field existed only have "month" - fall
+                                    // back to it so those older payments still match (kept in
+                                    // sync with UpdateReport.js's own matching below).
+                                    (transferRow.PeriodStart
+                                      ? transferRow.PeriodStart === row.DateStart && transferRow.PeriodEnd === row.DateEnd
+                                      : transferRow.month === row.Month),
                                 );
 
                                 console.log("Tranfer Detail : ", transfer);
@@ -2009,8 +2014,13 @@ const Report = ({ openNavbar }) => {
                                 const transfer = transferMoneyDetail.filter(
                                   (transferRow) =>
                                     transferRow.TicketName === row.TicketName &&
-                                    transferRow.PeriodStart === row.DateStart &&
-                                    transferRow.PeriodEnd === row.DateEnd,
+                                    // PeriodStart/PeriodEnd are the robust match, but records
+                                    // from before that field existed only have "month" - fall
+                                    // back to it so those older payments still match (kept in
+                                    // sync with UpdateReport.js's own matching below).
+                                    (transferRow.PeriodStart
+                                      ? transferRow.PeriodStart === row.DateStart && transferRow.PeriodEnd === row.DateEnd
+                                      : transferRow.month === row.Month),
                                 );
 
                                 console.log("Tranfer Detail : ", transfer);
@@ -2517,8 +2527,13 @@ const Report = ({ openNavbar }) => {
                                 const transfer = transferMoneyDetail.filter(
                                   (transferRow) =>
                                     transferRow.TicketName === row.TicketName &&
-                                    transferRow.PeriodStart === row.DateStart &&
-                                    transferRow.PeriodEnd === row.DateEnd,
+                                    // PeriodStart/PeriodEnd are the robust match, but records
+                                    // from before that field existed only have "month" - fall
+                                    // back to it so those older payments still match (kept in
+                                    // sync with UpdateReport.js's own matching below).
+                                    (transferRow.PeriodStart
+                                      ? transferRow.PeriodStart === row.DateStart && transferRow.PeriodEnd === row.DateEnd
+                                      : transferRow.month === row.Month),
                                 );
 
                                 console.log("Tranfer Detail : ", transfer);
@@ -2797,8 +2812,13 @@ const Report = ({ openNavbar }) => {
                                 const transfer = transferMoneyDetail.filter(
                                   (transferRow) =>
                                     transferRow.TicketName === row.TicketName &&
-                                    transferRow.PeriodStart === row.DateStart &&
-                                    transferRow.PeriodEnd === row.DateEnd,
+                                    // PeriodStart/PeriodEnd are the robust match, but records
+                                    // from before that field existed only have "month" - fall
+                                    // back to it so those older payments still match (kept in
+                                    // sync with UpdateReport.js's own matching below).
+                                    (transferRow.PeriodStart
+                                      ? transferRow.PeriodStart === row.DateStart && transferRow.PeriodEnd === row.DateEnd
+                                      : transferRow.month === row.Month),
                                 );
 
                                 console.log("Tranfer Detail : ", transfer);
@@ -3304,8 +3324,13 @@ const Report = ({ openNavbar }) => {
                                 const transfer = transferMoneyDetail.filter(
                                   (transferRow) =>
                                     transferRow.TicketName === row.TicketName &&
-                                    transferRow.PeriodStart === row.DateStart &&
-                                    transferRow.PeriodEnd === row.DateEnd,
+                                    // PeriodStart/PeriodEnd are the robust match, but records
+                                    // from before that field existed only have "month" - fall
+                                    // back to it so those older payments still match (kept in
+                                    // sync with UpdateReport.js's own matching below).
+                                    (transferRow.PeriodStart
+                                      ? transferRow.PeriodStart === row.DateStart && transferRow.PeriodEnd === row.DateEnd
+                                      : transferRow.month === row.Month),
                                 );
 
                                 console.log("Tranfer Detail : ", transfer);
@@ -3574,8 +3599,13 @@ const Report = ({ openNavbar }) => {
                                 const transfer = transferMoneyDetail.filter(
                                   (transferRow) =>
                                     transferRow.TicketName === row.TicketName &&
-                                    transferRow.PeriodStart === row.DateStart &&
-                                    transferRow.PeriodEnd === row.DateEnd,
+                                    // PeriodStart/PeriodEnd are the robust match, but records
+                                    // from before that field existed only have "month" - fall
+                                    // back to it so those older payments still match (kept in
+                                    // sync with UpdateReport.js's own matching below).
+                                    (transferRow.PeriodStart
+                                      ? transferRow.PeriodStart === row.DateStart && transferRow.PeriodEnd === row.DateEnd
+                                      : transferRow.month === row.Month),
                                 );
 
                                 console.log("Tranfer Detail : ", transfer);
