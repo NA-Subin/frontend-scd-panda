@@ -117,9 +117,6 @@ const UpdateSmallTruck = (props) => {
     const [file, setFile] = useState(initialFile);
     const [fileType, setFileType] = useState(initialFileType);
 
-    console.log("show truck", truck.Driver - 1);
-    console.log("show Driver : ", driver);
-
     const handleCancle = () => {
         setCompanies(truck.Company);
         setDriver(resolveInitialDriverValue(truck));
@@ -139,9 +136,8 @@ const UpdateSmallTruck = (props) => {
 
             if (!file) return alert("กรุณาเลือกไฟล์ก่อน");
 
-            let img = "ไม่แนบไฟล์"; // ตั้งค่าเริ่มต้นไว้เลย
+            let img = "ไม่แนบไฟล์";
 
-            // ✅ ตรวจสอบก่อนว่า file เป็น "ไม่แนบไฟล์" หรือไม่
             if (file !== "ไม่แนบไฟล์") {
                 const formData = new FormData();
                 formData.append("pic", file);
@@ -215,7 +211,6 @@ const UpdateSmallTruck = (props) => {
 
             ShowSuccess("แก้ไขข้อมูลสำเร็จ");
             refetchBasicData?.();
-            console.log("Data pushed successfully");
             setUpdate(true);
         } catch (error) {
             ShowError("เพิ่มข้อมูลไม่สำเร็จ");
@@ -225,17 +220,14 @@ const UpdateSmallTruck = (props) => {
 
     return (
         <React.Fragment>
-            {/* <TableCell sx={{ textAlign: "center", position: "sticky", right: 0, backgroundColor: "white" }}>
-                <IconButton size="small" sx={{ marginTop: -0.5 }} onClick={() => setOpen(registration)}><InfoIcon color="info" fontSize="12px" /></IconButton>
-            </TableCell> */}
             <Dialog
-                open={open && type === "รายละเอียด" ? true : false}   // convert เป็น boolean ให้แน่นอน
+                open={open && type === "รายละเอียด" ? true : false}
                 keepMounted
-                onClose={onClose} // ใช้ตรง ๆ
+                onClose={onClose}
                 sx={{
                     "& .MuiDialog-paper": {
-                        width: "800px", // กำหนดความกว้างแบบ Fixed
-                        maxWidth: "none", // ปิดการปรับอัตโนมัติ
+                        width: "800px",
+                        maxWidth: "none",
                     },
                 }}
             >
@@ -355,7 +347,6 @@ const UpdateSmallTruck = (props) => {
                             </Grid>
                             <Grid item xs={4}>
                                 <Stack direction="row" spacing={2}>
-                                    {/* มี */}
                                     <FormControlLabel
                                         control={
                                             <Checkbox
@@ -367,7 +358,6 @@ const UpdateSmallTruck = (props) => {
                                         label="มี"
                                     />
 
-                                    {/* ไม่มี */}
                                     <FormControlLabel
                                         control={
                                             <Checkbox
@@ -398,14 +388,6 @@ const UpdateSmallTruck = (props) => {
                                                     update ?
                                                         <>
                                                             <Box textAlign="center">
-                                                                {/* <TextField
-                                                                        size="small"
-                                                                        type="text"
-                                                                        fullWidth
-                                                                        value={file.name}
-                                                                        sx={{ marginRight: 2 }}
-                                                                    /> */}
-
                                                                 <Box display="flex" alignItems="center" justifyContent="center" >
                                                                     {
                                                                         file === "ไม่แนบไฟล์" ?
@@ -416,12 +398,10 @@ const UpdateSmallTruck = (props) => {
                                                                 </Box>
                                                                 <Box textAlign="center">
                                                                     {file instanceof File ? (
-                                                                        // ✅ กรณีเป็น File object
                                                                         <Typography variant="subtitle1" gutterBottom>
                                                                             {file.name}
                                                                         </Typography>
                                                                     ) : (
-                                                                        // ✅ กรณีเป็น path (string)
                                                                         file === "ไม่แนบไฟล์" ? null :
                                                                             <Typography
                                                                                 variant="subtitle2"
@@ -478,7 +458,6 @@ const UpdateSmallTruck = (props) => {
                                                                                 }}
                                                                             />
                                                                         </Button>
-                                                                        {/* <Chip label="หรือ" size="small" sx={{ marginLeft: 3, marginRight: 3 }} /> */}
                                                                         <Typography variant="subtitle1" fontWeight="bold" sx={{ marginLeft: 3, marginRight: 3, marginTop: 0.5 }} gutterBottom>หรือ</Typography>
                                                                         <Button
                                                                             variant="contained"
@@ -564,14 +543,6 @@ const UpdateSmallTruck = (props) => {
                                                                     </Box>
                                                                     :
                                                                     <Box textAlign="center">
-                                                                        {/* <TextField
-                                                                        size="small"
-                                                                        type="text"
-                                                                        fullWidth
-                                                                        value={file.name}
-                                                                        sx={{ marginRight: 2 }}
-                                                                    /> */}
-
                                                                         <Box display="flex" alignItems="center" justifyContent="center" >
                                                                             <FilePreview file={file} />
                                                                             <Button variant="outlined" color="error" size="small" sx={{ marginLeft: 2 }} onClick={() => { setFileType(1); setFile("ไม่แนบไฟล์"); }}>
@@ -582,22 +553,6 @@ const UpdateSmallTruck = (props) => {
                                                                             <Typography variant="subtitle1" gutterBottom>{file.name}</Typography>
                                                                         </Box>
                                                                     </Box>
-                                                                // <Box sx={{
-                                                                //     display: "flex",
-                                                                //     alignItems: "center",
-                                                                //     justifyContent: "space-between", // ช่วยแยกซ้ายขวา
-                                                                //     paddingLeft: 12,
-                                                                // }}>
-                                                                //     <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                                                                //         File : {file.name}
-                                                                //     </Typography>
-                                                                //     {/* <IconButton color="error" onClick={() => { setFile(null); setFileType(null); }}>
-                                                                //         <DeleteForeverIcon />
-                                                                //     </IconButton> */}
-                                                                //     <Button variant="outlined" color="error" size="small" onClick={() => { setFile(null); setFileType(null); }}>
-                                                                //         ลบไฟล์
-                                                                //     </Button>
-                                                                // </Box>
                                                             }
                                                         </React.Fragment>
                                                     :
@@ -617,7 +572,6 @@ const UpdateSmallTruck = (props) => {
                         update ?
                             <Box marginBottom={2} textAlign="center">
                                 <Button variant="contained" color="warning" onClick={() => setUpdate(false)} sx={{ marginRight: 2 }}>แก้ไข</Button>
-                                {/* <Button variant="contained" color="info">พิมพ์</Button> */}
                             </Box>
                             :
                             <Box marginBottom={2} textAlign="center">

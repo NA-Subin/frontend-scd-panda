@@ -70,8 +70,6 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
         direction: 'asc',
     });
 
-    console.log("sortConfig : ", sortConfig);
-
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
     useEffect(() => {
@@ -83,7 +81,6 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
             setWindowWidth(width);
         };
 
-        // เรียกครั้งแรกตอน mount
         handleResize();
 
         window.addEventListener('resize', handleResize);
@@ -91,7 +88,7 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
         return () => {
             window.removeEventListener('resize', handleResize);
         };
-    }, [openNavbar]); // ✅ ทำงานใหม่ทุกครั้งที่ openNavbar เปลี่ยน
+    }, [openNavbar]);
 
     const handleSort = (key) => {
         setSortConfig((prev) => ({
@@ -110,22 +107,20 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
 
     const handleDateChangeDateStart = (newValue) => {
         if (newValue) {
-            const formattedDate = dayjs(newValue); // แปลงวันที่เป็นฟอร์แมต
+            const formattedDate = dayjs(newValue);
             setSelectedDateStart(formattedDate);
         }
     };
 
     const handleDateChangeDateEnd = (newValue) => {
         if (newValue) {
-            const formattedDate = dayjs(newValue); // แปลงวันที่เป็นฟอร์แมต
+            const formattedDate = dayjs(newValue);
             setSelectedDateEnd(formattedDate);
         }
     };
 
-    // const { reportFinancial, drivers } = useData();
     const { drivers, customertransports, customergasstations, customerbigtruck, customersmalltruck, customertickets } = useBasicData();
     const { order, trip } = useTripData();
-    // const orders = Object.values(order || {});
     const orders = Object.values(order || {}).filter(item => {
         const itemDate = dayjs(item.Date, "DD/MM/YYYY");
         return itemDate.isSameOrAfter(dayjs("01/01/2026", "DD/MM/YYYY"), 'day');
@@ -146,8 +141,6 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
     const ticketsS = Object.values(customersmalltruck || {});
     const ticketsA = Object.values(customertickets || {});
 
-    console.log("Select Driver ID : ", selectDriver);
-
     const orderDetail = useMemo(() => {
         if (!selectedDateStart || !selectedDateEnd) return [];
 
@@ -155,11 +148,9 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
             .filter((item) => {
                 const itemDate = dayjs(item.Date, "DD/MM/YYYY");
 
-                // ตรวจสอบว่าเป็นสถานะที่ต้องการ และอยู่ในช่วงวัน
                 const isValidStatus = item.Status === "จัดส่งสำเร็จ" && item.Status !== undefined;
                 const isInDateRange = itemDate.isBetween(selectedDateStart, selectedDateEnd, null, "[]");
 
-                // ตรวจสอบเงื่อนไขของ driver ตาม selectDriver
                 const matchTickets = selectTickets === "0:แสดงทั้งหมด" || item.TicketName === selectTickets;
 
                 const TruckType = trips.find((t) => (Number(t.id) - 1) === Number(item.Trip))
@@ -226,20 +217,6 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
     const getCustomers = () => {
         const customers = [
             { id: "0", uuid: "0:แสดงทั้งหมด", Name: "แสดงทั้งหมด", CustomerType: "" },
-            // ...[...ticketsPS]
-            //     .filter((item) => item.SystemStatus !== "ไม่อยู่ในระบบ")
-            //     .sort((a, b) => a.Name.localeCompare(b.Name, undefined, { sensitivity: 'base' }))
-            //     .map((item) => ({ ...item, CustomerType: "ตั๋วปั้ม" })),
-
-            // ...[...ticketsT]
-            //     .filter((item) => item.Status === "ผู้รับ" || item.Status === "ตั๋ว/ผู้รับ")
-            //     .sort((a, b) => a.Name.localeCompare(b.Name, undefined, { sensitivity: 'base' }))
-            //     .map((item) => ({ ...item, CustomerType: "ตั๋วรับจ้างขนส่ง" })),
-
-            // ...[...ticketsB].filter((item) => item.Status === "ลูกค้าประจำ")
-            //     .sort((a, b) => a.Name.localeCompare(b.Name, undefined, { sensitivity: 'base' }))
-            //     .map((item) => ({ ...item, CustomerType: "ตั๋วรถใหญ่" })),
-            // รถใหญ่ใช้ ticketsB
             ...[...ticketsS].filter((item) => item.Status === "ลูกค้าประจำ")
                 .sort((a, b) => a.Name.localeCompare(b.Name, undefined, { sensitivity: 'base' }))
                 .map((item) => ({ ...item, CustomerType: "ตั๋วรถเล็ก" })) // รถเล็กใช้ ticketsS
@@ -248,9 +225,6 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
         return customers.filter((item) => item.id || item.TicketsCode);
     };
 
-
-    console.log("Order Detail : ", orderDetail);
-    console.log("Select Tickets : ", selectTickets);
 
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -262,7 +236,6 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet("รายงานสรุปยอดน้ำมัน");
 
-        // 1️⃣ กำหนด columns
         worksheet.columns = [
             { header: "ลำดับ", key: "no", width: 8 },
             { header: "วันที่ส่ง", key: "date", width: 15 },
@@ -274,7 +247,6 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
             { header: "ยอดเงิน", key: "amount", width: 30 },
         ];
 
-        // 2️⃣ Title merge
         worksheet.mergeCells(1, 1, 1, worksheet.columns.length);
         const titleCell = worksheet.getCell("A1");
         titleCell.value = "รายงานสรุปยอดน้ำมัน";
@@ -283,7 +255,6 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
         titleCell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFDDEBF7" } };
         worksheet.getRow(1).height = 30;
 
-        // 3️⃣ Header row (row 2)
         const headerRow = worksheet.addRow(worksheet.columns.map(c => c.header));
         headerRow.font = { bold: true };
         headerRow.alignment = { horizontal: "center", vertical: "middle" };
@@ -293,7 +264,6 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
             cell.border = { top: { style: "thin" }, left: { style: "thin" }, bottom: { style: "thin" }, right: { style: "thin" } };
         });
 
-        // 4️⃣ Data rows
         sortedOrderDetail.forEach((row, index) => {
             const dataRow = {
                 no: index + 1,
@@ -311,14 +281,12 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
             newRow.alignment = { vertical: "middle", horizontal: "center" };
             newRow.eachCell((cell, colNumber) => {
                 cell.border = { top: { style: "thin" }, left: { style: "thin" }, bottom: { style: "thin" }, right: { style: "thin" } };
-                // ยกเว้น column "no"
                 if (worksheet.columns[colNumber - 1].key !== "no") {
                     cell.numFmt = "#,##0.00";
                 }
             });
         });
 
-        // 5️⃣ Footer row รวมค่า
         const footerRow = worksheet.addRow({
             ticket: "รวม",
             volume: sortedOrderDetail.reduce((acc, r) => acc + Number(r.VolumeProduct), 0),
@@ -329,14 +297,13 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
         footerRow.alignment = { horizontal: "center", vertical: "middle" };
         footerRow.height = 25;
         footerRow.eachCell((cell, colNumber) => {
-            cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFFE699" } }; // สีเหลือง
+            cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFFE699" } };
             cell.border = { top: { style: "thin" }, left: { style: "thin" }, bottom: { style: "thin" }, right: { style: "thin" } };
             if (worksheet.columns[colNumber - 1].key !== "no" && worksheet.columns[colNumber - 1].key !== "driverReg" && worksheet.columns[colNumber - 1].key !== "ticket" && worksheet.columns[colNumber - 1].key !== "product") {
                 cell.numFmt = "#,##0.00";
             }
         });
 
-        // 6️⃣ Save
         const buffer = await workbook.xlsx.writeBuffer();
         saveAs(new Blob([buffer]), `รายงานสรุปยอดน้ำมัน_${dayjs().format("YYYYMMDD_HHmmss")}.xlsx`);
     };
@@ -363,7 +330,7 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                             <Grid item sm={12} lg={5}>
                                 <Box
                                     sx={{
-                                        width: "100%", // กำหนดความกว้างของ Paper
+                                        width: "100%",
                                         height: "40px",
                                         display: "flex",
                                         alignItems: "center",
@@ -377,7 +344,7 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                                 openTo="day"
                                                 views={["year", "month", "day"]}
                                                 value={selectedDateStart ? dayjs(selectedDateStart, "DD/MM/YYYY") : null}
-                                                format="DD/MM/YYYY" // <-- ใช้แบบที่ MUI รองรับ
+                                                format="DD/MM/YYYY"
                                                 onChange={handleDateChangeDateStart}
                                                 slotProps={{
                                                     textField: {
@@ -409,7 +376,7 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                                 openTo="day"
                                                 views={["year", "month", "day"]}
                                                 value={selectedDateEnd ? dayjs(selectedDateEnd, "DD/MM/YYYY") : null}
-                                                format="DD/MM/YYYY" // <-- ใช้แบบที่ MUI รองรับ
+                                                format="DD/MM/YYYY"
                                                 onChange={handleDateChangeDateEnd}
                                                 slotProps={{
                                                     textField: {
@@ -440,47 +407,6 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                 </Box>
                             </Grid>
                             <Grid item sm={12} lg={5}>
-                                {/* <Paper>
-                            <FormControl size="small" fullWidth>
-                                <Select
-                                    value={selectDriver}
-                                    onChange={handleChangeDriver}
-                                    input={
-                                        <OutlinedInput
-                                            startAdornment={
-                                                <InputAdornment position="start" sx={{ marginRight: 1 }}>
-                                                    กรุณาเลือกผู้ขับ/ป้ายทะเบียน :
-                                                </InputAdornment>
-                                            }
-                                        />
-                                    }
-                                    MenuProps={{
-                                        PaperProps: {
-                                            style: {
-                                                maxHeight: 250, // ความสูงสูงสุดที่จะแสดงก่อนมี scroll
-                                                width: 300,     // ปรับความกว้างตามต้องการ
-                                            },
-                                        },
-                                    }}
-                                >
-                                    <MenuItem value={0}>แสดงทั้งหมด</MenuItem>
-                                    {[...driver]
-                                        .sort((a, b) => {
-                                            // รถใหญ่ต้องมาก่อน
-                                            if (a.TruckType === "รถใหญ่" && b.TruckType !== "รถใหญ่") return -1;
-                                            if (a.TruckType !== "รถใหญ่" && b.TruckType === "รถใหญ่") return 1;
-
-                                            // ถ้า TruckType เหมือนกัน ให้เรียงตามชื่อ
-                                            return a.Name.localeCompare(b.Name);
-                                        })
-                                        .map((row) => (
-                                            <MenuItem key={row.id} value={row.id}>
-                                                {`${row.Name}/${row.RegistrationName} (${row.TruckType})`}
-                                            </MenuItem>
-                                        ))}
-
-                                </Select>
-                            </FormControl> */}
                                 <Paper>
                                     <Paper>
                                         <Autocomplete
@@ -538,38 +464,6 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                             }}
                                         />
                                     </Paper>
-
-                                    {/* <FormControl size="small" fullWidth>
-                                <Select
-                                    value={selectTickets}
-                                    onChange={handleChangeTickets}
-                                    input={
-                                        <OutlinedInput
-                                            startAdornment={
-                                                <InputAdornment position="start" sx={{ marginRight: 1 }}>
-                                                    กรุณาเลือกผู้ขับ/ป้ายทะเบียน :
-                                                </InputAdornment>
-                                            }
-                                        />
-                                    }
-                                    MenuProps={{
-                                        PaperProps: {
-                                            style: {
-                                                maxHeight: 250, // ความสูงสูงสุดที่จะแสดงก่อนมี scroll
-                                                width: 300,     // ปรับความกว้างตามต้องการ
-                                            },
-                                        },
-                                    }}
-                                >
-                                    <MenuItem value={0}>แสดงทั้งหมด</MenuItem>
-                                    {getCustomers().map((row) => (
-                                        <MenuItem key={row.id} value={`${row.id}:${row.Name}`}>
-                                            {`${row.Name} (${row.CustomerType})`}
-                                        </MenuItem>
-                                    ))}
-
-                                </Select>
-                            </FormControl> */}
                                 </Paper>
                             </Grid>
                             <Grid item sm={12} lg={2}>
@@ -581,7 +475,7 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                             <Grid item xs={12}>
                                 <Box
                                     sx={{
-                                        width: "100%", // กำหนดความกว้างของ Paper
+                                        width: "100%",
                                         height: "40px",
                                         display: "flex",
                                         alignItems: "center",
@@ -595,7 +489,7 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                                 openTo="day"
                                                 views={["year", "month", "day"]}
                                                 value={selectedDateStart ? dayjs(selectedDateStart, "DD/MM/YYYY") : null}
-                                                format="DD/MM/YYYY" // <-- ใช้แบบที่ MUI รองรับ
+                                                format="DD/MM/YYYY"
                                                 onChange={handleDateChangeDateStart}
                                                 slotProps={{
                                                     textField: {
@@ -627,7 +521,7 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                                 openTo="day"
                                                 views={["year", "month", "day"]}
                                                 value={selectedDateEnd ? dayjs(selectedDateEnd, "DD/MM/YYYY") : null}
-                                                format="DD/MM/YYYY" // <-- ใช้แบบที่ MUI รองรับ
+                                                format="DD/MM/YYYY"
                                                 onChange={handleDateChangeDateEnd}
                                                 slotProps={{
                                                     textField: {
@@ -658,47 +552,6 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                 </Box>
                             </Grid>
                             <Grid item xs={12}>
-                                {/* <Paper>
-                            <FormControl size="small" fullWidth>
-                                <Select
-                                    value={selectDriver}
-                                    onChange={handleChangeDriver}
-                                    input={
-                                        <OutlinedInput
-                                            startAdornment={
-                                                <InputAdornment position="start" sx={{ marginRight: 1 }}>
-                                                    กรุณาเลือกผู้ขับ/ป้ายทะเบียน :
-                                                </InputAdornment>
-                                            }
-                                        />
-                                    }
-                                    MenuProps={{
-                                        PaperProps: {
-                                            style: {
-                                                maxHeight: 250, // ความสูงสูงสุดที่จะแสดงก่อนมี scroll
-                                                width: 300,     // ปรับความกว้างตามต้องการ
-                                            },
-                                        },
-                                    }}
-                                >
-                                    <MenuItem value={0}>แสดงทั้งหมด</MenuItem>
-                                    {[...driver]
-                                        .sort((a, b) => {
-                                            // รถใหญ่ต้องมาก่อน
-                                            if (a.TruckType === "รถใหญ่" && b.TruckType !== "รถใหญ่") return -1;
-                                            if (a.TruckType !== "รถใหญ่" && b.TruckType === "รถใหญ่") return 1;
-
-                                            // ถ้า TruckType เหมือนกัน ให้เรียงตามชื่อ
-                                            return a.Name.localeCompare(b.Name);
-                                        })
-                                        .map((row) => (
-                                            <MenuItem key={row.id} value={row.id}>
-                                                {`${row.Name}/${row.RegistrationName} (${row.TruckType})`}
-                                            </MenuItem>
-                                        ))}
-
-                                </Select>
-                            </FormControl> */}
                                 <Paper>
                                     <Paper>
                                         <Autocomplete
@@ -756,38 +609,6 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                             }}
                                         />
                                     </Paper>
-
-                                    {/* <FormControl size="small" fullWidth>
-                                <Select
-                                    value={selectTickets}
-                                    onChange={handleChangeTickets}
-                                    input={
-                                        <OutlinedInput
-                                            startAdornment={
-                                                <InputAdornment position="start" sx={{ marginRight: 1 }}>
-                                                    กรุณาเลือกผู้ขับ/ป้ายทะเบียน :
-                                                </InputAdornment>
-                                            }
-                                        />
-                                    }
-                                    MenuProps={{
-                                        PaperProps: {
-                                            style: {
-                                                maxHeight: 250, // ความสูงสูงสุดที่จะแสดงก่อนมี scroll
-                                                width: 300,     // ปรับความกว้างตามต้องการ
-                                            },
-                                        },
-                                    }}
-                                >
-                                    <MenuItem value={0}>แสดงทั้งหมด</MenuItem>
-                                    {getCustomers().map((row) => (
-                                        <MenuItem key={row.id} value={`${row.id}:${row.Name}`}>
-                                            {`${row.Name} (${row.CustomerType})`}
-                                        </MenuItem>
-                                    ))}
-
-                                </Select>
-                            </FormControl> */}
                                 </Paper>
                             </Grid>
                             <Grid item xs={12}>
@@ -902,7 +723,7 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                                         textAlign: "right",
                                                         paddingLeft: "30px !important",
                                                         paddingRight: "30px !important",
-                                                        fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน
+                                                        fontVariantNumeric: "tabular-nums",
                                                     }}
                                                 >
                                                     {new Intl.NumberFormat("en-US").format(Number(row.VolumeProduct))}
@@ -912,13 +733,13 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                                         textAlign: "right",
                                                         paddingLeft: "30px !important",
                                                         paddingRight: "30px !important",
-                                                        fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน
+                                                        fontVariantNumeric: "tabular-nums",
                                                     }}
                                                 >
                                                     {
                                                         new Intl.NumberFormat("en-US", {
-                                                            minimumFractionDigits: 2, // แสดงทศนิยมอย่างน้อย 2 ตำแหน่ง
-                                                            maximumFractionDigits: 2  // แสดงทศนิยมไม่เกิน 2 ตำแหน่ง
+                                                            minimumFractionDigits: 2,
+                                                            maximumFractionDigits: 2
                                                         }).format(Number(row.RateOil))
                                                     }
                                                 </TableCell>
@@ -927,13 +748,13 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                                         textAlign: "right",
                                                         paddingLeft: "30px !important",
                                                         paddingRight: "30px !important",
-                                                        fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน
+                                                        fontVariantNumeric: "tabular-nums",
                                                     }}
                                                 >
                                                     {
                                                         new Intl.NumberFormat("en-US", {
-                                                            minimumFractionDigits: 2, // แสดงทศนิยมอย่างน้อย 2 ตำแหน่ง
-                                                            maximumFractionDigits: 2  // แสดงทศนิยมไม่เกิน 2 ตำแหน่ง
+                                                            minimumFractionDigits: 2,
+                                                            maximumFractionDigits: 2
                                                         }).format(Number(row.Amount))
                                                     }
                                                 </TableCell>
@@ -953,8 +774,6 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                         <Grid container spacing={1} marginTop={1} paddingBottom={1} sx={{ backgroundColor: theme.palette.pink.dark }}>
                             <Grid item xs={3} />
                             <Grid item xs={3}>
-                                {/* <Box sx={{ display: "flex", alignItems: "center", justifyContent: "right", marginRight: 2 }}>
-                                    <Typography variant="h6" sx={{ marginRight: 1, fontWeight: "bold" }} gutterBottom>รวมลิตร</Typography> */}
                                 <Paper sx={{ backgroundColor: "white" }}>
                                     <TextField
                                         fullWidth
@@ -993,7 +812,6 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                     />
 
                                 </Paper>
-                                {/* </Box> */}
                             </Grid>
                             <Grid item xs={3}>
                                 <Paper sx={{ backgroundColor: "white" }}>
@@ -1034,12 +852,6 @@ const SummaryOilBalanceSmallTruck = ({ openNavbar }) => {
                                     />
 
                                 </Paper>
-                                {/* <Box sx={{ display: "flex", alignItems: "center", justifyContent: "left", marginLeft: 2 }}>
-                                    <Typography variant="h6" sx={{ marginRight: 1, fontWeight: "bold" }} gutterBottom>ยอดเงิน</Typography>
-                                    <Paper>
-                                        <TextField fullWidth size="small" value={new Intl.NumberFormat("en-US").format(totalAmount)} />
-                                    </Paper>
-                                </Box> */}
                             </Grid>
                             <Grid item xs={3} />
                         </Grid>

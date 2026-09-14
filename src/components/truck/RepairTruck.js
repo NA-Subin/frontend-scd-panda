@@ -120,15 +120,6 @@ const RepairTruck = ({ selectDriver, driverDetail, setRepairTruck, trip }) => {
   const [repairSmallTruck, setRepairSmallTruck] = React.useState([]);
   const [repairRegHead, setRepairRegHead] = React.useState([]);
 
-  console.log(
-    "🚀 ~ file: RepairTruck.js:143 ~ RepairTruck ~ repairSmallTruck:",
-    repairSmallTruck,
-  );
-  console.log(
-    "🚀 ~ file: RepairTruck.js:144 ~ RepairTruck ~ repairRegHead:",
-    repairRegHead,
-  );
-
   const { reghead, small, inspection: inspectionBasicData, drivers, refetch: refetchBasicData } = useBasicData();
   const regheadList = Object.values(reghead || {});
   const smallList = Object.values(small || {});
@@ -249,7 +240,6 @@ const RepairTruck = ({ selectDriver, driverDetail, setRepairTruck, trip }) => {
         employeeName: employeeRow?.Name || "",
       };
 
-      // 🔥 รวมทุกอย่างเป็น object เดียว
       const data = {
         ...baseData,
 
@@ -339,10 +329,8 @@ const RepairTruck = ({ selectDriver, driverDetail, setRepairTruck, trip }) => {
         Trip: trip?.Trip || null,
       };
 
-      // ✅ ยิงครั้งเดียวจบ
       await apiPost("/api/inspection", data);
 
-      // ✅ update truck
       if (truckRow?.uuid) {
         if (truckType === "รถใหญ่") {
           await apiPut(`/api/truck_registration/${truckRow.uuid}`, {
@@ -416,7 +404,6 @@ const RepairTruck = ({ selectDriver, driverDetail, setRepairTruck, trip }) => {
               ? repairRegHead.map((row) =>
                   row.RegHead === regHead.split(":")[1] ? (
                     <>
-                      {/* ชื่อคนขับ */}
                       <Typography
                         variant="subtitle1"
                         fontWeight="bold"
@@ -433,7 +420,6 @@ const RepairTruck = ({ selectDriver, driverDetail, setRepairTruck, trip }) => {
                         sx={{ maxWidth: "20vw", ml: 1 }}
                       />
 
-                      {/* ทะเบียนหัว */}
                       <Typography
                         variant="subtitle1"
                         fontWeight="bold"
@@ -450,7 +436,6 @@ const RepairTruck = ({ selectDriver, driverDetail, setRepairTruck, trip }) => {
                         sx={{ maxWidth: "10vw", ml: 1 }}
                       />
 
-                      {/* ทะเบียนหาง */}
                       <Typography
                         variant="subtitle1"
                         fontWeight="bold"
@@ -467,7 +452,6 @@ const RepairTruck = ({ selectDriver, driverDetail, setRepairTruck, trip }) => {
                         sx={{ maxWidth: "10vw", ml: 1 }}
                       />
 
-                      {/* ชนิดรถ */}
                       <Typography
                         variant="subtitle1"
                         fontWeight="bold"
@@ -1691,10 +1675,10 @@ const RepairTruck = ({ selectDriver, driverDetail, setRepairTruck, trip }) => {
                 variant="standard"
                 value={employeeName}
                 InputLabelProps={{
-                  style: { textAlign: "center", width: "100%" }, // จัดให้ label อยู่ตรงกลาง
+                  style: { textAlign: "center", width: "100%" },
                 }}
                 inputProps={{
-                  style: { textAlign: "center" }, // จัดให้ input text อยู่ตรงกลาง (ถ้าต้องการ)
+                  style: { textAlign: "center" },
                 }}
                 disabled
               />

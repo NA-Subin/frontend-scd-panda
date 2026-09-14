@@ -4,13 +4,8 @@ import { Button, Box, Typography, Grid } from "@mui/material";
 const FilePreview = ({ file }) => {
   if (!file || file === "ไม่แนบไฟล์") return null;
 
-  // ✅ เช็คว่าเป็น File จริงไหม
   const isRealFile = file instanceof File;
-
-  // ✅ ถ้าเป็น object ที่เราสร้างเอง
   const isCustomObject = typeof file === "object" && file.url;
-
-  // ✅ ถ้าเป็น string path
   const isStringPath = typeof file === "string";
 
   const fileName = isRealFile

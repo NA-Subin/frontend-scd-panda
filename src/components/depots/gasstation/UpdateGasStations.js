@@ -74,7 +74,6 @@ const UpdateGasStations = (props) => {
     const [driver2, setDriver2] = useState("");
     const [focused, setFocused] = useState({}); // { [index]: { [column]: true/false } }
 
-    // --- State เริ่มต้น ---
     const [localProducts, setLocalProducts] = useState(products?.Products || []);
     const [originalProducts, setOriginalProducts] = useState(products?.Products || []);
 
@@ -95,18 +94,11 @@ const UpdateGasStations = (props) => {
     const [checkTruck, setCheckTruck] = useState(gasStation.id);
     const [showTruckFromClick, setShowTruckFromClick] = useState(false); // กดจาก onclick
 
-    // console.log("product truck : ", products?.Truck);
-    // console.log("gasstation ID : ", gasStation.id);
-    // const [checkTruck, setCheckTruck] = useState(isSmallTrucksEmpty(products?.Truck) ? gasStation.id : false);
-
     const DEFAULT_TRUCK = [{ id: 0, Truck: "", Price: "", Volume: "" }];
 
     const [localTruck, setLocalTruck] = useState(products?.Truck || DEFAULT_TRUCK);
     const [originalTruck, setOriginalTruck] = useState(products?.Truck || DEFAULT_TRUCK);
 
-    // console.log("localTruck : ", localTruck);
-    // console.log("localProducts : ", localProducts);
-    // --- โหลดใหม่เมื่อ products เปลี่ยน ---
     useEffect(() => {
         setOriginalProducts(products?.Products || []);
         setLocalProducts(products?.Products || []);
@@ -122,7 +114,6 @@ const UpdateGasStations = (props) => {
         }
     }, [products, showTruckFromClick, gasStation.id]);
 
-    // ---- ฟังก์ชันจัดเรียง id ใหม่ ----
     const reorderIds = (arr) => {
         return arr.map((item, index) => ({
             ...item,
@@ -131,7 +122,6 @@ const UpdateGasStations = (props) => {
     };
 
 
-    // --- handleChange (แก้ไขข้อมูลในตาราง Truck) ---
     const handleChange = (index, field, value) => {
         setLocalTruck(prev => {
             const updated = prev.map((row, i) =>
@@ -148,7 +138,6 @@ const UpdateGasStations = (props) => {
         });
     };
 
-    // --- handleAdd (เพิ่ม row Truck ใหม่) ---
     const handleAdd = () => {
         const updated = [
             ...localTruck,
@@ -159,12 +148,9 @@ const UpdateGasStations = (props) => {
 
         setLocalTruck(reordered);
 
-        // ⭐ ส่งไป parent
         onProductChange(gasStation.id, reordered, "Truck");
     };
 
-
-    // --- handleDelete (ลบ row Truck) ---
     const handleDelete = (index) => {
         const updated = localTruck.filter((_, i) => i !== index);
 
@@ -172,15 +158,10 @@ const UpdateGasStations = (props) => {
 
         setLocalTruck(reordered);
 
-        // ⭐ ส่งไป parent
         onProductChange(gasStation.id, reordered, "Truck");
     };
-    // 2️⃣ Sync ค่าเริ่มต้นเมื่อ parent เปลี่ยน
-
-    console.log("products : ", products);
 
     const handleProductChange = (index, field, value) => {
-        // กรณี field ระดับบน (Driver, Truck ฯลฯ)
         if (index === null) {
             onProductChange(gasStation.id, value, field);
             return;
@@ -189,15 +170,12 @@ const UpdateGasStations = (props) => {
         setLocalProducts(prev => {
             const updated = structuredClone(prev);
 
-            // 1️⃣ แก้ค่าที่แก้จริง
             updated[index][field] = value;
 
-            // 2️⃣ ปั้มเดียว → FullVolume = Volume
             if (stockCount === 1 && field === "FullVolume") {
                 updated[index].Volume = Number(value);
             }
 
-            // 3️⃣ คำนวณค่าของแถวนี้
             updated[index].Period = calculatePeriod(updated[index]);
             updated[index].Sell = calculateSell(updated[index]);
             updated[index].TotalVolume = calculateTotalVolume(updated[index]);
@@ -206,35 +184,12 @@ const UpdateGasStations = (props) => {
                 (parseFloat(updated[index].Volume) -
                     parseFloat(updated[index].Squeeze));
 
-            // 4️⃣ เช็ค hasChanged (เทียบกับ original)
-            // const original = originalProducts[index];
-            // updated[index].hasChanged =
-            //     String(original[field] ?? "") !== String(value ?? "");
-
-            // 5️⃣ ส่งขึ้น parent (parent จะ sync 2 ปั้ม)
+            // ส่งขึ้น parent (parent จะ sync 2 ปั้ม)
             onProductChange(gasStation.id, updated, "Products");
 
             return updated;
         });
     };
-
-    // const handleProductChange = (index, field, value) => {
-    //     if (index !== null) {
-    //         const updated = [...localProducts];
-    //         updated[index][field] = value;
-
-    //         // คำนวณค่าต่างๆ ใน local state
-    //         updated[index].Period = calculatePeriod(updated[index]);
-    //         updated[index].Sell = calculateSell(updated[index]);
-    //         updated[index].TotalVolume = calculateTotalVolume(updated[index]);
-    //         updated[index].PeriodDisplay = parseFloat(updated[index].Period) ||
-    //             (parseFloat(updated[index].Volume) - parseFloat(updated[index].Squeeze));
-
-    //         setLocalProducts(updated); // ✅ update local state เท่านั้น
-    //     } else {
-    //         onProductChange(gasStation.id, value, field); // สำหรับ Driver1/2
-    //     }
-    // };
 
     const handleBlur = (index, column, e) => {
         setFocused(prev => ({
@@ -245,7 +200,6 @@ const UpdateGasStations = (props) => {
             }
         }));
 
-        // อัปเดตค่าใน local state
         const raw = e.target.value.replace(/,/g, "");
         const newValue = raw === "" || raw === "-" ? 0 : Number(raw);
 
@@ -253,7 +207,6 @@ const UpdateGasStations = (props) => {
         updated[index][column] = newValue;
         setLocalProducts(updated);
 
-        // ส่งไป parent
         onProductChange(gasStation.id, updated, "Products");
     };
 
@@ -287,7 +240,6 @@ const UpdateGasStations = (props) => {
                 }
             }
 
-            // คำนวณใหม่หลังข้อมูลครบ
             updated.forEach(p => {
                 p.Period = calculatePeriod(p);
                 p.Sell = calculateSell(p);
@@ -297,27 +249,11 @@ const UpdateGasStations = (props) => {
                     (parseFloat(p.Volume) - parseFloat(p.Squeeze));
             });
 
-            // hasChanged
-            // const original = originalProducts[index];
-            // updated[index].hasChanged =
-            //     String(original[field] ?? "") !== String(newValue ?? "");
-
             onProductChange(gasStation.id, updated, "Products");
             return updated;
         });
     };
 
-    // const handleBlur = (index, column) => {
-    //     setFocused(prev => ({
-    //         ...prev,
-    //         [index]: {
-    //             ...prev[index],
-    //             [column]: false
-    //         }
-    //     }));
-    // };
-
-    // ตรวจสอบว่า field นั้น focus อยู่ไหม
     const isFieldFocused = (index, column) => focused[index]?.[column] || false;
 
     const { reghead } = useBasicData();
@@ -331,8 +267,6 @@ const UpdateGasStations = (props) => {
     };
 
     const truckDriver = registration.filter((item => item.Driver !== "0:ไม่มี" && item.StatusTruck !== "ยกเลิก"));
-    // console.log("1.truckDriver : ", truckDriver);
-    // console.log("2.truckDriver : ", truckDriver.map((row) => row.DriverName?.split(" ")[0]));
 
     const calculatePeriod = (row) => {
         const estimateSell = parseFloat(row.EstimateSell) || 0;
@@ -375,47 +309,10 @@ const UpdateGasStations = (props) => {
         return (downHole - estimateSell).toFixed(2);
     };
 
-    // const handleProductChange = (index, field, value) => {
-    //     const updated = [...products?.Products];
-    //     updated[index][field] = value;
-
-    //     updated[index].Period = calculatePeriod(updated[index]);
-    //     updated[index].Sell = calculateSell(updated[index]);
-    //     updated[index].TotalVolume = calculateTotalVolume(updated[index]);
-    //     updated[index].PeriodDisplay = parseFloat(updated[index].Period) || (parseFloat(updated[index].Volume) - parseFloat(updated[index].Squeeze));
-
-    //     onProductChange(gasStation.id, updated);
-    // };
-
-    // const handleProductChange = (index, field, value) => {
-    //     // ตรวจสอบว่ากำลังแก้ไข field ของ Products หรือ Driver
-    //     if (index !== null) {
-    //         // อัปเดต Products
-    //         const updated = [...products?.Products];
-    //         updated[index][field] = value;
-
-    //         // คำนวณค่าต่างๆ ของ Products
-    //         updated[index].Period = calculatePeriod(updated[index]);
-    //         updated[index].Sell = calculateSell(updated[index]);
-    //         updated[index].TotalVolume = calculateTotalVolume(updated[index]);
-    //         updated[index].PeriodDisplay = parseFloat(updated[index].Period) || (parseFloat(updated[index].Volume) - parseFloat(updated[index].Squeeze));
-
-    //         // ส่งกลับไปยัง parent
-    //         onProductChange(gasStation.id, updated, "Products"); // ✅ เพิ่ม type
-    //     } else {
-    //         // อัปเดต Driver1 / Driver2 ของ station
-    //         onProductChange(gasStation.id, value, field); // ส่ง value + field name
-    //     }
-    // };
-
-    console.log("hasChanged : ", volumeData?.some(v => v.stockID === products?.stockID && v.Products.some(p => p.hasChanged)))
-    console.log("Products : ", products);
-    // console.log("products length : ", products?.Products.length);
     const hasStockChanged = volumeData?.some(
         s => s.stockID === products?.stockID && s.hasChanged === true
     );
 
-    // console.log("stockProducts : ", stockProducts);
     return (
         <React.Fragment>
             <Box textAlign="center"
@@ -463,7 +360,7 @@ const UpdateGasStations = (props) => {
                                 <Paper
                                     component="form"
                                     sx={{
-                                        width: "100%", // กำหนดความกว้างของ Paper
+                                        width: "100%",
                                         height: "25px"
                                     }}
                                 >
@@ -476,102 +373,11 @@ const UpdateGasStations = (props) => {
                             <TablecellHeader sx={{ textAlign: "center", fontSize: 14, backgroundColor: theme.palette.panda.main, width: 80, whiteSpace: "nowrap" }}>
                                 หักบีบไม่ขึ้น
                             </TablecellHeader>
-                            {/* <TablecellHeader sx={{ textAlign: "center", fontSize: 14, backgroundColor: theme.palette.panda.main, width: 300, whiteSpace: "nowrap", padding: 0.5 }}>
-                                <Grid container>
-                                    <Grid item xs={4}>
-                                        ลงจริงไปแล้ว
-                                    </Grid>
-                                    <Grid item xs={4}>
-                                        <Paper
-                                            component="form"
-                                            sx={{
-                                                width: "95%", // กำหนดความกว้างของ Paper
-                                                height: "25px",
-                                                marginLeft: 0.5,
-                                            }}>
-                                            <Autocomplete
-                                                freeSolo
-                                                options={truckDriver.map(row => row.Driver)} // เก็บเต็ม: "1:สมส่วน สุขสม"
-                                                getOptionLabel={(option) => {
-                                                    // แสดงเฉพาะชื่อแรก (สมส่วน)
-                                                    return option?.split(":")[1]?.split(" ")[0] || "";
-                                                }}
-                                                isOptionEqualToValue={(option, value) => option === value} // เทียบค่าที่เก็บเต็ม
-                                                value={products?.Driver1 || ""} // value เก็บเต็ม: "1:สมส่วน สุขสม"
-                                                onChange={(event, newValue) => {
-                                                    handleProductChange(null, "Driver1", newValue || ""); // เก็บเต็ม
-                                                }}
-                                                renderInput={(params) => (
-                                                    <TextField
-                                                        {...params}
-                                                        variant="standard"
-                                                        placeholder="กรอกชื่อ"
-                                                        sx={{ fontSize: "12px", fontWeight: "bold", paddingLeft: 0.5 }}
-                                                        InputProps={{
-                                                            ...params.InputProps,
-                                                            sx: { fontSize: "12px", fontWeight: "bold" },
-                                                        }}
-                                                        inputProps={{
-                                                            ...params.inputProps,
-                                                            sx: { fontSize: "12px", fontWeight: "bold" },
-                                                        }}
-                                                    />
-                                                )}
-                                                ListboxProps={{
-                                                    sx: { fontSize: "12px", fontWeight: "bold", maxHeight: "150px", marginLeft: -1.5 },
-                                                }}
-                                            />
-                                        </Paper>
-                                    </Grid>
-                                    <Grid item xs={4}>
-                                        <Paper
-                                            component="form"
-                                            sx={{
-                                                width: "95%", // กำหนดความกว้างของ Paper
-                                                height: "25px",
-                                                marginLeft: 0.5
-                                            }}>
-                                            <Autocomplete
-                                                freeSolo
-                                                options={truckDriver.map(row => row.Driver)} // เก็บเต็ม: "1:สมส่วน สุขสม"
-                                                getOptionLabel={(option) => {
-                                                    // แสดงเฉพาะชื่อแรก (สมส่วน)
-                                                    return option?.split(":")[1]?.split(" ")[0] || "";
-                                                }}
-                                                isOptionEqualToValue={(option, value) => option === value} // เทียบค่าที่เก็บเต็ม
-                                                value={products?.Driver2 || ""} // value เก็บเต็ม: "1:สมส่วน สุขสม"
-                                                onChange={(event, newValue) => {
-                                                    handleProductChange(null, "Driver2", newValue || ""); // เก็บเต็ม
-                                                }}
-                                                renderInput={(params) => (
-                                                    <TextField
-                                                        {...params}
-                                                        variant="standard"
-                                                        placeholder="กรอกชื่อ"
-                                                        sx={{ fontSize: "12px", fontWeight: "bold", paddingLeft: 0.5 }}
-                                                        InputProps={{
-                                                            ...params.InputProps,
-                                                            sx: { fontSize: "12px", fontWeight: "bold" },
-                                                        }}
-                                                        inputProps={{
-                                                            ...params.inputProps,
-                                                            sx: { fontSize: "12px", fontWeight: "bold" },
-                                                        }}
-                                                    />
-                                                )}
-                                                ListboxProps={{
-                                                    sx: { fontSize: "12px", fontWeight: "bold", maxHeight: "150px", marginLeft: -1.5 },
-                                                }}
-                                            />
-                                        </Paper>
-                                    </Grid>
-                                </Grid>
-                            </TablecellHeader> */}
                             <TablecellHeader sx={{ textAlign: "center", fontSize: 14, backgroundColor: theme.palette.success.main, width: 110, whiteSpace: "nowrap", padding: 0.5 }}>
                                 <Paper
                                     component="form"
                                     sx={{
-                                        width: 100, // กำหนดความกว้างของ Paper
+                                        width: 100,
                                         height: "25px",
                                         display: "flex",
                                         justifyContent: "center",
@@ -584,7 +390,6 @@ const UpdateGasStations = (props) => {
                                         fullWidth
                                         options={truckDriver.map(row => row.Driver)} // เก็บเต็ม: "1:สมส่วน สุขสม"
                                         getOptionLabel={(option) => {
-                                            // แสดงเฉพาะชื่อแรก (สมส่วน)
                                             return option?.split(":")[1]?.split(" ")[0] || "";
                                         }}
                                         isOptionEqualToValue={(option, value) => option === value} // เทียบค่าที่เก็บเต็ม
@@ -619,7 +424,7 @@ const UpdateGasStations = (props) => {
                                 <Paper
                                     component="form"
                                     sx={{
-                                        width: 100, // กำหนดความกว้างของ Paper
+                                        width: 100,
                                         height: "25px",
                                         display: "flex",
                                         justifyContent: "center",
@@ -632,7 +437,6 @@ const UpdateGasStations = (props) => {
                                         fullWidth
                                         options={truckDriver.map(row => row.Driver)} // เก็บเต็ม: "1:สมส่วน สุขสม"
                                         getOptionLabel={(option) => {
-                                            // แสดงเฉพาะชื่อแรก (สมส่วน)
                                             return option?.split(":")[1]?.split(" ")[0] || "";
                                         }}
                                         isOptionEqualToValue={(option, value) => option === value} // เทียบค่าที่เก็บเต็ม
@@ -667,7 +471,7 @@ const UpdateGasStations = (props) => {
                                 <Paper
                                     component="form"
                                     sx={{
-                                        width: 100, // กำหนดความกว้างของ Paper
+                                        width: 100,
                                         height: "25px",
                                         display: "flex",
                                         justifyContent: "center",
@@ -680,7 +484,6 @@ const UpdateGasStations = (props) => {
                                         fullWidth
                                         options={truckDriver.map(row => row.Driver)} // เก็บเต็ม: "1:สมส่วน สุขสม"
                                         getOptionLabel={(option) => {
-                                            // แสดงเฉพาะชื่อแรก (สมส่วน)
                                             return option?.split(":")[1]?.split(" ")[0] || "";
                                         }}
                                         isOptionEqualToValue={(option, value) => option === value} // เทียบค่าที่เก็บเต็ม
@@ -818,13 +621,12 @@ const UpdateGasStations = (props) => {
                                     </TableCell>
                                     <TableCell sx={{
                                         textAlign: "center", backgroundColor: s.Color
-                                            ? `${s.Color}4A` // ลดความเข้มของสีด้วย Transparency (B3 = 70% opacity)
+                                            ? `${s.Color}4A`
                                             : `${s.Color}4A`, color: s.Volume < 0 ? "#d50000" : "black",
                                         fontWeight: "bold",
                                         borderBottom: "2px solid white",
                                         padding: 0.5,
                                     }}>
-                                        {/* {new Intl.NumberFormat("en-US").format(Math.round(s.Volume || 0))} */}
                                         <Paper sx={{ width: "100%" }}>
                                             <TextField
                                                 size="small"
@@ -837,7 +639,7 @@ const UpdateGasStations = (props) => {
                                                         : Number(s.Volume || 0).toLocaleString()
                                                 }
                                                 onFocus={() => handleFocus(index, "Volume")}
-                                                onBlur={(e) => handleBlur(index, "Volume", e)} // ส่ง event
+                                                onBlur={(e) => handleBlur(index, "Volume", e)}
                                                 onChange={(e) => {
                                                     let raw = e.target.value.replace(/,/g, "");
 
@@ -882,54 +684,6 @@ const UpdateGasStations = (props) => {
                                                             marginRight: -0.5
                                                         }
                                                     },
-                                                    // startAdornment: (
-                                                    //     <InputAdornment position="start">
-                                                    //         <IconButton
-                                                    //             size="small"
-                                                    //             sx={{
-                                                    //                 p: '0px',        // 🔹 ตัด padding IconButton
-                                                    //                 width: 5,
-                                                    //                 height: 18,
-                                                    //                 ml: -1,
-                                                    //                 opacity: 0.6      // 🔹 ลดระยะชิดซ้าย
-                                                    //             }}
-                                                    //             onClick={() => {
-                                                    //                 let raw = String(s.Volume).replace(/,/g, "");
-                                                    //                 if (raw === "" || raw === "-") raw = "0";
-
-                                                    //                 const newValue = Number(raw) - 1000;
-
-                                                    //                 handleChangeWithCheck(index, "Volume", newValue); // ✅ ใช้ฟังก์ชันใหม่
-                                                    //             }}
-                                                    //         >
-                                                    //             <ArrowLeftIcon sx={{ fontSize: "25px" }} />
-                                                    //         </IconButton>
-                                                    //     </InputAdornment>
-                                                    // ),
-                                                    // endAdornment: (
-                                                    //     <InputAdornment position="end">
-                                                    //         <IconButton
-                                                    //             size="small"
-                                                    //             sx={{
-                                                    //                 p: '0px',        // 🔹 ตัด padding IconButton
-                                                    //                 width: 5,
-                                                    //                 height: 18,
-                                                    //                 mr: -1.5,
-                                                    //                 opacity: 0.6       // 🔹 ลดระยะชิดซ้าย
-                                                    //             }}
-                                                    //             onClick={() => {
-                                                    //                 let raw = String(s.Volume).replace(/,/g, "");
-                                                    //                 if (raw === "" || raw === "-") raw = "0";
-
-                                                    //                 const newValue = Number(raw) + 1000;
-
-                                                    //                 handleChangeWithCheck(index, "Volume", newValue); // ✅ ใช้ฟังก์ชันใหม่
-                                                    //             }}
-                                                    //         >
-                                                    //             <ArrowRightIcon sx={{ fontSize: "25px" }} />
-                                                    //         </IconButton>
-                                                    //     </InputAdornment>
-                                                    // ),
                                                 }}
                                                 sx={{
                                                     "& .MuiOutlinedInput-root": { height: 25 },
@@ -940,8 +694,8 @@ const UpdateGasStations = (props) => {
                                                         mr: -0.5,
                                                         ml: -0.5,
                                                         pr: 0.5,
-                                                        paddingLeft: -3, // เพิ่มพื้นที่ให้ endAdornment
-                                                        paddingRight: 2, // เพิ่มพื้นที่ให้ endAdornment
+                                                        paddingLeft: -3,
+                                                        paddingRight: 2,
                                                     },
                                                 }}
                                             />
@@ -949,7 +703,7 @@ const UpdateGasStations = (props) => {
                                     </TableCell>
                                     <TableCell sx={{
                                         textAlign: "center", backgroundColor: s.Color
-                                            ? `${s.Color}4A` // ลดความเข้มของสีด้วย Transparency (B3 = 70% opacity)
+                                            ? `${s.Color}4A`
                                             : `${s.Color}4A`,
                                         borderBottom: "2px solid white",
                                         padding: 0.5,
@@ -977,7 +731,7 @@ const UpdateGasStations = (props) => {
                                                         : Number(s.Squeeze || 0).toLocaleString()
                                                 }
                                                 onFocus={() => handleFocus(index, "Squeeze")}
-                                                onBlur={(e) => handleBlur(index, "Squeeze", e)} // ส่ง event
+                                                onBlur={(e) => handleBlur(index, "Squeeze", e)}
                                                 onChange={(e) => {
                                                     let raw = e.target.value.replace(/,/g, "");
 
@@ -1022,54 +776,6 @@ const UpdateGasStations = (props) => {
                                                             marginRight: -0.5
                                                         }
                                                     },
-                                                    // startAdornment: (
-                                                    //     <InputAdornment position="start">
-                                                    //         <IconButton
-                                                    //             size="small"
-                                                    //             sx={{
-                                                    //                 p: '0px',        // 🔹 ตัด padding IconButton
-                                                    //                 width: 5,
-                                                    //                 height: 18,
-                                                    //                 ml: -1,
-                                                    //                 opacity: 0.6      // 🔹 ลดระยะชิดซ้าย
-                                                    //             }}
-                                                    //             onClick={() => {
-                                                    //                 let raw = String(s.Squeeze).replace(/,/g, "");
-                                                    //                 if (raw === "" || raw === "-") raw = "0";
-
-                                                    //                 const newValue = Number(raw) - 1000;
-
-                                                    //                 handleChangeWithCheck(index, "Squeeze", newValue); // ✅ ใช้ฟังก์ชันใหม่
-                                                    //             }}
-                                                    //         >
-                                                    //             <ArrowLeftIcon sx={{ fontSize: "25px" }} />
-                                                    //         </IconButton>
-                                                    //     </InputAdornment>
-                                                    // ),
-                                                    // endAdornment: (
-                                                    //     <InputAdornment position="end">
-                                                    //         <IconButton
-                                                    //             size="small"
-                                                    //             sx={{
-                                                    //                 p: '0px',        // 🔹 ตัด padding IconButton
-                                                    //                 width: 5,
-                                                    //                 height: 18,
-                                                    //                 mr: -1.5,
-                                                    //                 opacity: 0.6       // 🔹 ลดระยะชิดซ้าย
-                                                    //             }}
-                                                    //             onClick={() => {
-                                                    //                 let raw = String(s.Squeeze).replace(/,/g, "");
-                                                    //                 if (raw === "" || raw === "-") raw = "0";
-
-                                                    //                 const newValue = Number(raw) + 1000;
-
-                                                    //                 handleChangeWithCheck(index, "Squeeze", newValue); // ✅ ใช้ฟังก์ชันใหม่
-                                                    //             }}
-                                                    //         >
-                                                    //             <ArrowRightIcon sx={{ fontSize: "25px" }} />
-                                                    //         </IconButton>
-                                                    //     </InputAdornment>
-                                                    // ),
                                                 }}
                                                 sx={{
                                                     "& .MuiOutlinedInput-root": { height: 25 },
@@ -1080,8 +786,8 @@ const UpdateGasStations = (props) => {
                                                         mr: -0.5,
                                                         ml: -0.5,
                                                         pr: 0.5,
-                                                        paddingLeft: -3, // เพิ่มพื้นที่ให้ endAdornment
-                                                        paddingRight: 2, // เพิ่มพื้นที่ให้ endAdornment
+                                                        paddingLeft: -3,
+                                                        paddingRight: 2,
                                                     },
                                                 }}
                                             />
@@ -1105,7 +811,7 @@ const UpdateGasStations = (props) => {
                                                         : Number(s.Pending3 || 0).toLocaleString()
                                                 }
                                                 onFocus={() => handleFocus(index, "Pending3")}
-                                                onBlur={(e) => handleBlur(index, "Pending3", e)} // ส่ง event
+                                                onBlur={(e) => handleBlur(index, "Pending3", e)}
                                                 onChange={(e) => {
                                                     let raw = e.target.value.replace(/,/g, "");
 
@@ -1155,11 +861,11 @@ const UpdateGasStations = (props) => {
                                                             <IconButton
                                                                 size="small"
                                                                 sx={{
-                                                                    p: '0px',        // 🔹 ตัด padding IconButton
+                                                                    p: '0px',
                                                                     width: 5,
                                                                     height: 18,
                                                                     ml: -1,
-                                                                    opacity: 0.6      // 🔹 ลดระยะชิดซ้าย
+                                                                    opacity: 0.6
                                                                 }}
                                                                 onClick={() => {
                                                                     let raw = String(s.Pending3).replace(/,/g, "");
@@ -1167,7 +873,7 @@ const UpdateGasStations = (props) => {
 
                                                                     const newValue = Number(raw) - 1000;
 
-                                                                    handleChangeWithCheck(index, "Pending3", newValue); // ✅ ใช้ฟังก์ชันใหม่
+                                                                    handleChangeWithCheck(index, "Pending3", newValue);
                                                                 }}
                                                             >
                                                                 <ArrowLeftIcon sx={{ fontSize: "25px" }} />
@@ -1179,11 +885,11 @@ const UpdateGasStations = (props) => {
                                                             <IconButton
                                                                 size="small"
                                                                 sx={{
-                                                                    p: '0px',        // 🔹 ตัด padding IconButton
+                                                                    p: '0px',
                                                                     width: 5,
                                                                     height: 18,
                                                                     mr: -1.5,
-                                                                    opacity: 0.6       // 🔹 ลดระยะชิดซ้าย
+                                                                    opacity: 0.6
                                                                 }}
                                                                 onClick={() => {
                                                                     let raw = String(s.Pending3).replace(/,/g, "");
@@ -1191,7 +897,7 @@ const UpdateGasStations = (props) => {
 
                                                                     const newValue = Number(raw) + 1000;
 
-                                                                    handleChangeWithCheck(index, "Pending3", newValue); // ✅ ใช้ฟังก์ชันใหม่
+                                                                    handleChangeWithCheck(index, "Pending3", newValue);
                                                                 }}
                                                             >
                                                                 <ArrowRightIcon sx={{ fontSize: "25px" }} />
@@ -1208,8 +914,8 @@ const UpdateGasStations = (props) => {
                                                         mr: -0.5,
                                                         ml: -0.5,
                                                         pr: 0.5,
-                                                        paddingLeft: -3, // เพิ่มพื้นที่ให้ endAdornment
-                                                        paddingRight: 1, // เพิ่มพื้นที่ให้ endAdornment
+                                                        paddingLeft: -3,
+                                                        paddingRight: 1,
                                                     },
                                                 }}
                                             />
@@ -1217,7 +923,7 @@ const UpdateGasStations = (props) => {
                                     </TableCell>
                                     <TableCell sx={{
                                         textAlign: "center", backgroundColor: s.Color
-                                            ? `${s.Color}4A` // ลดความเข้มของสีด้วย Transparency (B3 = 70% opacity)
+                                            ? `${s.Color}4A`
                                             : `${s.Color}4A`,
                                         borderBottom: "2px solid white",
                                         padding: 0.5
@@ -1235,7 +941,7 @@ const UpdateGasStations = (props) => {
                                                         : Number(s.Pending1 || 0).toLocaleString()
                                                 }
                                                 onFocus={() => handleFocus(index, "Pending1")}
-                                                onBlur={(e) => handleBlur(index, "Pending1", e)} // ส่ง event
+                                                onBlur={(e) => handleBlur(index, "Pending1", e)}
                                                 onChange={(e) => {
                                                     let raw = e.target.value.replace(/,/g, "");
 
@@ -1285,11 +991,11 @@ const UpdateGasStations = (props) => {
                                                             <IconButton
                                                                 size="small"
                                                                 sx={{
-                                                                    p: '0px',        // 🔹 ตัด padding IconButton
+                                                                    p: '0px',
                                                                     width: 5,
                                                                     height: 18,
                                                                     ml: -1,
-                                                                    opacity: 0.6      // 🔹 ลดระยะชิดซ้าย
+                                                                    opacity: 0.6
                                                                 }}
                                                                 onClick={() => {
                                                                     let raw = String(s.Pending1).replace(/,/g, "");
@@ -1297,7 +1003,7 @@ const UpdateGasStations = (props) => {
 
                                                                     const newValue = Number(raw) - 1000;
 
-                                                                    handleChangeWithCheck(index, "Pending1", newValue); // ✅ ใช้ฟังก์ชันใหม่
+                                                                    handleChangeWithCheck(index, "Pending1", newValue);
                                                                 }}
                                                             >
                                                                 <ArrowLeftIcon sx={{ fontSize: "25px" }} />
@@ -1309,11 +1015,11 @@ const UpdateGasStations = (props) => {
                                                             <IconButton
                                                                 size="small"
                                                                 sx={{
-                                                                    p: '0px',        // 🔹 ตัด padding IconButton
+                                                                    p: '0px',
                                                                     width: 5,
                                                                     height: 18,
                                                                     mr: -1.5,
-                                                                    opacity: 0.6       // 🔹 ลดระยะชิดซ้าย
+                                                                    opacity: 0.6
                                                                 }}
                                                                 onClick={() => {
                                                                     let raw = String(s.Pending1).replace(/,/g, "");
@@ -1321,7 +1027,7 @@ const UpdateGasStations = (props) => {
 
                                                                     const newValue = Number(raw) + 1000;
 
-                                                                    handleChangeWithCheck(index, "Pending1", newValue); // ✅ ใช้ฟังก์ชันใหม่
+                                                                    handleChangeWithCheck(index, "Pending1", newValue);
                                                                 }}
                                                             >
                                                                 <ArrowRightIcon sx={{ fontSize: "25px" }} />
@@ -1338,8 +1044,8 @@ const UpdateGasStations = (props) => {
                                                         mr: -0.5,
                                                         ml: -0.5,
                                                         pr: 0.5,
-                                                        paddingLeft: -3, // เพิ่มพื้นที่ให้ endAdornment
-                                                        paddingRight: 1, // เพิ่มพื้นที่ให้ endAdornment
+                                                        paddingLeft: -3,
+                                                        paddingRight: 1,
                                                     },
                                                 }}
                                             />
@@ -1347,7 +1053,7 @@ const UpdateGasStations = (props) => {
                                     </TableCell>
                                     <TableCell sx={{
                                         textAlign: "center", backgroundColor: s.Color
-                                            ? `${s.Color}4A` // ลดความเข้มของสีด้วย Transparency (B3 = 70% opacity)
+                                            ? `${s.Color}4A`
                                             : `${s.Color}4A`,
                                         borderBottom: "2px solid white",
                                         padding: 0.5
@@ -1365,7 +1071,7 @@ const UpdateGasStations = (props) => {
                                                         : Number(s.Pending2 || 0).toLocaleString()
                                                 }
                                                 onFocus={() => handleFocus(index, "Pending2")}
-                                                onBlur={(e) => handleBlur(index, "Pending2", e)} // ส่ง event
+                                                onBlur={(e) => handleBlur(index, "Pending2", e)}
                                                 onChange={(e) => {
                                                     let raw = e.target.value.replace(/,/g, "");
 
@@ -1415,11 +1121,11 @@ const UpdateGasStations = (props) => {
                                                             <IconButton
                                                                 size="small"
                                                                 sx={{
-                                                                    p: '0px',        // 🔹 ตัด padding IconButton
+                                                                    p: '0px',
                                                                     width: 5,
                                                                     height: 18,
                                                                     ml: -1,
-                                                                    opacity: 0.6      // 🔹 ลดระยะชิดซ้าย
+                                                                    opacity: 0.6
                                                                 }}
                                                                 onClick={() => {
                                                                     let raw = String(s.Pending2).replace(/,/g, "");
@@ -1427,7 +1133,7 @@ const UpdateGasStations = (props) => {
 
                                                                     const newValue = Number(raw) - 1000;
 
-                                                                    handleChangeWithCheck(index, "Pending2", newValue); // ✅ ใช้ฟังก์ชันใหม่
+                                                                    handleChangeWithCheck(index, "Pending2", newValue);
                                                                 }}
                                                             >
                                                                 <ArrowLeftIcon sx={{ fontSize: "25px" }} />
@@ -1439,11 +1145,11 @@ const UpdateGasStations = (props) => {
                                                             <IconButton
                                                                 size="small"
                                                                 sx={{
-                                                                    p: '0px',        // 🔹 ตัด padding IconButton
+                                                                    p: '0px',
                                                                     width: 5,
                                                                     height: 18,
                                                                     mr: -1.5,
-                                                                    opacity: 0.6       // 🔹 ลดระยะชิดซ้าย
+                                                                    opacity: 0.6
                                                                 }}
                                                                 onClick={() => {
                                                                     let raw = String(s.Pending2).replace(/,/g, "");
@@ -1451,7 +1157,7 @@ const UpdateGasStations = (props) => {
 
                                                                     const newValue = Number(raw) + 1000;
 
-                                                                    handleChangeWithCheck(index, "Pending2", newValue); // ✅ ใช้ฟังก์ชันใหม่
+                                                                    handleChangeWithCheck(index, "Pending2", newValue);
                                                                 }}
                                                             >
                                                                 <ArrowRightIcon sx={{ fontSize: "25px" }} />
@@ -1468,8 +1174,8 @@ const UpdateGasStations = (props) => {
                                                         mr: -0.5,
                                                         ml: -0.5,
                                                         pr: 0.5,
-                                                        paddingLeft: -3, // เพิ่มพื้นที่ให้ endAdornment
-                                                        paddingRight: 1, // เพิ่มพื้นที่ให้ endAdornment
+                                                        paddingLeft: -3,
+                                                        paddingRight: 1,
                                                     },
                                                 }}
                                             />
@@ -1477,7 +1183,7 @@ const UpdateGasStations = (props) => {
                                     </TableCell>
                                     <TableCell sx={{
                                         textAlign: "center", backgroundColor: s.Color
-                                            ? `${s.Color}4A` // ลดความเข้มของสีด้วย Transparency (B3 = 70% opacity)
+                                            ? `${s.Color}4A`
                                             : `${s.Color}4A`,
                                         borderBottom: "2px solid white",
                                         padding: 0.5
@@ -1486,7 +1192,6 @@ const UpdateGasStations = (props) => {
                                             <TextField
                                                 size="small"
                                                 type={isFieldFocused(index, "EstimateSell") ? "text" : "text"}
-                                                // label={"ขาย"}
                                                 // แนะนำใช้ text ตลอด เพราะจัดการ input เอง
                                                 InputLabelProps={{ sx: { fontSize: 12, fontWeight: "bold" } }}
                                                 value={
@@ -1495,7 +1200,7 @@ const UpdateGasStations = (props) => {
                                                         : Number(s.EstimateSell || 0).toLocaleString()
                                                 }
                                                 onFocus={() => handleFocus(index, "EstimateSell")}
-                                                onBlur={(e) => handleBlur(index, "EstimateSell", e)} // ส่ง event
+                                                onBlur={(e) => handleBlur(index, "EstimateSell", e)}
                                                 onChange={(e) => {
                                                     let raw = e.target.value.replace(/,/g, "");
 
@@ -1540,54 +1245,6 @@ const UpdateGasStations = (props) => {
                                                             marginRight: -0.5
                                                         }
                                                     },
-                                                    // startAdornment: (
-                                                    //     <InputAdornment position="start">
-                                                    //         <IconButton
-                                                    //             size="small"
-                                                    //             sx={{
-                                                    //                 p: '0px',        // 🔹 ตัด padding IconButton
-                                                    //                 width: 5,
-                                                    //                 height: 18,
-                                                    //                 ml: -1,
-                                                    //                 opacity: 0.6      // 🔹 ลดระยะชิดซ้าย
-                                                    //             }}
-                                                    //             onClick={() => {
-                                                    //                 let raw = String(s.EstimateSell).replace(/,/g, "");
-                                                    //                 if (raw === "" || raw === "-") raw = "0";
-
-                                                    //                 const newValue = Number(raw) - 1000;
-
-                                                    //                 handleChangeWithCheck(index, "EstimateSell", newValue); // ✅ ใช้ฟังก์ชันใหม่
-                                                    //             }}
-                                                    //         >
-                                                    //             <ArrowLeftIcon sx={{ fontSize: "25px" }} />
-                                                    //         </IconButton>
-                                                    //     </InputAdornment>
-                                                    // ),
-                                                    // endAdornment: (
-                                                    //     <InputAdornment position="end">
-                                                    //         <IconButton
-                                                    //             size="small"
-                                                    //             sx={{
-                                                    //                 p: '0px',        // 🔹 ตัด padding IconButton
-                                                    //                 width: 5,
-                                                    //                 height: 18,
-                                                    //                 mr: -1.5,
-                                                    //                 opacity: 0.6       // 🔹 ลดระยะชิดซ้าย
-                                                    //             }}
-                                                    //             onClick={() => {
-                                                    //                 let raw = String(s.EstimateSell).replace(/,/g, "");
-                                                    //                 if (raw === "" || raw === "-") raw = "0";
-
-                                                    //                 const newValue = Number(raw) + 1000;
-
-                                                    //                 handleChangeWithCheck(index, "EstimateSell", newValue); // ✅ ใช้ฟังก์ชันใหม่
-                                                    //             }}
-                                                    //         >
-                                                    //             <ArrowRightIcon sx={{ fontSize: "25px" }} />
-                                                    //         </IconButton>
-                                                    //     </InputAdornment>
-                                                    // ),
                                                 }}
                                                 sx={{
                                                     "& .MuiOutlinedInput-root": { height: 25 },
@@ -1598,8 +1255,8 @@ const UpdateGasStations = (props) => {
                                                         mr: -0.5,
                                                         ml: -0.5,
                                                         pr: 0.5,
-                                                        paddingLeft: -3, // เพิ่มพื้นที่ให้ endAdornment
-                                                        paddingRight: 2, // เพิ่มพื้นที่ให้ endAdornment
+                                                        paddingLeft: -3,
+                                                        paddingRight: 2,
                                                     },
                                                 }}
                                             />
@@ -1637,7 +1294,7 @@ const UpdateGasStations = (props) => {
                                     <TableCell sx={{
                                         textAlign: "right",
                                         backgroundColor: s.Color
-                                            ? `${s.Color}4A` // ลดความเข้มของสีด้วย Transparency (B3 = 70% opacity)
+                                            ? `${s.Color}4A`
                                             : `${s.Color}4A`, color: s.YesterDay < 0 ? "#d50000" : "black",
                                         fontWeight: "bold",
                                         borderBottom: "2px solid white",
@@ -1650,7 +1307,7 @@ const UpdateGasStations = (props) => {
                                     <TableCell sx={{
                                         textAlign: "right",
                                         backgroundColor: s.Color
-                                            ? `${s.Color}4A` // ลดความเข้มของสีด้วย Transparency (B3 = 70% opacity)
+                                            ? `${s.Color}4A`
                                             : `${s.Color}4A`, color: s.Sell < 0 ? "#d50000" : "black",
                                         fontWeight: "bold",
                                         borderBottom: "2px solid white",
@@ -1668,7 +1325,7 @@ const UpdateGasStations = (props) => {
                                                 backgroundColor:
                                                     s.Backyard === false ? "gray" :
                                                         (s.Color
-                                                            ? `${s.Color}4A` // ลดความเข้มของสีด้วย Transparency (B3 = 70% opacity)
+                                                            ? `${s.Color}4A`
                                                             : `${s.Color}4A`
                                                         ),
                                                 borderBottom: "2px solid white",
@@ -1689,7 +1346,7 @@ const UpdateGasStations = (props) => {
                                                                     : Number(s.BackyardSales || 0).toLocaleString()
                                                             }
                                                             onFocus={() => handleFocus(index, "BackyardSales")}
-                                                            onBlur={(e) => handleBlur(index, "BackyardSales", e)} // ส่ง event
+                                                            onBlur={(e) => handleBlur(index, "BackyardSales", e)}
                                                             onChange={(e) => {
                                                                 let raw = e.target.value.replace(/,/g, "");
 
@@ -1734,54 +1391,6 @@ const UpdateGasStations = (props) => {
                                                                         marginRight: -0.5
                                                                     }
                                                                 },
-                                                                // startAdornment: (
-                                                                //     <InputAdornment position="start">
-                                                                //         <IconButton
-                                                                //             size="small"
-                                                                //             sx={{
-                                                                //                 p: '0px',        // 🔹 ตัด padding IconButton
-                                                                //                 width: 5,
-                                                                //                 height: 18,
-                                                                //                 ml: -1,
-                                                                //                 opacity: 0.6      // 🔹 ลดระยะชิดซ้าย
-                                                                //             }}
-                                                                //             onClick={() => {
-                                                                //                 let raw = String(s.BackyardSales).replace(/,/g, "");
-                                                                //                 if (raw === "" || raw === "-") raw = "0";
-
-                                                                //                 const newValue = Number(raw) - 1000;
-
-                                                                //                 handleChangeWithCheck(index, "BackyardSales", newValue); // ✅ ใช้ฟังก์ชันใหม่
-                                                                //             }}
-                                                                //         >
-                                                                //             <ArrowLeftIcon sx={{ fontSize: "25px" }} />
-                                                                //         </IconButton>
-                                                                //     </InputAdornment>
-                                                                // ),
-                                                                // endAdornment: (
-                                                                //     <InputAdornment position="end">
-                                                                //         <IconButton
-                                                                //             size="small"
-                                                                //             sx={{
-                                                                //                 p: '0px',        // 🔹 ตัด padding IconButton
-                                                                //                 width: 5,
-                                                                //                 height: 18,
-                                                                //                 mr: -1.5,
-                                                                //                 opacity: 0.6       // 🔹 ลดระยะชิดซ้าย
-                                                                //             }}
-                                                                //             onClick={() => {
-                                                                //                 let raw = String(s.BackyardSales).replace(/,/g, "");
-                                                                //                 if (raw === "" || raw === "-") raw = "0";
-
-                                                                //                 const newValue = Number(raw) + 1000;
-
-                                                                //                 handleChangeWithCheck(index, "BackyardSales", newValue); // ✅ ใช้ฟังก์ชันใหม่
-                                                                //             }}
-                                                                //         >
-                                                                //             <ArrowRightIcon sx={{ fontSize: "25px" }} />
-                                                                //         </IconButton>
-                                                                //     </InputAdornment>
-                                                                // ),
                                                             }}
                                                             sx={{
                                                                 "& .MuiOutlinedInput-root": { height: 25 },
@@ -1792,8 +1401,8 @@ const UpdateGasStations = (props) => {
                                                                     mr: -0.5,
                                                                     ml: -0.5,
                                                                     pr: 0.5,
-                                                                    paddingLeft: -3, // เพิ่มพื้นที่ให้ endAdornment
-                                                                    paddingRight: 2, // เพิ่มพื้นที่ให้ endAdornment
+                                                                    paddingLeft: -3,
+                                                                    paddingRight: 2,
                                                                 },
                                                             }}
                                                         />
@@ -1804,7 +1413,7 @@ const UpdateGasStations = (props) => {
                                                 textAlign: "right",
                                                 backgroundColor:
                                                     (s.Color
-                                                        ? `${s.Color}4A` // ลดความเข้มของสีด้วย Transparency (B3 = 70% opacity)
+                                                        ? `${s.Color}4A`
                                                         : `${s.Color}4A`
                                                     ),
                                                 color: s.Sell < 0 ? "#d50000" : "black",
@@ -1830,11 +1439,7 @@ const UpdateGasStations = (props) => {
                                                     v => v.stockID === products?.stockID && v.hasChanged
                                                 );
 
-                                            // ===============================
-                                            // 🟢 กรณี stock มี 2 ปั้ม
-                                            // ===============================
                                             if (stockCount === 2) {
-                                                // ปุ่ม save อยู่แถวล่าง
                                                 if (!isFirstPump && index === 1 && stockHasChanged) {
                                                     return (
                                                         <TableCell rowSpan={products?.Products.filter(Boolean).length}>
@@ -1897,11 +1502,7 @@ const UpdateGasStations = (props) => {
                                                 return null;
                                             }
 
-                                            // ===============================
-                                            // 🟢 กรณี stock มี 1 ปั้ม
-                                            // ===============================
                                             if (isFirstPump && index === 0) {
-                                                // ✅ แสดงปุ่ม save
                                                 if (stockHasChanged) {
                                                     return (
                                                         <TableCell rowSpan={products?.Products.filter(Boolean).length}>
@@ -1935,42 +1536,12 @@ const UpdateGasStations = (props) => {
                                                     );
                                                 }
 
-                                                // ❌ ไม่มีการแก้ไข → แสดงยอดรวมแทน
                                                 return null;
                                             }
 
                                             return null;
                                         })()
                                     }
-
-
-                                    {/* ถ้าเป็นแถวแรก (index === 0) ให้เพิ่ม rowSpan, แถวอื่นไม่ต้องแสดง cell นี้ */}
-                                    {/* {index === 0 ? (
-                                        <TableCell rowSpan={products?.Products.filter(Boolean).length}>
-                                            {
-                                                // ตรวจสอบว่า Products ของ stock นี้มีการแก้ไขอย่างน้อย 1 ปั้ม
-                                                check || volumeData?.some(v => v.stockID === products?.stockID && v.Products.some(p => p.hasChanged)) ? (
-                                                    <Paper sx={{ display: "flex", justifyContent: "center", alignItems: "center", borderRadius: 2, backgroundColor: theme.palette.success.main }}>
-                                                        <Button
-                                                            color="inherit"
-                                                            fullWidth
-                                                            onClick={() => {
-                                                                // ดึง Products ทั้งหมดของ stock นี้ (ทั้งปั้ม 1 และ 2)
-                                                                const stockProducts = volumeData.filter(v => v.stockID === products?.stockID);
-                                                                handleSave(products?.stationId, stockProducts);
-                                                            }}
-                                                            sx={{ flexDirection: "column", gap: 0.5 }}
-                                                        >
-                                                            <SaveIcon fontSize="large" sx={{ color: "white" }} />
-                                                            <Typography sx={{ fontSize: 12, fontWeight: "bold", color: "white" }}>
-                                                                บันทึก
-                                                            </Typography>
-                                                        </Button>
-                                                    </Paper>
-                                                ) : null
-                                            }
-                                        </TableCell>
-                                    ) : null} */}
                                 </TableRow>
                             ))
                         }
@@ -1987,7 +1558,6 @@ const UpdateGasStations = (props) => {
                                 fontVariantNumeric: "tabular-nums",
                                 backgroundColor: "#eeeeee"
                             }}>
-                                {/* <Typography variant="subtitle1" fontWeight="bold" sx={{ whiteSpace: "nowrap", lineHeight: 1 }} gutterBottom> */}
                                 {
                                     new Intl.NumberFormat("en-US").format(Math.round(
                                         products?.Products?.reduce((sum, item) => {
@@ -1995,7 +1565,6 @@ const UpdateGasStations = (props) => {
                                         }, 0)
                                     ))
                                 }
-                                {/* </Typography> */}
                             </TableCell>
                             {
                                 products?.Products?.some(p => p.Backyard === true) &&
@@ -2027,12 +1596,10 @@ const UpdateGasStations = (props) => {
                                         fontVariantNumeric: "tabular-nums",
                                         backgroundColor: "#eeeeee"
                                     }}>
-                                        {/* <Typography variant="subtitle1" fontWeight="bold" sx={{ whiteSpace: "nowrap", lineHeight: 1 }} gutterBottom> */}
                                         {new Intl.NumberFormat("en-US").format(
                                             Math.round(products?.Products?.reduce((sum, s) =>
                                                 sum + ((Number(s.Sell) || 0) - (Number(s.BackyardSales) || 0)), 0))
                                         )}
-                                        {/* </Typography> */}
                                     </TableCell>
                                 </React.Fragment>
                             }
@@ -2049,13 +1616,6 @@ const UpdateGasStations = (props) => {
                                             fontVariantNumeric: "tabular-nums",
                                             backgroundColor: "#eeeeee"
                                         }}>
-                                            {/* <Typography variant="subtitle1" fontWeight="bold" sx={{ whiteSpace: "nowrap", lineHeight: 1 }} gutterBottom> */}
-                                            {/* {new Intl.NumberFormat("en-US", {
-                                                minimumFractionDigits: 2,
-                                                maximumFractionDigits: 2
-                                            }).format(products?.Products?.reduce((sum, s) =>
-                                                sum + (Number(totaldownHoleByProduct[s.ProductName] ?? 0)), 0))} */}
-                                            {/* </Typography> */}
                                         </TableCell>
                                     )
                                 )
@@ -2074,13 +1634,11 @@ const UpdateGasStations = (props) => {
                                     const trucksAtDate = [{ id: 0, Truck: "", Price: "", Volume: "" }];
 
                                     if (checkTruck === gasStation?.id) {
-                                        // ❌ ปิด toggle
                                         setCheckTruck(false);
                                         setShowTruckFromClick(false); // กลับไปเป็นค่าเริ่มต้น
                                         setLocalTruck([]);
                                         onProductChange(gasStation.id, [], "Truck");
                                     } else {
-                                        // ✅ เปิด toggle
                                         setCheckTruck(gasStation?.id);
                                         setShowTruckFromClick(true); // บอกว่า toggle จาก onclick
                                         setLocalTruck(trucksAtDate);
@@ -2162,8 +1720,8 @@ const UpdateGasStations = (props) => {
                                                                     mr: -0.5,
                                                                     ml: -0.5,
                                                                     pr: 0.5,
-                                                                    paddingLeft: -3, // เพิ่มพื้นที่ให้ endAdornment
-                                                                    paddingRight: 1, // เพิ่มพื้นที่ให้ endAdornment
+                                                                    paddingLeft: -3,
+                                                                    paddingRight: 1,
                                                                 },
                                                             }}
                                                         />
@@ -2184,7 +1742,6 @@ const UpdateGasStations = (props) => {
                                                             type={"number"}
                                                             value={tr.Price}
                                                             onChange={(e) => handleChange(index, "Price", e.target.value)}
-                                                            // แนะนำใช้ text ตลอด เพราะจัดการ input เอง
                                                             InputLabelProps={{ sx: { fontSize: 12, fontWeight: "bold" } }}
                                                             fullWidth
                                                             InputProps={{
@@ -2202,8 +1759,8 @@ const UpdateGasStations = (props) => {
                                                                     mr: -0.5,
                                                                     ml: -0.5,
                                                                     pr: 0.5,
-                                                                    paddingLeft: -3, // เพิ่มพื้นที่ให้ endAdornment
-                                                                    paddingRight: 1, // เพิ่มพื้นที่ให้ endAdornment
+                                                                    paddingLeft: -3,
+                                                                    paddingRight: 1,
                                                                 },
                                                             }}
                                                         />
@@ -2224,7 +1781,6 @@ const UpdateGasStations = (props) => {
                                                             type={"number"}
                                                             value={tr.Volume}
                                                             onChange={(e) => handleChange(index, "Volume", e.target.value)}
-                                                            // แนะนำใช้ text ตลอด เพราะจัดการ input เอง
                                                             InputLabelProps={{ sx: { fontSize: 12, fontWeight: "bold" } }}
                                                             fullWidth
                                                             InputProps={{
@@ -2242,8 +1798,8 @@ const UpdateGasStations = (props) => {
                                                                     mr: -0.5,
                                                                     ml: -0.5,
                                                                     pr: 0.5,
-                                                                    paddingLeft: -3, // เพิ่มพื้นที่ให้ endAdornment
-                                                                    paddingRight: 1, // เพิ่มพื้นที่ให้ endAdornment
+                                                                    paddingLeft: -3,
+                                                                    paddingRight: 1,
                                                                 },
                                                             }}
                                                         />

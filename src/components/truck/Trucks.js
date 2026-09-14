@@ -112,12 +112,11 @@ const Trucks = ({ openNavbar }) => {
     const handleResize = () => {
       let width = window.innerWidth;
       if (!openNavbar) {
-        width += 120; // ✅ เพิ่ม 200 ถ้า openNavbar = false
+        width += 120;
       }
       setWindowWidth(width);
     };
 
-    // เรียกครั้งแรกตอน mount
     handleResize();
 
     window.addEventListener("resize", handleResize);
@@ -125,7 +124,7 @@ const Trucks = ({ openNavbar }) => {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [openNavbar]); // ✅ ทำงานใหม่ทุกครั้งที่ openNavbar เปลี่ยน
+  }, [openNavbar]);
 
   const [repair, setRepair] = React.useState(false);
 
@@ -142,18 +141,6 @@ const Trucks = ({ openNavbar }) => {
       row.RepairTruck &&
       row.RepairTruck.split(":")[1] === "ยังไม่ตรวจสอบสภาพรถ",
   );
-
-  //   const repairRegHead = useMemo(() => {
-  //     return Object.entries(reghead).filter(([id, emp]) => emp.RepairTruck.split(":")[1] === "ยังไม่ตรวจสอบสภาพรถ");
-  // }, [reghead]);
-
-  // const status = useMemo(() => {
-  //   return Object.entries(regtail).filter(([id, emp]) => emp.Status !== "เชื่อมทะเบียนหัวแล้ว");
-  // }, [regtail]);
-
-  // const repairSmallTruck = useMemo(() => {
-  //   return Object.entries(small).filter(([id, emp]) => emp.RepairTruck.split(":")[1] === "ยังไม่ตรวจสอบสภาพรถ");
-  // }, [small]);
 
   return (
     <Container
@@ -250,9 +237,9 @@ const Trucks = ({ openNavbar }) => {
                     badgeContent={datareghead.length}
                     sx={{
                       "& .MuiBadge-badge": {
-                        fontSize: 20, // ขนาดตัวเลขใน Badge
-                        minWidth: 30, // ความกว้างของ Badge
-                        height: 30, // ความสูงของ Badge
+                        fontSize: 20,
+                        minWidth: 30,
+                        height: 30,
                         top: openMenu === 1 ? 35 : -40,
                         right: openMenu === 1 ? -30 : -5,
                         color:
@@ -305,9 +292,9 @@ const Trucks = ({ openNavbar }) => {
                     badgeContent={dataregtail.length}
                     sx={{
                       "& .MuiBadge-badge": {
-                        fontSize: 20, // ขนาดตัวเลขใน Badge
-                        minWidth: 30, // ความกว้างของ Badge
-                        height: 30, // ความสูงของ Badge
+                        fontSize: 20,
+                        minWidth: 30,
+                        height: 30,
                         top: openMenu === 2 ? 35 : -40,
                         right: openMenu === 2 ? -30 : -5,
                         color:
@@ -360,9 +347,9 @@ const Trucks = ({ openNavbar }) => {
                     badgeContent={datasmall.length}
                     sx={{
                       "& .MuiBadge-badge": {
-                        fontSize: 20, // ขนาดตัวเลขใน Badge
-                        minWidth: 30, // ความกว้างของ Badge
-                        height: 30, // ความสูงของ Badge
+                        fontSize: 20,
+                        minWidth: 30,
+                        height: 30,
                         top: openMenu === 3 ? 35 : -40,
                         right: openMenu === 3 ? -30 : -5,
                         color:
@@ -401,7 +388,6 @@ const Trucks = ({ openNavbar }) => {
           </Grid>
         </>
       ) : (
-        // <RepairTruck />
         <RepairDetail />
       )}
     </Container>

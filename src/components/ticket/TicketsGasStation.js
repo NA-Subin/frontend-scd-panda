@@ -60,12 +60,11 @@ const TicketsGasStation = (props) => {
         const handleResize = () => {
             let width = window.innerWidth;
             if (!openNavbar) {
-                width += 120; // ✅ เพิ่ม 200 ถ้า openNavbar = false
+                width += 120; // เพิ่ม offset เมื่อ navbar ถูกยุบ (openNavbar = false)
             }
             setWindowWidth(width);
         };
 
-        // เรียกครั้งแรกตอน mount
         handleResize();
 
         window.addEventListener('resize', handleResize);
@@ -73,7 +72,7 @@ const TicketsGasStation = (props) => {
         return () => {
             window.removeEventListener('resize', handleResize);
         };
-    }, [openNavbar]); // ✅ ทำงานใหม่ทุกครั้งที่ openNavbar เปลี่ยน
+    }, [openNavbar]);
 
     const normalizeAddress = (address) => {
         // ---------- แบบใหม่ (object) ----------
@@ -201,9 +200,7 @@ const TicketsGasStation = (props) => {
                     console.error("Error updating data:", error);
                 }
             },
-            () => {
-                console.log(`ยกเลิกลบตั๋วปั้มที่ ${row.id}`);
-            }
+            () => { }
         )
     }
 
@@ -249,7 +246,6 @@ const TicketsGasStation = (props) => {
                     :
                     <TableRow key={index} sx={{ backgroundColor: "#fff59d" }}>
                         <TableCell sx={{ textAlign: "center", fontWeight: "bold" }}>{index + 1}</TableCell>
-                        {/* <TableCell sx={{ textAlign: "center", fontWeight: "bold" }}>{name}</TableCell> */}
                         <TableCell sx={{ textAlign: "center" }}>
                             <Grid container>
                                 <Grid item xs={4}>
@@ -263,12 +259,12 @@ const TicketsGasStation = (props) => {
                                             }}
                                             sx={{
                                                 '& .MuiOutlinedInput-root': {
-                                                    height: '30px', // ปรับความสูงของ TextField
+                                                    height: '30px',
                                                 },
                                                 '& .MuiInputBase-input': {
-                                                    fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                                    fontSize: '14px',
                                                     fontWeight: 'bold',
-                                                    padding: '2px 6px', // ปรับ padding ภายใน input
+                                                    padding: '2px 6px',
                                                     textAlign: "center"
                                                 },
                                             }}
@@ -290,12 +286,12 @@ const TicketsGasStation = (props) => {
                                             }}
                                             sx={{
                                                 '& .MuiOutlinedInput-root': {
-                                                    height: '30px', // ปรับความสูงของ TextField
+                                                    height: '30px',
                                                 },
                                                 '& .MuiInputBase-input': {
-                                                    fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                                    fontSize: '14px',
                                                     fontWeight: 'bold',
-                                                    padding: '2px 6px', // ปรับ padding ภายใน input
+                                                    padding: '2px 6px',
                                                     textAlign: "center"
                                                 },
                                             }}
@@ -319,12 +315,12 @@ const TicketsGasStation = (props) => {
                                     }}
                                     sx={{
                                         '& .MuiOutlinedInput-root': {
-                                            height: '30px', // ปรับความสูงของ TextField
+                                            height: '30px',
                                         },
                                         '& .MuiInputBase-input': {
-                                            fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                            fontSize: '14px',
                                             fontWeight: 'bold',
-                                            padding: '2px 6px', // ปรับ padding ภายใน input
+                                            padding: '2px 6px',
                                             textAlign: "center"
                                         },
                                     }}
@@ -347,12 +343,12 @@ const TicketsGasStation = (props) => {
                                     }}
                                     sx={{
                                         '& .MuiOutlinedInput-root': {
-                                            height: '30px', // ปรับความสูงของ TextField
+                                            height: '30px',
                                         },
                                         '& .MuiInputBase-input': {
-                                            fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                            fontSize: '14px',
                                             fontWeight: 'bold',
-                                            padding: '2px 6px', // ปรับ padding ภายใน input
+                                            padding: '2px 6px',
                                             textAlign: "center"
                                         },
                                     }}
@@ -375,12 +371,12 @@ const TicketsGasStation = (props) => {
                                     }}
                                     sx={{
                                         '& .MuiOutlinedInput-root': {
-                                            height: '30px', // ปรับความสูงของ TextField
+                                            height: '30px',
                                         },
                                         '& .MuiInputBase-input': {
-                                            fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                            fontSize: '14px',
                                             fontWeight: 'bold',
-                                            padding: '2px 6px', // ปรับ padding ภายใน input
+                                            padding: '2px 6px',
                                             textAlign: "center"
                                         },
                                     }}
@@ -403,12 +399,12 @@ const TicketsGasStation = (props) => {
                                     }}
                                     sx={{
                                         '& .MuiOutlinedInput-root': {
-                                            height: '30px', // ปรับความสูงของ TextField
+                                            height: '30px',
                                         },
                                         '& .MuiInputBase-input': {
-                                            fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                            fontSize: '14px',
                                             fontWeight: 'bold',
-                                            padding: '2px 6px', // ปรับ padding ภายใน input
+                                            padding: '2px 6px',
                                             textAlign: "center"
                                         },
                                     }}
@@ -592,27 +588,6 @@ const TicketsGasStation = (props) => {
                         </Grid>
                     </Grid>
                 </DialogContent>
-
-                {/* <DialogActions
-                    sx={{
-                        textAlign: "center",
-                        borderTop: "2px solid " + theme.palette.panda.dark,
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                    }}
-                >
-                    <Button variant="contained" color="success">
-                        บันทึก
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="error"
-                        onClick={() => setOpenCustomer("")}
-                    >
-                        ยกเลิก
-                    </Button>
-                </DialogActions> */}
             </Dialog>
         </React.Fragment>
     );

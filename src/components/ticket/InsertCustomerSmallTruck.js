@@ -42,15 +42,13 @@ const InsertCustomerBigTruck = (props) => {
     const companyDetail = Object.values(company || {});
     const registrations = Object.values(small || {});
 
-    // ใช้ useEffect เพื่อรับฟังการเปลี่ยนแปลงของขนาดหน้าจอ
     useEffect(() => {
         const handleResize = () => {
-            setWindowWidth(window.innerWidth); // อัพเดตค่าขนาดหน้าจอ
+            setWindowWidth(window.innerWidth);
         };
 
-        window.addEventListener('resize', handleResize); // เพิ่ม event listener
+        window.addEventListener('resize', handleResize);
 
-        // ลบ event listener เมื่อ component ถูกทำลาย
         return () => {
             window.removeEventListener('resize', handleResize);
         };
@@ -76,9 +74,6 @@ const InsertCustomerBigTruck = (props) => {
     const [ticket, setTicket] = React.useState(0);
     const [ticketsName, setTicketsName] = React.useState("");
     const [phone, setPhone] = React.useState("");
-    // const [rate1, setRate1] = React.useState("");
-    // const [rate2, setRate2] = React.useState("");
-    // const [rate3, setRate3] = React.useState("");
     const [credit, setCredit] = React.useState("");
     const [creditTime, setCreditTime] = React.useState("");
     const [bill, setBill] = React.useState("");
@@ -120,9 +115,6 @@ const InsertCustomerBigTruck = (props) => {
                 TicketsName: ticketsName,
                 Status: ticketChecked === true ? "ลูกค้าประจำ" : "ลูกค้าไม่ประจำ",
                 StatusCompany: companyChecked === true ? "อยู่บริษัทในเครือ" : "ไม่อยู่บริษัทในเครือ",
-                // Rate1: rate1,
-                // Rate2: rate2,
-                // Rate3: rate3,
                 Bill: bill,
                 Code: code,
                 CompanyName: companyName,

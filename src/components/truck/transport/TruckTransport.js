@@ -89,12 +89,11 @@ const TruckTransport = ({ openNavbar }) => {
         const handleResize = () => {
             let width = window.innerWidth;
             if (!openNavbar) {
-                width += 120; // ✅ เพิ่ม 200 ถ้า openNavbar = false
+                width += 120;
             }
             setWindowWidth(width);
         };
 
-        // เรียกครั้งแรกตอน mount
         handleResize();
 
         window.addEventListener('resize', handleResize);
@@ -102,7 +101,7 @@ const TruckTransport = ({ openNavbar }) => {
         return () => {
             window.removeEventListener('resize', handleResize);
         };
-    }, [openNavbar]); // ✅ ทำงานใหม่ทุกครั้งที่ openNavbar เปลี่ยน
+    }, [openNavbar]);
 
 
     const [page, setPage] = useState(0);
@@ -119,7 +118,6 @@ const TruckTransport = ({ openNavbar }) => {
     const [companies, setCompanies] = React.useState("");
 
 
-    // ฟังก์ชันสำหรับกดแก้ไข
     const handleUpdate = (index, rowId, newName, newRegistration, newWeight, newCompany) => {
         setUpdate(true);
         setRowIndex(index + 1);
@@ -130,7 +128,6 @@ const TruckTransport = ({ openNavbar }) => {
         setCompanies(newCompany);
     };
 
-    // บันทึกข้อมูลที่แก้ไขแล้ว
     const handleSave = async () => {
         const targetRow = dataTransport.find((row) => row.id === rowID);
         if (!targetRow?.uuid) {
@@ -248,12 +245,12 @@ const TruckTransport = ({ openNavbar }) => {
                                                             }}
                                                             sx={{
                                                                 '& .MuiOutlinedInput-root': {
-                                                                    height: '30px', // ปรับความสูงของ TextField
+                                                                    height: '30px',
                                                                 },
                                                                 '& .MuiInputBase-input': {
-                                                                    fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                                                    fontSize: '14px',
                                                                     fontWeight: 'bold',
-                                                                    padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                    padding: '2px 6px',
                                                                     textAlign: "center"
                                                                 },
                                                             }}
@@ -279,12 +276,12 @@ const TruckTransport = ({ openNavbar }) => {
                                                             }}
                                                             sx={{
                                                                 '& .MuiOutlinedInput-root': {
-                                                                    height: '30px', // ปรับความสูงของ TextField
+                                                                    height: '30px',
                                                                 },
                                                                 '& .MuiInputBase-input': {
-                                                                    fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                                                    fontSize: '14px',
                                                                     fontWeight: 'bold',
-                                                                    padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                    padding: '2px 6px',
                                                                     textAlign: "center"
                                                                 },
                                                             }}
@@ -311,12 +308,12 @@ const TruckTransport = ({ openNavbar }) => {
                                                             }}
                                                             sx={{
                                                                 '& .MuiOutlinedInput-root': {
-                                                                    height: '30px', // ปรับความสูงของ TextField
+                                                                    height: '30px',
                                                                 },
                                                                 '& .MuiInputBase-input': {
-                                                                    fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                                                    fontSize: '14px',
                                                                     fontWeight: 'bold',
-                                                                    padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                    padding: '2px 6px',
                                                                     textAlign: "center"
                                                                 },
                                                             }}
@@ -340,12 +337,12 @@ const TruckTransport = ({ openNavbar }) => {
                                                             size="small"
                                                             sx={{
                                                                 '& .MuiOutlinedInput-root': {
-                                                                    height: '30px', // ปรับความสูงของ TextField
+                                                                    height: '30px',
                                                                 },
                                                                 '& .MuiInputBase-input': {
-                                                                    fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                                                    fontSize: '14px',
                                                                     fontWeight: 'bold',
-                                                                    padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                    padding: '2px 6px',
                                                                     textAlign: "center"
                                                                 },
                                                             }}

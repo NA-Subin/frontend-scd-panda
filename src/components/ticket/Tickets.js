@@ -73,12 +73,11 @@ const Tickets = ({ openNavbar }) => {
     const [update, setUpdate] = React.useState("");
     const [newName, setNewName] = React.useState("");
     const [updateCustomer, setUpdateCustomer] = React.useState(true);
-    //const [ticket, setTicket] = React.useState([]);
     const [open, setOpen] = useState(1);
     const [setting, setSetting] = React.useState(false);
     const [ticketChecked, setTicketChecked] = useState(false);
     const [recipientChecked, setRecipientChecked] = useState(false);
-    const [selectedRowId, setSelectedRowId] = useState(null); // จับ ID ของแถวที่ต้องการแก้ไข
+    const [selectedRowId, setSelectedRowId] = useState(null);
 
     const [openCustomer, setOpenCustomer] = React.useState("");
 
@@ -111,12 +110,11 @@ const Tickets = ({ openNavbar }) => {
         const handleResize = () => {
             let width = window.innerWidth;
             if (!openNavbar) {
-                width += 120; // ✅ เพิ่ม 200 ถ้า openNavbar = false
+                width += 120; // เพิ่ม offset เมื่อ navbar ถูกยุบ (openNavbar = false)
             }
             setWindowWidth(width);
         };
 
-        // เรียกครั้งแรกตอน mount
         handleResize();
 
         window.addEventListener('resize', handleResize);
@@ -124,26 +122,22 @@ const Tickets = ({ openNavbar }) => {
         return () => {
             window.removeEventListener('resize', handleResize);
         };
-    }, [openNavbar]); // ✅ ทำงานใหม่ทุกครั้งที่ openNavbar เปลี่ยน
+    }, [openNavbar]);
 
-    // State สำหรับเก็บค่าแก้ไข Rate
     const [rate1Edit, setRate1Edit] = useState("");
     const [rate2Edit, setRate2Edit] = useState("");
     const [rate3Edit, setRate3Edit] = useState("");
     const [rowIndex, setRowIndex] = useState(null);
     const [name, setName] = useState("");
 
-    // ฟังก์ชันสำหรับกดแก้ไข
     const handleSetting = (index, rowId, status, rowRate1, rowRate2, rowRate3, newname) => {
         setRowIndex(index + 1);
         setSetting(true);
         setSelectedRowId(rowId);
-        // ตั้งค่าของ checkbox ตามสถานะที่มีอยู่
         const hasTicket = status.includes("รถใหญ่");
         const hasRecipient = status.includes("รถเล็ก");
         setTicketChecked(hasTicket);
         setRecipientChecked(hasRecipient);
-        // เซ็ตค่า RateEdit เป็นค่าปัจจุบันของ row ที่เลือก
         setRate1Edit(rowRate1);
         setRate2Edit(rowRate2);
         setRate3Edit(rowRate3);
@@ -224,7 +218,6 @@ const Tickets = ({ openNavbar }) => {
         setDistrict(addr.district);
         setProvince(addr.province);
         setZipCode(addr.zipCode);
-        //setCompanyChecked
     }
 
     const handleSaveCustomer = async () => {
@@ -261,7 +254,6 @@ const Tickets = ({ openNavbar }) => {
         }
     }
 
-    // ฟังก์ชันสำหรับบันทึก
     const handleSave = async () => {
         const newType = [
             ticketChecked ? "รถใหญ่" : "",
@@ -315,9 +307,7 @@ const Tickets = ({ openNavbar }) => {
                     console.error("Error updating data:", error);
                 }
             },
-            () => {
-                console.log(`ยกเลิกลบตั๋วน้ำมันที่ ${rowIndex}`);
-            }
+            () => { }
         )
     }
 
@@ -406,7 +396,6 @@ const Tickets = ({ openNavbar }) => {
                                                     {index + safePage * rowsPerPage + 1}
                                                 </Typography>
                                             </TableCell>
-                                            {/* <Typography variant="subtitle2" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>{row.Name}</Typography> */}
                                             <TableCell
                                                 sx={{
                                                     textAlign: "left",
@@ -418,7 +407,6 @@ const Tickets = ({ openNavbar }) => {
                                                 onClick={() => handleCustomer(row)}
                                             >
                                                 {
-                                                    // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
                                                     !setting || row.uuid !== selectedRowId ?
                                                         <Typography variant="subtitle2" sx={{ marginLeft: 3 }} gutterBottom>
                                                             {row.Name}
@@ -434,12 +422,12 @@ const Tickets = ({ openNavbar }) => {
                                                                 }}
                                                                 sx={{
                                                                     '& .MuiOutlinedInput-root': {
-                                                                        height: '30px', // ปรับความสูงของ TextField
+                                                                        height: '30px',
                                                                     },
                                                                     '& .MuiInputBase-input': {
-                                                                        fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                                                        fontSize: '14px',
                                                                         fontWeight: 'bold',
-                                                                        padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                        padding: '2px 6px',
                                                                         textAlign: "center"
                                                                     },
                                                                 }}
@@ -453,7 +441,6 @@ const Tickets = ({ openNavbar }) => {
                                             </TableCell>
                                             <TableCell sx={{ textAlign: "center", height: "30px" }}>
                                                 {
-                                                    // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
                                                     !setting || row.uuid !== selectedRowId ?
                                                         <Typography variant="subtitle2" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>{row.Rate1}</Typography>
                                                         :
@@ -466,12 +453,12 @@ const Tickets = ({ openNavbar }) => {
                                                             }}
                                                             sx={{
                                                                 '& .MuiOutlinedInput-root': {
-                                                                    height: '30px', // ปรับความสูงของ TextField
+                                                                    height: '30px',
                                                                 },
                                                                 '& .MuiInputBase-input': {
-                                                                    fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                                                    fontSize: '14px',
                                                                     fontWeight: 'bold',
-                                                                    padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                    padding: '2px 6px',
                                                                     paddingLeft: 2
                                                                 },
                                                             }}
@@ -496,12 +483,12 @@ const Tickets = ({ openNavbar }) => {
                                                             }}
                                                             sx={{
                                                                 '& .MuiOutlinedInput-root': {
-                                                                    height: '30px', // ปรับความสูงของ TextField
+                                                                    height: '30px',
                                                                 },
                                                                 '& .MuiInputBase-input': {
-                                                                    fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                                                    fontSize: '14px',
                                                                     fontWeight: 'bold',
-                                                                    padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                    padding: '2px 6px',
                                                                     paddingLeft: 2
                                                                 },
                                                             }}
@@ -526,12 +513,12 @@ const Tickets = ({ openNavbar }) => {
                                                             }}
                                                             sx={{
                                                                 '& .MuiOutlinedInput-root': {
-                                                                    height: '30px', // ปรับความสูงของ TextField
+                                                                    height: '30px',
                                                                 },
                                                                 '& .MuiInputBase-input': {
-                                                                    fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                                                    fontSize: '14px',
                                                                     fontWeight: 'bold',
-                                                                    padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                    padding: '2px 6px',
                                                                     paddingLeft: 2
                                                                 },
                                                             }}
@@ -612,13 +599,6 @@ const Tickets = ({ openNavbar }) => {
                                                                 >
                                                                     บันทึก
                                                                 </Button>
-
-                                                                {/* <IconButton color="error" onClick={handleCancel}>
-                                                                    <CancelIcon />
-                                                                </IconButton>
-                                                                <IconButton color="success" onClick={handleSave} >
-                                                                    <SaveIcon />
-                                                                </IconButton> */}
                                                             </Box>
                                                     }
                                                 </Box>
@@ -693,29 +673,6 @@ const Tickets = ({ openNavbar }) => {
                                     <InfoHint text="รอบที่ใช้ออกใบวางบิล/ใบแจ้งหนี้ให้ลูกค้ารายนี้ เช่น ทุกสิ้นเดือน หรือทุก 15 วัน" />
                                     <TextField size="small" fullWidth value={bill} onChange={(e) => setBill(e.target.value)} disabled={updateCustomer} />
                                 </Grid>
-                                {/* <Grid item md={6} display="flex" justifyContent="left" alignItems="center">
-                                                        <Typography variant="subtitle1" fontWeight="bold" marginRight={1}>สถานะตั๋ว :</Typography>
-                                                        <FormControlLabel
-                                                            control={
-                                                                <Checkbox
-                                                                    checked={ticketChecked1 === false ? true : false}
-                                                                    onChange={() => setTicketChecked1(!ticketChecked1)}
-                                                                    size="small"
-                                                                />
-                                                            }
-                                                            label="ตั๋ว"
-                                                        />
-                                                        <FormControlLabel
-                                                            control={
-                                                                <Checkbox
-                                                                    checked={ticketChecked2 === false ? true : false}
-                                                                    onChange={() => setTicketChecked2(!ticketChecked2)}
-                                                                    size="small"
-                                                                />
-                                                            }
-                                                            label="ผู้รับ"
-                                                        />
-                                                    </Grid> */}
                                 <Grid item md={12} xs={12} display="flex" justifyContent="left" alignItems="center">
                                     <Typography variant="subtitle1" fontWeight="bold" marginRight={1}>ประเภทรถ :</Typography>
                                     <FormControlLabel
@@ -826,27 +783,6 @@ const Tickets = ({ openNavbar }) => {
                         </Grid>
                     </Grid>
                 </DialogContent>
-
-                {/* <DialogActions
-                                sx={{
-                                    textAlign: "center",
-                                    borderTop: "2px solid " + theme.palette.panda.dark,
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                }}
-                            >
-                                <Button variant="contained" color="success">
-                                    บันทึก
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    color="error"
-                                    onClick={() => setOpenCustomer("")}
-                                >
-                                    ยกเลิก
-                                </Button>
-                            </DialogActions> */}
             </Dialog>
         </Container>
     );

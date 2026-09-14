@@ -50,15 +50,13 @@ const InsertTickets = () => {
 
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-    // ใช้ useEffect เพื่อรับฟังการเปลี่ยนแปลงของขนาดหน้าจอ
     useEffect(() => {
         const handleResize = () => {
-            setWindowWidth(window.innerWidth); // อัพเดตค่าขนาดหน้าจอ
+            setWindowWidth(window.innerWidth);
         };
 
-        window.addEventListener('resize', handleResize); // เพิ่ม event listener
+        window.addEventListener('resize', handleResize);
 
-        // ลบ event listener เมื่อ component ถูกทำลาย
         return () => {
             window.removeEventListener('resize', handleResize);
         };
@@ -188,29 +186,6 @@ const InsertTickets = () => {
                                     <Typography variant="subtitle1" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginRight: 1, marginTop: 1 }} gutterBottom>รอบการวางบิล</Typography>
                                     <TextField size="small" fullWidth value={bill} onChange={(e) => setBill(e.target.value)} />
                                 </Grid>
-                                {/* <Grid item md={6} display="flex" justifyContent="left" alignItems="center">
-                                    <Typography variant="subtitle1" fontWeight="bold" marginRight={1}>สถานะตั๋ว :</Typography>
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={ticketChecked1 === false ? true : false}
-                                                onChange={() => setTicketChecked1(!ticketChecked1)}
-                                                size="small"
-                                            />
-                                        }
-                                        label="ตั๋ว"
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={ticketChecked2 === false ? true : false}
-                                                onChange={() => setTicketChecked2(!ticketChecked2)}
-                                                size="small"
-                                            />
-                                        }
-                                        label="ผู้รับ"
-                                    />
-                                </Grid> */}
                                 <Grid item md={12} xs={12} display="flex" justifyContent="left" alignItems="center">
                                     <Typography variant="subtitle1" fontWeight="bold" marginRight={1}>ประเภทรถ :</Typography>
                                     <FormControlLabel

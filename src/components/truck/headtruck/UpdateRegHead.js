@@ -102,8 +102,6 @@ const UpdateRegHead = (props) => {
       : "";
   });
 
-  console.log("regHead :", `${truck.id}:${regHead}`);
-
   const [statusTruck, setStatusTruck] = React.useState(truck.Status);
   const [weight, setWeight] = React.useState(truck.Weight);
   const [insurance, setInsurance] = React.useState(truck.Insurance);
@@ -113,7 +111,6 @@ const UpdateRegHead = (props) => {
   const [vehExpirationDate, setVehExpirationDate] = React.useState(
     truck.VehExpirationDate,
   );
-  console.log("regTail :", regTail);
 
   let initialFile = "ไม่แนบไฟล์";
   let initialFileType = 1;
@@ -132,9 +129,6 @@ const UpdateRegHead = (props) => {
 
   const [file, setFile] = useState(initialFile);
   const [fileType, setFileType] = useState(initialFileType);
-
-  console.log("show truck", truck.Driver - 1);
-  console.log("show Driver : ", driver);
 
   const handleCancle = () => {
     setCompanies(truck.Company);
@@ -160,9 +154,8 @@ const UpdateRegHead = (props) => {
   const handleUpdate = async () => {
     if (!file) return alert("กรุณาเลือกไฟล์ก่อน");
 
-    let img = "ไม่แนบไฟล์"; // ตั้งค่าเริ่มต้นไว้เลย
+    let img = "ไม่แนบไฟล์";
 
-    // ✅ ตรวจสอบก่อนว่า file เป็น "ไม่แนบไฟล์" หรือไม่
     if (file !== "ไม่แนบไฟล์") {
       const formData = new FormData();
       formData.append("pic", file);
@@ -257,19 +250,16 @@ const UpdateRegHead = (props) => {
     }
   };
 
-  console.log("registrationTail :", registrationTail);
-
   return (
     <React.Fragment>
-      {/* <IconButton size="small" sx={{ marginTop: -0.5, marginRight: 1 }} onClick={() => setOpen(truck.id)}><InfoIcon color="info" fontSize="12px" /></IconButton> */}
       <Dialog
-        open={open && type === "รายละเอียด" ? true : false} // convert เป็น boolean ให้แน่นอน
+        open={open && type === "รายละเอียด" ? true : false}
         keepMounted
-        onClose={onClose} // ใช้ตรง ๆ
+        onClose={onClose}
         sx={{
           "& .MuiDialog-paper": {
-            width: "800px", // กำหนดความกว้างแบบ Fixed
-            maxWidth: "none", // ปิดการปรับอัตโนมัติ
+            width: "800px",
+            maxWidth: "none",
           },
         }}
       >
@@ -407,7 +397,7 @@ const UpdateRegHead = (props) => {
                         PaperProps: {
                           sx: {
                             "& .MuiMenuItem-root": {
-                              fontSize: "14px", // ขนาดตัวอักษรในรายการเมนู
+                              fontSize: "14px",
                             },
                           },
                         },
@@ -452,22 +442,6 @@ const UpdateRegHead = (props) => {
                     disabled
                   />
                 ) : (
-                  // <FormControl variant="standard" fullWidth>
-                  //     <Select
-                  //         labelId="demo-simple-select-standard-label"
-                  //         id="demo-simple-select-standard"
-                  //         value={companies}
-                  //         onChange={(e) => setCompanies(e.target.value)}
-                  //     >
-                  //         <MenuItem value={companies}>{companies.split(":")[1]}</MenuItem>
-                  //         {
-                  //             dataCompany.map((truck) => (
-                  //                 (truck.id !== 1 && truck.id !== Number(companies.split(":")[0])) &&
-                  //                 <MenuItem value={`${truck.id}:${truck.Name}`}>{truck.Name}</MenuItem>
-                  //             ))
-                  //         }
-                  //     </Select>
-                  // </FormControl>
                   <FormControl
                     variant="standard"
                     fullWidth
@@ -594,7 +568,6 @@ const UpdateRegHead = (props) => {
               </Grid>
               <Grid item xs={4}>
                 <Stack direction="row" spacing={2}>
-                  {/* มี */}
                   <FormControlLabel
                     control={
                       <Checkbox
@@ -606,7 +579,6 @@ const UpdateRegHead = (props) => {
                     label="มี"
                   />
 
-                  {/* ไม่มี */}
                   <FormControlLabel
                     control={
                       <Checkbox
@@ -658,14 +630,6 @@ const UpdateRegHead = (props) => {
                       update ? (
                         <>
                           <Box textAlign="center">
-                            {/* <TextField
-                                                                        size="small"
-                                                                        type="text"
-                                                                        fullWidth
-                                                                        value={file.name}
-                                                                        sx={{ marginRight: 2 }}
-                                                                    /> */}
-
                             <Box
                               display="flex"
                               alignItems="center"
@@ -683,12 +647,10 @@ const UpdateRegHead = (props) => {
                             </Box>
                             <Box textAlign="center">
                               {file instanceof File ? (
-                                // ✅ กรณีเป็น File object
                                 <Typography variant="subtitle1" gutterBottom>
                                   {file.name}
                                 </Typography>
-                              ) : // ✅ กรณีเป็น path (string)
-                              file === "ไม่แนบไฟล์" ? null : (
+                              ) : file === "ไม่แนบไฟล์" ? null : (
                                 <Typography
                                   variant="subtitle2"
                                   gutterBottom
@@ -762,7 +724,6 @@ const UpdateRegHead = (props) => {
                                     }}
                                   />
                                 </Button>
-                                {/* <Chip label="หรือ" size="small" sx={{ marginLeft: 3, marginRight: 3 }} /> */}
                                 <Typography
                                   variant="subtitle1"
                                   fontWeight="bold"
@@ -878,14 +839,6 @@ const UpdateRegHead = (props) => {
                               </Box>
                             ) : (
                               <Box textAlign="center">
-                                {/* <TextField
-                                                                        size="small"
-                                                                        type="text"
-                                                                        fullWidth
-                                                                        value={file.name}
-                                                                        sx={{ marginRight: 2 }}
-                                                                    /> */}
-
                                 <Box
                                   display="flex"
                                   alignItems="center"
@@ -912,22 +865,6 @@ const UpdateRegHead = (props) => {
                                 </Box>
                               </Box>
                             )
-                            // <Box sx={{
-                            //     display: "flex",
-                            //     alignItems: "center",
-                            //     justifyContent: "space-between", // ช่วยแยกซ้ายขวา
-                            //     paddingLeft: 12,
-                            // }}>
-                            //     <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                            //         File : {file.name}
-                            //     </Typography>
-                            //     {/* <IconButton color="error" onClick={() => { setFile(null); setFileType(null); }}>
-                            //         <DeleteForeverIcon />
-                            //     </IconButton> */}
-                            //     <Button variant="outlined" color="error" size="small" onClick={() => { setFile(null); setFileType(null); }}>
-                            //         ลบไฟล์
-                            //     </Button>
-                            // </Box>
                           }
                         </React.Fragment>
                       )
@@ -963,7 +900,6 @@ const UpdateRegHead = (props) => {
         >
           {update ? (
             <Box marginBottom={2} textAlign="center">
-              {/* <Button variant="contained" color="error" onClick={handleDelete} sx={{ marginRight: 2 }}>ลบทะเบียนรถ</Button> */}
               <Button
                 variant="contained"
                 color="warning"
@@ -991,8 +927,6 @@ const UpdateRegHead = (props) => {
               </Button>
             </Box>
           )}
-          {/* <Button onClick={onClose} variant="contained" color="success">บันทึก</Button>
-                    <Button onClick={onClose} variant="contained" color="error">ยกเลิก</Button> */}
         </DialogActions>
       </Dialog>
     </React.Fragment>

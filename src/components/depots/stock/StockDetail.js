@@ -54,21 +54,18 @@ const StockDetail = (props) => {
     const [volumes, addVolumes] = React.useState(0);
     const [productnanme, addProductname] = React.useState("");
 
-    // console.log("editStates before useEffect: ", editStates);
-
     React.useEffect(() => {
         if (stock) {
             setName(stock.Name || "");
             setVolume(stock.Volume || 0);
             setEditStates(stock.Products || {});
         }
-    }, [stock]); // ทุกครั้งที่ props stock เปลี่ยน จะอัปเดต state
+    }, [stock]);
 
-    // ✅ toggle เปิด/ปิดโหมดแก้ไขตาม id
     const handleEditToggle = (product, isEditing) => {
         setEditStates((prev) => ({
             ...prev,
-            [product.id]: { ...prev[product.id] }, // เก็บ object เดิม
+            [product.id]: { ...prev[product.id] },
             isEditingId: isEditing ? product.id : null, // id ที่กำลังแก้
         }));
     };
@@ -83,14 +80,10 @@ const StockDetail = (props) => {
         }));
     };
 
-    // console.log("editStates : ", editStates);
-
     const formatNumber = (value) =>
         value === 0 || value === '0'
             ? '0'
             : new Intl.NumberFormat("en-US").format(value);
-
-    // console.log("stock : ", stock);
 
     // Products is stored as a JSONB array indexed by each row's id (matches
     // the shape already in the DB, imported from Firebase's auto-array
@@ -111,7 +104,6 @@ const StockDetail = (props) => {
             Object.entries(editStates).filter(([key, value]) => key !== "isEditingId")
         );
 
-        // 2️⃣ คำนวณผลรวม Capacity
         const totalVolume = Object.values(productsToSave)
             .filter(item => item && item.Capacity)
             .reduce((sum, item) => sum + Number(item.Capacity), 0);
@@ -167,7 +159,6 @@ const StockDetail = (props) => {
             ShowSuccess("เพิ่มข้อมูลสำเร็จ");
             refetchGasStationData?.();
             setShow(false);
-            // รีเซ็ตฟิลด์หลังบันทึก
             addProductname("");
             addVolumes(0);
         } catch (error) {
@@ -224,12 +215,11 @@ const StockDetail = (props) => {
                             <Typography variant="subtitle1" fontWeight="bold" gutterBottom>ปริมาณน้ำหนักรวม</Typography>
                             <Typography variant="h4" fontWeight="bold" gutterBottom>{formatNumber(volume)}</Typography>
                         </Box>
-                        {/* <TextField fullWidth variant="standard" value={update ? formatNumber(volume) : volume} disabled={update ? true : false} onChange={(e) => setVolume(e.target.value)} /> */}
                     </Grid>
                     <Grid item
                         xs={12}
-                        md={9} // เต็มความกว้างในหน้าจอเล็ก
-                        lg={10}  // 1/3 ในหน้าจอกว้าง
+                        md={9}
+                        lg={10}
                         display="flex"
                         flexDirection="column"
                         sx={{ p: 3 }}
@@ -281,9 +271,6 @@ const StockDetail = (props) => {
                                                             p: 0.5,
                                                         }}
                                                     >
-                                                        {/* <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ marginTop: 1 }}>
-                                                            {product.ProductName}
-                                                        </Typography> */}
                                                         <Paper sx={{ width: "100%", ml: 0.5, mr: 0.5, borderRadius: 2 }}>
                                                             <TextField
                                                                 size="small"
@@ -410,9 +397,6 @@ const StockDetail = (props) => {
                                                             p: 0.5,
                                                         }}
                                                     >
-                                                        {/* <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ marginTop: 1 }}>
-                                                            {product.ProductName}
-                                                        </Typography> */}
                                                         <Paper sx={{ width: "100%", ml: 0.5, mr: 0.5, borderRadius: 2 }}>
                                                             <TextField
                                                                 size="small"

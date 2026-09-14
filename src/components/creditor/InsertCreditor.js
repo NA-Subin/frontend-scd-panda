@@ -75,8 +75,6 @@ const InsertCreditor = (props) => {
     const [position, setPosition] = React.useState("");
     const [phone, setPhone] = React.useState("");
 
-    console.log("creditor : ", creditor);
-
     const handlePost = async () => {
         try {
             await apiPost("/api/employee_creditors", {
@@ -182,20 +180,6 @@ const InsertCreditor = (props) => {
                             <Paper
                                 component="form">
                                     <TextField size="small" fullWidth value={user} onChange={(e) => setUser(e.target.value)} />
-                                {/* <Select
-                                    id="demo-simple-select"
-                                    value={creditorType}
-                                    size="small"
-                                    sx={{ textAlign: "left" }}
-                                    onChange={(e) => setCreditorType(e.target.value)}
-                                    fullWidth
-                                >
-                                    <MenuItem value={0}>
-                                        กรุณาเลือกประเภทเจ้าหนี้
-                                    </MenuItem>
-                                    <MenuItem value={"เจ้าหนี้ขนส่ง"}>เจ้าหนี้ขนส่ง</MenuItem>
-                                    <MenuItem value={"เจ้าหนี้น้ำมัน"}>เจ้าหนี้น้ำมัน</MenuItem>
-                                </Select> */}
                             </Paper>
                         </Grid>
                         <Grid item sm={2.5} xs={3}>

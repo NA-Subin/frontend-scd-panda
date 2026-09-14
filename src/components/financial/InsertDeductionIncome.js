@@ -82,9 +82,6 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
         }
     };
 
-    console.log("Deduction Rows : ", deductRows);
-    console.log("Income Rows : ", incomeRows);
-
     const handleRemoveRow = (index, isIncome) => {
         if (isIncome) {
             const updated = [...incomeRows];
@@ -97,35 +94,15 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
         }
     };
     const [period, setPeriod] = React.useState(periodData || 1);
-    const [selectedDate, setSelectedDate] = useState(year || dayjs()); // ✅ เป็น dayjs object
+    const [selectedDate, setSelectedDate] = useState(year || dayjs());
 
     const handleDateChangeDate = (newValue) => {
         if (newValue) {
-            setSelectedDate(newValue); // ✅ newValue เป็น dayjs อยู่แล้ว
+            setSelectedDate(newValue);
         }
     };
     const { drivers, deductibleincome, reghead, small } = useBasicData();
     const { reportFinancial, refetch: refetchTripData } = useTripData();
-
-    //const reportTypeDetail = Object.values(reportType);
-    // const sortByDriver = (a, b) => {
-    //     const driverA = a?.Driver?.includes(":")
-    //         ? a.DriverName
-    //         : a?.Driver || "";
-    //     const driverB = b?.Driver?.includes(":")
-    //         ? b.DriverName
-    //         : b?.Driver || "";
-
-    //     return driverA.localeCompare(driverB, "th");
-    // };
-
-    // const regheadSorted = Object.values(reghead)
-    //     .map(item => ({ ...item, vehicleType: "รถใหญ่" }))
-    //     .sort(sortByDriver);
-
-    // const smallSorted = Object.values(small)
-    //     .map(item => ({ ...item, vehicleType: "รถเล็ก" }))
-    //     .sort(sortByDriver);
 
     const sortByDriver = (a, b) => {
         const driverA = a?.Name
@@ -133,8 +110,6 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
 
         return driverA.localeCompare(driverB, "th");
     };
-
-    console.log("Driver : ", Object.values(drivers));
 
     const regheadSorted = Object.values(drivers)
         .filter((item) => item.TruckType === "รถใหญ่")
@@ -173,26 +148,21 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
     const [money, setMoney] = useState(0);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-    // ใช้ useEffect เพื่อรับฟังการเปลี่ยนแปลงของขนาดหน้าจอ
     useEffect(() => {
         const handleResize = () => {
-            setWindowWidth(window.innerWidth); // อัพเดตค่าขนาดหน้าจอ
+            setWindowWidth(window.innerWidth);
         };
 
-        window.addEventListener('resize', handleResize); // เพิ่ม event listener
+        window.addEventListener('resize', handleResize);
 
-        // ลบ event listener เมื่อ component ถูกทำลาย
         return () => {
             window.removeEventListener('resize', handleResize);
         };
     }, []);
 
     const handleReceiveData = (data) => {
-        console.log('Data from child:', data);
         setResult(data);
     };
-
-    console.log("Type : ", type);
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -217,8 +187,6 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
     };
-
-    console.log("Driver vehicleType : ", driver.vehicleType)
 
     const validateBeforeSave = (rows) => {
         let hasError = false;
@@ -302,8 +270,6 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
             };
         });
 
-        console.log("updates : ", updates);
-
         try {
             await Promise.all(
                 updates.map((data) => apiPost("/api/report_financial", data))
@@ -312,7 +278,6 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
             ShowSuccess("เพิ่มข้อมูลสำเร็จ");
             refetchTripData?.();
 
-            // reset state
             setDriver("");
             setType("");
             setNote("");
@@ -327,10 +292,6 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
             console.error("Error pushing data:", error);
         }
     };
-
-
-    console.log("Driver Detail : ", driverDetail);
-    console.log("Driver : ", driver);
 
     return (
         <React.Fragment>
@@ -425,7 +386,7 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
                                         fullWidth
                                         type="number"
                                         value={period}
-                                        onChange={(e) => setPeriod(Number(e.target.value))} // ✅ แปลงเป็น number
+                                        onChange={(e) => setPeriod(Number(e.target.value))}
                                         size="small"
                                     />
                                 </Paper>
@@ -435,7 +396,7 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
                             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: -2 }}>
                                 {
                                     periods
-                                        .filter((p) => p.no === period) // ✅ ใช้ filter
+                                        .filter((p) => p.no === period)
                                         .map((p) => (
                                             <Typography key={p.id} variant="subtitle1" fontWeight="bold" color="gray" sx={{ marginTop: 0.5, marginLeft: 1, }}>
                                                 {`( วันที่ ${formatThaiFull(dayjs(p.start, "DD/MM/YYYY"))} - วันที่ ${formatThaiFull(dayjs(p.end, "DD/MM/YYYY"))} )`}
@@ -481,12 +442,12 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
 
                                             return `${driverD} ${regHead}${regTail}`.trim();
                                         }}
-                                        value={driver} // registrationTruck เป็น object แล้ว
+                                        value={driver}
                                         onChange={(event, newValue) => {
                                             if (newValue) {
-                                                setDriver(newValue); // เก็บทั้ง object
+                                                setDriver(newValue);
                                             } else {
-                                                setDriver(null); // หรือ default object ถ้ามี
+                                                setDriver(null);
                                             }
                                         }}
                                         renderInput={(params) => (
@@ -497,10 +458,6 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
                                                 size="small"
                                                 error={errors.driver}
                                                 helperText={errors.driver ? "กรุณาเลือกพนักงานขับรถ" : ""}
-                                            //   sx={{
-                                            //     "& .MuiOutlinedInput-root": { height: "30px" },
-                                            //     "& .MuiInputBase-input": { fontSize: "16px", marginLeft: -1 },
-                                            //   }}
                                             />
                                         )}
                                         renderOption={(props, option) => {
@@ -514,7 +471,6 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
                                             } else {
                                                 regHead = "( ไม่ได้ผูกทะเบียนรถ )";
                                             }
-                                            //const type = option?.vehicleType;
 
                                             let regTail = "";
                                             if (option?.TruckType === "รถใหญ่") {
@@ -574,94 +530,6 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
                                 />
                             </FormGroup>
                         </Grid>
-                        {/* 
-                            <Grid item md={7} xs={12}>
-                            {
-                                check ?
-                                    <Box display="flex" justifyContent="center" alignItems="center">
-                                        <Typography variant="subtitle1" fontWeight="bold" textAlign="right" marginTop={1} sx={{ whiteSpace: "nowrap", marginRight: 1, marginLeft: 6.5 }} gutterBottom>รายได้</Typography>
-                                        <Paper component="form" sx={{ width: "100%" }}>
-                                            <Autocomplete
-                                                id="autocomplete-tickets"
-                                                options={deductibleincomeDetail
-                                                    .filter((row) => row.Type === "รายได้")
-                                                    .sort((a, b) => (a?.Name || "").localeCompare(b?.Name || "", "th"))
-                                                }
-                                                getOptionLabel={(option) => option?.Name || ""}
-                                                value={type} // registrationTruck เป็น object แล้ว
-                                                onChange={(event, newValue) => {
-                                                    if (newValue) {
-                                                        setType(newValue); // เก็บทั้ง object
-                                                    } else {
-                                                        setType(null); // หรือ default object ถ้ามี
-                                                    }
-                                                }}
-                                                renderInput={(params) => (
-                                                    <TextField
-                                                        {...params}
-                                                        label={!type ? "เลือกรายได้" : ""}
-                                                        variant="outlined"
-                                                        size="small"
-                                                    //   sx={{
-                                                    //     "& .MuiOutlinedInput-root": { height: "30px" },
-                                                    //     "& .MuiInputBase-input": { fontSize: "16px", marginLeft: -1 },
-                                                    //   }}
-                                                    />
-                                                )}
-                                                renderOption={(props, option) => (
-                                                    <li {...props}>
-                                                        <Typography fontSize="16px">
-                                                            {option.Name}
-                                                        </Typography>
-                                                    </li>
-                                                )}
-                                            />
-                                        </Paper>
-                                    </Box>
-                                    :
-                                    <Box display="flex" justifyContent="center" alignItems="center">
-                                        <Typography variant="subtitle1" fontWeight="bold" textAlign="right" marginTop={1} sx={{ whiteSpace: "nowrap", marginRight: 1 }} gutterBottom>รายหัก</Typography>
-                                        <Paper component="form" sx={{ width: "100%" }}>
-                                            <Autocomplete
-                                                id="autocomplete-tickets"
-                                                options={deductibleincomeDetail
-                                                    .filter((row) => row.Type === "รายหัก")
-                                                    .sort((a, b) => (a?.Name || "").localeCompare(b?.Name || "", "th"))
-                                                }
-
-                                                getOptionLabel={(option) => option?.Name || ""}
-                                                value={type} // registrationTruck เป็น object แล้ว
-                                                onChange={(event, newValue) => {
-                                                    if (newValue) {
-                                                        setType(newValue); // เก็บทั้ง object
-                                                    } else {
-                                                        setType(null); // หรือ default object ถ้ามี
-                                                    }
-                                                }}
-                                                renderInput={(params) => (
-                                                    <TextField
-                                                        {...params}
-                                                        label={!type ? "เลือกรายหัก" : ""}
-                                                        variant="outlined"
-                                                        size="small"
-                                                    //   sx={{
-                                                    //     "& .MuiOutlinedInput-root": { height: "30px" },
-                                                    //     "& .MuiInputBase-input": { fontSize: "16px", marginLeft: -1 },
-                                                    //   }}
-                                                    />
-                                                )}
-                                                renderOption={(props, option) => (
-                                                    <li {...props}>
-                                                        <Typography fontSize="16px">
-                                                            {option.Name}
-                                                        </Typography>
-                                                    </li>
-                                                )}
-                                            />
-                                        </Paper>
-                                    </Box>
-                                    </Grid>
-                            } */}
                         {check
                             ? incomeRows.map((row, index) => (
                                 <React.Fragment key={index}>
@@ -863,27 +731,6 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
                                     )}
                                 </React.Fragment>
                             ))}
-                        {/* <Grid item md={3.5} xs={12}>
-                            <Box display="flex" justifyContent="center" alignItems="center">
-                                <Typography variant="subtitle1" fontWeight="bold" textAlign="right" marginTop={1} sx={{ whiteSpace: "nowrap", marginRight: 1, marginLeft: { md: 0, xs: 6 } }} gutterBottom>จำนวน</Typography>
-                                <Paper component="form" sx={{ width: "100%" }}>
-                                    <TextField size="small" fullWidth type="number"
-                                        value={money}
-                                        onChange={(e) => setMoney(e.target.value)}
-                                        onFocus={(e) => {
-                                            if (e.target.value === "0") {
-                                                setMoney(""); // ล้างค่า 0 เมื่อเริ่มพิมพ์
-                                            }
-                                        }}
-                                        onBlur={(e) => {
-                                            if (e.target.value === "") {
-                                                setMoney(0); // ถ้าค่าว่างให้เป็น 0
-                                            }
-                                        }}
-                                    />
-                                </Paper>
-                            </Box>
-                        </Grid> */}
                         <Grid item md={(deductRows.length > 1 || incomeRows.length > 1) ? 12 : 1} xs={1}>
                             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "right", marginTop: (deductRows.length > 1 || incomeRows.length > 1) && -2 }}>
                                 {

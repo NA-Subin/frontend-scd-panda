@@ -102,9 +102,6 @@ const UpdateFinancial = (props) => {
     const [file, setFile] = useState(initialFile);
     const [fileType, setFileType] = useState(initialFileType);
 
-    // const [file, setFile] = useState(files);
-    // const [fileType, setFileType] = useState(fileTypes);
-
     const [edit, setEdit] = useState(false);
 
     const [errors, setErrors] = useState({
@@ -125,22 +122,12 @@ const UpdateFinancial = (props) => {
         }
     });
 
-    console.log("P : ", price);
-    console.log("V : ", vat);
-    console.log("T : ", total);
-    console.log("M : ", manualTotal);
-
-    console.log("RP : ", resultPrice);
-    console.log("RV : ", resultVat);
-    console.log("RT : ", resultTotal);
-
     const parseNumber = (val) => {
         if (typeof val === "string") {
             return parseFloat(val.replace(/,/g, "")) || 0;
         }
         return Number(val) || 0;
     };
-
 
     // คำนวณ total เมื่อ price หรือ vat เปลี่ยน และ total ไม่ได้แก้เอง
     useEffect(() => {
@@ -161,22 +148,19 @@ const UpdateFinancial = (props) => {
     const [type, setType] = useState(row.TruckType === "หัวรถใหญ่" ? "หัวรถ" : row.TruckType === "หางรถใหญ่" ? "หางรถ" : "รถเล็ก");
     const [group, setGroup] = useState(row.Group !== "กลุ่ม" ? "เดี่ยว" : "กลุ่ม");
 
-    // ใช้ useEffect เพื่อรับฟังการเปลี่ยนแปลงของขนาดหน้าจอ
     useEffect(() => {
         const handleResize = () => {
-            setWindowWidth(window.innerWidth); // อัพเดตค่าขนาดหน้าจอ
+            setWindowWidth(window.innerWidth);
         };
 
-        window.addEventListener('resize', handleResize); // เพิ่ม event listener
+        window.addEventListener('resize', handleResize);
 
-        // ลบ event listener เมื่อ component ถูกทำลาย
         return () => {
             window.removeEventListener('resize', handleResize);
         };
     }, []);
 
     const handleReceiveData = (data) => {
-        console.log('Data from child:', data);
         setResult(data);
     };
 
@@ -190,28 +174,22 @@ const UpdateFinancial = (props) => {
         return registartion;
     };
 
-    console.log("Show Registration : ", getRegistration());
-    console.log("company : ", company);
-
     const truckTypeMap = {
         "หัวรถ": "หัวรถใหญ่",
         "หางรถ": "หางรถใหญ่",
         "รถเล็ก": "รถเล็ก"
     };
 
-    console.log("Date Invoice : ", dayjs(selectedDateInvoice));
-    console.log("Date Transfer : ", dayjs(selectedDateTransfer));
-
     const handleDateChangeDateInvoice = (newValue) => {
         if (newValue) {
-            const formattedDate = dayjs(newValue); // แปลงวันที่เป็นฟอร์แมต
+            const formattedDate = dayjs(newValue);
             setSelectedDateInvoice(formattedDate);
         }
     };
 
     const handleDateChangeDateTransfer = (newValue) => {
         if (newValue) {
-            const formattedDate = dayjs(newValue); // แปลงวันที่เป็นฟอร์แมต
+            const formattedDate = dayjs(newValue);
             setSelectedDateTransfer(formattedDate);
         }
     };
@@ -252,9 +230,6 @@ const UpdateFinancial = (props) => {
         getRegistration().find((item) =>
             item.TruckType === row.TruckType && item.uuid === row.Registration)) : null
     );
-
-    console.log("List : ", list);
-    console.log("Selected Value : ", selectedValue);
 
     const handleAdd = () => {
         if (!registrationTruck) return;
@@ -309,37 +284,9 @@ const UpdateFinancial = (props) => {
                     ShowError("ลบข้อมูลไม่สำเร็จ");
                 }
             },
-            () => {
-                console.log(`ยกเลิกลบทะเบียนรถ ${item.registration}`);
-            }
+            () => { }
         );
     };
-
-    // useEffect(() => {
-    //     if (manualTotal) {
-    //         if (row.Group === "กลุ่ม") {
-    //             const priceNum = parseNumber(price);
-    //             const vatNum = parseNumber(vat);
-    //             const totalNum = parseNumber(total);
-    //             setResultPrice((priceNum / list.length).toLocaleString("en-US", {
-    //                 minimumFractionDigits: 2,
-    //                 maximumFractionDigits: 2,
-    //             }))
-    //             setResultVat((vatNum / list.length).toLocaleString("en-US", {
-    //                 minimumFractionDigits: 2,
-    //                 maximumFractionDigits: 2,
-    //             }))
-    //             setResultTotal((totalNum / list.length).toLocaleString("en-US", {
-    //                 minimumFractionDigits: 2,
-    //                 maximumFractionDigits: 2,
-    //             }))
-    //         } else {
-    //             setResultPrice(price);
-    //             setResultVat(vat);
-    //             setResultTotal(total);
-    //         }
-    //     }
-    // }, [price, vat, list]);  // 👈 เพิ่ม list เข้าไป
 
     const handleCloseTab = () => {
         if (edit) {
@@ -375,8 +322,6 @@ const UpdateFinancial = (props) => {
         setGroup(row.Group !== "กลุ่ม" ? "เดี่ยว" : "กลุ่ม");
         setType(row.TruckType === "หัวรถใหญ่" ? "หัวรถ" : row.TruckType === "หางรถใหญ่" ? "หางรถ" : "รถเล็ก");
     };
-
-    console.log("Banks : ", bank);
 
     const validateBeforeSave = () => {
         const newErrors = {
@@ -452,12 +397,6 @@ const UpdateFinancial = (props) => {
             hasError = true;
         }
 
-        // 🔴 ถ้าต้อง “บังคับแนบไฟล์”
-        // if (file === "ไม่แนบไฟล์") {
-        //   newErrors.file = true;
-        //   hasError = true;
-        // }
-
         setErrors(newErrors);
         return !hasError;
     };
@@ -514,8 +453,6 @@ const UpdateFinancial = (props) => {
             },
         }));
 
-        console.log("payloads : ", payloads);
-
         try {
             await Promise.all(
                 payloads.map(({ item, data }) => {
@@ -553,11 +490,6 @@ const UpdateFinancial = (props) => {
             console.error("Error pushing data:", error);
         }
     };
-
-    console.log("registrationTruck: ", registrationTruck);
-    console.log("Group : ", group);
-    console.log("List : ", list);
-    console.log("File : ", file);
 
     return (
         <React.Fragment>
@@ -622,7 +554,7 @@ const UpdateFinancial = (props) => {
                                         <DatePicker
                                             openTo="day"
                                             views={["year", "month", "day"]}
-                                            value={dayjs(selectedDateInvoice, "DD/MM/YYYY")} // แปลงสตริงกลับเป็น dayjs object
+                                            value={dayjs(selectedDateInvoice, "DD/MM/YYYY")}
                                             format="DD/MM/YYYY"
                                             onChange={handleDateChangeDateInvoice}
                                             sx={{ marginRight: 2, }}
@@ -631,8 +563,8 @@ const UpdateFinancial = (props) => {
                                                     size: "small",
                                                     fullWidth: true,
                                                     inputProps: {
-                                                        value: formatThaiSlash(selectedDateInvoice), // ✅ แสดงวันแบบ "1 กรกฎาคม พ.ศ.2568"
-                                                        readOnly: true, // ✅ ปิดไม่ให้พิมพ์เอง เพราะใช้ format แบบ custom
+                                                        value: formatThaiSlash(selectedDateInvoice),
+                                                        readOnly: true,
                                                     },
                                                 },
                                             }}
@@ -651,7 +583,7 @@ const UpdateFinancial = (props) => {
                                         <DatePicker
                                             openTo="day"
                                             views={["year", "month", "day"]}
-                                            value={dayjs(selectedDateTransfer, "DD/MM/YYYY")} // แปลงสตริงกลับเป็น dayjs object
+                                            value={dayjs(selectedDateTransfer, "DD/MM/YYYY")}
                                             format="DD/MM/YYYY"
                                             onChange={handleDateChangeDateTransfer}
                                             sx={{ marginRight: 2, }}
@@ -660,8 +592,8 @@ const UpdateFinancial = (props) => {
                                                     size: "small",
                                                     fullWidth: true,
                                                     inputProps: {
-                                                        value: formatThaiSlash(selectedDateTransfer), // ✅ แสดงวันแบบ "1 กรกฎาคม พ.ศ.2568"
-                                                        readOnly: true, // ✅ ปิดไม่ให้พิมพ์เอง เพราะใช้ format แบบ custom
+                                                        value: formatThaiSlash(selectedDateTransfer),
+                                                        readOnly: true,
                                                     },
                                                 },
                                             }}
@@ -675,25 +607,22 @@ const UpdateFinancial = (props) => {
                             <Box display="flex" justifyContent="center" alignItems="center">
                                 <Typography variant="subtitle1" fontWeight="bold" textAlign="right" marginTop={1}
                                     sx={{ whiteSpace: "nowrap", marginRight: 1, marginLeft: 3.5, color: !edit ? "gray" : "black" }} gutterBottom>ชื่อบริษัท</Typography>
-                                {/* <Paper component="form" sx={{ width: "100%" }}>
-                                    <TextField size="small" fullWidth value={company} onChange={(e) => setCompany(e.target.value)} />
-                                </Paper> */}
                                 <Paper component="form" sx={{ width: "100%" }}>
                                     <Autocomplete
                                         id="autocomplete-tickets"
                                         options={companypaymentDetail.filter((item) => item.Status === "อยู่ในระบบ").sort((a, b) => (a?.Name || "").localeCompare(b?.Name || "", "th"))}
                                         getOptionLabel={(option) => option?.Name || ""}
-                                        value={company} // registrationTruck เป็น object แล้ว
+                                        value={company}
                                         onChange={(event, newValue) => {
                                             if (newValue) {
-                                                setCompany(newValue); // เก็บทั้ง object
+                                                setCompany(newValue);
                                             } else {
-                                                setCompany(null); // หรือ default object ถ้ามี
+                                                setCompany(null);
                                             }
                                         }}
                                         ListboxProps={{
                                             sx: {
-                                                maxHeight: 200, // ความสูงสูงสุดของ list
+                                                maxHeight: 200,
                                                 overflow: 'auto',
                                             }
                                         }}
@@ -705,10 +634,6 @@ const UpdateFinancial = (props) => {
                                                 size="small"
                                                 error={errors.company}
                                                 helperText={errors.company ? "กรุณาเลือกบริษัท" : ""}
-                                            //   sx={{
-                                            //     "& .MuiOutlinedInput-root": { height: "30px" },
-                                            //     "& .MuiInputBase-input": { fontSize: "16px", marginLeft: -1 },
-                                            //   }}
                                             />
                                         )}
                                         renderOption={(props, option) => (
@@ -749,7 +674,7 @@ const UpdateFinancial = (props) => {
                                             (option) => option?.TruckType === truckTypeMap[type]
                                         )}
                                         getOptionLabel={(option) => { return `${option?.Registration} (${option?.TruckType})`; }}
-                                        value={selectedValue}  // แสดงค่าที่เลือกปัจจุบัน
+                                        value={selectedValue}
                                         onChange={(event, newValue) => {
                                             if (newValue) {
                                                 setSelectedValue(newValue);
@@ -778,28 +703,16 @@ const UpdateFinancial = (props) => {
                                                     };
 
                                                     if (group === "เดี่ยว") {
-                                                        return [newItem]; // ให้มีแค่ 1 รายการ
+                                                        return [newItem];
                                                     } else {
                                                         setResultPrice(price / (prev.length + 1));
                                                         setResultVat(vat / (prev.length + 1));
                                                         setResultTotal((parseNumber(price) + parseNumber(vat)) / (prev.length + 1));
-                                                        return [...prev, newItem]; // เพิ่มได้หลายรายการ
+                                                        return [...prev, newItem];
                                                     }
                                                 });
-                                                // setResultPrice((Number(price) / list.length).toLocaleString("en-US", {
-                                                //     minimumFractionDigits: 2,
-                                                //     maximumFractionDigits: 2,
-                                                // }))
-                                                // setResultVat((Number(vat) / list.length).toLocaleString("en-US", {
-                                                //     minimumFractionDigits: 2,
-                                                //     maximumFractionDigits: 2,
-                                                // }))
-                                                // setResultTotal(((Number(price) + Number(vat)) / list.length).toLocaleString("en-US", {
-                                                //     minimumFractionDigits: 2,
-                                                //     maximumFractionDigits: 2,
-                                                // }))
                                             } else {
-                                                setSelectedValue(null);  // เคลียร์ถ้าเลือกลบค่า
+                                                setSelectedValue(null);
                                             }
                                         }}
                                         ListboxProps={{
@@ -926,20 +839,20 @@ const UpdateFinancial = (props) => {
                                 <Paper component="form" sx={{ width: "100%" }}>
                                     <Autocomplete
                                         id="autocomplete-tickets"
-                                        options={expenseitem.filter((item) => item.Status === "อยู่ในระบบ") // ✅ filter ตาม Status
+                                        options={expenseitem.filter((item) => item.Status === "อยู่ในระบบ")
                                             .sort((a, b) => a.Name.localeCompare(b.Name))}
                                         getOptionLabel={(option) => option?.Name || ""}
-                                        value={bank} // registrationTruck เป็น object แล้ว
+                                        value={bank}
                                         onChange={(event, newValue) => {
                                             if (newValue) {
-                                                setBank(newValue); // เก็บทั้ง object
+                                                setBank(newValue);
                                             } else {
-                                                setBank(null); // หรือ default object ถ้ามี
+                                                setBank(null);
                                             }
                                         }}
                                         ListboxProps={{
                                             sx: {
-                                                maxHeight: 200, // ความสูงสูงสุดของ list
+                                                maxHeight: 200,
                                                 overflow: 'auto',
                                             }
                                         }}
@@ -951,10 +864,6 @@ const UpdateFinancial = (props) => {
                                                 size="small"
                                                 error={errors.bank}
                                                 helperText={errors.bank ? "กรุณาเลือกชื่อบัญชี" : ""}
-                                            //   sx={{
-                                            //     "& .MuiOutlinedInput-root": { height: "30px" },
-                                            //     "& .MuiInputBase-input": { fontSize: "16px", marginLeft: -1 },
-                                            //   }}
                                             />
                                         )}
                                         renderOption={(props, option) => (
@@ -968,7 +877,6 @@ const UpdateFinancial = (props) => {
                                     />
 
                                 </Paper>
-                                {/* <TextField size="small" fullWidth value={bank} onChange={(e) => setBank(e.target.value)} />*/}
                             </Box>
                         </Grid>
                         {
@@ -979,25 +887,12 @@ const UpdateFinancial = (props) => {
                                         <Typography variant="subtitle1" fontWeight="bold" textAlign="right" marginTop={1}
                                             sx={{ whiteSpace: "nowrap", marginRight: 1, marginLeft: 0.5, color: !edit ? "gray" : "black" }} gutterBottom>ยอดก่อน Vat</Typography>
                                         <Paper component="form" sx={{ width: "100%" }}>
-                                            {/* <TextField
-                                                size="small"
-                                                type="number"
-                                                fullWidth
-                                                value={price}
-                                                onChange={(e) => {
-                                                    setPrice(e.target.value);
-                                                    setManualTotal(false); // price เปลี่ยน → total คำนวณอัตโนมัติ
-                                                }}
-                                                onFocus={(e) => e.target.value === "0" && setPrice("")}
-                                                onBlur={(e) => e.target.value === "" && setPrice(0)}
-                                            /> */}
                                             <TextField
                                                 size="small"
                                                 type="text"
                                                 fullWidth
                                                 value={price}
                                                 onChange={(e) => {
-                                                    // อนุญาตให้พิมพ์ว่างหรือทศนิยมได้
                                                     const raw = e.target.value.replace(/,/g, "");
                                                     if (raw === "" || /^-?\d*\.?\d*$/.test(raw)) {
                                                         setPrice(raw);
@@ -1021,7 +916,7 @@ const UpdateFinancial = (props) => {
                                                     if (e.target.value === "0" || e.target.value === "0.00") {
                                                         setPrice("");
                                                     } else {
-                                                        setPrice(price.replace(/,/g, "")); // ลบ comma ออกตอนแก้ไข
+                                                        setPrice(price.replace(/,/g, ""));
                                                     }
                                                 }}
                                                 error={errors.price}
@@ -1037,25 +932,12 @@ const UpdateFinancial = (props) => {
                                         <Typography variant="subtitle1" fontWeight="bold" textAlign="right" marginTop={1}
                                             sx={{ whiteSpace: "nowrap", marginRight: 1, color: !edit ? "gray" : "black" }} gutterBottom>ยอด Vat</Typography>
                                         <Paper component="form" sx={{ width: "100%" }}>
-                                            {/* <TextField
-                                                size="small"
-                                                type="number"
-                                                fullWidth
-                                                value={vat}
-                                                onChange={(e) => {
-                                                    setVat(e.target.value);
-                                                    setManualTotal(false); // vat เปลี่ยน → total คำนวณอัตโนมัติ
-                                                }}
-                                                onFocus={(e) => e.target.value === "0" && setVat("")}
-                                                onBlur={(e) => e.target.value === "" && setVat(0)}
-                                            /> */}
                                             <TextField
                                                 size="small"
                                                 type="text"
                                                 fullWidth
                                                 value={vat}
                                                 onChange={(e) => {
-                                                    // อนุญาตให้พิมพ์ว่างหรือทศนิยมได้
                                                     const raw = e.target.value.replace(/,/g, "");
                                                     if (raw === "" || /^-?\d*\.?\d*$/.test(raw)) {
                                                         setVat(raw);
@@ -1079,7 +961,7 @@ const UpdateFinancial = (props) => {
                                                     if (e.target.value === "0" || e.target.value === "0.00") {
                                                         setVat("");
                                                     } else {
-                                                        setVat(vat.replace(/,/g, "")); // ลบ comma ออกตอนแก้ไข
+                                                        setVat(vat.replace(/,/g, ""));
                                                     }
                                                 }}
                                                 error={errors.vat}
@@ -1101,7 +983,6 @@ const UpdateFinancial = (props) => {
                                                 fullWidth
                                                 value={total}
                                                 onChange={(e) => {
-                                                    // อนุญาตให้พิมพ์ว่างหรือทศนิยมได้
                                                     const raw = e.target.value.replace(/,/g, "");
                                                     if (raw === "" || /^-?\d*\.?\d*$/.test(raw)) {
                                                         setTotal(raw);
@@ -1125,55 +1006,18 @@ const UpdateFinancial = (props) => {
                                                     if (e.target.value === "0" || e.target.value === "0.00") {
                                                         setTotal("");
                                                     } else {
-                                                        setTotal(total.replace(/,/g, "")); // ลบ comma ออกตอนแก้ไข
+                                                        setTotal(total.replace(/,/g, ""));
                                                     }
                                                 }}
                                                 error={errors.total}
                                                 helperText={errors.total ? "กรุณากรอกยอดรวม" : ""}
                                                 disabled={!edit}
                                             />
-                                            {/* <TextField
-                                                size="small"
-                                                type="text" // ❗ ต้องใช้ text ไม่ใช่ number เพื่อให้ format 1,234.56 แสดงได้
-                                                fullWidth
-                                                value={Number(total).toLocaleString("en-US", {
-                                                    minimumFractionDigits: 2,
-                                                    maximumFractionDigits: 2,
-                                                })}
-                                                onChange={(e) => {
-                                                    // ลบ comma ออกก่อนแล้ว parse เป็น float
-                                                    const raw = e.target.value.replace(/,/g, "");
-                                                    const val = parseFloat(raw);
-                                                    setTotal(isNaN(val) ? 0 : val);
-                                                    setManualTotal(true); // ผู้ใช้แก้ total โดยตรง
-                                                }}
-                                                onFocus={(e) => {
-                                                    if (e.target.value === "0.00") setTotal("");
-                                                }}
-                                                onBlur={(e) => {
-                                                    if (e.target.value === "") setTotal(0);
-                                                }}
-                                            /> */}
                                         </Paper>
                                     </Box>
                                 </Grid>
                             </React.Fragment>
                         }
-                        {/* <Grid item md={12} xs={12}>
-                            <Box display="flex" justifyContent="center" alignItems="center">
-                                <Typography variant="subtitle1" fontWeight="bold" textAlign="right" marginTop={1} sx={{ whiteSpace: "nowrap", marginRight: 1, marginLeft: 3 }} gutterBottom>หมายเหตุ</Typography>
-                                <Paper component="form" sx={{ width: "100%" }}>
-                                    <TextField
-                                        size="small"
-                                        multiline
-                                        rows={3}
-                                        fullWidth
-                                        value={note}
-                                        onChange={(e) => setNote(e.target.value)}
-                                    />
-                                </Paper>
-                            </Box>
-                        </Grid> */}
                         {
                             (!result && group === "กลุ่ม") &&
                             <Grid item xs={12}>
@@ -1198,7 +1042,6 @@ const UpdateFinancial = (props) => {
                                             </IconButtonError>
                                         </Grid>
                                     </Grid>
-                                    {/* <Typography variant="h6" fontWeight="bold" textAlign="center" marginTop={0.5} gutterBottom>รายการทะเบียนรถ</Typography> */}
                                     <Box sx={{ p: 4 }}>
                                         <Typography variant="subtitle1" fontWeight="bold" textAlign="right" sx={{ fontSize: "12px", color: theme.palette.error.main }}>*โปรดทราบ: หากมีการลบข้อมูลทะเบียนรถ กรุณากดบันทึกข้อมูลเพื่อยืนยัน มิฉะนั้นข้อมูลการคำนวณจะผิดพลาด*</Typography>
                                         <TableContainer component={Paper} sx={{ width: "100%", height: "35vh" }}>
@@ -1254,30 +1097,12 @@ const UpdateFinancial = (props) => {
                                                                 <Typography variant="subtitle1" fontWeight="bold" textAlign="right" marginTop={1}
                                                                     sx={{ whiteSpace: "nowrap", marginRight: 1, color: !edit ? "gray" : "black" }} gutterBottom>ยอดก่อน Vat</Typography>
                                                                 <Paper component="form" sx={{ width: "100%" }}>
-                                                                    {/* <TextField size="small" type="number" fullWidth
-                                                                        value={price}
-                                                                        onChange={(e) => {
-                                                                            setPrice(e.target.value);
-                                                                            setManualTotal(false); // vat เปลี่ยน → total คำนวณอัตโนมัติ
-                                                                        }}
-                                                                        onFocus={(e) => {
-                                                                            if (e.target.value === "0") {
-                                                                                setPrice(""); // ล้างค่า 0 เมื่อเริ่มพิมพ์
-                                                                            }
-                                                                        }}
-                                                                        onBlur={(e) => {
-                                                                            if (e.target.value === "") {
-                                                                                setPrice(0); // ถ้าค่าว่างให้เป็น 0
-                                                                            }
-                                                                        }}
-                                                                    /> */}
                                                                     <TextField
                                                                         size="small"
                                                                         type="text"
                                                                         fullWidth
                                                                         value={price}
                                                                         onChange={(e) => {
-                                                                            // อนุญาตให้พิมพ์ว่างหรือทศนิยมได้
                                                                             const raw = e.target.value.replace(/,/g, "");
                                                                             if (raw === "" || /^-?\d*\.?\d*$/.test(raw)) {
                                                                                 setPrice(raw);
@@ -1285,8 +1110,6 @@ const UpdateFinancial = (props) => {
                                                                             setManualTotal(true);
 
                                                                             setList(prev => {
-                                                                                // const newList = prev.filter(i => i.id !== item.id);
-
                                                                                 const newLength = prev.length || 1; // กันหาร 0
 
                                                                                 setResultPrice(Number(raw) / newLength);
@@ -1326,30 +1149,12 @@ const UpdateFinancial = (props) => {
                                                                 <Typography variant="subtitle1" fontWeight="bold" textAlign="right" marginTop={1}
                                                                     sx={{ whiteSpace: "nowrap", marginRight: 1, marginLeft: 3.5, color: !edit ? "gray" : "black" }} gutterBottom>ยอด Vat</Typography>
                                                                 <Paper component="form" sx={{ width: "100%" }}>
-                                                                    {/* <TextField size="small" type="number" fullWidth
-                                                                        value={vat}
-                                                                        onChange={(e) => {
-                                                                            setVat(e.target.value);
-                                                                            setManualTotal(false); // vat เปลี่ยน → total คำนวณอัตโนมัติ
-                                                                        }}
-                                                                        onFocus={(e) => {
-                                                                            if (e.target.value === "0") {
-                                                                                setVat(""); // ล้างค่า 0 เมื่อเริ่มพิมพ์
-                                                                            }
-                                                                        }}
-                                                                        onBlur={(e) => {
-                                                                            if (e.target.value === "") {
-                                                                                setVat(0); // ถ้าค่าว่างให้เป็น 0
-                                                                            }
-                                                                        }}
-                                                                    /> */}
                                                                     <TextField
                                                                         size="small"
                                                                         type="text"
                                                                         fullWidth
                                                                         value={vat}
                                                                         onChange={(e) => {
-                                                                            // อนุญาตให้พิมพ์ว่างหรือทศนิยมได้
                                                                             const raw = e.target.value.replace(/,/g, "");
                                                                             if (raw === "" || /^-?\d*\.?\d*$/.test(raw)) {
                                                                                 setVat(raw);
@@ -1357,8 +1162,6 @@ const UpdateFinancial = (props) => {
                                                                             setManualTotal(true);
 
                                                                             setList(prev => {
-                                                                                // const newList = prev.filter(i => i.id !== item.id);
-
                                                                                 const newLength = prev.length || 1; // กันหาร 0
 
                                                                                 setResultPrice(Number(price) / newLength);
@@ -1398,30 +1201,12 @@ const UpdateFinancial = (props) => {
                                                                 <Typography variant="subtitle1" fontWeight="bold" textAlign="right" marginTop={1}
                                                                     sx={{ whiteSpace: "nowrap", marginRight: 1, marginLeft: 3.5, color: !edit ? "gray" : "black" }} gutterBottom>ยอดรวม</Typography>
                                                                 <Paper component="form" sx={{ width: "100%" }}>
-                                                                    {/* <TextField size="small" type="number" fullWidth
-                                                                        value={total}
-                                                                        onChange={(e) => {
-                                                                            setTotal(e.target.value);
-                                                                            setManualTotal(true); // ผู้ใช้แก้ total โดยตรง
-                                                                        }}
-                                                                        onFocus={(e) => {
-                                                                            if (e.target.value === "0") {
-                                                                                setTotal(""); // ล้างค่า 0 เมื่อเริ่มพิมพ์
-                                                                            }
-                                                                        }}
-                                                                        onBlur={(e) => {
-                                                                            if (e.target.value === "") {
-                                                                                setTotal(0); // ถ้าค่าว่างให้เป็น 0
-                                                                            }
-                                                                        }}
-                                                                    /> */}
                                                                     <TextField
                                                                         size="small"
                                                                         type="text"
                                                                         fullWidth
                                                                         value={total}
                                                                         onChange={(e) => {
-                                                                            // อนุญาตให้พิมพ์ว่างหรือทศนิยมได้
                                                                             const raw = e.target.value.replace(/,/g, "");
                                                                             if (raw === "" || /^-?\d*\.?\d*$/.test(raw)) {
                                                                                 setTotal(raw);
@@ -1479,13 +1264,6 @@ const UpdateFinancial = (props) => {
                                                                 <Typography variant="subtitle1" fontWeight="bold" textAlign="right" marginTop={1}
                                                                     sx={{ whiteSpace: "nowrap", marginRight: 1, color: !edit ? "gray" : "black" }} gutterBottom>ยอดก่อน Vat</Typography>
                                                                 <Paper component="form" sx={{ width: "100%" }}>
-                                                                    {/* <TextField
-                                                                        size="small"
-                                                                        type="number"
-                                                                        fullWidth
-                                                                        value={price / (list.length !== 0 && list.length)}
-                                                                        disabled
-                                                                    /> */}
                                                                     <TextField
                                                                         size="small"
                                                                         type="text"
@@ -1529,13 +1307,6 @@ const UpdateFinancial = (props) => {
                                                                 <Typography variant="subtitle1" fontWeight="bold" textAlign="right" marginTop={1}
                                                                     sx={{ whiteSpace: "nowrap", marginRight: 1, marginLeft: 3.5, color: !edit ? "gray" : "black" }} gutterBottom>ยอด Vat</Typography>
                                                                 <Paper component="form" sx={{ width: "100%" }}>
-                                                                    {/* <TextField
-                                                                        size="small"
-                                                                        type="number"
-                                                                        fullWidth
-                                                                        value={vat / (list.length !== 0 && list.length)}
-                                                                        disabled
-                                                                    /> */}
                                                                     <TextField
                                                                         size="small"
                                                                         type="text"
@@ -1579,13 +1350,6 @@ const UpdateFinancial = (props) => {
                                                                 <Typography variant="subtitle1" fontWeight="bold" textAlign="right" marginTop={1}
                                                                     sx={{ whiteSpace: "nowrap", marginRight: 1, marginLeft: 3.5, color: !edit ? "gray" : "black" }} gutterBottom>ยอดรวม</Typography>
                                                                 <Paper component="form" sx={{ width: "100%" }}>
-                                                                    {/* <TextField
-                                                                        size="small"
-                                                                        type="number"
-                                                                        fullWidth
-                                                                        value={(Number(price) + Number(vat)) / (list.length !== 0 && list.length)}
-                                                                        disabled
-                                                                    /> */}
                                                                     <TextField
                                                                         size="small"
                                                                         type="text"
@@ -1641,14 +1405,6 @@ const UpdateFinancial = (props) => {
                                 !edit ?
                                     (
                                         <Box textAlign="center">
-                                            {/* <TextField
-                                                                        size="small"
-                                                                        type="text"
-                                                                        fullWidth
-                                                                        value={file.name}
-                                                                        sx={{ marginRight: 2 }}
-                                                                    /> */}
-
                                             <Box display="flex" alignItems="center" justifyContent="center" >
                                                 {
                                                     file === "ไม่แนบไฟล์" ?
@@ -1722,7 +1478,6 @@ const UpdateFinancial = (props) => {
                                                                 }}
                                                             />
                                                         </Button>
-                                                        {/* <Chip label="หรือ" size="small" sx={{ marginLeft: 3, marginRight: 3 }} /> */}
                                                         <Typography variant="subtitle1" fontWeight="bold" sx={{ marginLeft: 3, marginRight: 3, marginTop: 0.5 }} gutterBottom>หรือ</Typography>
                                                         <Button
                                                             variant="contained"
@@ -1808,14 +1563,6 @@ const UpdateFinancial = (props) => {
                                                     </Box>
                                                     :
                                                     <Box textAlign="center">
-                                                        {/* <TextField
-                                                                        size="small"
-                                                                        type="text"
-                                                                        fullWidth
-                                                                        value={file.name}
-                                                                        sx={{ marginRight: 2 }}
-                                                                    /> */}
-
                                                         <Box display="flex" alignItems="center" justifyContent="center" >
                                                             <FilePreview file={file} />
                                                             <Button variant="outlined" color="error" size="small" sx={{ marginLeft: 2 }} onClick={() => { setFileType(1); setFile("ไม่แนบไฟล์"); }}>
@@ -1829,22 +1576,6 @@ const UpdateFinancial = (props) => {
                                             }
                                         </React.Fragment>
                                     )
-                                // <Box sx={{
-                                //     display: "flex",
-                                //     alignItems: "center",
-                                //     justifyContent: "space-between", // ช่วยแยกซ้ายขวา
-                                //     paddingLeft: 12,
-                                // }}>
-                                //     <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                                //         File : {file.name}
-                                //     </Typography>
-                                //     {/* <IconButton color="error" onClick={() => { setFile(null); setFileType(null); }}>
-                                //         <DeleteForeverIcon />
-                                //     </IconButton> */}
-                                //     <Button variant="outlined" color="error" size="small" onClick={() => { setFile(null); setFileType(null); }}>
-                                //         ลบไฟล์
-                                //     </Button>
-                                // </Box>
                             }
                         </Grid>
                     </Grid>

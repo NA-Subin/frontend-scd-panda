@@ -88,12 +88,11 @@ const Creditor = ({ openNavbar }) => {
     const handleResize = () => {
       let width = window.innerWidth;
       if (!openNavbar) {
-        width += 120; // ✅ เพิ่ม 200 ถ้า openNavbar = false
+        width += 120; // เพิ่ม offset เมื่อ navbar ถูกยุบ (openNavbar = false)
       }
       setWindowWidth(width);
     };
 
-    // เรียกครั้งแรกตอน mount
     handleResize();
 
     window.addEventListener('resize', handleResize);
@@ -101,7 +100,7 @@ const Creditor = ({ openNavbar }) => {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [openNavbar]); // ✅ ทำงานใหม่ทุกครั้งที่ openNavbar เปลี่ยน
+  }, [openNavbar]);
 
   const { creditors } = useBasicData();
   const creditor = Object.values(creditors || {});

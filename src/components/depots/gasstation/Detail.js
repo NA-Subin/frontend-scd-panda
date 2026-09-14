@@ -68,7 +68,6 @@ const Detail = (props) => {
     const provinceMatch = addressText.match(/จ\.([^\s]+)/)?.[1] || "-";
     const zipCodeMatch = addressText.match(/(\d{5})$/)?.[1] || "-";
 
-    // ✅ ตั้งค่าเริ่มต้นใน useState โดยตรง
     const [no, setNo] = React.useState(noMatch);
     const [village, setVillage] = React.useState(villageMatch);
     const [subDistrict, setSubDistrict] = React.useState(subDistrictMatch);
@@ -82,7 +81,6 @@ const Detail = (props) => {
     const [number, setNumber] = React.useState(0);
     const [check, setCheck] = React.useState(false);
 
-    // console.log("stock : ", stock);
     const handleClickOpen = () => {
         setOpen(true);
     };
@@ -98,9 +96,6 @@ const Detail = (props) => {
 
     const [volumeData, setVolumeData] = useState(gasStation?.Products);
 
-    // console.log("stocks : ", stocks);
-    // console.log("volumeData : ", volumeData);
-
     const handleVolumeChange = (product, volume, isChecked) => {
         setVolumeData((prevData) => {
             const exists = prevData.some(
@@ -110,12 +105,10 @@ const Detail = (props) => {
             let updatedData;
 
             if (exists) {
-                // ✅ ถ้ามีอยู่แล้ว → ลบออก (Toggle Off)
                 updatedData = prevData.filter(
                     (item) => item.Name !== product.ProductName
                 );
             } else {
-                // ✅ ถ้ายังไม่มี → เพิ่มเข้าไป (Toggle On)
                 updatedData = [
                     ...prevData,
                     {
@@ -129,10 +122,8 @@ const Detail = (props) => {
                 ];
             }
 
-            // ✅ เรียงลำดับใหม่ (เช่น เรียงตาม Name A→Z)
             updatedData.sort((a, b) => a.Name.localeCompare(b.Name));
 
-            // ✅ นับจำนวน CheckBox ที่เป็น true
             const selectedCount = updatedData.filter((item) => item.CheckBox).length;
             setOilWell(selectedCount);
 
@@ -149,8 +140,6 @@ const Detail = (props) => {
             )
         );
     };
-
-    console.log("Volume Data : ", volumeData);
 
     const handlePost = async () => {
         if (!gasStation?.uuid) {
@@ -189,10 +178,6 @@ const Detail = (props) => {
             console.error("Error pushing data:", error);
         }
     };
-
-    // console.log("จำนวนปั้ม "+gasStation);
-    // console.log("จำนวนคลังสต็อกน้ำมัน "+stock);
-    // console.log("จำนวนคลังรับน้ำมัน "+depot);
 
     return (
         <React.Fragment>
@@ -275,7 +260,7 @@ const Detail = (props) => {
                             <FormControlLabel control={<Checkbox onClick={() => setCheckTruck(!checkTruck)} checked={checkTruck}
                                 sx={{
                                     "& .MuiSvgIcon-root": {
-                                        fontSize: 20, // ปรับขนาด Checkbox
+                                        fontSize: 20,
                                     },
                                 }} />}
                                 label="เพิ่มทะเบียนรถ"

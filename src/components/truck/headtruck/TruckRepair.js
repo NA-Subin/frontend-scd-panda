@@ -120,10 +120,8 @@ const TruckRepair = (props) => {
       return;
     }
 
-    // ดึงเนื้อหา HTML ของ element
     const htmlPage1 = page1.outerHTML;
 
-    // ดึงสไตล์ของ MUI หรือสไตล์อื่นๆ ที่จำเป็น
     const styles = Array.from(document.styleSheets)
       .map((styleSheet) => {
         try {
@@ -137,14 +135,12 @@ const TruckRepair = (props) => {
       })
       .join("");
 
-    // สร้างหน้าต่างใหม่สำหรับพิมพ์
     const printWindow = window.open(
       "",
       "SCD-Panda",
       'width="100%",height="100%"',
     );
 
-    // สร้างเนื้อหา HTML สำหรับการพิมพ์ รวมทั้งสไตล์และเนื้อหา
     printWindow.document.write(`
     <!DOCTYPE html>
       <html lang="en">
@@ -194,7 +190,6 @@ const TruckRepair = (props) => {
     </html>
   `);
 
-    // รอให้เนื้อหาทั้งหมดโหลดก่อนที่จะสั่งพิมพ์
     printWindow.document.close();
     printWindow.focus();
     printWindow.onload = () => {
@@ -225,7 +220,7 @@ const TruckRepair = (props) => {
         orientation: "portrait",
       },
       pagebreak: {
-        mode: ["css", "legacy"], // 🔥 รองรับ page-break
+        mode: ["css", "legacy"],
       },
     };
 
@@ -537,7 +532,6 @@ const TruckRepair = (props) => {
                     ""
                   ) : brake.Leak_B !== "ไม่มี" ? (
                     <TextField
-                      // placeholder="ระบุ"
                       size="small"
                       variant="standard"
                       value={brake.Leak_B}
@@ -674,7 +668,6 @@ const TruckRepair = (props) => {
                     label="ควรเติม"
                   />
                 </Grid>
-                {/* <Grid item xs={2.5} marginTop={-2}></Grid> */}
                 <Grid item xs={3.5} marginTop={-2}>
                   <Box
                     display="flex"
@@ -737,7 +730,6 @@ const TruckRepair = (props) => {
                   ) : electricity.BatteryTerminals !== "แน่นและมีฉนวนหุ่ม" &&
                     electricity.BatteryTerminals !== "ไม่แน่น" ? (
                     <TextField
-                      // placeholder="ระบุ"
                       size="small"
                       variant="standard"
                       value={electricity.BatteryTerminals}
@@ -812,7 +804,6 @@ const TruckRepair = (props) => {
                   ) : electricity.BatteryStrap !== "แน่นและมีฉนวนหุ่ม" &&
                     electricity.BatteryStrap !== "ไม่แน่น" ? (
                     <TextField
-                      // placeholder="ระบุ"
                       size="small"
                       variant="standard"
                       value={electricity.BatteryStrap}
@@ -908,7 +899,6 @@ const TruckRepair = (props) => {
                     ""
                   ) : electricity.Horn !== "ใช้ได้หมด" ? (
                     <TextField
-                      // placeholder="ระบุจุด"
                       size="small"
                       variant="standard"
                       value={electricity.Horn}
@@ -1037,7 +1027,6 @@ const TruckRepair = (props) => {
                     label="ควรเติม"
                   />
                 </Grid>
-                {/* <Grid item xs={5.5} marginTop={-2}></Grid> */}
                 <Grid item xs={3.5} marginTop={-2}>
                   <Box
                     display="flex"
@@ -1237,7 +1226,6 @@ const TruckRepair = (props) => {
                     ""
                   ) : water.RadiatorHose !== "ใช้ได้" ? (
                     <TextField
-                      // placeholder="ระบุจุด"
                       size="small"
                       value={water.RadiatorHose}
                       disabled
@@ -1251,7 +1239,6 @@ const TruckRepair = (props) => {
                     ""
                   )}
                 </Grid>
-                {/* <Grid item xs={4} marginTop={-2}></Grid> */}
               </Grid>
               <Grid
                 container
@@ -1435,7 +1422,6 @@ const TruckRepair = (props) => {
                     ""
                   ) : air.CheekRubber !== "ปกติ" ? (
                     <TextField
-                      // placeholder="ระบุล้อ"
                       size="small"
                       variant="standard"
                       value={air.CheekRubber}
@@ -1509,7 +1495,6 @@ const TruckRepair = (props) => {
                     ""
                   ) : air.TirePressure !== "ถูกต้องตามคู่มือรถ" ? (
                     <TextField
-                      // placeholder="ระบุล้อ"
                       size="small"
                       variant="standard"
                       value={air.TirePressure}
@@ -1550,7 +1535,6 @@ const TruckRepair = (props) => {
                     ""
                   ) : air.TirePressure !== "ถูกต้องตามคู่มือรถ" ? (
                     <TextField
-                      // placeholder="ระบุล้อ"
                       size="small"
                       variant="standard"
                       value={air.TirePressure}
@@ -1665,7 +1649,6 @@ const TruckRepair = (props) => {
                     ""
                   ) : gasoline.Leak_G !== "ไม่มี" ? (
                     <TextField
-                      // placeholder="ระบุจุดที่รั่ว"
                       size="small"
                       value={gasoline.Leak_G}
                       disabled
@@ -1723,7 +1706,6 @@ const TruckRepair = (props) => {
                     label="ไม่แน่ใจ"
                   />
                 </Grid>
-                {/* <Grid item xs={4} marginTop={-2}></Grid> */}
                 <Grid item xs={3.5} marginTop={-2}>
                   <Box
                     display="flex"
@@ -1768,7 +1750,6 @@ const TruckRepair = (props) => {
                     label="ควรเปลี่ยน"
                   />
                 </Grid>
-                {/* <Grid item xs={2.5} marginTop={-2}></Grid> */}
               </Grid>
               <Grid
                 container
@@ -2020,7 +2001,6 @@ const TruckRepair = (props) => {
                     ""
                   ) : oils.Leak_O !== "ไม่มี" ? (
                     <TextField
-                      // placeholder="ระบุจุดที่รั่ว"
                       size="small"
                       value={oils.Leak_O}
                       disabled
@@ -2097,7 +2077,6 @@ const TruckRepair = (props) => {
                     ""
                   ) : noise.UnusualNoise !== "ไม่มี" ? (
                     <TextField
-                      // placeholder="ระบุจุด"
                       size="small"
                       value={noise.UnusualNoise}
                       disabled
@@ -2156,7 +2135,6 @@ const TruckRepair = (props) => {
                     ""
                   ) : noise.MountRubber !== "ใช้ได้" ? (
                     <TextField
-                      // placeholder="ระบุจุด"
                       size="small"
                       value={noise.MountRubber}
                       disabled
@@ -2216,7 +2194,6 @@ const TruckRepair = (props) => {
                     ""
                   ) : noise.Intake !== "ไม่รั่ว" ? (
                     <TextField
-                      // placeholder="ระบุจุดที่รั่ว"
                       size="small"
                       value={noise.Intake}
                       disabled
@@ -2244,13 +2221,13 @@ const TruckRepair = (props) => {
                         textAlign: "center",
                         width: "100%",
                         fontFamily: "Arial, sans-serif",
-                      }, // จัดให้ label อยู่ตรงกลาง
+                      },
                     }}
                     inputProps={{
                       style: {
                         textAlign: "center",
                         fontFamily: "Arial, sans-serif",
-                      }, // จัดให้ input text อยู่ตรงกลาง (ถ้าต้องการ)
+                      },
                     }}
                     disabled
                   />

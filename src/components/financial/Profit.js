@@ -65,10 +65,8 @@ const Profit = ({ openNavbar }) => {
     const handleSort = (key) => {
         setSortConfig((prev) => {
             if (prev.key === key) {
-                // ✅ ถ้าคลิกซ้ำ -> สลับ asc/desc
                 return { key, direction: prev.direction === "asc" ? "desc" : "asc" };
             } else {
-                // ✅ คลิกใหม่ -> asc ก่อน
                 return { key, direction: "asc" };
             }
         });
@@ -76,7 +74,6 @@ const Profit = ({ openNavbar }) => {
 
     const { drivers, customertransports, customergasstations, customerbigtruck, customersmalltruck, customertickets } = useBasicData();
     const { order, transferMoney, trip, refetch: refetchTripData } = useTripData();
-    // const orders = Object.values(order || {});
     const orders = Object.values(order || {}).filter(item => {
         const itemDate = dayjs(item.Date, "DD/MM/YYYY");
         return itemDate.isSameOrAfter(dayjs("01/01/2026", "DD/MM/YYYY"), 'day');
@@ -101,12 +98,11 @@ const Profit = ({ openNavbar }) => {
         const handleResize = () => {
             let width = window.innerWidth;
             if (!openNavbar) {
-                width += 120; // ✅ เพิ่ม 200 ถ้า openNavbar = false
+                width += 120;
             }
             setWindowWidth(width);
         };
 
-        // เรียกครั้งแรกตอน mount
         handleResize();
 
         window.addEventListener('resize', handleResize);
@@ -114,18 +110,18 @@ const Profit = ({ openNavbar }) => {
         return () => {
             window.removeEventListener('resize', handleResize);
         };
-    }, [openNavbar]); // ✅ ทำงานใหม่ทุกครั้งที่ openNavbar เปลี่ยน
+    }, [openNavbar]);
 
     const handleDateChangeDateStart = (newValue) => {
         if (newValue) {
-            const formattedDate = dayjs(newValue); // แปลงวันที่เป็นฟอร์แมต
+            const formattedDate = dayjs(newValue);
             setSelectedDateStart(formattedDate);
         }
     };
 
     const handleDateChangeDateEnd = (newValue) => {
         if (newValue) {
-            const formattedDate = dayjs(newValue); // แปลงวันที่เป็นฟอร์แมต
+            const formattedDate = dayjs(newValue);
             setSelectedDateEnd(formattedDate);
         }
     };
@@ -134,12 +130,11 @@ const Profit = ({ openNavbar }) => {
         const handleResize = () => {
             let width = window.innerWidth;
             if (!openNavbar) {
-                width += 120; // ✅ เพิ่ม 200 ถ้า openNavbar = false
+                width += 120;
             }
             setWindowWidth(width);
         };
 
-        // เรียกครั้งแรกตอน mount
         handleResize();
 
         window.addEventListener('resize', handleResize);
@@ -147,7 +142,7 @@ const Profit = ({ openNavbar }) => {
         return () => {
             window.removeEventListener('resize', handleResize);
         };
-    }, [openNavbar]); // ✅ ทำงานใหม่ทุกครั้งที่ openNavbar เปลี่ยน
+    }, [openNavbar]);
 
     const [checkCostPrice, setCheckCostPrice] = useState(false);
     const [costIndex, setCostIndex] = useState(null);
@@ -155,8 +150,6 @@ const Profit = ({ openNavbar }) => {
     const [costProductName, setCostProductName] = useState(null);
     const [costPrice, setCostPrice] = useState(0);
     const [isFocused, setIsFocused] = useState(false);
-
-    console.log(`(${costNo})${costProductName} : ${costPrice}`);
 
     const result = useMemo(() => {
         return orders
@@ -202,11 +195,9 @@ const Profit = ({ openNavbar }) => {
                         CostPrice: productData?.CostPrice ?? 0,
                     }));
             })
-            // ✅ ฟิลเตอร์เฉพาะข้อมูลในช่วงวันที่ที่เลือก
             .filter((row) => {
                 if (!row.Date) return false;
 
-                // แปลงจาก "DD/MM/YYYY" → dayjs object
                 const deliveryDate = dayjs(row.Date, "DD/MM/YYYY");
 
                 const isAfterStart =
@@ -236,7 +227,6 @@ const Profit = ({ openNavbar }) => {
             });
     }, [orders, ticketsB, trips, selectedDateStart, selectedDateEnd]);
 
-    // 💡 คำนวณผลรวมก่อน render
     const total = result.reduce(
         (acc, row) => {
             const rateOil = check ? row.RateOil : row.RateOil * row.Volume;
@@ -273,7 +263,6 @@ const Profit = ({ openNavbar }) => {
         { volume: 0, rateOil: 0, rate: 0, costPrice: 0, diff: 0 }
     );
 
-    // ✅ หาค่าเฉลี่ย
     const avg =
         result.length > 0
             ? {
@@ -285,20 +274,16 @@ const Profit = ({ openNavbar }) => {
             }
             : { volume: 0, rateOil: 0, rate: 0, costPrice: 0, diff: 0 };
 
-    console.log("totals:", totals);
-    console.log("avg:", avg);
-
     const resultPageCount = Math.max(1, Math.ceil(result.length / rowsPerPage));
     const safePage = Math.min(page, resultPageCount - 1);
     const pagedResult = result.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
 
     const handleCheckUpdate = (row, index) => {
-        console.log(`order/${row.No}/Product/${row.ProductName}/`);
         setCostIndex(index);
         setCostNo(row.No);
         setCostProductName(row.ProductName);
         setCostPrice(row.CostPrice);
-        setCheckCostPrice(true); // ต้องปิดการแสดงผล
+        setCheckCostPrice(true);
     }
 
     const handleSave = async () => {
@@ -431,9 +416,6 @@ const Profit = ({ openNavbar }) => {
         saveAs(new Blob([buffer]), `กำไรขายส่งน้ำมัน_${dayjs().format("YYYYMMDD_HHmmss")}.xlsx`);
     };
 
-    console.log("orders : ", orders);
-    console.log("result : ", result);
-
     return (
         <Container maxWidth="xl" sx={{ marginTop: 13, marginBottom: 5, width: windowWidth <= 900 && windowWidth > 600 ? (windowWidth - 110) : windowWidth <= 600 ? (windowWidth) : (windowWidth - 230) }}>
             <Grid container>
@@ -456,7 +438,7 @@ const Profit = ({ openNavbar }) => {
                     <Grid item xs={12} sm={9} lg={5}>
                         <Box
                             sx={{
-                                width: "100%", // กำหนดความกว้างของ Paper
+                                width: "100%",
                                 height: "40px",
                                 display: "flex",
                                 alignItems: "center",
@@ -470,15 +452,15 @@ const Profit = ({ openNavbar }) => {
                                         openTo="day"
                                         views={["year", "month", "day"]}
                                         value={selectedDateStart ? dayjs(selectedDateStart, "DD/MM/YYYY") : null}
-                                        format="DD/MM/YYYY" // <-- ใช้แบบที่ MUI รองรับ
+                                        format="DD/MM/YYYY"
                                         onChange={handleDateChangeDateStart}
                                         slotProps={{
                                             textField: {
                                                 size: "small",
                                                 fullWidth: true,
                                                 inputProps: {
-                                                    value: formatThaiFull(selectedDateStart), // ✅ แสดงวันแบบ "1 กรกฎาคม พ.ศ.2568"
-                                                    readOnly: true, // ✅ ปิดไม่ให้พิมพ์เอง เพราะใช้ format แบบ custom
+                                                    value: formatThaiFull(selectedDateStart),
+                                                    readOnly: true,
                                                 },
                                                 InputProps: {
                                                     startAdornment: (
@@ -502,15 +484,15 @@ const Profit = ({ openNavbar }) => {
                                         openTo="day"
                                         views={["year", "month", "day"]}
                                         value={selectedDateEnd ? dayjs(selectedDateEnd, "DD/MM/YYYY") : null}
-                                        format="DD/MM/YYYY" // <-- ใช้แบบที่ MUI รองรับ
+                                        format="DD/MM/YYYY"
                                         onChange={handleDateChangeDateEnd}
                                         slotProps={{
                                             textField: {
                                                 size: "small",
                                                 fullWidth: true,
                                                 inputProps: {
-                                                    value: formatThaiFull(selectedDateEnd), // ✅ แสดงวันแบบ "1 กรกฎาคม พ.ศ.2568"
-                                                    readOnly: true, // ✅ ปิดไม่ให้พิมพ์เอง เพราะใช้ format แบบ custom
+                                                    value: formatThaiFull(selectedDateEnd),
+                                                    readOnly: true,
                                                 },
                                                 InputProps: {
                                                     startAdornment: (
@@ -547,7 +529,6 @@ const Profit = ({ openNavbar }) => {
                                 <Checkbox
                                     color="info"
                                     value={checkStatusCompany}
-                                    //onChange={() => setCheckStatusCompany(!checkStatusCompany)}
                                     onChange={handleChangeCheck}
                                 />
                             }
@@ -619,7 +600,6 @@ const Profit = ({ openNavbar }) => {
                                         <TablecellSelling sx={{ textAlign: "center", fontSize: 16, width: 120 }}>
                                             {check ? "กำไรขาดทุน/ลิตร" : "กำไรขาดทุน"}
                                         </TablecellSelling>
-                                        {/* <TablecellSelling sx={{ textAlign: "center", width: 50 }} /> */}
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -672,16 +652,16 @@ const Profit = ({ openNavbar }) => {
                                                                     <Paper sx={{ width: '100%', height: 25, display: "flex", alignItems: "center" }}>
                                                                         <TextField
                                                                             size="small"
-                                                                            type={isFocused ? "number" : "text"} // ✅ เปลี่ยน type ตามโหมด focus
+                                                                            type={isFocused ? "number" : "text"}
                                                                             value={
                                                                                 isFocused
                                                                                     ? costPrice === 0
-                                                                                        ? "" // ✅ ถ้าเป็น 0 และกำลัง focus → แสดงค่าว่าง
+                                                                                        ? ""
                                                                                         : costPrice
                                                                                     : new Intl.NumberFormat("en-US", {
                                                                                         minimumFractionDigits: 2,
                                                                                         maximumFractionDigits: 2,
-                                                                                    }).format(costPrice || 0) // ✅ แสดงเลขพร้อม format ตอนไม่ได้ focus
+                                                                                    }).format(costPrice || 0)
                                                                             }
                                                                             variant="outlined"
                                                                             sx={{
@@ -689,7 +669,7 @@ const Profit = ({ openNavbar }) => {
                                                                                 "& .MuiInputBase-root": {
                                                                                     height: 25,
                                                                                     fontSize: 13,
-                                                                                    paddingRight: 0, // เอา padding ด้านขวาออกเพื่อให้ icon ชิดพอดี
+                                                                                    paddingRight: 0,
                                                                                 },
                                                                                 "& .MuiOutlinedInput-input": {
                                                                                     paddingLeft: 1,
@@ -700,16 +680,16 @@ const Profit = ({ openNavbar }) => {
                                                                             onChange={(e) => {
                                                                                 const val = e.target.value;
                                                                                 if (val === "") {
-                                                                                    setCostPrice(""); // ✅ ถ้าพิมพ์ว่าง ให้เก็บเป็น string ว่าง
+                                                                                    setCostPrice("");
                                                                                 } else if (/^\d*\.?\d*$/.test(val)) {
-                                                                                    setCostPrice(val); // ✅ เก็บค่าที่พิมพ์อยู่
+                                                                                    setCostPrice(val);
                                                                                 }
                                                                             }}
-                                                                            onFocus={() => setIsFocused(true)} // ✅ เข้าสู่โหมดแก้ไข
+                                                                            onFocus={() => setIsFocused(true)}
                                                                             onBlur={(e) => {
-                                                                                setIsFocused(false); // ✅ กลับไปโหมดแสดงผล
+                                                                                setIsFocused(false);
                                                                                 const val = parseFloat(e.target.value);
-                                                                                setCostPrice(isNaN(val) ? 0 : val); // ✅ ถ้าไม่พิมพ์อะไร ให้กลับเป็น 0
+                                                                                setCostPrice(isNaN(val) ? 0 : val);
                                                                             }}
                                                                             InputProps={{
                                                                                 endAdornment: (
@@ -720,7 +700,7 @@ const Profit = ({ openNavbar }) => {
                                                                                                 color="error"
                                                                                                 sx={{ p: 0.3 }}
                                                                                                 onClick={(e) => {
-                                                                                                    e.stopPropagation(); // 💥 ป้องกันไม่ให้ไป trigger onClick ของ TableCell
+                                                                                                    e.stopPropagation();
                                                                                                     handleCancel();
                                                                                                 }}
                                                                                             >
@@ -733,7 +713,7 @@ const Profit = ({ openNavbar }) => {
                                                                                                 color="success"
                                                                                                 sx={{ p: 0.3 }}
                                                                                                 onClick={(e) => {
-                                                                                                    e.stopPropagation(); // 💥 ป้องกันไม่ให้ไป trigger onClick ของ TableCell
+                                                                                                    e.stopPropagation();
                                                                                                     handleSave();
                                                                                                 }}
                                                                                             >

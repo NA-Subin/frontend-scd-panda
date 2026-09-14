@@ -72,22 +72,18 @@ const BigTruckRegHead = (props) => {
 
   const isMobile = useMediaQuery("(max-width:1100px)");
 
-  console.log("truck", truck);
-
   const shouldDrawerOpen = React.useMemo(() => {
     if (isMobile) {
-      return !openTab; // ถ้าเป็นจอโทรศัพท์ ให้เปิด drawer เมื่อ open === false
+      return !openTab;
     } else {
-      return openTab; // ถ้าไม่ใช่จอโทรศัพท์ ให้เปิด drawer เมื่อ open === true
+      return openTab;
     }
   }, [openTab, isMobile]);
 
   const handleDrawerOpen = () => {
     if (isMobile) {
-      // จอเท่ากับโทรศัพท์
       setOpenTab((prevOpen) => !prevOpen);
     } else {
-      // จอไม่เท่ากับโทรศัพท์
       setOpenTab((prevOpen) => !prevOpen);
     }
   };

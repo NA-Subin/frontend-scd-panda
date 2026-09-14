@@ -115,9 +115,8 @@ const UpdateRegTail = (props) => {
     const handleUpdate = async () => {
         if (!file) return alert("กรุณาเลือกไฟล์ก่อน");
 
-        let img = "ไม่แนบไฟล์"; // ตั้งค่าเริ่มต้นไว้เลย
+        let img = "ไม่แนบไฟล์";
 
-        // ✅ ตรวจสอบก่อนว่า file เป็น "ไม่แนบไฟล์" หรือไม่
         if (file !== "ไม่แนบไฟล์") {
             const formData = new FormData();
             formData.append("pic", file);
@@ -163,21 +162,16 @@ const UpdateRegTail = (props) => {
         }
     }
 
-    console.log("Company : ", companies);
-
     return (
         <React.Fragment>
-            {/* <TableCell sx={{ textAlign: "center", position: "sticky", right: 0, backgroundColor: "white" }}>
-                <IconButton size="small" sx={{ marginTop: -0.5 }} onClick={() => setOpen(true)}><InfoIcon color="info" fontSize="12px" /></IconButton>
-            </TableCell> */}
             <Dialog
-                open={open && type === "รายละเอียด" ? true : false}   // convert เป็น boolean ให้แน่นอน
+                open={open && type === "รายละเอียด" ? true : false}
                 keepMounted
-                onClose={onClose} // ใช้ตรง ๆ
+                onClose={onClose}
                 sx={{
                     "& .MuiDialog-paper": {
-                        width: "800px", // กำหนดความกว้างแบบ Fixed
-                        maxWidth: "none", // ปิดการปรับอัตโนมัติ
+                        width: "800px",
+                        maxWidth: "none",
                     },
                 }}
             >
@@ -224,22 +218,6 @@ const UpdateRegTail = (props) => {
                                     update ?
                                         <TextField fullWidth variant="standard" value={resolveCompanyDisplay(companies)} disabled />
                                         :
-                                        // <FormControl variant="standard" fullWidth>
-                                        //     <Select
-                                        //         labelId="demo-simple-select-standard-label"
-                                        //         id="demo-simple-select-standard"
-                                        //         value={companies}
-                                        //         onChange={(e) => setCompanies(e.target.value)}
-                                        //     >
-                                        //         <MenuItem value={companies}>{companies.split(":")[1]}</MenuItem>
-                                        //         {
-                                        //             dataCompany.map((truck) => (
-                                        //                 (truck.id !== 1 && truck.id !== Number(companies.split(":")[0])) &&
-                                        //                 <MenuItem value={`${truck.id}:${truck.Name}`}>{truck.Name}</MenuItem>
-                                        //             ))
-                                        //         }
-                                        //     </Select>
-                                        // </FormControl>
                                         <FormControl
                                             variant="standard"
                                             fullWidth
@@ -280,7 +258,6 @@ const UpdateRegTail = (props) => {
                             </Grid>
                             <Grid item xs={4}>
                                 <Stack direction="row" spacing={2}>
-                                    {/* มี */}
                                     <FormControlLabel
                                         control={
                                             <Checkbox
@@ -292,7 +269,6 @@ const UpdateRegTail = (props) => {
                                         label="มี"
                                     />
 
-                                    {/* ไม่มี */}
                                     <FormControlLabel
                                         control={
                                             <Checkbox
@@ -323,14 +299,6 @@ const UpdateRegTail = (props) => {
                                                     update ?
                                                         <>
                                                             <Box textAlign="center">
-                                                                {/* <TextField
-                                                                        size="small"
-                                                                        type="text"
-                                                                        fullWidth
-                                                                        value={file.name}
-                                                                        sx={{ marginRight: 2 }}
-                                                                    /> */}
-
                                                                 <Box display="flex" alignItems="center" justifyContent="center" >
                                                                     {
                                                                         file === "ไม่แนบไฟล์" ?
@@ -341,12 +309,10 @@ const UpdateRegTail = (props) => {
                                                                 </Box>
                                                                 <Box textAlign="center">
                                                                     {file instanceof File ? (
-                                                                        // ✅ กรณีเป็น File object
                                                                         <Typography variant="subtitle1" gutterBottom>
                                                                             {file.name}
                                                                         </Typography>
                                                                     ) : (
-                                                                        // ✅ กรณีเป็น path (string)
                                                                         file === "ไม่แนบไฟล์" ? null :
                                                                             <Typography
                                                                                 variant="subtitle2"
@@ -402,7 +368,6 @@ const UpdateRegTail = (props) => {
                                                                                 }}
                                                                             />
                                                                         </Button>
-                                                                        {/* <Chip label="หรือ" size="small" sx={{ marginLeft: 3, marginRight: 3 }} /> */}
                                                                         <Typography variant="subtitle1" fontWeight="bold" sx={{ marginLeft: 3, marginRight: 3, marginTop: 0.5 }} gutterBottom>หรือ</Typography>
                                                                         <Button
                                                                             variant="contained"
@@ -488,14 +453,6 @@ const UpdateRegTail = (props) => {
                                                                     </Box>
                                                                     :
                                                                     <Box textAlign="center">
-                                                                        {/* <TextField
-                                                                        size="small"
-                                                                        type="text"
-                                                                        fullWidth
-                                                                        value={file.name}
-                                                                        sx={{ marginRight: 2 }}
-                                                                    /> */}
-
                                                                         <Box display="flex" alignItems="center" justifyContent="center" >
                                                                             <FilePreview file={file} />
                                                                             <Button variant="outlined" color="error" size="small" sx={{ marginLeft: 2 }} onClick={() => { setFileType(1); setFile("ไม่แนบไฟล์"); }}>
@@ -506,22 +463,6 @@ const UpdateRegTail = (props) => {
                                                                             <Typography variant="subtitle1" gutterBottom>{file.name}</Typography>
                                                                         </Box>
                                                                     </Box>
-                                                                // <Box sx={{
-                                                                //     display: "flex",
-                                                                //     alignItems: "center",
-                                                                //     justifyContent: "space-between", // ช่วยแยกซ้ายขวา
-                                                                //     paddingLeft: 12,
-                                                                // }}>
-                                                                //     <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                                                                //         File : {file.name}
-                                                                //     </Typography>
-                                                                //     {/* <IconButton color="error" onClick={() => { setFile(null); setFileType(null); }}>
-                                                                //         <DeleteForeverIcon />
-                                                                //     </IconButton> */}
-                                                                //     <Button variant="outlined" color="error" size="small" onClick={() => { setFile(null); setFileType(null); }}>
-                                                                //         ลบไฟล์
-                                                                //     </Button>
-                                                                // </Box>
                                                             }
                                                         </React.Fragment>
                                                     :
@@ -541,7 +482,6 @@ const UpdateRegTail = (props) => {
                         update ?
                             <Box marginBottom={2} textAlign="center">
                                 <Button variant="contained" color="warning" onClick={() => setUpdate(false)} sx={{ marginRight: 2 }}>แก้ไข</Button>
-                                {/* <Button variant="contained" color="info">พิมพ์</Button> */}
                             </Box>
                             :
                             <Box marginBottom={2} textAlign="center">

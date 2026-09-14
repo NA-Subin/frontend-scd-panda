@@ -67,13 +67,11 @@ const RegHeadDetail = (props) => {
   const [openDialog, setOpenDialog] = useState(null);
   const [selectedTruck, setSelectedTruck] = useState(null);
 
-  // เมื่อคลิก row
   const handleRowClick = (truck) => {
     setSelectedTruck(truck);
     setOpenDialog(truck.id);
   };
 
-  // ปิด dialog
   const handleCloseDialog = () => {
     setSelectedTruck(null);
     setOpenDialog(null);
@@ -83,22 +81,7 @@ const RegHeadDetail = (props) => {
     setOpenTab(newOpen);
   };
 
-  // const [registrationTail, setRegistrationTail] = React.useState([]);
   const [regTailLength, setRegTailLength] = React.useState("");
-
-  // const getRegitrationTail = async () => {
-  //   database.ref("/truck/registrationTail/").on("value", (snapshot) => {
-  //     const datas = snapshot.val();
-  //     const dataRegistrationTail = [];
-  //     for (let id in datas) {
-  //       if(datas[id].Status === "ยังไม่เชื่อมต่อทะเบียนหัว" && datas[id].Company === truck.Company){
-  //         dataRegistrationTail.push({ id, ...datas[id] })
-  //       }
-  //     }
-  //     setRegTailLength(datas.length);
-  //     setRegistrationTail(dataRegistrationTail);
-  //   });
-  // };
 
   const { regtail, refetch: refetchBasicData } = useBasicData();
   const dataregtail = Object.values(regtail || {}).filter(
@@ -107,10 +90,6 @@ const RegHeadDetail = (props) => {
   const registrationTail = dataregtail.filter(
     (row) => row.Status && row.Status === "ยังไม่ได้เชื่อมต่อทะเบียนหัว",
   );
-
-  // useEffect(() => {
-  //   getRegitrationTail();
-  // }, []);
 
   const handlePost = async () => {
     if (!truck?.uuid) {
@@ -172,13 +151,9 @@ const RegHeadDetail = (props) => {
           console.error("Error pushing data:", error);
         }
       },
-      () => {
-        console.log(`ยกเลิกลบทะเบียนรถ ${t.RegHead}`);
-      },
+      () => {},
     );
   };
-
-  console.log("selectedTruck : ", selectedTruck);
 
   return (
     <React.Fragment>
@@ -224,7 +199,7 @@ const RegHeadDetail = (props) => {
                         PaperProps: {
                           sx: {
                             "& .MuiMenuItem-root": {
-                              fontSize: "14px", // ขนาดตัวอักษรในรายการเมนู
+                              fontSize: "14px",
                             },
                           },
                         },
@@ -363,25 +338,14 @@ const RegHeadDetail = (props) => {
             right: 0,
           }}
           onClick={(e) => {
-            e.stopPropagation(); // ⭐ สำคัญ
+            e.stopPropagation();
             handleDelete(truck);
           }}
         >
-          <IconButton
-            size="small"
-            // onClick={(e) => {
-            //   e.stopPropagation(); // ⭐ สำคัญ
-            //   handleDelete(truck);
-            // }}
-          >
+          <IconButton size="small">
             <DeleteForeverIcon color="error" fontSize="small" />
           </IconButton>
         </TableCell>
-        {/* <TableCell sx={{ width: 40, position: "sticky", right: 0, backgroundColor: "white" }} colSpan={2}>
-          <Box display="flex" justifyContent="center" alignItems="center">
-            <TruckRepair key={truck.RepairTruck.split(":")[1]} row={truck} type={"ตรวจสอบสภาพรถ"} />
-          </Box>
-        </TableCell> */}
       </TableRow>
       {selectedTruck && (
         <UpdateRegHead

@@ -109,8 +109,8 @@ const UpdateCreditor = (props) => {
                 onClose={handleClose}
                 sx={{
                     "& .MuiDialog-paper": {
-                        width: "800px", // กำหนดความกว้างแบบ Fixed
-                        maxWidth: "none", // ปิดการปรับอัตโนมัติ
+                        width: "800px",
+                        maxWidth: "none",
                     },
                 }}
             >
@@ -164,17 +164,6 @@ const UpdateCreditor = (props) => {
                                     <TextField fullWidth variant="standard" value={email} disabled onChange={(e) => setUser(e.target.value)}/>
                                     :
                                     <TextField fullWidth variant="standard" value={email} onChange={(e) => setUser(e.target.value)}/>
-                                    // <FormControl variant="standard" fullWidth>
-                                    //         <Select
-                                    //             labelId="demo-simple-select-standard-label"
-                                    //             id="demo-simple-select-standard"
-                                    //             value={type}
-                                    //             onChange={(e) => setType(e.target.value)}
-                                    //         >
-                                    //             <MenuItem value={"เจ้าหนี้ขนส่ง"}>เจ้าหนี้ขนส่ง</MenuItem>
-                                    //             <MenuItem value={"เจ้าหนี้น้ำมัน"}>เจ้าหนี้น้ำมัน</MenuItem>
-                                    //         </Select>
-                                    //     </FormControl>
                                 }
                             </Grid>
                             <Grid item xs={1.5}>

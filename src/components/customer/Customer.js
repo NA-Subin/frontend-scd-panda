@@ -43,7 +43,6 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 const Customer = () => {
   const { customer } = useBasicData();
       const customerList = Object.values(customer || {});
-      console.log("customer : ", customerList);
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -52,16 +51,14 @@ const Customer = () => {
   const pagedCustomerList = customerList.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-      
-        // ใช้ useEffect เพื่อรับฟังการเปลี่ยนแปลงของขนาดหน้าจอ
+
         useEffect(() => {
           const handleResize = () => {
-            setWindowWidth(window.innerWidth); // อัพเดตค่าขนาดหน้าจอ
+            setWindowWidth(window.innerWidth);
           };
-      
-          window.addEventListener('resize', handleResize); // เพิ่ม event listener
-      
-          // ลบ event listener เมื่อ component ถูกทำลาย
+
+          window.addEventListener('resize', handleResize);
+
           return () => {
             window.removeEventListener('resize', handleResize);
           };
@@ -100,61 +97,28 @@ const Customer = () => {
                                       <Table stickyHeader size="small" sx={{ width: "1250px" }}>
             <TableHead sx={{ height: "7vh" }}>
               <TableRow>
-                <TablecellHeader sx={{ textAlign: "center", fontSize: 16,
-                width: 50,
-                //   "@media (max-width: 1000px)": {
-                //   width: "10%", // เปลี่ยนความกว้างเมื่อหน้าจอเล็กลง
-                // },
-                 }}>
+                <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 50 }}>
                   ลำดับ
                 </TablecellHeader>
-                <TablecellHeader sx={{ textAlign: "center", fontSize: 16,
-                //   "@media (max-width: 1000px)": {
-                //   width: "30%", // เปลี่ยนความกว้างเมื่อหน้าจอเล็กลง
-                // },
-                 }}>
+                <TablecellHeader sx={{ textAlign: "center", fontSize: 16 }}>
                   ชื่อสถานที่ / ชื่อลูกค้า
                 </TablecellHeader>
-                <TablecellHeader sx={{ textAlign: "center", fontSize: 16,
-                //   "@media (max-width: 1000px)": {
-                //   width: "15%", // เปลี่ยนความกว้างเมื่อหน้าจอเล็กลง
-                // },
-                 }}>
+                <TablecellHeader sx={{ textAlign: "center", fontSize: 16 }}>
                   บัตรประชาชน
                 </TablecellHeader>
-                <TablecellHeader sx={{ textAlign: "center", fontSize: 16,
-                //   "@media (max-width: 1000px)": {
-                //   width: "30%", // เปลี่ยนความกว้างเมื่อหน้าจอเล็กลง
-                // },
-                 }}>
+                <TablecellHeader sx={{ textAlign: "center", fontSize: 16 }}>
                   ที่อยู่
                 </TablecellHeader>
-                <TablecellHeader sx={{ textAlign: "center", fontSize: 16,
-                //   "@media (max-width: 1000px)": {
-                //   width: "15%", // เปลี่ยนความกว้างเมื่อหน้าจอเล็กลง
-                // },
-                 }}>
+                <TablecellHeader sx={{ textAlign: "center", fontSize: 16 }}>
                   เบอร์โทร
                 </TablecellHeader>
-                <TablecellHeader sx={{ textAlign: "center", fontSize: 16,
-                //   "@media (max-width: 1000px)": {
-                //   width: "10%", // เปลี่ยนความกว้างเมื่อหน้าจอเล็กลง
-                // },
-                 }}>
+                <TablecellHeader sx={{ textAlign: "center", fontSize: 16 }}>
                   วงเงินเครดิต
                 </TablecellHeader>
-                <TablecellHeader sx={{ textAlign: "center", fontSize: 16,
-                //   "@media (max-width: 1000px)": {
-                //   width: "10%", // เปลี่ยนความกว้างเมื่อหน้าจอเล็กลง
-                // },
-                }}>
+                <TablecellHeader sx={{ textAlign: "center", fontSize: 16 }}>
                   ระยะเวลาเครดิต
                 </TablecellHeader>
-                <TablecellHeader sx={{ textAlign: "center", fontSize: 16,
-                //   "@media (max-width: 1000px)": {
-                //   width: "10%", // เปลี่ยนความกว้างเมื่อหน้าจอเล็กลง
-                // },
-                 }}>
+                <TablecellHeader sx={{ textAlign: "center", fontSize: 16 }}>
                   หนี้สิน
                 </TablecellHeader>
                 <TablecellHeader width={100}/>

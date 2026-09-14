@@ -64,13 +64,10 @@ const GasStationVolume = (props) => {
     const [localProducts, setLocalProducts] = useState(products?.Products || []);
     const [originalProducts, setOriginalProducts] = useState(products?.Products || []);
 
-    // 2️⃣ Sync ค่าเริ่มต้นเมื่อ parent เปลี่ยน
     useEffect(() => {
         setOriginalProducts(products?.Products || []);
         setLocalProducts(products?.Products || []);
     }, [products]);
-
-    // console.log("products : ", products);
 
     const updateVolumeBoth = (index, value) => {
         handleProductChange(index, "FullVolume", value);
@@ -88,14 +85,12 @@ const GasStationVolume = (props) => {
 
         if (field === "FullVolume") {
             if (stockCount === 2) {
-                // ดึงรายการปั้มของ stock เดียวกัน
                 const sameStock = volumeData.filter(p => p.stockID === products?.stockID);
 
                 if (sameStock.length === 2) {
                     const pump1 = sameStock[0].Products;
                     const pump2 = sameStock[1].Products;
 
-                    // หา Product เดียวกันตาม ProductName
                     const pump1Product = pump1.find(p => p.ProductName === updated[index].ProductName);
                     const pump2Product = pump2.find(p => p.ProductName === updated[index].ProductName);
 
@@ -111,13 +106,11 @@ const GasStationVolume = (props) => {
                 }
             }
 
-            // กรณีมีแค่ 1 ปั้ม
             if (stockCount === 1) {
                 updated[index].Volume = Number(value);
             }
         }
 
-        // คำนวณค่าต่าง ๆ
         updated[index].Period = calculatePeriod(updated[index]);
         updated[index].Sell = calculateSell(updated[index]);
         updated[index].TotalVolume = calculateTotalVolume(updated[index]);
@@ -136,7 +129,6 @@ const GasStationVolume = (props) => {
             }
         }));
 
-        // อัปเดตค่าใน local state
         const raw = e.target.value.replace(/,/g, "");
         const newValue = raw === "" || raw === "-" ? 0 : Number(raw);
 
@@ -144,7 +136,6 @@ const GasStationVolume = (props) => {
         updated[index][column] = newValue;
         setLocalProducts(updated);
 
-        // ส่งไป parent
         onProductChange(gasStation.id, updated, "Products");
     };
 
@@ -162,14 +153,11 @@ const GasStationVolume = (props) => {
         const updated = [...localProducts];
         updated[index][field] = newValue;
 
-        // ⭐ ถ้าแก้ FullVolume
         if (field === "FullVolume") {
             if (stockCount === 2) {
-                // ดึงรายการปั้มของ stock เดียวกัน
                 const sameStock = volumeData.filter(p => p.stockID === products?.stockID);
 
                 if (sameStock.length === 2) {
-                    // หา Product เดียวกันใน pump1 และ pump2 ตาม ProductName
                     const pump1Product = sameStock[0].Products.find(p => p.ProductName === updated[index].ProductName);
                     const pump2Product = sameStock[1].Products.find(p => p.ProductName === updated[index].ProductName);
 
@@ -185,13 +173,11 @@ const GasStationVolume = (props) => {
                 }
             }
 
-            // กรณีมีแค่ 1 ปั้ม
             if (stockCount === 1) {
                 updated[index].Volume = Number(newValue);
             }
         }
 
-        // 2️⃣ คำนวณค่าที่ต้องการ
         updated[index].Period = calculatePeriod(updated[index]);
         updated[index].Sell = calculateSell(updated[index]);
         updated[index].TotalVolume = calculateTotalVolume(updated[index]);
@@ -200,25 +186,12 @@ const GasStationVolume = (props) => {
 
         setLocalProducts(updated);
 
-        // 3️⃣ ตรวจสอบ hasChanged
         const originalValue = originalProducts[index][field];
         updated[index].hasChanged = originalValue !== newValue;
 
-        // 4️⃣ ส่ง parent
         onProductChange(gasStation.id, updated, "Products");
     };
 
-    // const handleBlur = (index, column) => {
-    //     setFocused(prev => ({
-    //         ...prev,
-    //         [index]: {
-    //             ...prev[index],
-    //             [column]: false
-    //         }
-    //     }));
-    // };
-
-    // ตรวจสอบว่า field นั้น focus อยู่ไหม
     const isFieldFocused = (index, column) => focused[index]?.[column] || false;
 
     const { reghead } = useBasicData();
@@ -232,8 +205,6 @@ const GasStationVolume = (props) => {
     };
 
     const truckDriver = registration.filter((item => item.RegTail !== "0:ไม่มี" && item.Driver !== "0:ไม่มี"));
-    // console.log("1.truckDriver : ", truckDriver);
-    // console.log("2.truckDriver : ", truckDriver.map((row) => row.DriverName?.split(" ")[0]));
 
     const calculatePeriod = (row) => {
         const estimateSell = parseFloat(row.EstimateSell) || 0;
@@ -276,40 +247,6 @@ const GasStationVolume = (props) => {
         return (downHole - estimateSell).toFixed(2);
     };
 
-    // const handleProductChange = (index, field, value) => {
-    //     const updated = [...products?.Products];
-    //     updated[index][field] = value;
-
-    //     updated[index].Period = calculatePeriod(updated[index]);
-    //     updated[index].Sell = calculateSell(updated[index]);
-    //     updated[index].TotalVolume = calculateTotalVolume(updated[index]);
-    //     updated[index].PeriodDisplay = parseFloat(updated[index].Period) || (parseFloat(updated[index].Volume) - parseFloat(updated[index].Squeeze));
-
-    //     onProductChange(gasStation.id, updated);
-    // };
-
-    // const handleProductChange = (index, field, value) => {
-    //     // ตรวจสอบว่ากำลังแก้ไข field ของ Products หรือ Driver
-    //     if (index !== null) {
-    //         // อัปเดต Products
-    //         const updated = [...products?.Products];
-    //         updated[index][field] = value;
-
-    //         // คำนวณค่าต่างๆ ของ Products
-    //         updated[index].Period = calculatePeriod(updated[index]);
-    //         updated[index].Sell = calculateSell(updated[index]);
-    //         updated[index].TotalVolume = calculateTotalVolume(updated[index]);
-    //         updated[index].PeriodDisplay = parseFloat(updated[index].Period) || (parseFloat(updated[index].Volume) - parseFloat(updated[index].Squeeze));
-
-    //         // ส่งกลับไปยัง parent
-    //         onProductChange(gasStation.id, updated, "Products"); // ✅ เพิ่ม type
-    //     } else {
-    //         // อัปเดต Driver1 / Driver2 ของ station
-    //         onProductChange(gasStation.id, value, field); // ส่ง value + field name
-    //     }
-    // };
-
-    // console.log("products length : ", products?.Products.length);
     return (
         <React.Fragment>
             {
@@ -337,7 +274,7 @@ const GasStationVolume = (props) => {
                                                         : Number(s.FullVolume || 0).toLocaleString()
                                                 }
                                                 onFocus={() => handleFocus(index, "FullVolume")}
-                                                onBlur={(e) => handleBlur(index, "FullVolume", e)} // ส่ง event
+                                                onBlur={(e) => handleBlur(index, "FullVolume", e)}
                                                 onChange={(e) => {
                                                     let raw = e.target.value.replace(/,/g, "");
 
@@ -378,58 +315,9 @@ const GasStationVolume = (props) => {
                                                     },
                                                     sx: {
                                                         "& input::-webkit-inner-spin-button": {
-                                                            // marginLeft: isFieldFocused(index, "FullVolume") ? 1 : 0,
                                                             marginRight: -0.5
                                                         }
                                                     },
-                                                    // startAdornment: (
-                                                    //     <InputAdornment position="start">
-                                                    //         <IconButton
-                                                    //             size="small"
-                                                    //             sx={{
-                                                    //                 p: '0px',        // 🔹 ตัด padding IconButton
-                                                    //                 width: 5,
-                                                    //                 height: 18,
-                                                    //                 ml: -1,
-                                                    //                 opacity: 0.6      // 🔹 ลดระยะชิดซ้าย
-                                                    //             }}
-                                                    //             onClick={() => {
-                                                    //                 let raw = String(s.FullVolume).replace(/,/g, "");
-                                                    //                 if (raw === "" || raw === "-") raw = "0";
-
-                                                    //                 const newValue = Number(raw) - 1000;
-
-                                                    //                 handleChangeWithCheck(index, "FullVolume", newValue); // ✅ ใช้ฟังก์ชันใหม่
-                                                    //             }}
-                                                    //         >
-                                                    //             <ArrowLeftIcon sx={{ fontSize: "25px" }} />
-                                                    //         </IconButton>
-                                                    //     </InputAdornment>
-                                                    // ),
-                                                    // endAdornment: (
-                                                    //     <InputAdornment position="end">
-                                                    //         <IconButton
-                                                    //             size="small"
-                                                    //             sx={{
-                                                    //                 p: '0px',        // 🔹 ตัด padding IconButton
-                                                    //                 width: 5,
-                                                    //                 height: 18,
-                                                    //                 mr: -1.5,
-                                                    //                 opacity: 0.6       // 🔹 ลดระยะชิดซ้าย
-                                                    //             }}
-                                                    //             onClick={() => {
-                                                    //                 let raw = String(s.FullVolume).replace(/,/g, "");
-                                                    //                 if (raw === "" || raw === "-") raw = "0";
-
-                                                    //                 const newValue = Number(raw) + 1000;
-
-                                                    //                 handleChangeWithCheck(index, "FullVolume", newValue); // ✅ ใช้ฟังก์ชันใหม่
-                                                    //             }}
-                                                    //         >
-                                                    //             <ArrowRightIcon sx={{ fontSize: "25px" }} />
-                                                    //         </IconButton>
-                                                    //     </InputAdornment>
-                                                    // ),
                                                 }}
                                                 sx={{
                                                     "& .MuiOutlinedInput-root": { height: 30 },
@@ -440,8 +328,8 @@ const GasStationVolume = (props) => {
                                                         mr: -0.5,
                                                         ml: -0.5,
                                                         pr: 0.5,
-                                                        paddingLeft: -3, // เพิ่มพื้นที่ให้ endAdornment
-                                                        paddingRight: 1.5, // เพิ่มพื้นที่ให้ endAdornment
+                                                        paddingLeft: -3,
+                                                        paddingRight: 1.5,
                                                     },
                                                 }}
                                             />

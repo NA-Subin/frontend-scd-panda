@@ -63,7 +63,7 @@ const GasStationsDetail = (props) => {
         setCheck(newvalue);
     }
 
-    const [selectedDate, setSelectedDate] = useState(dayjs()); // ใช้วันปัจจุบัน
+    const [selectedDate, setSelectedDate] = useState(dayjs());
 
     const handleDateChange = (newValue) => {
         if (newValue) {
@@ -72,12 +72,11 @@ const GasStationsDetail = (props) => {
     };
 
     const [downHole, setDownHole] = React.useState([]);
-    const total = downHole.reduce((sum, value) => sum + value.DownHole, 0); // บวกค่า DownHole จากทุก item ใน array
+    const total = downHole.reduce((sum, value) => sum + value.DownHole, 0);
 
     const { gasstationDetail, stockDetail, refetch: refetchGasStationData } = useGasStationData();
     const gasStationOil = Object.values(gasstationDetail || {});
     const stocks = Object.values(stockDetail || {});
-    console.log("gasstation Oil : ", gasStationOil);
 
     const customOrder = ["G95", "B95", "B7", "B7(1)", "B7(2)", "G91", "E20", "PWD"];
 
@@ -95,22 +94,6 @@ const GasStationsDetail = (props) => {
             return (((volume + Pending3 + Pending1 + Pending2) - squeezeoil) / estimateSell).toFixed(2);
         }
     };
-
-    // const recomputeProduct = (p) => {
-    //     const Period = calculatePeriod(p);
-    //     const Sell = calculateSell(p);
-    //     const TotalVolume = calculateTotalVolume(p);
-
-    //     return {
-    //         ...p,
-    //         Period,
-    //         Sell,
-    //         TotalVolume,
-    //         PeriodDisplay:
-    //             parseFloat(Period) ||
-    //             (parseFloat(p.Volume) - parseFloat(p.Squeeze)),
-    //     };
-    // };
 
     const calculateSell = (row) => {
         const yesterDay = parseFloat(row.YesterDay) || 0;
@@ -139,7 +122,6 @@ const GasStationsDetail = (props) => {
         const grouped = {};
 
         stations.forEach(station => {
-            // ✅ ดึง products ให้ถูกต้อง และแปลงเป็น array จริง
             const data = stationReports.find((r) => r.stationId === station.id);
 
             let products = [];
@@ -154,7 +136,7 @@ const GasStationsDetail = (props) => {
                 products = Object.values(data); // เผื่อเป็น object index
             }
 
-            if (!Array.isArray(products)) return; // กันพลาด
+            if (!Array.isArray(products)) return;
 
             products.forEach(p => {
                 const total = (parseFloat(p.Volume) || 0) +
@@ -212,7 +194,6 @@ const GasStationsDetail = (props) => {
                 const estimateSell = parseFloat(p.EstimateSell) || 0;
                 const squeeze = parseFloat(p.Squeeze) || 0;
 
-                // เตรียมช่องเก็บข้อมูลของ Product นั้นๆ
                 if (!grouped[name]) {
                     grouped[name] = {
                         totalVolume: 0,
@@ -227,7 +208,6 @@ const GasStationsDetail = (props) => {
                 grouped[name].totalPending += pending;
                 grouped[name].totalEstimateSell += estimateSell;
 
-                // ใส่ squeeze จากปั๊มแรกเท่านั้น
                 if (!grouped[name].squeezeSet && stationIndex === 0) {
                     grouped[name].squeeze = squeeze;
                     grouped[name].squeezeSet = true;
@@ -235,7 +215,6 @@ const GasStationsDetail = (props) => {
             });
         });
 
-        // สร้างผลลัพธ์ตาม ProductName
         const result = {};
 
         Object.keys(grouped).forEach(name => {
@@ -262,14 +241,7 @@ const GasStationsDetail = (props) => {
     };
 
     const getStationReportsArray = (stocks, gasStationOil, selectedDate, Squeeze = 800) => {
-        // console.log("getStationReportsArray start", {
-        //     stocksLen: stocks?.length,
-        //     gasStationOilLen: gasStationOil?.length,
-        //     selectedDate,
-        // });
-
         if (!Array.isArray(gasStationOil) || !gasStationOil.length) {
-            console.warn("gasStationOil empty or not array");
             return [];
         }
 
@@ -296,7 +268,6 @@ const GasStationsDetail = (props) => {
             return dates.length ? dayjs(Math.max(...dates.map(d => d.valueOf()))) : null;
         };
 
-        // ✅ Pre-compute lastDate ของทุก station
         const lastDateMap = new Map();
         gasStationOil.forEach((st) => {
             lastDateMap.set(st.id, getLastReportDate(st.Report));
@@ -305,15 +276,12 @@ const GasStationsDetail = (props) => {
         const firstStationOfStock = new Set();
 
         return gasStationOil.map((station, stationIndex) => {
-            // console.log(`--- stationIndex ${stationIndex} id:${station?.id} Stock:${station?.Stock}`);
-
             const stockId = station?.Stock;
             const stock = stocks.find((s) => s.uuid === stockId);
 
             const isFirst = !firstStationOfStock.has(stockId);
             if (isFirst) firstStationOfStock.add(stockId);
 
-            // ✅ LastDate ของ station นี้
             const lastDate = lastDateMap.get(station.id);
 
             // ✅ RefDate สำหรับ Squeeze/EstimateSell
@@ -342,7 +310,6 @@ const GasStationsDetail = (props) => {
             const d = selected.format("D");
             const reportForDate = station?.Report?.[y]?.[m]?.[d];
 
-            // ✅ ถ้ามี report ของวันที่เลือก
             if (reportForDate) {
                 if (reportForVolume && Array.isArray(reportForDate.Products)) {
                     reportForDate.Products = reportForDate.Products.map((todayItem) => {
@@ -376,7 +343,6 @@ const GasStationsDetail = (props) => {
                     });
                 }
 
-                // ✅ เพิ่ม Backyard ให้ทุก Product จาก station.Products
                 reportForDate.Products = reportForDate.Products.map((prod) => {
                     const base = station?.Products?.find(
                         (p) => p.Name === prod.ProductName
@@ -384,14 +350,13 @@ const GasStationsDetail = (props) => {
 
                     return {
                         ...prod,
-                        Backyard: base?.Backyard ?? false, // 👈 เพิ่มที่นี่
+                        Backyard: base?.Backyard ?? false,
                     };
                 });
 
                 return reportForDate;
             }
 
-            // ✅ fallback products
             let fallbackProducts = [];
             if (Array.isArray(station?.Products) && station.Products.length)
                 fallbackProducts = station.Products;
@@ -414,10 +379,6 @@ const GasStationsDetail = (props) => {
                     stationId: station.id,
                 };
             }
-
-            console.log("stock.Products : ", stock.Products);
-            console.log("station.Products : ", station.Products);
-            console.log("fallbackProducts : ", fallbackProducts);
 
             const defaultProducts = fallbackProducts
                 .map((p) => {
@@ -449,7 +410,6 @@ const GasStationsDetail = (props) => {
                         FullVolume: Number(p?.FullVolume) || 0,
                         Volume: Number(p?.Volume) || 0,
 
-                        // ✅ Logic ใหม่
                         Squeeze: isFirst ? (prevSqueeze || Squeeze || 0) : 0,
                         EstimateSell: prevEstimateSell || 0,
 
@@ -460,9 +420,8 @@ const GasStationsDetail = (props) => {
                         Period: 0,
                         DownHole: Number(p?.DownHole) || 0,
 
-                        Backyard: p?.Backyard ?? false,   // 👈 เพิ่มตรงนี้
+                        Backyard: p?.Backyard ?? false,
 
-                        // ✅ Volume ของเมื่อวาน
                         YesterDay: volYesterday,
                         Sell: volYesterday - Number(p?.Volume),
                         TotalVolume: 0,
@@ -507,7 +466,6 @@ const GasStationsDetail = (props) => {
     const memoStocks = useMemo(() => stocks, [JSON.stringify(stocks)]);
     const memoGasStationOil = useMemo(() => gasStationOil, [JSON.stringify(gasStationOil)]);
 
-    // --- ฟังก์ชันเตรียมข้อมูล ---
     const DEFAULT_TRUCK = [{ id: 0, Truck: "", Price: "", Volume: "" }];
 
     const prepareData = (data) => {
@@ -522,7 +480,6 @@ const GasStationsDetail = (props) => {
                     Volume: t.Volume ?? "",
                 }))
                 : DEFAULT_TRUCK,
-            // ⭐ ให้ค่าเริ่มต้นตรงนี้
             originalProducts: JSON.parse(JSON.stringify(st.Products || [])),
             originalTruck: JSON.parse(JSON.stringify(
                 st.Truck && st.Truck.length > 0
@@ -563,7 +520,6 @@ const GasStationsDetail = (props) => {
     const isEmptyValue = v =>
         v === undefined || v === null || Number(v) === 0;
 
-    // --- โหลดข้อมูลเมื่อ selectedDate หรือ stocks/gasStationOil พร้อม ---
     useEffect(() => {
         if (!Array.isArray(memoStocks) || memoStocks.length === 0) return;
         if (!Array.isArray(memoGasStationOil) || memoGasStationOil.length === 0) return;
@@ -572,7 +528,6 @@ const GasStationsDetail = (props) => {
 
         const formattedDate = selectedDate.format("DD/MM/YYYY");
 
-        // ดึงข้อมูลเก่าจาก localStorage
         const saved = localStorage.getItem(STORAGE_KEY);
         let oldData = null;
         if (saved) {
@@ -643,9 +598,6 @@ const GasStationsDetail = (props) => {
 
             let finalTruck = [];
 
-            console.log("todayTruck : ", todayTruck);
-            console.log("hasValidTruck(todayTruck) : ", hasValidTruck(todayTruck));
-
             if (hasValidTruck(todayTruck)) {
                 const yesterdayTruck = findYesterdayTruck(st?.Report, selectedDate);
 
@@ -672,7 +624,6 @@ const GasStationsDetail = (props) => {
                     }));
             }
 
-            // 🔥 สำคัญที่สุดตรงนี้
             const cleanProducts = structuredClone(station.Products ?? []);
             const cleanTruck = structuredClone(finalTruck);
 
@@ -701,13 +652,6 @@ const GasStationsDetail = (props) => {
 
     }, [selectedDate, memoStocks, memoGasStationOil]);
 
-    console.log("station report : ", stationReports);
-
-    // field ที่ถือว่ามีผลต่อการเปลี่ยนแปลง
-    // เทียบ product ทุก field ที่สำคัญ
-
-    // เทียบ Truck แบบไม่ใช้ JSON.stringify
-
     const PRODUCT_FIELDS = [
         "FullVolume",
         "Volume",
@@ -719,13 +663,13 @@ const GasStationsDetail = (props) => {
         "BackyardSales"
     ];
 
-    // ตรวจว่า product เปลี่ยนจริงไหม (เทียบกับ original)
     const isProductChanged = (original, current) => {
         return PRODUCT_FIELDS.some(f =>
             String(original?.[f] ?? "") !== String(current?.[f] ?? "")
         );
     };
 
+    // Compares Truck arrays field-by-field rather than via JSON.stringify.
     const isTruckChanged = (orig = [], curr = []) => {
         if (orig.length !== curr.length) return true;
 
@@ -736,7 +680,6 @@ const GasStationsDetail = (props) => {
         );
     };
 
-    // recompute ทุกค่าที่คำนวณ
     const recomputeProduct = (p) => {
         const cloned = structuredClone(p);
 
@@ -750,7 +693,6 @@ const GasStationsDetail = (props) => {
         return cloned;
     };
 
-    // --- ฟังก์ชันแก้ไขข้อมูลแต่ละ station ---
     const handleProductChange = (stationId, products, fieldOrType) => {
         setStationReports(prev => {
             const target = prev.find(s => s.stationId === stationId);
@@ -884,40 +826,6 @@ const GasStationsDetail = (props) => {
 
     if (loading) return <FullPageLoading />;
 
-    // ✅ เมื่อกด Save
-    // const handleSave = async (stationId, gasStation, products) => {
-    //     const year = dayjs(selectedDate).format("YYYY");
-    //     const month = dayjs(selectedDate).format("M");
-    //     const day = dayjs(selectedDate).format("D");
-
-    //     try {
-    //         // 1️⃣ อัปเดตไป Firebase
-    //         await database
-    //             .ref(`/depot/gasStations/${gasStation.id - 1}/Report/${year}/${month}`)
-    //             .child(day)
-    //             .update(products);
-
-    //         ShowSuccess("บันทึกข้อมูลสำเร็จ");
-    //         console.log("✅ Updated success");
-
-    //         // 2️⃣ รีเซ็ต hasChanged + original ให้ UI update
-    //         setStationReports(prev =>
-    //             prev.map(s =>
-    //                 s.stationId === stationId
-    //                     ? {
-    //                         ...s,
-    //                         hasChanged: false,
-    //                         original: JSON.parse(JSON.stringify(s.Products)),
-    //                     }
-    //                     : s
-    //             )
-    //         );
-    //     } catch (error) {
-    //         ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-    //         console.error("Error updating data:", error);
-    //     }
-    // };
-
     const handleSave = async (stockProducts) => {
         const year = dayjs(selectedDate).format("YYYY");
         const month = dayjs(selectedDate).format("M");
@@ -991,12 +899,6 @@ const GasStationsDetail = (props) => {
         }
     };
 
-    // console.log("stocks : ", stocks);
-    // console.log("gasStationOil : ", gasStationOil);
-    // console.log("stationReports : ", stationReports);
-
-    // console.log("TotaldownHoleByProduct :", calculateTotalDownHole(stocks[0]?.id));
-
     return (
         <React.Fragment>
             {saving && (
@@ -1015,10 +917,8 @@ const GasStationsDetail = (props) => {
                             gap: 2
                         }}
                     >
-                        {/* โลโก้อยู่ตรงกลางบน */}
                         <img src={Logo} width="400" style={{ marginBottom: 24 }} />
 
-                        {/* แถบโหลดอยู่ด้านล่างโลโก้ */}
                         <Box sx={{ width: "50%" }}>
                             <LinearProgress
                                 variant="indeterminate"
@@ -1048,7 +948,6 @@ const GasStationsDetail = (props) => {
                         <Paper
                             component="form"
                             sx={{
-                                //width: "100%", // กำหนดความกว้างของ Paper
                                 height: "40px",
                                 display: "flex",
                                 alignItems: "center",
@@ -1062,14 +961,12 @@ const GasStationsDetail = (props) => {
                                     value={selectedDate ? dayjs(selectedDate, "DD/MM/YYYY") : null}
                                     format="DD/MM/YYYY"
                                     onChange={(newValue) => {
-                                        // ตรวจสอบว่ามีการแก้ไขค้างอยู่หรือไม่
                                         const hasUnsaved = stationReports.some(st => st.hasChanged);
                                         if (hasUnsaved) {
                                             ShowWarning("กรุณาบันทึกการแก้ไขข้อมูลก่อนเปลี่ยนวันที่!");
-                                            return; // ❌ หยุดไม่ให้เปลี่ยนค่า
+                                            return;
                                         }
 
-                                        // ถ้าไม่มีการแก้ไขค้าง ให้เปลี่ยน selectedDate ตรง ๆ
                                         if (newValue) {
                                             setSelectedDate(dayjs(newValue, "DD/MM/YYYY"));
                                         }
@@ -1110,7 +1007,6 @@ const GasStationsDetail = (props) => {
                                     <Checkbox
                                         checked={checkStock === "ทั้งหมด"}
                                         onChange={() => setCheckStock("ทั้งหมด")}
-                                    //disabled={isDataUpdated} // 🔹 ปิดการเลือกถ้ามีการเปลี่ยนแปลง
                                     />
                                 }
                                 label="ทั้งหมด"
@@ -1122,26 +1018,19 @@ const GasStationsDetail = (props) => {
                                         <Checkbox
                                             checked={checkStock === row.Name}
                                             onChange={() => {
-                                                // ✅ เช็คว่ามี station ไหนถูกแก้
                                                 const hasUnsaved = stationReports.some(st => st.hasChanged);
                                                 if (hasUnsaved) {
                                                     ShowWarning("กรุณาบันทึกการแก้ไขข้อมูลก่อนเปลี่ยน Stock!");
-                                                    return; // ❌ หยุดไม่ให้เปลี่ยนค่า
+                                                    return;
                                                 }
 
-                                                setCheckStock(row.Name); // ✅ ถ้าไม่มี unsaved จะเปลี่ยนค่าได้
+                                                setCheckStock(row.Name);
                                             }}
-                                        //disabled={isDataUpdated} // 🔹 ปิดการเลือกถ้ามีการเปลี่ยนแปลง
                                         />
                                     }
                                     label={row.Name}
                                 />
                             ))}
-                            {/* {isDataUpdated && (
-                                <Typography color="error" sx={{ mt: 1 }}>
-                                    ⚠️ กรุณาบันทึกข้อมูลก่อนเปลี่ยนสาขา
-                                </Typography>
-                            )} */}
                         </FormGroup>
                     </Grid>
                     <Grid item xs={12}>
@@ -1158,158 +1047,14 @@ const GasStationsDetail = (props) => {
                                         border: '2px solid lightgray',
                                         borderRadius: 3,
                                         boxShadow: 1,
-                                        //width: "100%",
                                         overflowY: 'auto',
                                     }}
                                     key={stock.id || idx}
                                 >
-                                    {/* {
-                                        gasStationOil.filter((g) => g.Stock === stock.uuid).length > 1 && (
-                                            <Grid container spacing={1} marginBottom={1} pr={1} pl={1}>
-                                                <Grid item xl={1.5} md={2} sm={3} xs={4}>
-                                                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold', fontsize: "18px", mt: 1 }}>
-                                                        กรอกปริมาณน้ำมัน :
-                                                    </Typography>
-                                                </Grid>
-                                                {
-                                                    stock.Products && Array.isArray(stock.Products) && stock.Products.map((product, index) => (
-                                                        <Grid item xl={1.5} md={2} sm={3} xs={4}>
-                                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "left", backgroundColor: product.Color, p: 0.5, borderRadius: 1 }}>
-                                                                <Typography variant="subtitle1" fontWeight="bold" sx={{ fontWeight: 'bold', mr: 1, fontSize: "18px" }}>{product.ProductName}</Typography>
-                                                                <Paper sx={{ width: "100%" }}>
-                                                                    <TextField
-                                                                        size="small"
-                                                                        type={"text"}
-                                                                        // type={isFieldFocused(index, "Volume") ? "text" : "text"}
-                                                                        // แนะนำใช้ text ตลอด เพราะจัดการ input เอง
-                                                                        InputLabelProps={{ sx: { fontSize: 12, fontWeight: "bold" } }}
-                                                                        // value={
-                                                                        //     isFieldFocused(index, "Volume")
-                                                                        //         ? (s.Volume === 0 ? "" : s.Volume)
-                                                                        //         : Number(s.Volume || 0).toLocaleString()
-                                                                        // }
-                                                                        // onFocus={() => handleFocus(index, "Volume")}
-                                                                        // onBlur={(e) => handleBlur(index, "Volume", e)} // ส่ง event
-                                                                        // onChange={(e) => {
-                                                                        //     let raw = e.target.value.replace(/,/g, "");
-
-                                                                        //     // ⭐ อนุญาตให้เริ่มด้วย "-"
-                                                                        //     if (raw === "-" || raw === "") {
-                                                                        //         handleProductChange(index, "Volume", raw);
-                                                                        //         return;
-                                                                        //     }
-
-                                                                        //     // ⭐ อนุญาตเลขติดลบ เช่น "-1000"
-                                                                        //     if (/^-?\d+$/.test(raw)) {
-                                                                        //         handleProductChange(index, "Volume", Number(raw));
-                                                                        //     }
-                                                                        // }}
-                                                                        // onKeyDown={(e) => {
-                                                                        //     let raw = String(s.Volume).replace(/,/g, "");
-
-                                                                        //     // รองรับค่าที่เป็น "-" หรือค่าว่าง
-                                                                        //     if (raw === "" || raw === "-") raw = "0";
-
-                                                                        //     let current = Number(raw);
-
-                                                                        //     if (e.key === "ArrowUp") {
-                                                                        //         e.preventDefault();
-                                                                        //         handleProductChange(index, "Volume", current + 1000);
-                                                                        //     }
-
-                                                                        //     if (e.key === "ArrowDown") {
-                                                                        //         e.preventDefault();
-                                                                        //         handleProductChange(index, "Volume", current - 1000);
-                                                                        //     }
-                                                                        // }}
-                                                                        fullWidth
-                                                                        InputProps={{
-                                                                            inputProps: {
-                                                                                min: undefined, // ❗ เอาออกเพื่อรองรับค่าติดลบ
-                                                                                step: 1000,
-                                                                            },
-                                                                            sx: {
-                                                                                "& input::-webkit-inner-spin-button": {
-                                                                                    // marginLeft: isFieldFocused(index, "Volume") ? 1 : 0,
-                                                                                    marginRight: -0.5
-                                                                                }
-                                                                            },
-                                                                            startAdornment: (
-                                                                                <InputAdornment position="start">
-                                                                                    <IconButton
-                                                                                        size="small"
-                                                                                        sx={{
-                                                                                            p: '0px',        // 🔹 ตัด padding IconButton
-                                                                                            width: 5,
-                                                                                            height: 18,
-                                                                                            ml: -1,
-                                                                                            opacity: 0.6      // 🔹 ลดระยะชิดซ้าย
-                                                                                        }}
-                                                                                    // onClick={() => {
-                                                                                    //     let raw = String(s.Volume).replace(/,/g, "");
-                                                                                    //     if (raw === "" || raw === "-") raw = "0";
-
-                                                                                    //     const newValue = Number(raw) - 1000;
-
-                                                                                    //     handleChangeWithCheck(index, "Volume", newValue); // ✅ ใช้ฟังก์ชันใหม่
-                                                                                    // }}
-                                                                                    >
-                                                                                        <ArrowLeftIcon sx={{ fontSize: "25px" }} />
-                                                                                    </IconButton>
-                                                                                </InputAdornment>
-                                                                            ),
-                                                                            endAdornment: (
-                                                                                <InputAdornment position="end">
-                                                                                    <IconButton
-                                                                                        size="small"
-                                                                                        sx={{
-                                                                                            p: '0px',        // 🔹 ตัด padding IconButton
-                                                                                            width: 5,
-                                                                                            height: 18,
-                                                                                            mr: -1.5,
-                                                                                            opacity: 0.6       // 🔹 ลดระยะชิดซ้าย
-                                                                                        }}
-                                                                                    // onClick={() => {
-                                                                                    //     let raw = String(s.Volume).replace(/,/g, "");
-                                                                                    //     if (raw === "" || raw === "-") raw = "0";
-
-                                                                                    //     const newValue = Number(raw) + 1000;
-
-                                                                                    //     handleChangeWithCheck(index, "Volume", newValue); // ✅ ใช้ฟังก์ชันใหม่
-                                                                                    // }}
-                                                                                    >
-                                                                                        <ArrowRightIcon sx={{ fontSize: "25px" }} />
-                                                                                    </IconButton>
-                                                                                </InputAdornment>
-                                                                            ),
-                                                                        }}
-                                                                        sx={{
-                                                                            "& .MuiOutlinedInput-root": { height: 30 },
-                                                                            "& .MuiInputBase-input": {
-                                                                                fontSize: 12,
-                                                                                fontWeight: "bold",
-                                                                                textAlign: "right",
-                                                                                mr: -0.5,
-                                                                                ml: -0.5,
-                                                                                pr: 0.5,
-                                                                                paddingLeft: -3, // เพิ่มพื้นที่ให้ endAdornment
-                                                                                paddingRight: 1, // เพิ่มพื้นที่ให้ endAdornment
-                                                                            },
-                                                                        }}
-                                                                    />
-                                                                </Paper>
-                                                            </Box>
-                                                        </Grid>
-                                                    ))
-                                                }
-                                            </Grid>
-                                        )
-                                    } */}
                                     {gasStationOil.map((row, index) => {
                                         if (row.Stock === stock.uuid) {
                                             const filteredStocks = gasStationOil.filter(r => r.Stock === stock.uuid);
-                                            const stockCount = filteredStocks.length;  // จำนวนปั้มที่ตรงกัน
-                                            // ✔ หาลำดับปั้ม (0,1)
+                                            const stockCount = filteredStocks.length;
                                             const pumpOrder = filteredStocks.findIndex(p => p.id === row.id);
                                             matchCount++;
                                             return (
@@ -1336,9 +1081,9 @@ const GasStationsDetail = (props) => {
                                                         isFirst={matchCount === 1}
                                                         isFirstPump={pumpOrder === 0}
                                                         stockCount={stockCount}
-                                                        handleSave={handleSave}           // 👈 เพิ่มตรงนี้
-                                                        check={stationReports[index]?.hasChanged}  // ✅ ใช้ optional chaining
-                                                        stationId={stationReports[index]?.stationId}   // ✅ ส่ง stationId มาด้วย
+                                                        handleSave={handleSave}
+                                                        check={stationReports[index]?.hasChanged}
+                                                        stationId={stationReports[index]?.stationId}
                                                         stocks={stocks}
                                                         onCheck={onCheck}
                                                     />

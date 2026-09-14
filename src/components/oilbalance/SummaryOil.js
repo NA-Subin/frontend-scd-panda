@@ -83,9 +83,6 @@ const SummaryOilBalance = ({ openNavbar }) => {
     direction: "asc",
   });
 
-  console.log("sortConfig : ", sortConfig);
-
-  // ใช้ useEffect เพื่อรับฟังการเปลี่ยนแปลงของขนาดหน้าจอ
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
@@ -97,7 +94,6 @@ const SummaryOilBalance = ({ openNavbar }) => {
       setWindowWidth(width);
     };
 
-    // เรียกครั้งแรกตอน mount
     handleResize();
 
     window.addEventListener("resize", handleResize);
@@ -105,7 +101,7 @@ const SummaryOilBalance = ({ openNavbar }) => {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [openNavbar]); // ✅ ทำงานใหม่ทุกครั้งที่ openNavbar เปลี่ยน
+  }, [openNavbar]);
 
   const handleSort = (key) => {
     setSortConfig((prev) => ({
@@ -124,19 +120,18 @@ const SummaryOilBalance = ({ openNavbar }) => {
 
   const handleDateChangeDateStart = (newValue) => {
     if (newValue) {
-      const formattedDate = dayjs(newValue); // แปลงวันที่เป็นฟอร์แมต
+      const formattedDate = dayjs(newValue);
       setSelectedDateStart(formattedDate);
     }
   };
 
   const handleDateChangeDateEnd = (newValue) => {
     if (newValue) {
-      const formattedDate = dayjs(newValue); // แปลงวันที่เป็นฟอร์แมต
+      const formattedDate = dayjs(newValue);
       setSelectedDateEnd(formattedDate);
     }
   };
 
-  // const { reportFinancial, drivers } = useData();
   const {
     drivers,
     customertransports,
@@ -177,12 +172,10 @@ const SummaryOilBalance = ({ openNavbar }) => {
           maximumFractionDigits: 2,
         }).format(value);
 
-  console.log("Select Driver ID : ", selectDriver);
-
   const orderDetail = useMemo(() => {
     if (!selectedDateStart || !selectedDateEnd) return [];
 
-    const productOrder = ["G95", "B95", "D", "G91", "E20", "PWD", "B20"]; // กำหนดลำดับของ product ที่ต้องการ
+    const productOrder = ["G95", "B95", "D", "G91", "E20", "PWD", "B20"];
 
     return (
       orders
@@ -219,7 +212,6 @@ const SummaryOilBalance = ({ openNavbar }) => {
             Object.entries(item.Product)
               // ตัด product "P" ออก
               .filter(([productName]) => productName !== "P")
-              // ✅ เรียง productName ตาม productOrder ที่กำหนด
               .sort(([a], [b]) => {
                 const indexA = productOrder.indexOf(a);
                 const indexB = productOrder.indexOf(b);
@@ -228,7 +220,6 @@ const SummaryOilBalance = ({ openNavbar }) => {
                 if (indexB === -1) return -1;
                 return indexA - indexB;
               })
-              // แปลงเป็น object ที่ใช้ในตาราง
               .map(([productName, productData]) => ({
                 ...item,
                 ProductName: productName,
@@ -239,7 +230,6 @@ const SummaryOilBalance = ({ openNavbar }) => {
               }))
           );
         })
-        // ✅ sort ต่ออีกทีตาม Date และ Driver
         .sort((a, b) => {
           const dateA = dayjs(a.Date, "DD/MM/YYYY");
           const dateB = dayjs(b.Date, "DD/MM/YYYY");
@@ -251,8 +241,6 @@ const SummaryOilBalance = ({ openNavbar }) => {
         })
     );
   }, [orders, selectedDateStart, selectedDateEnd, selectTickets]);
-
-  console.log("Detail : ", orderDetail);
 
   const totalAmount = orderDetail.reduce(
     (sum, item) => sum + Number(item.Amount || 0),
@@ -319,16 +307,10 @@ const SummaryOilBalance = ({ openNavbar }) => {
         )
         .map((item) => ({ ...item, CustomerType: "ตั๋วรถใหญ่" })),
       // รถใหญ่ใช้ ticketsB
-      // ...[...ticketsS].filter((item) => item.Status === "ลูกค้าประจำ")
-      //     .sort((a, b) => a.Name.localeCompare(b.Name, undefined, { sensitivity: 'base' }))
-      //     .map((item) => ({ ...item, CustomerType: "ตั๋วรถเล็ก" })) // รถเล็กใช้ ticketsS
     ];
 
     return customers.filter((item) => item.id || item.TicketsCode);
   };
-
-  console.log("Order Detail : ", orderDetail);
-  console.log("Select Tickets : ", selectTickets);
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -361,7 +343,6 @@ const SummaryOilBalance = ({ openNavbar }) => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("รายงานสรุปยอดน้ำมัน");
 
-    // 1️⃣ กำหนด columns
     worksheet.columns = [
       { header: "ลำดับ", key: "no", width: 8 },
       { header: "วันที่ส่ง", key: "date", width: 15 },
@@ -373,7 +354,6 @@ const SummaryOilBalance = ({ openNavbar }) => {
       { header: "ยอดเงิน", key: "amount", width: 30 },
     ];
 
-    // 2️⃣ Title merge
     worksheet.mergeCells(1, 1, 1, worksheet.columns.length);
     const titleCell = worksheet.getCell("A1");
     titleCell.value = "รายงานสรุปยอดน้ำมัน";
@@ -386,7 +366,6 @@ const SummaryOilBalance = ({ openNavbar }) => {
     };
     worksheet.getRow(1).height = 30;
 
-    // 3️⃣ Header row (row 2)
     const headerRow = worksheet.addRow(worksheet.columns.map((c) => c.header));
     headerRow.font = { bold: true };
     headerRow.alignment = { horizontal: "center", vertical: "middle" };
@@ -405,7 +384,6 @@ const SummaryOilBalance = ({ openNavbar }) => {
       };
     });
 
-    // 4️⃣ Data rows
     sortedOrderDetail.forEach((row, index) => {
       const dataRow = {
         no: index + 1,
@@ -428,14 +406,12 @@ const SummaryOilBalance = ({ openNavbar }) => {
           bottom: { style: "thin" },
           right: { style: "thin" },
         };
-        // ยกเว้น column "no"
         if (worksheet.columns[colNumber - 1].key !== "no") {
           cell.numFmt = "#,##0.00";
         }
       });
     });
 
-    // 5️⃣ Footer row รวมค่า
     const footerRow = worksheet.addRow({
       ticket: "รวม",
       volume: sortedOrderDetail.reduce(
@@ -453,7 +429,7 @@ const SummaryOilBalance = ({ openNavbar }) => {
         type: "pattern",
         pattern: "solid",
         fgColor: { argb: "FFFFE699" },
-      }; // สีเหลือง
+      };
       cell.border = {
         top: { style: "thin" },
         left: { style: "thin" },
@@ -470,7 +446,6 @@ const SummaryOilBalance = ({ openNavbar }) => {
       }
     });
 
-    // 6️⃣ Save
     const buffer = await workbook.xlsx.writeBuffer();
     saveAs(
       new Blob([buffer]),
@@ -511,7 +486,7 @@ const SummaryOilBalance = ({ openNavbar }) => {
             <Grid item sm={12} lg={5}>
               <Box
                 sx={{
-                  width: "100%", // กำหนดความกว้างของ Paper
+                  width: "100%",
                   height: "40px",
                   display: "flex",
                   alignItems: "center",
@@ -529,7 +504,7 @@ const SummaryOilBalance = ({ openNavbar }) => {
                           ? dayjs(selectedDateStart, "DD/MM/YYYY")
                           : null
                       }
-                      format="DD/MM/YYYY" // <-- ใช้แบบที่ MUI รองรับ
+                      format="DD/MM/YYYY"
                       onChange={handleDateChangeDateStart}
                       slotProps={{
                         textField: {
@@ -568,7 +543,7 @@ const SummaryOilBalance = ({ openNavbar }) => {
                           ? dayjs(selectedDateEnd, "DD/MM/YYYY")
                           : null
                       }
-                      format="DD/MM/YYYY" // <-- ใช้แบบที่ MUI รองรับ
+                      format="DD/MM/YYYY"
                       onChange={handleDateChangeDateEnd}
                       slotProps={{
                         textField: {
@@ -602,47 +577,6 @@ const SummaryOilBalance = ({ openNavbar }) => {
               </Box>
             </Grid>
             <Grid item sm={12} lg={5}>
-              {/* <Paper>
-                            <FormControl size="small" fullWidth>
-                                <Select
-                                    value={selectDriver}
-                                    onChange={handleChangeDriver}
-                                    input={
-                                        <OutlinedInput
-                                            startAdornment={
-                                                <InputAdornment position="start" sx={{ marginRight: 1 }}>
-                                                    กรุณาเลือกผู้ขับ/ป้ายทะเบียน :
-                                                </InputAdornment>
-                                            }
-                                        />
-                                    }
-                                    MenuProps={{
-                                        PaperProps: {
-                                            style: {
-                                                maxHeight: 250, // ความสูงสูงสุดที่จะแสดงก่อนมี scroll
-                                                width: 300,     // ปรับความกว้างตามต้องการ
-                                            },
-                                        },
-                                    }}
-                                >
-                                    <MenuItem value={0}>แสดงทั้งหมด</MenuItem>
-                                    {[...driver]
-                                        .sort((a, b) => {
-                                            // รถใหญ่ต้องมาก่อน
-                                            if (a.TruckType === "รถใหญ่" && b.TruckType !== "รถใหญ่") return -1;
-                                            if (a.TruckType !== "รถใหญ่" && b.TruckType === "รถใหญ่") return 1;
-
-                                            // ถ้า TruckType เหมือนกัน ให้เรียงตามชื่อ
-                                            return a.Name.localeCompare(b.Name);
-                                        })
-                                        .map((row) => (
-                                            <MenuItem key={row.id} value={row.id}>
-                                                {`${row.Name}/${row.RegistrationName} (${row.TruckType})`}
-                                            </MenuItem>
-                                        ))}
-
-                                </Select>
-                            </FormControl> */}
               <Paper>
                 <Paper>
                   <Autocomplete
@@ -713,38 +647,6 @@ const SummaryOilBalance = ({ openNavbar }) => {
                     }}
                   />
                 </Paper>
-
-                {/* <FormControl size="small" fullWidth>
-                                <Select
-                                    value={selectTickets}
-                                    onChange={handleChangeTickets}
-                                    input={
-                                        <OutlinedInput
-                                            startAdornment={
-                                                <InputAdornment position="start" sx={{ marginRight: 1 }}>
-                                                    กรุณาเลือกผู้ขับ/ป้ายทะเบียน :
-                                                </InputAdornment>
-                                            }
-                                        />
-                                    }
-                                    MenuProps={{
-                                        PaperProps: {
-                                            style: {
-                                                maxHeight: 250, // ความสูงสูงสุดที่จะแสดงก่อนมี scroll
-                                                width: 300,     // ปรับความกว้างตามต้องการ
-                                            },
-                                        },
-                                    }}
-                                >
-                                    <MenuItem value={0}>แสดงทั้งหมด</MenuItem>
-                                    {getCustomers().map((row) => (
-                                        <MenuItem key={row.id} value={`${row.id}:${row.Name}`}>
-                                            {`${row.Name} (${row.CustomerType})`}
-                                        </MenuItem>
-                                    ))}
-
-                                </Select>
-                            </FormControl> */}
               </Paper>
             </Grid>
             <Grid item sm={12} lg={2}>
@@ -765,7 +667,7 @@ const SummaryOilBalance = ({ openNavbar }) => {
             <Grid item xs={12}>
               <Box
                 sx={{
-                  width: "100%", // กำหนดความกว้างของ Paper
+                  width: "100%",
                   height: "40px",
                   display: "flex",
                   alignItems: "center",
@@ -783,7 +685,7 @@ const SummaryOilBalance = ({ openNavbar }) => {
                           ? dayjs(selectedDateStart, "DD/MM/YYYY")
                           : null
                       }
-                      format="DD/MM/YYYY" // <-- ใช้แบบที่ MUI รองรับ
+                      format="DD/MM/YYYY"
                       onChange={handleDateChangeDateStart}
                       slotProps={{
                         textField: {
@@ -822,7 +724,7 @@ const SummaryOilBalance = ({ openNavbar }) => {
                           ? dayjs(selectedDateEnd, "DD/MM/YYYY")
                           : null
                       }
-                      format="DD/MM/YYYY" // <-- ใช้แบบที่ MUI รองรับ
+                      format="DD/MM/YYYY"
                       onChange={handleDateChangeDateEnd}
                       slotProps={{
                         textField: {
@@ -1031,19 +933,6 @@ const SummaryOilBalance = ({ openNavbar }) => {
                         )}
                       </Box>
                     </TablecellInfo>
-                    {/* <TablecellInfo
-                                            onClick={() => handleSort("ProductName")}
-                                            sx={{ textAlign: "center", fontSize: 16, width: 50 }}
-                                        >
-                                            <Box display="flex" alignItems="center" justifyContent="center">
-                                                ชนิดน้ำมัน
-                                                {sortConfig.key === "ProductName" ? (
-                                                    sortConfig.direction === "asc" ? <ArrowDropDownIcon /> : <ArrowDropUpIcon />
-                                                ) : (
-                                                    <ArrowDropDownIcon sx={{ opacity: 0.3 }} />
-                                                )}
-                                            </Box>
-                                        </TablecellInfo> */}
                     <TablecellInfo
                       sx={{ textAlign: "center", fontSize: 16, width: 50 }}
                     >
@@ -1078,7 +967,7 @@ const SummaryOilBalance = ({ openNavbar }) => {
                     </TableRow>
                   ) : (
                   (() => {
-                    // ✅ ลำดับกลุ่มต่อเนื่องข้ามหน้า (เริ่มจากจำนวนกลุ่มที่ถูกข้ามไปในหน้าก่อนหน้า)
+                    // ลำดับกลุ่มต่อเนื่องข้ามหน้า (เริ่มจากจำนวนกลุ่มที่ถูกข้ามไปในหน้าก่อนหน้า)
                     let groupCounter = safePage * rowsPerPage;
                     return pagedOrderDetail.map((row, index) => {
                     const dateKey = formatThaiSlash(
@@ -1090,7 +979,6 @@ const SummaryOilBalance = ({ openNavbar }) => {
                     const groupKey = `${dateKey}_${driverKey}`;
                     const subGroupKey = `${groupKey}_${ticketKey}`;
 
-                    // หาจำนวนและขอบเขตของกลุ่ม
                     const groupIndexes = pagedOrderDetail
                       .map((r, i) => ({
                         i,
@@ -1119,7 +1007,6 @@ const SummaryOilBalance = ({ openNavbar }) => {
                     const groupCount = groupIndexes.length;
                     const subGroupCount = subGroupIndexes.length;
 
-                    // หาตำแหน่งแรกและสุดท้ายของแต่ละกลุ่ม
                     const firstIndexOfGroup = groupIndexes[0];
                     const lastIndexOfGroup =
                       groupIndexes[groupIndexes.length - 1];
@@ -1132,14 +1019,11 @@ const SummaryOilBalance = ({ openNavbar }) => {
                     const isFirstOfSubGroup = index === firstIndexOfSubGroup;
                     const isLastOfSubGroup = index === lastIndexOfSubGroup;
 
-                    // ✅ เพิ่มตัวนับเฉพาะแถวแรกของกลุ่ม
                     if (isFirstOfGroup) groupCounter += 1;
 
-                    // borderBottom เฉพาะแถวสุดท้ายของกลุ่ม
                     const borderBottomStyle = isLastOfGroup
                       ? "1.5px solid lightgray"
                       : "1px solid lightgray";
-                    // กำหนดสีสลับ
                     const rowBackgroundColor =
                       groupCounter % 2 === 0 ? "#FFFFFF" : "#f3f6fcff";
 
@@ -1150,11 +1034,6 @@ const SummaryOilBalance = ({ openNavbar }) => {
                           backgroundColor: rowBackgroundColor,
                         }}
                       >
-                        {/* <TableCell sx={{ textAlign: "center", borderBottom: borderBottomStyle }}>
-                                                        {index + 1}
-                                                    </TableCell> */}
-
-                        {/* Date + Driver/Reg */}
                         {isFirstOfGroup && (
                           <>
                             <TableCell
@@ -1171,7 +1050,7 @@ const SummaryOilBalance = ({ openNavbar }) => {
                               sx={{
                                 textAlign: "center",
                                 verticalAlign: "middle",
-                                borderBottom: "1.5px solid lightgray", // เส้นล่างรวมกลุ่ม
+                                borderBottom: "1.5px solid lightgray",
                               }}
                             >
                               {dateKey}
@@ -1191,7 +1070,6 @@ const SummaryOilBalance = ({ openNavbar }) => {
                           </>
                         )}
 
-                        {/* TicketName */}
                         {isFirstOfSubGroup && (
                           <TableCell
                             rowSpan={subGroupCount}
@@ -1293,8 +1171,6 @@ const SummaryOilBalance = ({ openNavbar }) => {
             >
               <Grid item xs={3} />
               <Grid item xs={3}>
-                {/* <Box sx={{ display: "flex", alignItems: "center", justifyContent: "right", marginRight: 2 }}>
-                                    <Typography variant="h6" sx={{ marginRight: 1, fontWeight: "bold" }} gutterBottom>รวมลิตร</Typography> */}
                 <Paper sx={{ backgroundColor: "white" }}>
                   <TextField
                     fullWidth
@@ -1336,7 +1212,6 @@ const SummaryOilBalance = ({ openNavbar }) => {
                     }}
                   />
                 </Paper>
-                {/* </Box> */}
               </Grid>
               <Grid item xs={3}>
                 <Paper sx={{ backgroundColor: "white" }}>
@@ -1380,12 +1255,6 @@ const SummaryOilBalance = ({ openNavbar }) => {
                     }}
                   />
                 </Paper>
-                {/* <Box sx={{ display: "flex", alignItems: "center", justifyContent: "left", marginLeft: 2 }}>
-                                    <Typography variant="h6" sx={{ marginRight: 1, fontWeight: "bold" }} gutterBottom>ยอดเงิน</Typography>
-                                    <Paper>
-                                        <TextField fullWidth size="small" value={new Intl.NumberFormat("en-US").format(totalAmount)} />
-                                    </Paper>
-                                </Box> */}
               </Grid>
               <Grid item xs={3} />
             </Grid>

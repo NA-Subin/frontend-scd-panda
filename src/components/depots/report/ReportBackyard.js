@@ -124,8 +124,6 @@ const ReportBackyard = (props) => {
         }
     };
 
-    console.log("stockSummary.total + summary.total : ", stockSummary.total, summary.total, stockSummary.total + summary.total);
-
     return (
         <React.Fragment>
             <TableRow>
@@ -136,7 +134,7 @@ const ReportBackyard = (props) => {
                         color: product.Backyard ? "black" : "darkgray",
                         position: "sticky",
                         left: 0,
-                        zIndex: 1, // กำหนด z-indexProduct เพื่อให้อยู่ด้านบน
+                        zIndex: 1,
                         borderBottom: "2px solid white"
                     }}
                 >
@@ -151,7 +149,7 @@ const ReportBackyard = (props) => {
                     color: product.Backyard ? (backyardItem.Diff < 0 ? "#d50000" : "black") : "darkgray",
                     paddingLeft: "30px !important",
                     paddingRight: "30px !important",
-                    fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน 
+                    fontVariantNumeric: "tabular-nums",
                 }}>
                     {product.Backyard ? (backyardItem.Diff ?? 0).toLocaleString() : "-"}
                 </TableCell>
@@ -168,9 +166,6 @@ const ReportBackyard = (props) => {
                                 <Paper sx={{ width: "100%" }}>
                                     <TextField
                                         size="small"
-                                        // type={isFieldFocused(index, "EstimateSell") ? "text" : "text"}
-                                        // label={"ขาย"}
-                                        // แนะนำใช้ text ตลอด เพราะจัดการ input เอง
                                         InputLabelProps={{ sx: { fontSize: 12, fontWeight: "bold" } }}
                                         value={
                                             isEditingBackyard && (backyardItem.CBP ?? 0) === 0
@@ -267,54 +262,7 @@ const ReportBackyard = (props) => {
                                                 }));
                                             }
                                         }}
-
-                                        // onFocus={() => handleFocus(index, "EstimateSell")}
-                                        // onBlur={(e) => handleBlur(index, "EstimateSell", e)} // ส่ง event
-                                        // onChange={(e) => {
-                                        //     let raw = e.target.value.replace(/,/g, "");
-
-                                        //     // ⭐ อนุญาตให้เริ่มด้วย "-"
-                                        //     if (raw === "-" || raw === "") {
-                                        //         handleProductChange(index, "EstimateSell", raw);
-                                        //         return;
-                                        //     }
-
-                                        //     // ⭐ อนุญาตเลขติดลบ เช่น "-1000"
-                                        //     if (/^-?\d+$/.test(raw)) {
-                                        //         handleProductChange(index, "EstimateSell", Number(raw));
-                                        //     }
-                                        // }}
-                                        // onKeyDown={(e) => {
-                                        //     let raw = String(s.EstimateSell).replace(/,/g, "");
-
-                                        //     // รองรับค่าที่เป็น "-" หรือค่าว่าง
-                                        //     if (raw === "" || raw === "-") raw = "0";
-
-                                        //     let current = Number(raw);
-
-                                        //     if (e.key === "ArrowUp") {
-                                        //         e.preventDefault();
-                                        //         handleProductChange(index, "EstimateSell", current + 1000);
-                                        //     }
-
-                                        //     if (e.key === "ArrowDown") {
-                                        //         e.preventDefault();
-                                        //         handleProductChange(index, "EstimateSell", current - 1000);
-                                        //     }
-                                        // }}
                                         fullWidth
-                                        // InputProps={{
-                                        //     inputProps: {
-                                        //         min: undefined, // ❗ เอาออกเพื่อรองรับค่าติดลบ
-                                        //         step: 1000,
-                                        //     },
-                                        //     sx: {
-                                        //         "& input::-webkit-inner-spin-button": {
-                                        //             marginLeft: isFieldFocused(index, "EstimateSell") ? 1 : 0,
-                                        //             marginRight: -0.5
-                                        //         }
-                                        //     },
-                                        // }}
                                         sx={{
                                             "& .MuiOutlinedInput-root": { height: 25 },
                                             "& .MuiInputBase-input": {
@@ -324,8 +272,8 @@ const ReportBackyard = (props) => {
                                                 mr: -0.5,
                                                 ml: -0.5,
                                                 pr: 0.5,
-                                                paddingLeft: -3, // เพิ่มพื้นที่ให้ endAdornment
-                                                paddingRight: 2, // เพิ่มพื้นที่ให้ endAdornment
+                                                paddingLeft: -3,
+                                                paddingRight: 2,
                                             },
                                         }}
                                     />
@@ -346,12 +294,11 @@ const ReportBackyard = (props) => {
                     color: product.Backyard ? (backyardItem.Total ?? total < 0 ? "#d50000" : "black") : "darkgray",
                     paddingLeft: "30px !important",
                     paddingRight: "30px !important",
-                    fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน 
+                    fontVariantNumeric: "tabular-nums",
                 }}>
                     {product.Backyard ? (backyardItem.Total ?? total).toLocaleString() : "-"}
                 </TableCell>
 
-                {/* วันที่ เรียงตาม daysInMonth */}
                 {daysInMonth.map((d) => {
                     const source = getNextDate(
                         y,
@@ -367,11 +314,6 @@ const ReportBackyard = (props) => {
 
                     const sell = productOfDay?.BackyardSales ?? "-";
 
-                    // // ✅ เก็บ daily summary แยกตามวันในตาราง
-                    // if (sell !== "-" && !isNaN(sell)) {
-                    //     dailySummaryBackyard[d] += Number(sell);
-                    // }
-
                     return (
                         <TableCell
                             key={d}
@@ -382,7 +324,7 @@ const ReportBackyard = (props) => {
                                 color: product.Backyard ? (sell !== "-" && (sell < 0 ? "#d50000" : "black")) : "darkgray",
                                 paddingLeft: "35px !important",
                                 paddingRight: "35px !important",
-                                fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน 
+                                fontVariantNumeric: "tabular-nums",
                             }}
                         >
                             {sell === "-" ? "-" : new Intl.NumberFormat("en-US").format(Math.round(sell))}
@@ -398,7 +340,7 @@ const ReportBackyard = (props) => {
                     color: product.Backyard ? (backyardItem.Carry < 0 ? "#d50000" : "black") : "darkgray",
                     paddingLeft: "10px !important",
                     paddingRight: "10px !important",
-                    fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน 
+                    fontVariantNumeric: "tabular-nums",
                 }}>
                     {new Intl.NumberFormat("en-US", {
                         minimumFractionDigits: 2,
@@ -414,7 +356,7 @@ const ReportBackyard = (props) => {
                     color: product.Backyard ? (backyardItem.Accumulate < 0 ? "#d50000" : "black") : "darkgray",
                     paddingLeft: "10px !important",
                     paddingRight: "10px !important",
-                    fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน 
+                    fontVariantNumeric: "tabular-nums",
                 }}>
                     {new Intl.NumberFormat("en-US", {
                         minimumFractionDigits: 2,
@@ -443,7 +385,7 @@ const ReportBackyard = (props) => {
                                 color="inherit"
                                 fullWidth
                                 sx={{ flexDirection: "column", gap: 0.5 }}
-                                onClick={() => handleSaveCBP(row)}   // ⭐ เพิ่มตรงนี้
+                                onClick={() => handleSaveCBP(row)}
                             >
                                 <SaveIcon fontSize="large" sx={{ color: "white" }} />
                                 <Typography sx={{ fontSize: 12, fontWeight: "bold", color: "white" }}>
@@ -465,11 +407,10 @@ const ReportBackyard = (props) => {
                                     color: "black",
                                     position: "sticky",
                                     left: 0,
-                                    zIndex: 1, // กำหนด z-indexProduct เพื่อให้อยู่ด้านบน
+                                    zIndex: 1,
                                     borderBottom: "2px solid white"
                                 }}
                             >
-                                {/* {`รวม${row.ShortName}`} */}
                                 ผลรวม
                             </TablecellHeader>
                             <TableCell sx={{
@@ -481,7 +422,7 @@ const ReportBackyard = (props) => {
                                 backgroundColor: lightenColor("#bdbdbd", 0.6),
                                 paddingLeft: "30px !important",
                                 paddingRight: "30px !important",
-                                fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน 
+                                fontVariantNumeric: "tabular-nums",
                             }}>
                                 {summary.diff.toLocaleString()}
                             </TableCell>
@@ -494,7 +435,7 @@ const ReportBackyard = (props) => {
                                 backgroundColor: lightenColor("#bdbdbd", 0.6),
                                 paddingLeft: "20px !important",
                                 paddingRight: "20px !important",
-                                fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน 
+                                fontVariantNumeric: "tabular-nums",
                             }}>
                                 {summary.cbp.toLocaleString()}
                             </TableCell>
@@ -507,7 +448,7 @@ const ReportBackyard = (props) => {
                                 backgroundColor: lightenColor("#bdbdbd", 0.4),
                                 paddingLeft: "30px !important",
                                 paddingRight: "30px !important",
-                                fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน 
+                                fontVariantNumeric: "tabular-nums",
                             }}>
                                 {summary.total.toLocaleString()}
                             </TableCell>
@@ -522,7 +463,7 @@ const ReportBackyard = (props) => {
                                         backgroundColor: lightenColor("#bdbdbd", 0.6),
                                         paddingLeft: "35px !important",
                                         paddingRight: "35px !important",
-                                        fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน 
+                                        fontVariantNumeric: "tabular-nums",
                                     }}
                                 >
                                     {dailySummaryBackyard[d] === 0
@@ -539,7 +480,7 @@ const ReportBackyard = (props) => {
                                 backgroundColor: lightenColor("#bdbdbd", 0.4),
                                 paddingLeft: "10px !important",
                                 paddingRight: "10px !important",
-                                fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน 
+                                fontVariantNumeric: "tabular-nums",
                             }}>
                                 {new Intl.NumberFormat("en-US", {
                                     minimumFractionDigits: 2,
@@ -555,7 +496,7 @@ const ReportBackyard = (props) => {
                                 backgroundColor: lightenColor("#bdbdbd", 0.4),
                                 paddingLeft: "10px !important",
                                 paddingRight: "10px !important",
-                                fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน 
+                                fontVariantNumeric: "tabular-nums",
                             }}>
                                 {new Intl.NumberFormat("en-US", {
                                     minimumFractionDigits: 2,
@@ -571,11 +512,10 @@ const ReportBackyard = (props) => {
                                     color: "black",
                                     position: "sticky",
                                     left: 0,
-                                    zIndex: 1, // กำหนด z-indexProduct เพื่อให้อยู่ด้านบน
+                                    zIndex: 1,
                                     borderBottom: "2px solid white"
                                 }}
                             >
-                                {/* {`รวม${row.ShortName}`} */}
                                 ผลรวมทั้งหมด
                             </TablecellHeader>
                             <TableCell sx={{
@@ -587,7 +527,7 @@ const ReportBackyard = (props) => {
                                 backgroundColor: lightenColor("#929292ff", 0.6),
                                 paddingLeft: "30px !important",
                                 paddingRight: "30px !important",
-                                fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน 
+                                fontVariantNumeric: "tabular-nums",
                             }}>
                                 {(stockSummary.diff + summary.diff).toLocaleString()}
                             </TableCell>
@@ -600,7 +540,7 @@ const ReportBackyard = (props) => {
                                 backgroundColor: lightenColor("#929292ff", 0.6),
                                 paddingLeft: "20px !important",
                                 paddingRight: "20px !important",
-                                fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน 
+                                fontVariantNumeric: "tabular-nums",
                             }}>
                                 {(stockSummary.cbp + summary.cbp).toLocaleString()}
                             </TableCell>
@@ -613,7 +553,7 @@ const ReportBackyard = (props) => {
                                 backgroundColor: lightenColor("#929292ff", 0.4),
                                 paddingLeft: "30px !important",
                                 paddingRight: "30px !important",
-                                fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน 
+                                fontVariantNumeric: "tabular-nums",
                             }}>
                                 {(stockSummary.total + summary.total).toLocaleString()}
                             </TableCell>
@@ -628,7 +568,7 @@ const ReportBackyard = (props) => {
                                         backgroundColor: lightenColor("#929292ff", 0.6),
                                         paddingLeft: "35px !important",
                                         paddingRight: "35px !important",
-                                        fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน 
+                                        fontVariantNumeric: "tabular-nums",
                                     }}
                                 >
                                     {(dailySummaryBackyard[d] + dailySummaryByStock[d]) === 0
@@ -645,7 +585,7 @@ const ReportBackyard = (props) => {
                                 backgroundColor: lightenColor("#929292ff", 0.4),
                                 paddingLeft: "10px !important",
                                 paddingRight: "10px !important",
-                                fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน 
+                                fontVariantNumeric: "tabular-nums",
                             }}>
                                 {new Intl.NumberFormat("en-US", {
                                     minimumFractionDigits: 2,
@@ -661,7 +601,7 @@ const ReportBackyard = (props) => {
                                 backgroundColor: lightenColor("#929292ff", 0.4),
                                 paddingLeft: "10px !important",
                                 paddingRight: "10px !important",
-                                fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน 
+                                fontVariantNumeric: "tabular-nums",
                             }}>
                                 {new Intl.NumberFormat("en-US", {
                                     minimumFractionDigits: 2,

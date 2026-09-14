@@ -52,15 +52,13 @@ const InsertTruckTransport = () => {
 
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-    // ใช้ useEffect เพื่อรับฟังการเปลี่ยนแปลงของขนาดหน้าจอ
     useEffect(() => {
         const handleResize = () => {
-            setWindowWidth(window.innerWidth); // อัพเดตค่าขนาดหน้าจอ
+            setWindowWidth(window.innerWidth);
         };
 
-        window.addEventListener('resize', handleResize); // เพิ่ม event listener
+        window.addEventListener('resize', handleResize);
 
-        // ลบ event listener เมื่อ component ถูกทำลาย
         return () => {
             window.removeEventListener('resize', handleResize);
         };
@@ -77,8 +75,6 @@ const InsertTruckTransport = () => {
     const dataCompany = Object.values(company || {});
     const dataDriver = Object.values(drivers || {});
     const dataTransport = Object.values(transport || {}).filter((item) => item.StatusTruck !== "ยกเลิก");
-
-    console.log(`User Id : t${(dataDriver.length + 1).toString().padStart(4, '0')}`);
 
     const handlePost = async () => {
         const companyRow = dataCompany.find((c) => c.id === Number(String(companies).split(":")[0]));
@@ -122,8 +118,8 @@ const InsertTruckTransport = () => {
                 onClose={handleClose}
                 sx={{
                     "& .MuiDialog-paper": {
-                        width: "800px", // กำหนดความกว้างแบบ Fixed
-                        maxWidth: "none", // ปิดการปรับอัตโนมัติ
+                        width: "800px",
+                        maxWidth: "none",
                     },
                 }}
             >

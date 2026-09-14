@@ -49,31 +49,25 @@ const InsertStock = (props) => {
 
     const handleAddProduct = () => {
         setNumberAdd(numberAdd + 1);
-        setProducts([...products, { id: numberAdd + 1, Product: "", Capacity: "", Color: "" }]); // เพิ่มช่องใหม่
+        setProducts([...products, { id: numberAdd + 1, Product: "", Capacity: "", Color: "" }]);
     };
 
     const handleDeleteProduct = () => {
         if (numberAdd > 1) {
             setNumberAdd(numberAdd - 1);
-            setProducts(products.slice(0, -1)); // ลบช่องสุดท้าย
+            setProducts(products.slice(0, -1));
         }
     };
 
     const handleProductChange = (index, field, value) => {
         const updatedProducts = [...products];
-        updatedProducts[index][field] = value; // อัปเดตค่าตาม index และ field
+        updatedProducts[index][field] = value;
         setProducts(updatedProducts);
     };
-
-    console.log("products", products);
 
     const handleClickOpen = () => {
         setOpen(true);
     };
-
-    // const handleClose = () => {
-    //     setOpen(false);
-    // };
 
     const [name, setName] = React.useState("");
     const [no, setNo] = React.useState("");
@@ -96,24 +90,9 @@ const InsertStock = (props) => {
     const [E85, setE85] = React.useState("");
     const [PWD, setPWD] = React.useState("");
 
-    // React.useEffect(() => {
-    //     const total =
-    //       (parseFloat(G91) || 0) +
-    //       (parseFloat(G95) || 0) +
-    //       (parseFloat(B7) || 0) +
-    //       (parseFloat(B95) || 0) +
-    //       (parseFloat(B10) || 0) +
-    //       (parseFloat(B20) || 0) +
-    //       (parseFloat(E20) || 0) +
-    //       (parseFloat(E85) || 0) +
-    //       (parseFloat(PWD) || 0);
-
-    //     setVolume(total);
-    //   }, [G91, G95, B7, B95, B10, B20, E20, E85, PWD]);
-
     const handlePost = async () => {
         const totalVolume = products.reduce((sum, row) => {
-            return sum + (parseFloat(row.Capacity) || 0); // แปลง Capacity เป็นตัวเลขและรวม
+            return sum + (parseFloat(row.Capacity) || 0);
         }, 0);
 
         // Products is a plain JSONB array - push in order instead of indexing by
@@ -191,18 +170,18 @@ const InsertStock = (props) => {
                             size="small"
                             fullWidth
                             value={item.Product}
-                            error={(products.filter((p) => p.Product === item.Product).length > 1) && item.Product !== ""} // แสดง error เมื่อมีค่าซ้ำและไม่ใช่ค่าว่าง
+                            error={(products.filter((p) => p.Product === item.Product).length > 1) && item.Product !== ""}
                             helperText={
                                 (products.filter((p) => p.Product === item.Product).length > 1) && item.Product !== ""
                                     ? "*ชื่อสินค้านี้ซ้ำกัน* --กรณีต้องการเพิ่มสินค้าให้ทำตามนี้ " + item.Product + "(" + (products.filter((p) => p.Product === item.Product && p.Product !== "").indexOf(item) + 1) + ")"
                                     : ""
-                            } // แสดงข้อความเตือนเมื่อค่าซ้ำ
+                            }
                             onChange={(e) =>
                                 handleProductChange(index, "Product", e.target.value)
                             }
                             sx={{
                                 '& .MuiFormHelperText-root': {
-                                    color: 'orange', // สีตัวอักษรของข้อความเตือน
+                                    color: 'orange',
                                 },
                             }}
                         />
@@ -231,7 +210,7 @@ const InsertStock = (props) => {
                             style={{ display: 'none' }}
                             inputProps={{ readOnly: true }}
                             value={item.Color = (() => {
-                                const baseProduct = item.Product.replace(/\(\d+\)$/, ""); // ตัดตัวเลขในวงเล็บออก
+                                const baseProduct = item.Product.replace(/\(\d+\)$/, "");
                                 return baseProduct === "G91" ? "#92D050" :
                                     baseProduct === "G95" ? "#FFC000" :
                                         baseProduct === "B7" ? "#FFFF99" :

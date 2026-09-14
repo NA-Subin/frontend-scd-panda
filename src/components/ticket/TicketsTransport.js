@@ -74,13 +74,11 @@ const InfoHint = ({ text }) => {
 };
 
 const TicketsTransport = ({ openNavbar }) => {
-    //const [transport, setTransport] = useState([]);
-    //const [gasStation, setGasStation] = React.useState([]);
     const [updateCustomer, setUpdateCustomer] = React.useState(true);
     const [setting, setSetting] = useState(false);
     const [ticketChecked, setTicketChecked] = useState(false);
     const [recipientChecked, setRecipientChecked] = useState(false);
-    const [selectedRowId, setSelectedRowId] = useState(null); // จับ ID ของแถวที่ต้องการแก้ไข
+    const [selectedRowId, setSelectedRowId] = useState(null);
     const [typeCustomer, setTypeCuster] = React.useState(0);
     const [open, setOpen] = useState(1);
 
@@ -112,8 +110,6 @@ const TicketsTransport = ({ openNavbar }) => {
     const transport = transports.filter((item) => item.SystemStatus !== "ไม่อยู่ในระบบ");
     const gasStation = gasStations.filter((item) => item.SystemStatus !== "ไม่อยู่ในระบบ");
 
-    console.log("gasStation : ", gasStation);
-
     const [search, setSearch] = useState("");
 
     const filtered =
@@ -129,22 +125,17 @@ const TicketsTransport = ({ openNavbar }) => {
                 return name.includes(searchText);
             });
 
-
-    console.log("Show :: ", filtered);
-    console.log("search : ", search);
-
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
     useEffect(() => {
         const handleResize = () => {
             let width = window.innerWidth;
             if (!openNavbar) {
-                width += 120; // ✅ เพิ่ม 200 ถ้า openNavbar = false
+                width += 120; // เพิ่ม offset เมื่อ navbar ถูกยุบ (openNavbar = false)
             }
             setWindowWidth(width);
         };
 
-        // เรียกครั้งแรกตอน mount
         handleResize();
 
         window.addEventListener('resize', handleResize);
@@ -152,9 +143,8 @@ const TicketsTransport = ({ openNavbar }) => {
         return () => {
             window.removeEventListener('resize', handleResize);
         };
-    }, [openNavbar]); // ✅ ทำงานใหม่ทุกครั้งที่ openNavbar เปลี่ยน
+    }, [openNavbar]);
 
-    // State สำหรับเก็บค่าแก้ไข Rate
     const [ticketCheckedC, setTicketCheckedC] = useState(true);
     const [rate1Edit, setRate1Edit] = useState("");
     const [rate2Edit, setRate2Edit] = useState("");
@@ -163,7 +153,6 @@ const TicketsTransport = ({ openNavbar }) => {
     const [name, setName] = useState("");
     const [rowIndex, setRowIndex] = useState(null);
 
-    // ฟังก์ชันสำหรับกดแก้ไข
     const handleSetting = (index, rowId, statusCompany, status, rowRate1, rowRate2, rowRate3, rowCreditTime, newname) => {
         setRowIndex(index + 1);
         setSetting(true);
@@ -174,12 +163,10 @@ const TicketsTransport = ({ openNavbar }) => {
         } else {
             setTicketCheckedC(false);
         }
-        // ตั้งค่าของ checkbox ตามสถานะที่มีอยู่
         const hasTicket = status.includes("ตั๋ว");
         const hasRecipient = status.includes("ผู้รับ");
         setTicketChecked(hasTicket);
         setRecipientChecked(hasRecipient);
-        // เซ็ตค่า RateEdit เป็นค่าปัจจุบันของ row ที่เลือก
         setRate1Edit(rowRate1);
         setRate2Edit(rowRate2);
         setRate3Edit(rowRate3);
@@ -221,7 +208,6 @@ const TicketsTransport = ({ openNavbar }) => {
         }
     }
 
-    // ฟังก์ชันสำหรับบันทึก
     const handleSave = async () => {
         const newStatus = [
             ticketChecked ? "ตั๋ว" : "",
@@ -333,7 +319,6 @@ const TicketsTransport = ({ openNavbar }) => {
         setDistrict(addr.district);
         setProvince(addr.province);
         setZipCode(addr.zipCode);
-        //setCompanyChecked
     }
 
     const [page, setPage] = useState(0);
@@ -371,9 +356,7 @@ const TicketsTransport = ({ openNavbar }) => {
                     console.error("Error updating data:", error);
                 }
             },
-            () => {
-                console.log(`ยกเลิกลบตั๋วรับจ้างขนส่งที่ ${rowIndex}`);
-            }
+            () => { }
         );
     }
 
@@ -533,7 +516,6 @@ const TicketsTransport = ({ openNavbar }) => {
                                                             {index + safePage * rowsPerPage + 1}
                                                         </Typography>
                                                     </TableCell>
-                                                    {/* <TableCell sx={{ textAlign: "center", fontWeight: !setting || row.uuid !== selectedRowId ? "" : "bold" }}>{row.Name}</TableCell> */}
                                                     <TableCell
                                                         sx={{
                                                             textAlign: "left",
@@ -545,7 +527,6 @@ const TicketsTransport = ({ openNavbar }) => {
                                                         onClick={() => handleCustomer(row)}
                                                     >
                                                         {
-                                                            // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
                                                             !setting || row.uuid !== selectedRowId ?
                                                                 <Typography variant="subtitle2" sx={{ marginLeft: 3 }} gutterBottom>
                                                                     {row.Name}
@@ -561,12 +542,12 @@ const TicketsTransport = ({ openNavbar }) => {
                                                                         }}
                                                                         sx={{
                                                                             '& .MuiOutlinedInput-root': {
-                                                                                height: '30px', // ปรับความสูงของ TextField
+                                                                                height: '30px',
                                                                             },
                                                                             '& .MuiInputBase-input': {
-                                                                                fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                                                                fontSize: '14px',
                                                                                 fontWeight: 'bold',
-                                                                                padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                                padding: '2px 6px',
                                                                                 textAlign: "center"
                                                                             },
                                                                         }}
@@ -580,7 +561,6 @@ const TicketsTransport = ({ openNavbar }) => {
                                                     </TableCell>
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         {
-                                                            // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
                                                             !setting || row.uuid !== selectedRowId ?
                                                                 row.CreditTime
                                                                 :
@@ -594,12 +574,12 @@ const TicketsTransport = ({ openNavbar }) => {
                                                                         }}
                                                                         sx={{
                                                                             '& .MuiOutlinedInput-root': {
-                                                                                height: '30px', // ปรับความสูงของ TextField
+                                                                                height: '30px',
                                                                             },
                                                                             '& .MuiInputBase-input': {
-                                                                                fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                                                                fontSize: '14px',
                                                                                 fontWeight: 'bold',
-                                                                                padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                                padding: '2px 6px',
                                                                                 textAlign: "center"
                                                                             },
                                                                         }}
@@ -613,7 +593,6 @@ const TicketsTransport = ({ openNavbar }) => {
                                                     </TableCell>
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         {
-                                                            // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
                                                             !setting || row.uuid !== selectedRowId ?
                                                                 row.Rate1
                                                                 :
@@ -631,12 +610,12 @@ const TicketsTransport = ({ openNavbar }) => {
                                                                         }}
                                                                         sx={{
                                                                             '& .MuiOutlinedInput-root': {
-                                                                                height: '30px', // ปรับความสูงของ TextField
+                                                                                height: '30px',
                                                                             },
                                                                             '& .MuiInputBase-input': {
-                                                                                fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                                                                fontSize: '14px',
                                                                                 fontWeight: 'bold',
-                                                                                padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                                padding: '2px 6px',
                                                                                 textAlign: "center"
                                                                             },
                                                                         }}
@@ -667,12 +646,12 @@ const TicketsTransport = ({ openNavbar }) => {
                                                                         }}
                                                                         sx={{
                                                                             '& .MuiOutlinedInput-root': {
-                                                                                height: '30px', // ปรับความสูงของ TextField
+                                                                                height: '30px',
                                                                             },
                                                                             '& .MuiInputBase-input': {
-                                                                                fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                                                                fontSize: '14px',
                                                                                 fontWeight: 'bold',
-                                                                                padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                                padding: '2px 6px',
                                                                                 textAlign: "center"
                                                                             },
                                                                         }}
@@ -703,12 +682,12 @@ const TicketsTransport = ({ openNavbar }) => {
                                                                         }}
                                                                         sx={{
                                                                             '& .MuiOutlinedInput-root': {
-                                                                                height: '30px', // ปรับความสูงของ TextField
+                                                                                height: '30px',
                                                                             },
                                                                             '& .MuiInputBase-input': {
-                                                                                fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                                                                fontSize: '14px',
                                                                                 fontWeight: 'bold',
-                                                                                padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                                padding: '2px 6px',
                                                                                 textAlign: "center"
                                                                             },
                                                                         }}
@@ -759,29 +738,6 @@ const TicketsTransport = ({ openNavbar }) => {
                                                             }
                                                         </Box>
                                                     </TableCell>
-                                                    {/* <TableCell width={70} sx={{ position: "sticky", right: 0, backgroundColor: "white" }}>
-                                                        <Box sx={{ marginTop: -0.5 }}>
-                                                            {
-                                                                !setting || row.uuid !== selectedRowId ?
-                                                                    <Button
-                                                                        variant="contained"
-                                                                        color="warning"
-                                                                        startIcon={<EditNoteIcon />}
-                                                                        size="small"
-                                                                        sx={{ height: "25px", marginTop: 1.5, marginBottom: 1 }}
-                                                                        onClick={() => handleSetting(row.id, row.Status, row.Rate1, row.Rate2, row.Rate3, row.CreditTime, row.Name)}
-                                                                        fullWidth
-                                                                    >
-                                                                        แก้ไข
-                                                                    </Button>
-                                                                    :
-                                                                    <>
-                                                                        <Button variant="contained" color="success" onClick={handleSave} sx={{ height: "25px", marginTop: 0.5 }} size="small" fullWidth>บันทึก</Button>
-                                                                        <Button variant="contained" color="error" onClick={handleCancel} sx={{ height: "25px", marginTop: 0.5 }} size="small" fullWidth>ยกเลิก</Button>
-                                                                    </>
-                                                            }
-                                                        </Box>
-                                                    </TableCell> */}
                                                     <TableCell sx={{ width: !setting || row.uuid !== selectedRowId ? 50 : 100, height: "30px", position: "sticky", right: !setting || row.uuid !== selectedRowId ? 0 : 60, backgroundColor: "white", textAlign: "center" }}>
                                                         {
                                                             !setting || row.uuid !== selectedRowId ?
@@ -819,13 +775,6 @@ const TicketsTransport = ({ openNavbar }) => {
                                                                     >
                                                                         ยกเลิก
                                                                     </Button>
-
-                                                                    {/* <IconButton color="error" onClick={handleCancel}>
-                                                                    <CancelIcon />
-                                                                </IconButton>
-                                                                <IconButton color="success" onClick={handleSave} >
-                                                                    <SaveIcon />
-                                                                </IconButton> */}
                                                                 </Box>
                                                         }
                                                     </TableCell>
@@ -1063,27 +1012,6 @@ const TicketsTransport = ({ openNavbar }) => {
                         </Grid>
                     </Grid>
                 </DialogContent>
-
-                {/* <DialogActions
-                    sx={{
-                        textAlign: "center",
-                        borderTop: "2px solid " + theme.palette.panda.dark,
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                    }}
-                >
-                    <Button variant="contained" color="success">
-                        บันทึก
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="error"
-                        onClick={() => setOpenCustomer("")}
-                    >
-                        ยกเลิก
-                    </Button>
-                </DialogActions> */}
             </Dialog>
         </Container>
     );

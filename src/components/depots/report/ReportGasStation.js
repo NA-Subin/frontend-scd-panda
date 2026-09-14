@@ -59,7 +59,7 @@ const ReportGasStation = ({ openNavbar }) => {
     const [cbpData, setCbpData] = useState({});
     const [backyardData, setBackyardData] = useState({});
 
-    const [selectedDate, setSelectedDate] = useState(dayjs()); // ใช้วันปัจจุบัน
+    const [selectedDate, setSelectedDate] = useState(dayjs());
     const [checkStock, setCheckStock] = useState("ทั้งหมด");
 
     const handleDateChange = (newValue) => {
@@ -79,7 +79,6 @@ const ReportGasStation = ({ openNavbar }) => {
             setWindowWidth(width);
         };
 
-        // เรียกครั้งแรกตอน mount
         handleResize();
 
         window.addEventListener('resize', handleResize);
@@ -87,7 +86,7 @@ const ReportGasStation = ({ openNavbar }) => {
         return () => {
             window.removeEventListener('resize', handleResize);
         };
-    }, [openNavbar]); // ✅ ทำงานใหม่ทุกครั้งที่ openNavbar เปลี่ยน
+    }, [openNavbar]);
 
     const year = selectedDate.year();
     const month = selectedDate.month() + 1;
@@ -175,7 +174,7 @@ const ReportGasStation = ({ openNavbar }) => {
         const lg = Math.round(g + (255 - g) * amount);
         const lb = Math.round(b + (255 - b) * amount);
 
-        return `rgb(${lr}, ${lg}, ${lb})`; // ✅ สีทึบ
+        return `rgb(${lr}, ${lg}, ${lb})`;
     };
 
     const daysInMonth = getDaysInMonth(selectedDate);
@@ -193,11 +192,6 @@ const ReportGasStation = ({ openNavbar }) => {
         carry: 0,
         accumulate: 0
     };
-
-    // const dailySummary = {};
-    // daysInMonth.forEach(d => {
-    //     dailySummary[d] = 0;
-    // });
 
     const calculateDailyByProduct = (
         report,
@@ -333,7 +327,6 @@ const ReportGasStation = ({ openNavbar }) => {
 
             if (!product?.BackyardSales) return sum;
 
-            // return sum + toNumber(product.BackyardSales);
             const backyard = to2Decimal(product.BackyardSales ?? 0);
             const value = product.Backyard === true
                 ? backyard
@@ -465,14 +458,6 @@ const ReportGasStation = ({ openNavbar }) => {
 
                     const { py, pm } = getPrevYearMonth(year, month);
 
-                    // const prevAcc = getCarryFromHistory(
-                    //     stationId,
-                    //     idx,
-                    //     year,
-                    //     month,
-                    //     prev
-                    // );
-
                     const prevAcc = ensurePrevMonthComputed(
                         stationId,
                         idx,
@@ -533,13 +518,6 @@ const ReportGasStation = ({ openNavbar }) => {
 
                     const { py, pm } = getPrevYearMonth(year, month);
 
-                    // const prevAcc = getCarryFromHistory(
-                    //     stationId,
-                    //     idx,
-                    //     year,
-                    //     month,
-                    //     prev
-                    // );
                     const prevAcc = ensurePrevMonthComputed(
                         stationId,
                         idx,
@@ -573,8 +551,6 @@ const ReportGasStation = ({ openNavbar }) => {
 
     }, [selectedDate, gasStationOil, daysInMonth]);
 
-    console.log("cbpData", cbpData);
-
     return (
         <Container maxWidth="xl" sx={{ marginTop: 13, marginBottom: 5, width: windowWidth <= 900 && windowWidth > 600 ? (windowWidth - 95) : windowWidth <= 600 ? (windowWidth) : (windowWidth - 230) }}>
             <Typography
@@ -592,7 +568,6 @@ const ReportGasStation = ({ openNavbar }) => {
                         <Paper
                             component="form"
                             sx={{
-                                //width: "100%", // กำหนดความกว้างของ Paper
                                 height: "40px",
                                 display: "flex",
                                 alignItems: "center",
@@ -603,7 +578,7 @@ const ReportGasStation = ({ openNavbar }) => {
                                 type="number"
                                 size="small"
                                 fullWidth
-                                value={selectedDate.year() + 543}   // 👈 แสดง พ.ศ.
+                                value={selectedDate.year() + 543}   // แสดงปี พ.ศ. (ค.ศ. + 543)
                                 onChange={(e) => {
                                     const beYear = Number(e.target.value);
                                     const adYear = beYear - 543;
@@ -616,7 +591,7 @@ const ReportGasStation = ({ openNavbar }) => {
                                         prev.year(prev.year() + delta)
                                     );
                                 }}
-                                InputProps={{                         // ✅ ใส่ตรงนี้
+                                InputProps={{
                                     startAdornment: (
                                         <InputAdornment position="start" sx={{ marginLeft: 1 }}>
                                             ปี :
@@ -642,7 +617,6 @@ const ReportGasStation = ({ openNavbar }) => {
                         <Paper
                             component="form"
                             sx={{
-                                //width: "100%", // กำหนดความกว้างของ Paper
                                 height: "40px",
                                 display: "flex",
                                 alignItems: "center",
@@ -656,14 +630,6 @@ const ReportGasStation = ({ openNavbar }) => {
                                     value={selectedDate ? dayjs(selectedDate, "MMMM") : null}
                                     format="MMMM"
                                     onChange={(newValue) => {
-                                        // ตรวจสอบว่ามีการแก้ไขค้างอยู่หรือไม่
-                                        // const hasUnsaved = stationReports.some(st => st.hasChanged);
-                                        // if (hasUnsaved) {
-                                        //     ShowWarning("กรุณาบันทึกการแก้ไขข้อมูลก่อนเปลี่ยนวันที่!");
-                                        //     return; // ❌ หยุดไม่ให้เปลี่ยนค่า
-                                        // }
-
-                                        // ถ้าไม่มีการแก้ไขค้าง ให้เปลี่ยน selectedDate ตรง ๆ
                                         if (newValue) {
                                             setSelectedDate(dayjs(newValue, "MMMM"));
                                         }
@@ -674,7 +640,7 @@ const ReportGasStation = ({ openNavbar }) => {
                                             fullWidth: true,
                                             inputProps: {
                                                 value: selectedDate
-                                                    ? formatThaiMonth(selectedDate) // ✅ แสดงเป็น 05/11/2568
+                                                    ? formatThaiMonth(selectedDate)
                                                     : "",
                                                 readOnly: true,
                                             },
@@ -704,7 +670,6 @@ const ReportGasStation = ({ openNavbar }) => {
                                     <Checkbox
                                         checked={checkStock === "ทั้งหมด"}
                                         onChange={() => setCheckStock("ทั้งหมด")}
-                                    //disabled={isDataUpdated} // 🔹 ปิดการเลือกถ้ามีการเปลี่ยนแปลง
                                     />
                                 }
                                 label="ทั้งหมด"
@@ -716,26 +681,13 @@ const ReportGasStation = ({ openNavbar }) => {
                                         <Checkbox
                                             checked={checkStock === row.Name}
                                             onChange={() => {
-                                                // ✅ เช็คว่ามี station ไหนถูกแก้
-                                                // const hasUnsaved = stationReports.some(st => st.hasChanged);
-                                                // if (hasUnsaved) {
-                                                //     ShowWarning("กรุณาบันทึกการแก้ไขข้อมูลก่อนเปลี่ยน Stock!");
-                                                //     return; // ❌ หยุดไม่ให้เปลี่ยนค่า
-                                                // }
-
-                                                setCheckStock(row.Name); // ✅ ถ้าไม่มี unsaved จะเปลี่ยนค่าได้
+                                                setCheckStock(row.Name);
                                             }}
-                                        //disabled={isDataUpdated} // 🔹 ปิดการเลือกถ้ามีการเปลี่ยนแปลง
                                         />
                                     }
                                     label={row.Name}
                                 />
                             ))}
-                            {/* {isDataUpdated && (
-                                <Typography color="error" sx={{ mt: 1 }}>
-                                    ⚠️ กรุณาบันทึกข้อมูลก่อนเปลี่ยนสาขา
-                                </Typography>
-                            )} */}
                         </FormGroup>
                     </Grid>
                 </Grid>
@@ -750,7 +702,6 @@ const ReportGasStation = ({ openNavbar }) => {
                                 border: '2px solid lightgray',
                                 borderRadius: 3,
                                 boxShadow: 1,
-                                //width: "100%",
                                 overflowY: 'auto',
                             }}
                             key={stock.id || idx}
@@ -758,8 +709,7 @@ const ReportGasStation = ({ openNavbar }) => {
                             {gasStationOil.map((row, index) => {
                                 if (row.Stock === stock.uuid) {
                                     const filteredStocks = gasStationOil.filter(r => r.Stock === stock.uuid);
-                                    const stockCount = filteredStocks.length;  // จำนวนปั้มที่ตรงกัน
-                                    // ✔ หาลำดับปั้ม (0,1)
+                                    const stockCount = filteredStocks.length;
                                     const pumpOrder = filteredStocks.findIndex(p => p.id === row.id);
 
                                     const year = selectedDate.year();
@@ -851,93 +801,13 @@ const ReportGasStation = ({ openNavbar }) => {
                                     });
 
 
-                                    // const dailySummaryByStock = {};
-
-                                    // daysInMonth.forEach(d => (dailySummaryByStock[d] = 0));
-
-                                    // pumpsInStock.forEach(row => {
-                                    //     row.Products.forEach(product => {
-                                    //         // if (product.Backyard) return;
-
-                                    //         const dailyByProduct = calculateDailyByProduct(
-                                    //             row.Report,
-                                    //             product.Name,
-                                    //             y,
-                                    //             m,
-                                    //             daysInMonth,
-                                    //             "Sell"
-                                    //         );
-
-                                    //         const hasSell = Object.values(dailyByProduct).some(v => v > 0);
-                                    //         if (!hasSell) return;
-
-                                    //         daysInMonth.forEach(d => {
-                                    //             dailySummaryByStock[d] += to2Decimal(dailyByProduct[d] ?? 0);
-                                    //         });
-                                    //     });
-                                    // });
-
-                                    // const dailySummaryByStation = {};
-                                    // daysInMonth.forEach(d => (dailySummaryByStation[d] = 0));
-
-                                    // row.Products.forEach(product => {
-                                    //     // if (product.Backyard) return;
-
-                                    //     const dailyByProduct = calculateDailyByProduct(
-                                    //         row.Report,
-                                    //         product.Name,
-                                    //         y,
-                                    //         m,
-                                    //         daysInMonth,
-                                    //         "Sell"
-                                    //     );
-
-                                    //     // ✅ ถ้าไม่มี BackyardSales เลย → ข้าม
-                                    //     const hasSell = Object.values(dailyByProduct).some(v => v > 0);
-                                    //     if (!hasSell) return;
-
-                                    //     daysInMonth.forEach(d => {
-                                    //         dailySummaryByStation[d] += dailyByProduct[d];
-                                    //     });
-                                    // });
-
-                                    // const dailySummaryByStationBackyard = {};
-                                    // daysInMonth.forEach(d => (dailySummaryByStationBackyard[d] = 0));
-
-                                    // row.Products.forEach(product => {
-                                    //     // if (!product.Backyard) return;
-
-                                    //     const dailyByProductBackyard = calculateDailyByProduct(
-                                    //         row.Report,
-                                    //         product.Name,
-                                    //         y,
-                                    //         m,
-                                    //         daysInMonth,
-                                    //         "BackyardSales"
-                                    //     );
-
-                                    //     const hasBackyard = Object.values(dailyByProductBackyard).some(v => v > 0);
-                                    //     if (!hasBackyard) return;
-
-                                    //     daysInMonth.forEach(d => {
-                                    //         dailySummaryByStationBackyard[d] += dailyByProductBackyard[d];
-                                    //     });
-                                    // });
-
-                                    // 🔹 เอาค่าปั้มนี้ไปรวมใน stock
-                                    // stockSummary.total += pumpSummary.total;
-                                    // stockSummary.cbp += pumpSummary.cbp;
-                                    // stockSummary.diff += pumpSummary.diff;
-                                    // stockSummary.carry += pumpSummary.carry;
-                                    // stockSummary.accumulate += pumpSummary.accumulate;
-
                                     matchCount++;
                                     return (
                                         <React.Fragment key={row.id || index}>
                                             <Box textAlign="center"
                                                 sx={{
                                                     display: "flex",
-                                                    justifyContent: "space-between", // ชิดซ้าย-ขวา
+                                                    justifyContent: "space-between",
                                                     alignItems: "center",
                                                     backgroundColor:
                                                         row.StockName === "แม่โจ้" ? "#92D050"
@@ -954,7 +824,6 @@ const ReportGasStation = ({ openNavbar }) => {
                                                     borderTopRightRadius: 10
                                                 }}>
 
-                                                {/* ด้านซ้าย */}
                                                 <Typography
                                                     variant="subtitle1"
                                                     fontWeight="bold"
@@ -978,12 +847,12 @@ const ReportGasStation = ({ openNavbar }) => {
                                                                     minWidth: 140,
                                                                     position: "sticky",
                                                                     left: 0,
-                                                                    zIndex: 5, // กำหนด z-indexProduct เพื่อให้อยู่ด้านบน
+                                                                    zIndex: 5,
                                                                 }}>
                                                                     <Paper
                                                                         component="form"
                                                                         sx={{
-                                                                            width: "100%", // กำหนดความกว้างของ Paper
+                                                                            width: "100%",
                                                                             height: "25px"
                                                                         }}
                                                                     >
@@ -998,7 +867,7 @@ const ReportGasStation = ({ openNavbar }) => {
                                                                     whiteSpace: "nowrap",
                                                                     position: "sticky",
                                                                     left: 140,
-                                                                    zIndex: 5, // กำหนด z-indexProduct เพื่อให้อยู่ด้านบน
+                                                                    zIndex: 5,
                                                                 }}>
                                                                     ส่วนต่าง
                                                                 </TablecellHeader>
@@ -1010,7 +879,7 @@ const ReportGasStation = ({ openNavbar }) => {
                                                                     whiteSpace: "nowrap",
                                                                     position: "sticky",
                                                                     left: 260,
-                                                                    zIndex: 5, // กำหนด z-indexProduct เพื่อให้อยู่ด้านบน
+                                                                    zIndex: 5,
                                                                 }}>
                                                                     ยอด CBP
                                                                 </TablecellHeader>
@@ -1022,7 +891,7 @@ const ReportGasStation = ({ openNavbar }) => {
                                                                     whiteSpace: "nowrap",
                                                                     position: "sticky",
                                                                     left: 380,
-                                                                    zIndex: 5, // กำหนด z-indexProduct เพื่อให้อยู่ด้านบน
+                                                                    zIndex: 5,
                                                                 }}>
                                                                     รวม
                                                                 </TablecellHeader>
@@ -1049,7 +918,7 @@ const ReportGasStation = ({ openNavbar }) => {
                                                                     whiteSpace: "nowrap",
                                                                     position: "sticky",
                                                                     right: 220,
-                                                                    zIndex: 5, // กำหนด z-indexProduct เพื่อให้อยู่ด้านบน
+                                                                    zIndex: 5,
                                                                 }}>
                                                                     ยอดยกมา
                                                                 </TablecellHeader>
@@ -1061,7 +930,7 @@ const ReportGasStation = ({ openNavbar }) => {
                                                                     whiteSpace: "nowrap",
                                                                     position: "sticky",
                                                                     right: 100,
-                                                                    zIndex: 5, // กำหนด z-indexProduct เพื่อให้อยู่ด้านบน
+                                                                    zIndex: 5,
                                                                 }}>
                                                                     ยอดสะสม
                                                                 </TablecellHeader>
@@ -1073,7 +942,7 @@ const ReportGasStation = ({ openNavbar }) => {
                                                                     whiteSpace: "nowrap",
                                                                     position: "sticky",
                                                                     right: 0,
-                                                                    zIndex: 5, // กำหนด z-indexProduct เพื่อให้อยู่ด้านบน
+                                                                    zIndex: 5,
                                                                 }}>
 
                                                                 </TablecellHeader>
@@ -1112,7 +981,6 @@ const ReportGasStation = ({ openNavbar }) => {
                                                                             Accumulate: -total
                                                                         };
 
-                                                                    // ✅ สร้าง summary ของปั้มนี้ ถ้ายังไม่มี
                                                                     if (!stationSummary[row.id]) {
                                                                         stationSummary[row.id] = {
                                                                             total: 0,
@@ -1163,35 +1031,6 @@ const ReportGasStation = ({ openNavbar }) => {
                                                         </TableBody>
                                                     </Table>
                                                 </TableContainer>
-                                                {/* <TableContainer
-                                                    component={Paper}
-                                                    style={{ maxHeight: "70vh" }}
-                                                    sx={{ marginBottom: 2, marginLeft: 5 }}
-                                                >
-                                                    <Table stickyHeader size="small" sx={{ width: "100%" }}>
-                                                        <TableHead>
-                                                            <TableRow>
-                                                                <TablecellHeader colSpan={2} width={130} sx={{ textAlign: "center", backgroundColor: theme.palette.panda.main }}>
-                                                                    <Paper
-                                                                        component="form"
-                                                                        sx={{
-                                                                            width: "100%", // กำหนดความกว้างของ Paper
-                                                                            height: "25px"
-                                                                        }}
-                                                                    >
-                                                                        <Typography fontSize="18px" fontWeight="bold" gutterBottom paddingTop={-0.5}>{formatThaiSlash(dayjs(selectedDate))}</Typography>
-                                                                    </Paper>
-                                                                </TablecellHeader>
-                                                                <TablecellHeader sx={{ textAlign: "center", fontSize: 14, backgroundColor: theme.palette.panda.main, width: 110, whiteSpace: "nowrap" }}>
-                                                                    ส่วนต่าง
-                                                                </TablecellHeader>
-                                                                <TablecellHeader sx={{ textAlign: "center", fontSize: 14, backgroundColor: theme.palette.panda.main, width: 80, whiteSpace: "nowrap" }}>
-                                                                    ยอด CBP
-                                                                </TablecellHeader>
-                                                            </TableRow>
-                                                        </TableHead>
-                                                    </Table>
-                                                </TableContainer> */}
                                             </Box>
                                             {
                                                 Object.values(row.Products || {}).some(
@@ -1201,7 +1040,7 @@ const ReportGasStation = ({ openNavbar }) => {
                                                         <Box textAlign="center"
                                                             sx={{
                                                                 display: "flex",
-                                                                justifyContent: "space-between", // ชิดซ้าย-ขวา
+                                                                justifyContent: "space-between",
                                                                 alignItems: "center",
                                                                 backgroundColor:
                                                                     row.StockName === "แม่โจ้" ? "#92D050"
@@ -1218,7 +1057,6 @@ const ReportGasStation = ({ openNavbar }) => {
                                                                 borderTopRightRadius: 10
                                                             }}>
 
-                                                            {/* ด้านซ้าย */}
                                                             <Typography
                                                                 variant="subtitle1"
                                                                 fontWeight="bold"
@@ -1242,12 +1080,12 @@ const ReportGasStation = ({ openNavbar }) => {
                                                                                 minWidth: 140,
                                                                                 position: "sticky",
                                                                                 left: 0,
-                                                                                zIndex: 5, // กำหนด z-indexProduct เพื่อให้อยู่ด้านบน
+                                                                                zIndex: 5,
                                                                             }}>
                                                                                 <Paper
                                                                                     component="form"
                                                                                     sx={{
-                                                                                        width: "100%", // กำหนดความกว้างของ Paper
+                                                                                        width: "100%",
                                                                                         height: "25px"
                                                                                     }}
                                                                                 >
@@ -1262,7 +1100,7 @@ const ReportGasStation = ({ openNavbar }) => {
                                                                                 whiteSpace: "nowrap",
                                                                                 position: "sticky",
                                                                                 left: 140,
-                                                                                zIndex: 5, // กำหนด z-indexProduct เพื่อให้อยู่ด้านบน
+                                                                                zIndex: 5,
                                                                             }}>
                                                                                 ส่วนต่าง
                                                                             </TablecellHeader>
@@ -1274,7 +1112,7 @@ const ReportGasStation = ({ openNavbar }) => {
                                                                                 whiteSpace: "nowrap",
                                                                                 position: "sticky",
                                                                                 left: 260,
-                                                                                zIndex: 5, // กำหนด z-indexProduct เพื่อให้อยู่ด้านบน
+                                                                                zIndex: 5,
                                                                             }}>
                                                                                 ยอด CBP
                                                                             </TablecellHeader>
@@ -1286,7 +1124,7 @@ const ReportGasStation = ({ openNavbar }) => {
                                                                                 whiteSpace: "nowrap",
                                                                                 position: "sticky",
                                                                                 left: 380,
-                                                                                zIndex: 5, // กำหนด z-indexProduct เพื่อให้อยู่ด้านบน
+                                                                                zIndex: 5,
                                                                             }}>
                                                                                 รวม
                                                                             </TablecellHeader>
@@ -1313,7 +1151,7 @@ const ReportGasStation = ({ openNavbar }) => {
                                                                                 whiteSpace: "nowrap",
                                                                                 position: "sticky",
                                                                                 right: 220,
-                                                                                zIndex: 5, // กำหนด z-indexProduct เพื่อให้อยู่ด้านบน
+                                                                                zIndex: 5,
                                                                             }}>
                                                                                 ยอดยกมา
                                                                             </TablecellHeader>
@@ -1325,7 +1163,7 @@ const ReportGasStation = ({ openNavbar }) => {
                                                                                 whiteSpace: "nowrap",
                                                                                 position: "sticky",
                                                                                 right: 100,
-                                                                                zIndex: 5, // กำหนด z-indexProduct เพื่อให้อยู่ด้านบน
+                                                                                zIndex: 5,
                                                                             }}>
                                                                                 ยอดสะสม
                                                                             </TablecellHeader>
@@ -1337,7 +1175,7 @@ const ReportGasStation = ({ openNavbar }) => {
                                                                                 whiteSpace: "nowrap",
                                                                                 position: "sticky",
                                                                                 right: 0,
-                                                                                zIndex: 5, // กำหนด z-indexProduct เพื่อให้อยู่ด้านบน
+                                                                                zIndex: 5,
                                                                             }}>
 
                                                                             </TablecellHeader>
@@ -1362,7 +1200,6 @@ const ReportGasStation = ({ openNavbar }) => {
                                                                                         daysInMonth
                                                                                     );
 
-                                                                                    console.log("total backyard", row.id, total);
 
                                                                                     const year = selectedDate.year();
                                                                                     const month = selectedDate.month() + 1;
@@ -1378,7 +1215,6 @@ const ReportGasStation = ({ openNavbar }) => {
                                                                                             Accumulate: -total
                                                                                         };
 
-                                                                                    // ✅ สร้าง summary ของปั้มนี้ ถ้ายังไม่มี
                                                                                     if (!stationSummaryBackyard[row.id]) {
                                                                                         stationSummaryBackyard[row.id] = {
                                                                                             total: 0,

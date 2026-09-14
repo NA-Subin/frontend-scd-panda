@@ -91,12 +91,11 @@ const CompanyPayment = ({ openNavbar }) => {
         const handleResize = () => {
             let width = window.innerWidth;
             if (!openNavbar) {
-                width += 120; // ✅ เพิ่ม 200 ถ้า openNavbar = false
+                width += 120;
             }
             setWindowWidth(width);
         };
 
-        // เรียกครั้งแรกตอน mount
         handleResize();
 
         window.addEventListener('resize', handleResize);
@@ -104,7 +103,7 @@ const CompanyPayment = ({ openNavbar }) => {
         return () => {
             window.removeEventListener('resize', handleResize);
         };
-    }, [openNavbar]); // ✅ ทำงานใหม่ทุกครั้งที่ openNavbar เปลี่ยน
+    }, [openNavbar]);
 
     const { companypayment, refetch } = useBasicData();
     const companypayments = Object.values(companypayment || {});
@@ -218,14 +217,12 @@ const CompanyPayment = ({ openNavbar }) => {
             <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mb: 1 }}>
                 รายชื่อบริษัทที่ใช้อ้างอิงเวลาสั่งจ่ายเงิน/ออกเอกสารทางการเงิน
             </Typography>
-            {/* <ImportExcel /> */}
             <Divider sx={{ marginBottom: 2 }} />
             <Box sx={{ width: "100%" }}>
                 {
                     windowWidth >= 800 ?
                         <Grid container spacing={2} p={1}>
                             <Grid item sm={12} lg={12}>
-                                {/* <Typography variant="subtitle1" fontWeight="bold" sx={{ marginTop: 1 }} gutterBottom>รายชื่อบริษัทที่สั่งจ่าย</Typography> */}
                                 <Box
                                     sx={{
                                         display: "flex",

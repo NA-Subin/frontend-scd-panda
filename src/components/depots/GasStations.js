@@ -57,7 +57,6 @@ const GasStations = ({ openNavbar }) => {
       setWindowWidth(width);
     };
 
-    // เรียกครั้งแรกตอน mount
     handleResize();
 
     window.addEventListener('resize', handleResize);
@@ -65,36 +64,7 @@ const GasStations = ({ openNavbar }) => {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [openNavbar]); // ✅ ทำงานใหม่ทุกครั้งที่ openNavbar เปลี่ยน
-
-  // const [depot, setDepot] = useState(0);
-  // const [gasStation, setGasStation] = useState(0);
-  // const [stock, setStock] = React.useState([]);
-
-  // const getDepot = async () => {
-  //   database.ref("/depot/oils").on("value", (snapshot) => {
-  //     const datas = snapshot.val();
-  //     setDepot(datas.length);
-  //   });
-
-  //   database.ref("/depot/stock").on("value", (snapshot) => {
-  //     const datas = snapshot.val();
-  //     const dataList = [];
-  //     for (let id in datas) {
-  //       dataList.push({ id, ...datas[id] });
-  //     }
-  //     setStock(dataList);
-  //   });
-
-  //   database.ref("/depot/gasStations").on("value", (snapshot) => {
-  //     const datas = snapshot.val();
-  //     setGasStation(datas.length);
-  //   });
-  // };
-
-  // useEffect(() => {
-  //   getDepot();
-  // }, []);
+  }, [openNavbar]);
 
   return (
     <Container maxWidth="xl" sx={{ marginTop: 13, marginBottom: 5, width: windowWidth <= 900 && windowWidth > 600 ? (windowWidth - 95) : windowWidth <= 600 ? (windowWidth) : (windowWidth - 230) }}>
@@ -126,9 +96,9 @@ const GasStations = ({ openNavbar }) => {
                     badgeContent={gasStation.length}
                     sx={{
                       "& .MuiBadge-badge": {
-                        fontSize: 20, // ขนาดตัวเลขใน Badge
-                        minWidth: 30, // ความกว้างของ Badge
-                        height: 30, // ความสูงของ Badge
+                        fontSize: 20,
+                        minWidth: 30,
+                        height: 30,
                         top: openMenu === 1 ? 35 : -10,
                         right: openMenu === 1 ? -30 : -10,
                         color: openMenu === 1 ? theme.palette.success.main : "white",
@@ -156,9 +126,9 @@ const GasStations = ({ openNavbar }) => {
                     badgeContent={gasStation.length}
                     sx={{
                       "& .MuiBadge-badge": {
-                        fontSize: 20, // ขนาดตัวเลขใน Badge
-                        minWidth: 30, // ความกว้างของ Badge
-                        height: 30, // ความสูงของ Badge
+                        fontSize: 20,
+                        minWidth: 30,
+                        height: 30,
                         top: openMenu === 1 ? 35 : -40,
                         right: openMenu === 1 ? -30 : -5,
                         color: openMenu === 1 ? theme.palette.success.main : "white",
@@ -192,9 +162,9 @@ const GasStations = ({ openNavbar }) => {
                     badgeContent={stock.length}
                     sx={{
                       "& .MuiBadge-badge": {
-                        fontSize: 20, // ขนาดตัวเลขใน Badge
-                        minWidth: 30, // ความกว้างของ Badge
-                        height: 30, // ความสูงของ Badge
+                        fontSize: 20,
+                        minWidth: 30,
+                        height: 30,
                         top: openMenu === 2 ? 35 : -10,
                         right: openMenu === 2 ? -30 : -10,
                         color: openMenu === 2 ? theme.palette.success.main : "white",
@@ -222,9 +192,9 @@ const GasStations = ({ openNavbar }) => {
                     badgeContent={stock.length}
                     sx={{
                       "& .MuiBadge-badge": {
-                        fontSize: 20, // ขนาดตัวเลขใน Badge
-                        minWidth: 30, // ความกว้างของ Badge
-                        height: 30, // ความสูงของ Badge
+                        fontSize: 20,
+                        minWidth: 30,
+                        height: 30,
                         top: openMenu === 2 ? 35 : -40,
                         right: openMenu === 2 ? -30 : -5,
                         color: openMenu === 2 ? theme.palette.success.main : "white",

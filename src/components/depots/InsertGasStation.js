@@ -52,7 +52,7 @@ const InsertGasStation = (props) => {
     const [check, setCheck] = React.useState(Number(openMenu));
 
     React.useEffect(() => {
-        setCheck(Number(openMenu)); // อัปเดต check เมื่อ openMenu เปลี่ยนแปลง
+        setCheck(Number(openMenu));
     }, [openMenu]);
 
     const [menu, setMenu] = React.useState(0);
@@ -65,12 +65,6 @@ const InsertGasStation = (props) => {
     const handleClose = () => {
         setOpen(false);
     };
-
-    // console.log("openMenu", openMenu);
-    // console.log("check", check);
-    // console.log("จำนวนปั้ม "+gasStation);
-    // console.log("จำนวนคลังสต็อกน้ำมัน "+stock);
-    // console.log("จำนวนคลังรับน้ำมัน "+depot);
 
     return (
         <React.Fragment>
@@ -113,7 +107,7 @@ const InsertGasStation = (props) => {
                                     <FormControlLabel control={<Checkbox onClick={() => setCheck(1)} checked={check === 1 ? true : false}
                                         sx={{
                                             "& .MuiSvgIcon-root": {
-                                                fontSize: 20, // ปรับขนาด Checkbox
+                                                fontSize: 20,
                                             },
                                         }} />}
                                         label="ปั้มน้ำมัน"
@@ -127,7 +121,7 @@ const InsertGasStation = (props) => {
                                     <FormControlLabel control={<Checkbox onClick={() => setCheck(2)} checked={check === 2 ? true : false}
                                         sx={{
                                             "& .MuiSvgIcon-root": {
-                                                fontSize: 20, // ปรับขนาด Checkbox
+                                                fontSize: 20,
                                             },
                                         }} />}
                                         label="คลังสต็อกน้ำมัน"

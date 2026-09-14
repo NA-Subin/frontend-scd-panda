@@ -66,12 +66,11 @@ const InsertTypeDeduction = ({ onSend }) => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     useEffect(() => {
         const handleResize = () => {
-            setWindowWidth(window.innerWidth); // อัพเดตค่าขนาดหน้าจอ
+            setWindowWidth(window.innerWidth);
         };
 
-        window.addEventListener('resize', handleResize); // เพิ่ม event listener
+        window.addEventListener('resize', handleResize);
 
-        // ลบ event listener เมื่อ component ถูกทำลาย
         return () => {
             window.removeEventListener('resize', handleResize);
         };
@@ -114,9 +113,6 @@ const InsertTypeDeduction = ({ onSend }) => {
             : `D${deduction.length.toString().padStart(3, '0')}`;
         setCode(newCode);
     }, [type, income.length, deduction.length]);
-
-    console.log("Type : ", type);
-
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -210,18 +206,12 @@ const InsertTypeDeduction = ({ onSend }) => {
                     console.error("Error pushing data:", error);
                 }
             },
-            () => {
-                console.log(`ยกเลิกการลบบิลลำดับที่ ${id + 1}`);
-            }
+            () => { }
         );
     }
 
-
     return (
         <React.Fragment>
-            {/* <IconButton color="primary" size="large" sx={{ marginTop: -1.5 }} onClick={handleClickOpen}>
-                <AddBoxIcon fontSize="large"/>
-            </IconButton> */}
             <Button variant="contained" color="primary" onClick={handleClickOpen}>
                 เพิ่มประเภทรายได้รายหัก
             </Button>
@@ -367,7 +357,6 @@ const InsertTypeDeduction = ({ onSend }) => {
                                                         {
                                                             ID !== row.id ?
                                                                 <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 1 }} gutterBottom>{row.Status}</Typography>
-                                                                // <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap', marginTop: 1 }} gutterBottom>{row.Status === "ประจำ" ? <CheckIcon fontSize="small" /> : <ClearIcon fontSize="small" />}</Typography>
                                                                 :
                                                                 <Paper
                                                                     elevation={0}
@@ -439,11 +428,6 @@ const InsertTypeDeduction = ({ onSend }) => {
                                                                 </Box>
                                                         }
                                                     </TableCell>
-                                                    {/* <TableCell sx={{ textAlign: "center" }}>
-                                                        <Button variant="contained" size="small" sx={{ height: "22px" }} color="error" fullWidth
-                                                            onClick={() => handleChangDelete(row.id)}
-                                                        >ลบ</Button>
-                                                    </TableCell> */}
                                                 </TableRow>
                                             ))
                                         )}

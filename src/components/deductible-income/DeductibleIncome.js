@@ -102,12 +102,11 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
         const handleResize = () => {
             let width = window.innerWidth;
             if (!openNavbar) {
-                width += 120; // ✅ เพิ่ม 200 ถ้า openNavbar = false
+                width += 120;
             }
             setWindowWidth(width);
         };
 
-        // เรียกครั้งแรกตอน mount
         handleResize();
 
         window.addEventListener('resize', handleResize);
@@ -115,7 +114,7 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
         return () => {
             window.removeEventListener('resize', handleResize);
         };
-    }, [openNavbar]); // ✅ ทำงานใหม่ทุกครั้งที่ openNavbar เปลี่ยน
+    }, [openNavbar]);
 
     const { creditors, deductibleincome, refetch } = useBasicData();
     const creditor = Object.values(creditors || {});
@@ -320,23 +319,6 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
             }
             <Divider sx={{ marginBottom: 1 }} />
             <Box sx={{ width: "100%" }}>
-                {/* {
-                    windowWidth >= 800 ?
-                        <Grid container spacing={2} p={1}>
-                            <Grid item sm={8} lg={10}>
-                                <Typography variant="subtitle1" fontWeight="bold" sx={{ marginTop: 1 }} gutterBottom>รายได้รายหัก</Typography>
-                            </Grid>
-                            <Grid item sm={4} lg={2} sx={{ textAlign: "right" }}>
-                                <InsertDeductibleIncome data={deductibleIncome.length} />
-                            </Grid>
-                        </Grid>
-                        :
-                        <Grid container spacing={2} p={1}>
-                            <Grid item xs={12} sx={{ textAlign: "center" }}>
-                                <InsertDeductibleIncome data={deductibleIncome.length} />
-                            </Grid>
-                        </Grid>
-                } */}
                 <Grid container spacing={2}>
                     {
                         typeIncome &&
@@ -517,7 +499,6 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                                                 </Box>
                                                         }
                                                     </TableCell>
-                                                    {/* <UpdateCreditor key={row.id} employee={row} /> */}
                                                 </TableRow>
                                             ))
                                         )}
@@ -712,7 +693,6 @@ const DeductibleIncomeDetail = ({ openNavbar }) => {
                                                                 </Box>
                                                         }
                                                     </TableCell>
-                                                    {/* <UpdateCreditor key={row.id} employee={row} /> */}
                                                 </TableRow>
                                             ))
                                         )}

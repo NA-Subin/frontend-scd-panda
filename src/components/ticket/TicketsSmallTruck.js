@@ -81,12 +81,11 @@ const TicketsSmallTruck = ({ openNavbar }) => {
     const [update, setUpdate] = React.useState("");
     const [newName, setNewName] = React.useState("");
     const [updateCustomer, setUpdateCustomer] = React.useState(true);
-    //const [ticket, setTicket] = React.useState([]);
     const [open, setOpen] = useState(1);
     const [setting, setSetting] = React.useState(false);
     const [ticketChecked, setTicketChecked] = useState(false);
     const [recipientChecked, setRecipientChecked] = useState(false);
-    const [selectedRowId, setSelectedRowId] = useState(null); // จับ ID ของแถวที่ต้องการแก้ไข
+    const [selectedRowId, setSelectedRowId] = useState(null);
     const [companies, setCompanies] = React.useState("ไม่มี");
     const [openCustomer, setOpenCustomer] = React.useState("");
 
@@ -110,8 +109,6 @@ const TicketsSmallTruck = ({ openNavbar }) => {
     const [credit, setCredit] = React.useState("");
     const [bill, setBill] = React.useState("");
 
-    //const [ticketM, setTicketM] = React.useState([]);
-    //const [ticketR, setTicketR] = React.useState([]);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
     const { customersmalltruck, company, small, refetch } = useBasicData();
@@ -151,17 +148,16 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                 const searchText = search.toLowerCase().trim();
                 return name.includes(searchText);
             });
-    // ใช้ useEffect เพื่อรับฟังการเปลี่ยนแปลงของขนาดหน้าจอ
+
     useEffect(() => {
         const handleResize = () => {
             let width = window.innerWidth;
             if (!openNavbar) {
-                width += 120; // ✅ เพิ่ม 200 ถ้า openNavbar = false
+                width += 120; // เพิ่ม offset เมื่อ navbar ถูกยุบ (openNavbar = false)
             }
             setWindowWidth(width);
         };
 
-        // เรียกครั้งแรกตอน mount
         handleResize();
 
         window.addEventListener('resize', handleResize);
@@ -169,31 +165,20 @@ const TicketsSmallTruck = ({ openNavbar }) => {
         return () => {
             window.removeEventListener('resize', handleResize);
         };
-    }, [openNavbar]); // ✅ ทำงานใหม่ทุกครั้งที่ openNavbar เปลี่ยน
-
-
-    console.log("ticketM", ticketM);
-    console.log("ticketR", ticketR);
+    }, [openNavbar]);
 
     const handleClickOpen = () => {
         setOpen(true);
     };
 
-    // State สำหรับเก็บค่าแก้ไข Rate
-    // const [rate1Edit, setRate1Edit] = useState("");
-    // const [rate2Edit, setRate2Edit] = useState("");
-    // const [rate3Edit, setRate3Edit] = useState("");
-    const [ticketCheckedC, setTicketCheckedC] = useState(true); // สถานะของ checkbox สำหรับ "อยู่บริษัทในเครือ"
+    const [ticketCheckedC, setTicketCheckedC] = useState(true);
     const [creditTimeEdit, setCreditTimeEdit] = useState("");
     const [name, setName] = useState("");
     const [rowId, setRowId] = useState(null);
     const [registrantionCheck, setRegistrationChecked] = useState(false);
     const [registration, setRegistration] = useState("ไม่มี");
 
-    // ฟังก์ชันสำหรับกดแก้ไข
-    const handleSetting = (index, rowId, statusCompany, status, rowCreditTime, newname, newCompany, newregistrantionCheck, newregistraion, newCompanyTicket
-        // , rowRate1, rowRate2, rowRate3
-    ) => {
+    const handleSetting = (index, rowId, statusCompany, status, rowCreditTime, newname, newCompany, newregistrantionCheck, newregistraion, newCompanyTicket) => {
         setRowId(index + 1);
         setSetting(true);
         setSelectedRowId(rowId);
@@ -202,7 +187,6 @@ const TicketsSmallTruck = ({ openNavbar }) => {
         } else {
             setTicketCheckedC(false);
         }
-        // ตั้งค่าของ checkbox ตามสถานะที่มีอยู่
         if (status === "ลูกค้าประจำ") {
             setTicketChecked(true);
             setRecipientChecked(false);
@@ -219,13 +203,8 @@ const TicketsSmallTruck = ({ openNavbar }) => {
         // ให้ตรงกับ format ที่ MenuItem ของ Select บริษัทด้านล่างใช้ ไม่ใช่แยกด้วย split(":") แบบ composite เดิม
         const matchedCompany = newCompany ? companyDetail.find((c) => c.uuid === newCompany) : null;
         setCompanies(matchedCompany ? `${matchedCompany.id}:${matchedCompany.Name || newCompanyTicket}` : "ไม่มี");
-        // เซ็ตค่า RateEdit เป็นค่าปัจจุบันของ row ที่เลือก
-        // setRate1Edit(rowRate1);
-        // setRate2Edit(rowRate2);
-        // setRate3Edit(rowRate3);
     };
 
-    // บันทึกข้อมูลที่แก้ไขแล้ว
     const handleSave = async () => {
         try {
             // companies ในหน้านี้เก็บเป็น "id:Name" (id ตัวเลขจาก company table ตาม MenuItem)
@@ -378,8 +357,6 @@ const TicketsSmallTruck = ({ openNavbar }) => {
         setDistrict(addr.district);
         setProvince(addr.province);
         setZipCode(addr.zipCode);
-
-        //setCompanyChecked
     }
 
     const [page, setPage] = useState(0);
@@ -427,9 +404,7 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                     console.error("Error updating data:", error);
                 }
             },
-            () => {
-                console.log(`ยกเลิกลบตั๋วรถเล็กที่ ${rowId}`);
-            }
+            () => { }
         )
     }
 
@@ -517,15 +492,6 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                 <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 300 }}>
                                     ชื่อตั๋ว
                                 </TablecellHeader>
-                                {/* <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 150 }}>
-                                    เรทคลังลำปาง
-                                </TablecellHeader>
-                                <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 150 }}>
-                                    เรทคลังพิจิตร
-                                </TablecellHeader>
-                                <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 150 }}>
-                                    เรทคลังสระบุรี/บางปะอิน/IR
-                                </TablecellHeader> */}
                                 <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 100 }}>
                                     ระยะเวลาเครดิต
                                     <InfoHint title="จำนวนวันที่ให้ลูกค้าชำระเงินหลังวางบิล เช่น 30 = เครดิต 30 วัน" />
@@ -570,7 +536,6 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                             {index + safePage * rowsPerPage + 1}
                                                         </Typography>
                                                     </TableCell>
-                                                    {/* <TableCell sx={{ textAlign: "center", fontWeight: !setting || row.uuid !== selectedRowId ? "" : "bold" }}>{row.Name}</TableCell> */}
                                                     <TableCell
                                                         sx={{
                                                             textAlign: "left",
@@ -582,7 +547,6 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                         onClick={() => handleCustomer(row)}
                                                     >
                                                         {
-                                                            // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
                                                             !setting || row.uuid !== selectedRowId ?
                                                                 <Typography variant="subtitle2" sx={{ marginLeft: 3 }} gutterBottom>
                                                                     {row.Name}
@@ -598,12 +562,12 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                                         }}
                                                                         sx={{
                                                                             '& .MuiOutlinedInput-root': {
-                                                                                height: '30px', // ปรับความสูงของ TextField
+                                                                                height: '30px',
                                                                             },
                                                                             '& .MuiInputBase-input': {
-                                                                                fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                                                                fontSize: '14px',
                                                                                 fontWeight: 'bold',
-                                                                                padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                                padding: '2px 6px',
                                                                                 textAlign: "center"
                                                                             },
                                                                         }}
@@ -617,7 +581,6 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                     </TableCell>
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         {
-                                                            // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
                                                             !setting || row.uuid !== selectedRowId ?
                                                                 row.CreditTime
                                                                 :
@@ -632,12 +595,12 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                                         }}
                                                                         sx={{
                                                                             '& .MuiOutlinedInput-root': {
-                                                                                height: '30px', // ปรับความสูงของ TextField
+                                                                                height: '30px',
                                                                             },
                                                                             '& .MuiInputBase-input': {
-                                                                                fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                                                                fontSize: '14px',
                                                                                 fontWeight: 'bold',
-                                                                                padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                                padding: '2px 6px',
                                                                                 textAlign: "center"
                                                                             },
                                                                         }}
@@ -649,99 +612,6 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                                 </Paper>
                                                         }
                                                     </TableCell>
-                                                    {/* <TableCell sx={{ textAlign: "center" }}>
-                                                        {
-                                                            // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
-                                                            !setting || row.uuid !== selectedRowId ?
-                                                                row.Rate1
-                                                                :
-                                                                <TextField
-                                                                    type="number"
-                                                                    InputLabelProps={{
-                                                                        sx: {
-                                                                            fontSize: '14px',
-                                                                        },
-                                                                    }}
-                                                                    sx={{
-                                                                        '& .MuiOutlinedInput-root': {
-                                                                            height: '30px', // ปรับความสูงของ TextField
-                                                                        },
-                                                                        '& .MuiInputBase-input': {
-                                                                            fontSize: '14px', // ขนาด font เวลาพิมพ์
-                                                                            fontWeight: 'bold',
-                                                                            padding: '2px 6px', // ปรับ padding ภายใน input
-                                                                            paddingLeft: 2
-                                                                        },
-                                                                    }}
-                                                                    value={rate1Edit}
-                                                                    onChange={(e) => setRate1Edit(e.target.value)}
-                                                                    size="small"
-                                                                    variant="outlined"
-                                                                />
-                                                        }
-                                                    </TableCell>
-                                                    <TableCell sx={{ textAlign: "center" }}>
-                                                        {
-                                                            // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
-                                                            !setting || row.uuid !== selectedRowId ?
-                                                                row.Rate2
-                                                                :
-                                                                <TextField
-                                                                    type="number"
-                                                                    InputLabelProps={{
-                                                                        sx: {
-                                                                            fontSize: '14px',
-                                                                        },
-                                                                    }}
-                                                                    sx={{
-                                                                        '& .MuiOutlinedInput-root': {
-                                                                            height: '30px', // ปรับความสูงของ TextField
-                                                                        },
-                                                                        '& .MuiInputBase-input': {
-                                                                            fontSize: '14px', // ขนาด font เวลาพิมพ์
-                                                                            fontWeight: 'bold',
-                                                                            padding: '2px 6px', // ปรับ padding ภายใน input
-                                                                            paddingLeft: 2
-                                                                        },
-                                                                    }}
-                                                                    value={rate2Edit}
-                                                                    onChange={(e) => setRate2Edit(e.target.value)}
-                                                                    size="small"
-                                                                    variant="outlined"
-                                                                />
-                                                        }
-                                                    </TableCell>
-                                                    <TableCell sx={{ textAlign: "center" }}>
-                                                        {
-                                                            // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
-                                                            !setting || row.uuid !== selectedRowId ?
-                                                                row.Rate3
-                                                                :
-                                                                <TextField
-                                                                    type="number"
-                                                                    InputLabelProps={{
-                                                                        sx: {
-                                                                            fontSize: '14px',
-                                                                        },
-                                                                    }}
-                                                                    sx={{
-                                                                        '& .MuiOutlinedInput-root': {
-                                                                            height: '30px', // ปรับความสูงของ TextField
-                                                                        },
-                                                                        '& .MuiInputBase-input': {
-                                                                            fontSize: '14px', // ขนาด font เวลาพิมพ์
-                                                                            fontWeight: 'bold',
-                                                                            padding: '2px 6px', // ปรับ padding ภายใน input
-                                                                            paddingLeft: 2
-                                                                        },
-                                                                    }}
-                                                                    value={rate3Edit}
-                                                                    onChange={(e) => setRate3Edit(e.target.value)}
-                                                                    size="small"
-                                                                    variant="outlined"
-                                                                />
-                                                        }
-                                                    </TableCell> */}
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         <Box>
                                                             {
@@ -757,7 +627,6 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                                             }
                                                                         />
                                                                     </Tooltip>
-                                                                    //<Typography variant="subtitle2" gutterBottom>{row.StatusCompany || "-"}</Typography>
                                                                     :
                                                                     <Tooltip title={ticketCheckedC === true ? "อยู่บริษัทในเครือ" : "ไม่อยู่บริษัทในเครือ"} placement="right">
                                                                         <FormControlLabel
@@ -770,36 +639,6 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                                             }
                                                                         />
                                                                     </Tooltip>
-                                                                // <>
-                                                                //     <FormControlLabel
-                                                                //         control={
-                                                                //             <Checkbox
-                                                                //                 checked={ticketCheckedC === true ? true : false}
-                                                                //                 onChange={(e) => setTicketCheckedC(true)}
-                                                                //                 size="small"
-                                                                //             />
-                                                                //         }
-                                                                //         label={
-                                                                //             <Typography sx={{ fontSize: "14px", fontWeight: "bold" }}>
-                                                                //                 อยู่บริษัทในเครือ
-                                                                //             </Typography>
-                                                                //         }
-                                                                //     />
-                                                                //     <FormControlLabel
-                                                                //         control={
-                                                                //             <Checkbox
-                                                                //                 checked={ticketCheckedC === false ? true : false}
-                                                                //                 onChange={(e) => setTicketCheckedC(false)}
-                                                                //                 size="small"
-                                                                //             />
-                                                                //         }
-                                                                //         label={
-                                                                //             <Typography sx={{ fontSize: "14px", fontWeight: "bold" }}>
-                                                                //                 ไม่อยู่บริษัทในเครือ
-                                                                //             </Typography>
-                                                                //         }
-                                                                //     />
-                                                                // </>
                                                             }
                                                         </Box>
                                                     </TableCell>
@@ -817,7 +656,6 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                                         }
                                                                     />
                                                                 </Tooltip>
-                                                                //<Typography variant="subtitle2" gutterBottom>{row.Status}</Typography>
                                                                 :
                                                                 <Tooltip title={ticketChecked === true ? "ลูกค้าประจำ" : "ลูกค้าไม่ประจำ"} placement="right">
                                                                     <FormControlLabel
@@ -830,53 +668,8 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                                         }
                                                                     />
                                                                 </Tooltip>
-                                                            // <>
-                                                            //     <FormControlLabel
-                                                            //         sx={{ whiteSpace: "nowrap" }}
-                                                            //         control={
-                                                            //             <Checkbox
-                                                            //                 checked={ticketChecked && !recipientChecked ? true : false}
-                                                            //                 onChange={handleChangeTicketChecked}
-                                                            //                 size="small"
-                                                            //             />
-                                                            //         }
-                                                            //         label={
-                                                            //             <Typography sx={{ fontSize: "14px", fontWeight: "bold" }}>
-                                                            //                 ลูกค้าประจำ
-                                                            //             </Typography>
-                                                            //         }
-                                                            //     />
-                                                            //     <FormControlLabel
-                                                            //         sx={{ whiteSpace: "nowrap" }}
-                                                            //         control={
-                                                            //             <Checkbox
-                                                            //                 checked={!ticketChecked && recipientChecked ? true : false}
-                                                            //                 onChange={handleChangeRecipientChecked}
-                                                            //                 size="small"
-                                                            //             />
-                                                            //         }
-                                                            //         label={
-                                                            //             <Typography sx={{ fontSize: "14px", fontWeight: "bold" }}>
-                                                            //                 ลูกค้าไม่ประจำ
-                                                            //             </Typography>
-                                                            //         }
-                                                            //     />
-                                                            // </>
                                                         }
                                                     </TableCell>
-                                                    {/* <TableCell width={70} sx={{ position: "sticky", right: 0, backgroundColor: "white" }}>
-                                                        <Box sx={{ marginTop: -0.5 }}>
-                                                            {
-                                                                !setting || row.uuid !== selectedRowId ?
-                                                                    <Button variant="contained" color="warning" startIcon={<EditNoteIcon />} sx={{ height: "25px", marginTop: 1.5, marginBottom: 1 }} size="small" onClick={() => handleSetting(row.id, row.Status, row.CreditTime, row.Name)} fullWidth>แก้ไข</Button>
-                                                                    :
-                                                                    <>
-                                                                        <Button variant="contained" color="success" onClick={handleSave} sx={{ height: "25px", marginTop: 0.5 }} size="small" fullWidth>บันทึก</Button>
-                                                                        <Button variant="contained" color="error" onClick={handleCancel} sx={{ height: "25px", marginTop: 0.5 }} size="small" fullWidth>ยกเลิก</Button>
-                                                                    </>
-                                                            }
-                                                        </Box>
-                                                    </TableCell> */}
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         {
                                                             !setting || row.uuid !== selectedRowId ?
@@ -899,20 +692,20 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                                         }}
                                                                         sx={{
                                                                             '& .MuiOutlinedInput-root': {
-                                                                                height: '30px', // ปรับความสูงของช่อง
+                                                                                height: '30px',
                                                                             },
                                                                             '& .MuiInputBase-input': {
-                                                                                fontSize: '14px', // ขนาด font
+                                                                                fontSize: '14px',
                                                                                 fontWeight: 'bold',
-                                                                                padding: '2px 6px', // padding ภายใน
+                                                                                padding: '2px 6px',
                                                                                 textAlign: 'center',
                                                                             },
                                                                         }}
                                                                     >
                                                                         <MenuItem value="ไม่มี">กรุณาเลือกบริษัท</MenuItem>
                                                                         {companyDetail
-                                                                            .slice() // ทำสำเนา array กัน side effect
-                                                                            .sort((a, b) => a.Name.localeCompare(b.Name, "th")) // ✅ เรียงตาม Name (ภาษาไทยก็โอเค)
+                                                                            .slice()
+                                                                            .sort((a, b) => a.Name.localeCompare(b.Name, "th"))
                                                                             .map((item) => (
                                                                                 item.Name !== "บริษัท แพนด้า สตาร์ ออยล์  จำกัด  (สำนักงานใหญ่)" &&
                                                                                 <MenuItem key={item.id} value={`${item.id}:${item.Name}`}>
@@ -961,13 +754,6 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                                     >
                                                                         ยกเลิก
                                                                     </Button>
-
-                                                                    {/* <IconButton color="error" onClick={handleCancel}>
-                                                                    <CancelIcon />
-                                                                </IconButton>
-                                                                <IconButton color="success" onClick={handleSave} >
-                                                                    <SaveIcon />
-                                                                </IconButton> */}
                                                                 </Box>
                                                         }
                                                     </TableCell>
@@ -1012,7 +798,6 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                             {index + safePage * rowsPerPage + 1}
                                                         </Typography>
                                                     </TableCell>
-                                                    {/* <TableCell sx={{ textAlign: "center", fontWeight: !setting || row.uuid !== selectedRowId ? "" : "bold" }}>{row.TicketsName}</TableCell> */}
                                                     <TableCell
                                                         sx={{
                                                             textAlign: "left",
@@ -1024,7 +809,6 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                         onClick={() => handleCustomer(row)}
                                                     >
                                                         {
-                                                            // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
                                                             !setting || row.uuid !== selectedRowId ?
                                                                 <Typography variant="subtitle2" sx={{ marginLeft: 3 }} gutterBottom>
                                                                     {row.Name}
@@ -1040,12 +824,12 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                                         }}
                                                                         sx={{
                                                                             '& .MuiOutlinedInput-root': {
-                                                                                height: '30px', // ปรับความสูงของ TextField
+                                                                                height: '30px',
                                                                             },
                                                                             '& .MuiInputBase-input': {
-                                                                                fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                                                                fontSize: '14px',
                                                                                 fontWeight: 'bold',
-                                                                                padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                                padding: '2px 6px',
                                                                                 textAlign: "center"
                                                                             },
                                                                         }}
@@ -1059,7 +843,6 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                     </TableCell>
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         {
-                                                            // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
                                                             !setting || row.uuid !== selectedRowId ?
                                                                 row.CreditTime
                                                                 :
@@ -1074,12 +857,12 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                                         }}
                                                                         sx={{
                                                                             '& .MuiOutlinedInput-root': {
-                                                                                height: '30px', // ปรับความสูงของ TextField
+                                                                                height: '30px',
                                                                             },
                                                                             '& .MuiInputBase-input': {
-                                                                                fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                                                                fontSize: '14px',
                                                                                 fontWeight: 'bold',
-                                                                                padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                                padding: '2px 6px',
                                                                                 textAlign: "center"
                                                                             },
                                                                         }}
@@ -1091,99 +874,6 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                                 </Paper>
                                                         }
                                                     </TableCell>
-                                                    {/* <TableCell sx={{ textAlign: "center" }}>
-                                                    {
-                                                            // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
-                                                            !setting || row.uuid !== selectedRowId ?
-                                                                row.Rate1
-                                                                :
-                                                                <TextField
-                                                                    type="number"
-                                                                    InputLabelProps={{
-                                                                        sx: {
-                                                                            fontSize: '14px',
-                                                                        },
-                                                                    }}
-                                                                    sx={{
-                                                                        '& .MuiOutlinedInput-root': {
-                                                                            height: '30px', // ปรับความสูงของ TextField
-                                                                        },
-                                                                        '& .MuiInputBase-input': {
-                                                                            fontSize: '14px', // ขนาด font เวลาพิมพ์
-                                                                            fontWeight: 'bold',
-                                                                            padding: '2px 6px', // ปรับ padding ภายใน input
-                                                                            paddingLeft: 2
-                                                                        },
-                                                                    }}
-                                                                    value={rate1Edit}
-                                                                    onChange={(e) => setRate1Edit(e.target.value)}
-                                                                    size="small"
-                                                                    variant="outlined"
-                                                                />
-                                                        }
-                                                    </TableCell>
-                                                    <TableCell sx={{ textAlign: "center" }}>
-                                                    {
-                                                            // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
-                                                            !setting || row.uuid !== selectedRowId ?
-                                                                row.Rate2
-                                                                :
-                                                                <TextField
-                                                                    type="number"
-                                                                    InputLabelProps={{
-                                                                        sx: {
-                                                                            fontSize: '14px',
-                                                                        },
-                                                                    }}
-                                                                    sx={{
-                                                                        '& .MuiOutlinedInput-root': {
-                                                                            height: '30px', // ปรับความสูงของ TextField
-                                                                        },
-                                                                        '& .MuiInputBase-input': {
-                                                                            fontSize: '14px', // ขนาด font เวลาพิมพ์
-                                                                            fontWeight: 'bold',
-                                                                            padding: '2px 6px', // ปรับ padding ภายใน input
-                                                                            paddingLeft: 2
-                                                                        },
-                                                                    }}
-                                                                    value={rate2Edit}
-                                                                    onChange={(e) => setRate2Edit(e.target.value)}
-                                                                    size="small"
-                                                                    variant="outlined"
-                                                                />
-                                                        }
-                                                    </TableCell>
-                                                    <TableCell sx={{ textAlign: "center" }}>
-                                                    {
-                                                            // ถ้า row นี้กำลังอยู่ในโหมดแก้ไขให้แสดง TextField พร้อมค่าเดิม
-                                                            !setting || row.uuid !== selectedRowId ?
-                                                                row.Rate3
-                                                                :
-                                                                <TextField
-                                                                    type="number"
-                                                                    InputLabelProps={{
-                                                                        sx: {
-                                                                            fontSize: '14px',
-                                                                        },
-                                                                    }}
-                                                                    sx={{
-                                                                        '& .MuiOutlinedInput-root': {
-                                                                            height: '30px', // ปรับความสูงของ TextField
-                                                                        },
-                                                                        '& .MuiInputBase-input': {
-                                                                            fontSize: '14px', // ขนาด font เวลาพิมพ์
-                                                                            fontWeight: 'bold',
-                                                                            padding: '2px 6px', // ปรับ padding ภายใน input
-                                                                            paddingLeft: 2
-                                                                        },
-                                                                    }}
-                                                                    value={rate3Edit}
-                                                                    onChange={(e) => setRate3Edit(e.target.value)}
-                                                                    size="small"
-                                                                    variant="outlined"
-                                                                />
-                                                        }
-                                                    </TableCell> */}
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         <Box>
                                                             {
@@ -1199,7 +889,6 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                                             }
                                                                         />
                                                                     </Tooltip>
-                                                                    //<Typography variant="subtitle2" gutterBottom>{row.StatusCompany || "-"}</Typography>
                                                                     :
                                                                     <Tooltip title={ticketCheckedC === true ? "อยู่บริษัทในเครือ" : "ไม่อยู่บริษัทในเครือ"} placement="right">
                                                                         <FormControlLabel
@@ -1212,36 +901,6 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                                             }
                                                                         />
                                                                     </Tooltip>
-                                                                // <>
-                                                                //     <FormControlLabel
-                                                                //         control={
-                                                                //             <Checkbox
-                                                                //                 checked={ticketCheckedC === true ? true : false}
-                                                                //                 onChange={(e) => setTicketCheckedC(true)}
-                                                                //                 size="small"
-                                                                //             />
-                                                                //         }
-                                                                //         label={
-                                                                //             <Typography sx={{ fontSize: "14px", fontWeight: "bold" }}>
-                                                                //                 อยู่บริษัทในเครือ
-                                                                //             </Typography>
-                                                                //         }
-                                                                //     />
-                                                                //     <FormControlLabel
-                                                                //         control={
-                                                                //             <Checkbox
-                                                                //                 checked={ticketCheckedC === false ? true : false}
-                                                                //                 onChange={(e) => setTicketCheckedC(false)}
-                                                                //                 size="small"
-                                                                //             />
-                                                                //         }
-                                                                //         label={
-                                                                //             <Typography sx={{ fontSize: "14px", fontWeight: "bold" }}>
-                                                                //                 ไม่อยู่บริษัทในเครือ
-                                                                //             </Typography>
-                                                                //         }
-                                                                //     />
-                                                                // </>
                                                             }
                                                         </Box>
                                                     </TableCell>
@@ -1259,7 +918,6 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                                         }
                                                                     />
                                                                 </Tooltip>
-                                                                //<Typography variant="subtitle2" gutterBottom>{row.Status}</Typography>
                                                                 :
                                                                 <Tooltip title={ticketChecked === true ? "ลูกค้าประจำ" : "ลูกค้าไม่ประจำ"} placement="right">
                                                                     <FormControlLabel
@@ -1272,53 +930,8 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                                         }
                                                                     />
                                                                 </Tooltip>
-                                                            // <>
-                                                            //     <FormControlLabel
-                                                            //         sx={{ whiteSpace: "nowrap" }}
-                                                            //         control={
-                                                            //             <Checkbox
-                                                            //                 checked={ticketChecked && !recipientChecked ? true : false}
-                                                            //                 onChange={handleChangeTicketChecked}
-                                                            //                 size="small"
-                                                            //             />
-                                                            //         }
-                                                            //         label={
-                                                            //             <Typography sx={{ fontSize: "14px", fontWeight: "bold" }}>
-                                                            //                 ลูกค้าประจำ
-                                                            //             </Typography>
-                                                            //         }
-                                                            //     />
-                                                            //     <FormControlLabel
-                                                            //         sx={{ whiteSpace: "nowrap" }}
-                                                            //         control={
-                                                            //             <Checkbox
-                                                            //                 checked={!ticketChecked && recipientChecked ? true : false}
-                                                            //                 onChange={handleChangeRecipientChecked}
-                                                            //                 size="small"
-                                                            //             />
-                                                            //         }
-                                                            //         label={
-                                                            //             <Typography sx={{ fontSize: "14px", fontWeight: "bold" }}>
-                                                            //                 ลูกค้าไม่ประจำ
-                                                            //             </Typography>
-                                                            //         }
-                                                            //     />
-                                                            // </>
                                                         }
                                                     </TableCell>
-                                                    {/* <TableCell width={70} sx={{ backgroundColor: "white",position: "sticky", right: 0 }}>
-                                                        <Box sx={{ marginTop: -0.5 }}>
-                                                            {
-                                                                !setting || row.uuid !== selectedRowId ?
-                                                                    <Button variant="contained" color="warning" startIcon={<EditNoteIcon />} sx={{ height: "25px", marginTop: 1.5, marginBottom: 1 }} size="small" onClick={() => handleSetting(row.id, row.Status, row.CreditTime, row.Name)} fullWidth>แก้ไข</Button>
-                                                                    :
-                                                                    <>
-                                                                        <Button variant="contained" color="success" onClick={handleSave} sx={{ height: "25px", marginTop: 0.5 }} size="small" fullWidth>บันทึก</Button>
-                                                                        <Button variant="contained" color="error" onClick={handleCancel} sx={{ height: "25px", marginTop: 0.5 }} size="small" fullWidth>ยกเลิก</Button>
-                                                                    </>
-                                                            }
-                                                        </Box>
-                                                    </TableCell> */}
                                                     <TableCell sx={{ textAlign: "center" }}>
                                                         {
                                                             !setting || row.uuid !== selectedRowId ?
@@ -1341,20 +954,20 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                                         }}
                                                                         sx={{
                                                                             '& .MuiOutlinedInput-root': {
-                                                                                height: '30px', // ปรับความสูงของช่อง
+                                                                                height: '30px',
                                                                             },
                                                                             '& .MuiInputBase-input': {
-                                                                                fontSize: '14px', // ขนาด font
+                                                                                fontSize: '14px',
                                                                                 fontWeight: 'bold',
-                                                                                padding: '2px 6px', // padding ภายใน
+                                                                                padding: '2px 6px',
                                                                                 textAlign: 'center',
                                                                             },
                                                                         }}
                                                                     >
                                                                         <MenuItem value="ไม่มี">กรุณาเลือกบริษัท</MenuItem>
                                                                         {companyDetail
-                                                                            .slice() // ทำสำเนา array กัน side effect
-                                                                            .sort((a, b) => a.Name.localeCompare(b.Name, "th")) // ✅ เรียงตาม Name (ภาษาไทยก็โอเค)
+                                                                            .slice()
+                                                                            .sort((a, b) => a.Name.localeCompare(b.Name, "th"))
                                                                             .map((item) => (
                                                                                 item.Name !== "บริษัท แพนด้า สตาร์ ออยล์  จำกัด  (สำนักงานใหญ่)" &&
                                                                                 <MenuItem key={item.id} value={`${item.id}:${item.Name}`}>
@@ -1403,13 +1016,6 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                                                                     >
                                                                         ยกเลิก
                                                                     </Button>
-
-                                                                    {/* <IconButton color="error" onClick={handleCancel}>
-                                                                    <CancelIcon />
-                                                                </IconButton>
-                                                                <IconButton color="success" onClick={handleSave} >
-                                                                    <SaveIcon />
-                                                                </IconButton> */}
                                                                 </Box>
                                                         }
                                                     </TableCell>
@@ -1686,27 +1292,6 @@ const TicketsSmallTruck = ({ openNavbar }) => {
                         </Grid>
                     </Grid>
                 </DialogContent>
-
-                {/* <DialogActions
-                                sx={{
-                                    textAlign: "center",
-                                    borderTop: "2px solid " + theme.palette.panda.dark,
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                }}
-                            >
-                                <Button variant="contained" color="success">
-                                    บันทึก
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    color="error"
-                                    onClick={() => setOpenCustomer("")}
-                                >
-                                    ยกเลิก
-                                </Button>
-                            </DialogActions> */}
             </Dialog >
         </Container >
     );

@@ -46,7 +46,6 @@ import { useBasicData } from "../../server/provider/BasicDataProvider";
 const InsertDeductibleIncome = (props) => {
     const { refetch } = useBasicData();
     const { data, income, deduction } = props;
-    console.log("income ", income, "deduction ", deduction);
     const [open, setOpen] = React.useState(false);
     const [name, setName] = React.useState('');
     const [type, setType] = React.useState('รายได้');
@@ -110,11 +109,6 @@ const InsertDeductibleIncome = (props) => {
                 </DialogTitle>
                 <DialogContent>
                     <Grid container spacing={2} marginTop={2} marginBottom={2}>
-                        {/* <Grid item sm={12} xs={12}>
-                            <Divider>
-                                <Chip label="พิกัด" size="small" />
-                            </Divider>
-                        </Grid> */}
                         <Grid item sm={2} xs={4}>
                             <Typography variant="subtitle1" fontWeight="bold" textAlign="right" marginTop={1} gutterBottom>รหัส</Typography>
                         </Grid>
@@ -135,7 +129,6 @@ const InsertDeductibleIncome = (props) => {
                                 <FormControlLabel control={<Checkbox checked={type === "รายได้" ? true : false} onChange={() => setType("รายได้")} />} label="รายได้" />
                                 <FormControlLabel control={<Checkbox checked={type === "รายหัก" ? true : false} onChange={() => setType("รายหัก")} />} label="รายหัก" />
                             </FormGroup>
-                            {/* <TextField size="small" fullWidth value={type} onChange={(e) => setType(e.target.value)} /> */}
                         </Grid>
                         <Grid item sm={2} xs={4}>
                             <Typography variant="subtitle1" fontWeight="bold" textAlign="right" marginTop={1} gutterBottom>สถานะ</Typography>
@@ -145,7 +138,6 @@ const InsertDeductibleIncome = (props) => {
                                 <FormControlLabel control={<Checkbox checked={status === "ประจำ" ? true : false} onChange={() => setStatus("ประจำ")} />} label="ประจำ" />
                                 <FormControlLabel control={<Checkbox checked={status === "ไม่ประจำ" ? true : false} onChange={() => setStatus("ไม่ประจำ")} />} label="ไม่ประจำ" />
                             </FormGroup>
-                            {/* <TextField size="small" fullWidth value={status} onChange={(e) => setStatus(e.target.value)} /> */}
                         </Grid>
                     </Grid>
                 </DialogContent>

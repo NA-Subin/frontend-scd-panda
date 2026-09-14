@@ -50,7 +50,7 @@ const InsertTruck = (props) => {
     const [menu, setMenu] = React.useState(Number(openMenu));
 
     React.useEffect(() => {
-        setMenu(Number(openMenu)); // อัปเดต check เมื่อ openMenu เปลี่ยนแปลง
+        setMenu(Number(openMenu));
     }, [openMenu]);
 
     const [open, setOpen] = React.useState(false);
@@ -68,24 +68,19 @@ const InsertTruck = (props) => {
 
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-    // ใช้ useEffect เพื่อรับฟังการเปลี่ยนแปลงของขนาดหน้าจอ
     useEffect(() => {
         const handleResize = () => {
-            setWindowWidth(window.innerWidth); // อัพเดตค่าขนาดหน้าจอ
+            setWindowWidth(window.innerWidth);
         };
 
-        window.addEventListener('resize', handleResize); // เพิ่ม event listener
+        window.addEventListener('resize', handleResize);
 
-        // ลบ event listener เมื่อ component ถูกทำลาย
         return () => {
             window.removeEventListener('resize', handleResize);
         };
     }, []);
 
-    // const [company, setCompany] = useState([]);
-    // const [driver, setDriver] = useState([]);
     const [registrationTail, setRegistrationTail] = useState([]);
-    // const [drivers, setDrivers] = useState(0);
     const [companies, setCompanies] = useState(0);
     const [tail, setTail] = useState("ไม่มี:::");
     const [regHead, setRegHead] = React.useState("");
@@ -101,35 +96,26 @@ const InsertTruck = (props) => {
     const [file, setFile] = useState("ไม่แนบไฟล์");
     const [fileType, setFileType] = useState(1);
 
-    const [fields, setFields] = useState([]); // เก็บค่าของแต่ละช่องกรอก
+    const [fields, setFields] = useState([]);
 
-    // ฟังก์ชันสำหรับจัดการการเปลี่ยนแปลงใน cap
     const handleCapChange = (e) => {
-        const value = parseInt(e.target.value) || 0; // แปลงค่าจาก TextField เป็นตัวเลข
+        const value = parseInt(e.target.value) || 0;
         setCap(value);
 
-        // สร้าง array ของช่องกรอกข้อมูล
         const newFields = Array.from({ length: value }, (_, index) => ({
-            id: index + 1, // id เริ่มจาก 1
-            value: 0, // ค่าเริ่มต้นเป็นค่าว่าง
+            id: index + 1,
+            value: 0,
         }));
         setFields(newFields);
     };
 
     const [tailWeight, setTailWeight] = React.useState(0);
 
-    // ฟังก์ชันสำหรับจัดการการเปลี่ยนแปลงในแต่ละช่อง
     const handleFieldChange = (id, value) => {
         setFields((prevFields) => {
             const updatedFields = prevFields.map((field) =>
                 field.id === id ? { ...field, value: parseFloat(value) || 0 } : field
             );
-
-            // คำนวณผลรวมของ value จาก updatedFields
-            const totalValue = updatedFields.reduce((sum, field) => sum + field.value, 0);
-
-            // อัปเดต TailWeight ด้วยผลรวม
-            //   setTailWeight(totalValue);
 
             return updatedFields;
         });
@@ -145,15 +131,11 @@ const InsertTruck = (props) => {
     const driverDetail = dataDrivers.filter((row) => row.Status === "ว่าง" && row.StatusTruck !== "ยกเลิก");
     const regtailsDetail = regtails.filter((row) => row.Status === "ยังไม่เชื่อมต่อทะเบียนหัว" && row.StatusTruck !== "ยกเลิก");
 
-    console.log("registrationTail : ", regtailsDetail);
-    console.log("Comapy : ", companies);
-
     const handlePost = async () => {
         if (!file) return alert("กรุณาเลือกไฟล์ก่อน");
 
-        let img = "ไม่แนบไฟล์"; // ตั้งค่าเริ่มต้นไว้เลย
+        let img = "ไม่แนบไฟล์";
 
-        // ✅ ตรวจสอบก่อนว่า file เป็น "ไม่แนบไฟล์" หรือไม่
         if (file !== "ไม่แนบไฟล์") {
             const formData = new FormData();
             formData.append("pic", file);
@@ -224,7 +206,7 @@ const InsertTruck = (props) => {
             }
         } else if (menu === 2) {
             const capFields = fields.reduce((acc, field) => {
-                acc[`Cap${field.id}`] = field.value || 0; // หากไม่มีค่าให้ใส่เป็น 0
+                acc[`Cap${field.id}`] = field.value || 0;
                 return acc;
             }, {});
 
@@ -238,7 +220,7 @@ const InsertTruck = (props) => {
                     Cap: cap,
                     Insurance: "-",
                     Status: "ยังไม่เชื่อมต่อทะเบียนหัว",
-                    ...capFields, // เพิ่ม capFields ที่แปลงแล้วเข้าไป
+                    ...capFields,
                     VehicleRegistration: licenseRegTail === "มี" ? vehicleRegistration : "ไม่มี",
                     DateEndTax: licenseRegTail === "มี" ? dateEndTax : "ไม่มี",
                     DateEndInsurance: licenseRegTail === "มี" ? dateEndInsurance : "ไม่มี",
@@ -315,8 +297,8 @@ const InsertTruck = (props) => {
                 onClose={handleClose}
                 sx={{
                     "& .MuiDialog-paper": {
-                        width: "800px", // กำหนดความกว้างแบบ Fixed
-                        maxWidth: "none", // ปิดการปรับอัตโนมัติ
+                        width: "800px",
+                        maxWidth: "none",
                     },
                 }}
             >
@@ -363,29 +345,6 @@ const InsertTruck = (props) => {
                         <Grid item md={4} xs={9}>
                             <Paper
                                 component="form">
-                                {/* <Select
-                                    id="demo-simple-select"
-                                    value={companies}
-                                    size="small"
-                                    sx={{ textAlign: "left" }}
-                                    onChange={(e) => setCompanies(e.target.value)}
-                                    fullWidth
-                                >
-                                    <MenuItem value={0}>
-                                        กรุณาเลือกบริษัท
-                                    </MenuItem>
-                                    {
-                                        menu !== 3 ?
-                                            dataCompany.map((row) => (
-                                                row.id != 1 &&
-                                                <MenuItem value={`${row.id}:${row.Name}`}>{row.Name}</MenuItem>
-                                            ))
-                                            :
-                                            dataCompany.map((row) => (
-                                                <MenuItem value={`${row.id}:${row.Name}`}>{row.Name}</MenuItem>
-                                            ))
-                                    }
-                                </Select> */}
                                 <Select
                                     id="demo-simple-select"
                                     value={companies}
@@ -458,7 +417,6 @@ const InsertTruck = (props) => {
                                                 </MenuItem>
                                                 {
                                                     regtailsDetail.map((row) => (
-                                                        // row.Company === companies &&
                                                         <MenuItem value={row.id + ":" + row.RegTail + ":" + row.Cap + ":" + row.Weight}>{row.RegTail}</MenuItem>
                                                     ))
                                                 }
@@ -554,7 +512,6 @@ const InsertTruck = (props) => {
                                                                         }}
                                                                     />
                                                                 </Button>
-                                                                {/* <Chip label="หรือ" size="small" sx={{ marginLeft: 3, marginRight: 3 }} /> */}
                                                                 <Typography variant="subtitle1" fontWeight="bold" sx={{ marginLeft: 3, marginRight: 3, marginTop: 0.5 }} gutterBottom>หรือ</Typography>
                                                                 <Button
                                                                     variant="contained"
@@ -640,14 +597,6 @@ const InsertTruck = (props) => {
                                                             </Box>
                                                             :
                                                             <Box textAlign="center">
-                                                                {/* <TextField
-                                                                        size="small"
-                                                                        type="text"
-                                                                        fullWidth
-                                                                        value={file.name}
-                                                                        sx={{ marginRight: 2 }}
-                                                                    /> */}
-
                                                                 <Box display="flex" alignItems="center" justifyContent="center" >
                                                                     <FilePreview file={file} />
                                                                     <Button variant="outlined" color="error" size="small" sx={{ marginLeft: 2 }} onClick={() => { setFileType(1); setFile("ไม่แนบไฟล์"); }}>
@@ -658,22 +607,6 @@ const InsertTruck = (props) => {
                                                                     <Typography variant="subtitle1" gutterBottom>{file.name}</Typography>
                                                                 </Box>
                                                             </Box>
-                                                        // <Box sx={{
-                                                        //     display: "flex",
-                                                        //     alignItems: "center",
-                                                        //     justifyContent: "space-between", // ช่วยแยกซ้ายขวา
-                                                        //     paddingLeft: 12,
-                                                        // }}>
-                                                        //     <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                                                        //         File : {file.name}
-                                                        //     </Typography>
-                                                        //     {/* <IconButton color="error" onClick={() => { setFile(null); setFileType(null); }}>
-                                                        //         <DeleteForeverIcon />
-                                                        //     </IconButton> */}
-                                                        //     <Button variant="outlined" color="error" size="small" onClick={() => { setFile(null); setFileType(null); }}>
-                                                        //         ลบไฟล์
-                                                        //     </Button>
-                                                        // </Box>
                                                     }
                                                 </Grid>
                                             </>
@@ -725,7 +658,6 @@ const InsertTruck = (props) => {
                                             cap !== "" && cap !== 0 && cap !== null &&
                                             fields.map((field) => (
                                                 <React.Fragment key={field.id}>
-                                                    {/* <Grid item md={12} xs={12}/> */}
                                                     <Grid item md={2} xs={3}>
                                                         <Typography variant="subtitle1" fontWeight="bold" textAlign="right" sx={{ marginTop: 1 }} gutterBottom>{`ช่องที่ ${field.id}`}</Typography>
                                                     </Grid>
@@ -737,7 +669,6 @@ const InsertTruck = (props) => {
                                                             onChange={(e) => handleFieldChange(field.id, e.target.value)}
                                                         />
                                                     </Grid>
-                                                    {/* <Grid item md={12} xs={12}/> */}
                                                 </React.Fragment>
                                             ))}
                                         {
@@ -800,7 +731,6 @@ const InsertTruck = (props) => {
                                                                             }}
                                                                         />
                                                                     </Button>
-                                                                    {/* <Chip label="หรือ" size="small" sx={{ marginLeft: 3, marginRight: 3 }} /> */}
                                                                     <Typography variant="subtitle1" fontWeight="bold" sx={{ marginLeft: 3, marginRight: 3, marginTop: 0.5 }} gutterBottom>หรือ</Typography>
                                                                     <Button
                                                                         variant="contained"
@@ -886,14 +816,6 @@ const InsertTruck = (props) => {
                                                                 </Box>
                                                                 :
                                                                 <Box textAlign="center">
-                                                                    {/* <TextField
-                                                                        size="small"
-                                                                        type="text"
-                                                                        fullWidth
-                                                                        value={file.name}
-                                                                        sx={{ marginRight: 2 }}
-                                                                    /> */}
-
                                                                     <Box display="flex" alignItems="center" justifyContent="center" >
                                                                         <FilePreview file={file} />
                                                                         <Button variant="outlined" color="error" size="small" sx={{ marginLeft: 2 }} onClick={() => { setFileType(1); setFile("ไม่แนบไฟล์"); }}>
@@ -904,22 +826,6 @@ const InsertTruck = (props) => {
                                                                         <Typography variant="subtitle1" gutterBottom>{file.name}</Typography>
                                                                     </Box>
                                                                 </Box>
-                                                            // <Box sx={{
-                                                            //     display: "flex",
-                                                            //     alignItems: "center",
-                                                            //     justifyContent: "space-between", // ช่วยแยกซ้ายขวา
-                                                            //     paddingLeft: 12,
-                                                            // }}>
-                                                            //     <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                                                            //         File : {file.name}
-                                                            //     </Typography>
-                                                            //     {/* <IconButton color="error" onClick={() => { setFile(null); setFileType(null); }}>
-                                                            //         <DeleteForeverIcon />
-                                                            //     </IconButton> */}
-                                                            //     <Button variant="outlined" color="error" size="small" onClick={() => { setFile(null); setFileType(null); }}>
-                                                            //         ลบไฟล์
-                                                            //     </Button>
-                                                            // </Box>
                                                         }
                                                     </Grid>
                                                 </>
@@ -1028,7 +934,6 @@ const InsertTruck = (props) => {
                                                                                 }}
                                                                             />
                                                                         </Button>
-                                                                        {/* <Chip label="หรือ" size="small" sx={{ marginLeft: 3, marginRight: 3 }} /> */}
                                                                         <Typography variant="subtitle1" fontWeight="bold" sx={{ marginLeft: 3, marginRight: 3, marginTop: 0.5 }} gutterBottom>หรือ</Typography>
                                                                         <Button
                                                                             variant="contained"
@@ -1114,14 +1019,6 @@ const InsertTruck = (props) => {
                                                                     </Box>
                                                                     :
                                                                     <Box textAlign="center">
-                                                                        {/* <TextField
-                                                                        size="small"
-                                                                        type="text"
-                                                                        fullWidth
-                                                                        value={file.name}
-                                                                        sx={{ marginRight: 2 }}
-                                                                    /> */}
-
                                                                         <Box display="flex" alignItems="center" justifyContent="center" >
                                                                             <FilePreview file={file} />
                                                                             <Button variant="outlined" color="error" size="small" sx={{ marginLeft: 2 }} onClick={() => { setFileType(1); setFile("ไม่แนบไฟล์"); }}>
@@ -1132,22 +1029,6 @@ const InsertTruck = (props) => {
                                                                             <Typography variant="subtitle1" gutterBottom>{file.name}</Typography>
                                                                         </Box>
                                                                     </Box>
-                                                                // <Box sx={{
-                                                                //     display: "flex",
-                                                                //     alignItems: "center",
-                                                                //     justifyContent: "space-between", // ช่วยแยกซ้ายขวา
-                                                                //     paddingLeft: 12,
-                                                                // }}>
-                                                                //     <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                                                                //         File : {file.name}
-                                                                //     </Typography>
-                                                                //     {/* <IconButton color="error" onClick={() => { setFile(null); setFileType(null); }}>
-                                                                //         <DeleteForeverIcon />
-                                                                //     </IconButton> */}
-                                                                //     <Button variant="outlined" color="error" size="small" onClick={() => { setFile(null); setFileType(null); }}>
-                                                                //         ลบไฟล์
-                                                                //     </Button>
-                                                                // </Box>
                                                             }
                                                         </Grid>
                                                     </>

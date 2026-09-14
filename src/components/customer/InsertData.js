@@ -135,7 +135,7 @@ const InsertData = () => {
                 <FormControlLabel control={<Checkbox onClick={() => setCheck(true)} checked={check ? true : false} 
                   sx={{
                     "& .MuiSvgIcon-root": {
-                      fontSize: 20, // ปรับขนาด Checkbox
+                      fontSize: 20,
                     },
                   }} />} 
                   label="ชื่อลูกค้า" 
@@ -149,7 +149,7 @@ const InsertData = () => {
                 <FormControlLabel control={<Checkbox onClick={() => setCheck(false)} checked={check ? false : true} 
                   sx={{
                     "& .MuiSvgIcon-root": {
-                      fontSize: 20, // ปรับขนาด Checkbox
+                      fontSize: 20,
                     },
                   }} />} 
                   label="ชื่อบริษัท" 

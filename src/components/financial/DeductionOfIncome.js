@@ -65,23 +65,21 @@ const DeductionOfIncome = (props) => {
     const [search, setSearch] = useState("");
     const [periods, setPeriods] = useState([]);
     const [period, setPeriod] = useState(1);
-    const [selectedDate, setSelectedDate] = useState(dayjs()); // ✅ เป็น dayjs object
+    const [selectedDate, setSelectedDate] = useState(dayjs());
     const handleDateChangeDate = (newValue) => {
         if (newValue) {
-            setSelectedDate(newValue); // ✅ newValue เป็น dayjs อยู่แล้ว
+            setSelectedDate(newValue);
         }
     };
-
-    console.log("periods", periods);
 
     useEffect(() => {
         const year = dayjs(selectedDate).year();
         const list = buildPeriodsForYear(year);
         setPeriods(list);
 
-        const currentNo = findCurrentPeriod(list); // ได้ค่าเป็นเลขงวดโดยตรง
+        const currentNo = findCurrentPeriod(list);
         if (currentNo) {
-            setPeriod(currentNo); // ✅ setPeriod เป็นเลขงวด
+            setPeriod(currentNo);
         }
     }, [selectedDate]);
 
@@ -96,49 +94,14 @@ const DeductionOfIncome = (props) => {
 
     const driver = Object.values(drivers || {});
     const deductibleincomeDetail = Object.values(deductibleincome).filter((item) => item.StatusData === "อยู่ในระบบ");
-    // const reportDetail = reports.filter((row) => row.Status !== "ยกเลิก")
-    // const formatted = [];
-
-    // drivers.forEach(driver => {
-    //     formatted.push({
-    //         name: driver.Name,
-    //         item: "เงินเดือน (Salary)",
-    //         income: driver.Salary !== "-" ? driver.Salary : "",
-    //         expense: "",
-    //     });
-    //     formatted.push({
-    //         name: driver.Name,
-    //         item: "ค่าโทรศัพท์ (Security)",
-    //         income: "",
-    //         expense: driver.Security !== "-" ? driver.Security : "",
-    //     });
-    //     formatted.push({
-    //         name: driver.Name,
-    //         item: "เงินประกัน (Deposit)",
-    //         income: "",
-    //         expense: driver.Deposit !== "-" ? driver.Deposit : "",
-    //     });
-    //     formatted.push({
-    //         name: driver.Name,
-    //         item: "เงินกู้ (Loan)",
-    //         income: "",
-    //         expense: driver.Loan !== "-" ? driver.Loan : "",
-    //     });
-    // });
-
-    // console.table("Driver formatted : ", formatted);
-    console.log("Driver : ", driver);
-    console.log("Report : ", reports);
 
     const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
     const handleSort = (key) => {
         setSortConfig((prev) => {
             if (prev.key === key) {
-                // ✅ ถ้าคลิกซ้ำ -> สลับ asc/desc
                 return { key, direction: prev.direction === "asc" ? "desc" : "asc" };
             } else {
-                // ✅ คลิกใหม่ -> asc ก่อน
                 return { key, direction: "asc" };
             }
         });
@@ -146,9 +109,7 @@ const DeductionOfIncome = (props) => {
 
     const reportDetail = reports
         .filter((item) => {
-            //const itemDate = dayjs(item.Date, "DD/MM/YYYY");
             return (
-                // itemDate.isBetween(selectedDateStart, selectedDateEnd, null, "[]") &&
                 item.Status !== "ยกเลิก" &&
                 item.Year === selectedDate.format("YYYY") &&
                 item.Period === period
@@ -176,18 +137,6 @@ const DeductionOfIncome = (props) => {
             income: "-",
             expense: driver.Security !== "-" ? driver.Security : "-",
         });
-        // table.push({
-        //     name: driver.Name,
-        //     item: "เงินประกัน",
-        //     income: "-",
-        //     expense: driver.Deposit !== "-" ? driver.Deposit : "-",
-        // });
-        // table.push({
-        //     name: driver.Name,
-        //     item: "เงินกู้",
-        //     income: "-",
-        //     expense: driver.Loan !== "-" ? driver.Loan : "-",
-        // });
     });
 
     // ฟังก์ชันจับชื่อจริงจาก report.Driver
@@ -209,11 +158,9 @@ const DeductionOfIncome = (props) => {
         const isIncome = report.Type === "รายได้";
 
         if (index >= 0) {
-            // อัปเดตรายได้/รายหัก ในรายการที่ตรงกัน
             if (isIncome) table[index].income = value;
             else table[index].expense = value;
         } else {
-            // เพิ่มรายการใหม่
             table.push({
                 name,
                 item,
@@ -223,13 +170,11 @@ const DeductionOfIncome = (props) => {
         }
     });
 
-    // ✅ กรองก่อน group
     const filteredReportDetail = reportDetail.filter((row) => {
         const driverName = row.DriverName?.trim() || "";
         const regHead = row.RegHeadName?.trim() || "";
         const regTail = row.RegTailName?.trim() || "";
 
-        // คุณจะใช้แค่ driverName filter หรือรวมก็ได้
         return (
             driverName.includes(search) ||
             regHead.includes(search) ||
@@ -237,7 +182,6 @@ const DeductionOfIncome = (props) => {
         );
     });
 
-    // ✅ Group
     const groupedData = filteredReportDetail.reduce((acc, row) => {
         const driverName = row.DriverName?.trim() || "";
         const regHead = row.RegHeadName?.trim() || "";
@@ -252,13 +196,9 @@ const DeductionOfIncome = (props) => {
         return acc;
     }, {});
 
-    // ✅ Sort driverName
     const sortedGroups = Object.entries(groupedData).sort(([a], [b]) =>
         a.localeCompare(b, "th")
     );
-
-    console.log("Report Table : ", table);
-    console.log("Report Detail : ", reportDetail);
 
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -371,9 +311,7 @@ const DeductionOfIncome = (props) => {
                     console.error("Error pushing data:", error);
                 }
             },
-            () => {
-                console.log(`ยกเลิกการลบบิลลำดับที่ ${id + 1}`);
-            }
+            () => { }
         );
     }
 
@@ -381,7 +319,6 @@ const DeductionOfIncome = (props) => {
         let income = 0;
         let expense = 0;
 
-        // ✅ สร้าง array ของ groups ที่ sort แล้ว
         const processed = sortedGroups.map(([driverName, rows]) => {
             const sortedRows = [...rows].sort((a, b) => {
                 const codeA = a.Code;
@@ -405,7 +342,6 @@ const DeductionOfIncome = (props) => {
                 return 0;
             });
 
-            // ✅ รวมยอดใน group
             sortedRows.forEach((row) => {
                 if (row.Type === "รายได้") {
                     income += Number(row.Money);
@@ -422,7 +358,7 @@ const DeductionOfIncome = (props) => {
             totalIncome: income,
             totalExpense: expense,
         };
-    }, [sortedGroups]); // 👈 คำนวณใหม่เมื่อ sortedGroups เปลี่ยน
+    }, [sortedGroups]);
 
     // ✅ Pagination is applied per driver-group (not per raw row) so that the
     // rowSpan grouping in the table body never gets split across pages.
@@ -439,8 +375,6 @@ const DeductionOfIncome = (props) => {
     const [deductionType, setDeductionType] = useState("");
 
     const handleUpdateDeduction = (row) => {
-        console.log("ROW : ", row);
-        console.log("Code : ", row.Code);
         setDeductionCode(row.Code);
         setDeductionID(row.id);
         setDeductionName(row.Name);
@@ -476,7 +410,6 @@ const DeductionOfIncome = (props) => {
             ShowSuccess("เพิ่มข้อมูลสำเร็จ");
             refetchTripData?.();
 
-            // reset state
             setDeductionID("");
             setDeductionCode("");
             setDeductionName("");
@@ -490,105 +423,6 @@ const DeductionOfIncome = (props) => {
     }
 
     return (
-        // <Container maxWidth="xl" sx={{ marginTop: 13, marginBottom: 5 }}>
-        //     <Grid container>
-        //         <Grid item md={4} xs={12}>
-
-        //         </Grid>
-        //         <Grid item md={6} xs={12}>
-        //             <Typography
-        //                 variant="h3"
-        //                 fontWeight="bold"
-        //                 textAlign="center"
-        //                 gutterBottom
-        //             >
-        //                 รายการหักค่าใช้จ่าย
-        //             </Typography>
-        //         </Grid>
-        //         <Grid item md={2} xs={12} display="flex" alignItems="center" justifyContent="center">
-        //             <Box sx={{ width: "200px" }}>
-        //                 <InsertDeducetionIncome />
-        //             </Box>
-        //         </Grid>
-        //         <Grid item md={5} xs={12}>
-        //             <Box
-        //                 sx={{
-        //                     width: "100%", // กำหนดความกว้างของ Paper
-        //                     height: "40px",
-        //                     display: "flex",
-        //                     alignItems: "center",
-        //                     justifyContent: "center",
-        //                     marginTop: { md: -8, xs: 2 },
-        //                     marginBottom: 3
-        //                 }}
-        //             >
-        //                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-        //                     <DatePicker
-        //                         openTo="day"
-        //                         views={["year", "month", "day"]}
-        //                         value={selectedDateStart ? dayjs(selectedDateStart, "DD/MM/YYYY") : null}
-        //                         format="DD/MM/YYYY" // <-- ใช้แบบที่ MUI รองรับ
-        //                         onChange={handleDateChangeDateStart}
-        //                         slotProps={{
-        //                             textField: {
-        //                                 size: "small",
-        //                                 fullWidth: true,
-        //                                 inputProps: {
-        //                                     value: formatThaiFull(selectedDateStart), // ✅ แสดงวันแบบ "1 กรกฎาคม พ.ศ.2568"
-        //                                     readOnly: true, // ✅ ปิดไม่ให้พิมพ์เอง เพราะใช้ format แบบ custom
-        //                                 },
-        //                                 InputProps: {
-        //                                     startAdornment: (
-        //                                         <InputAdornment position="start" sx={{ marginRight: 2 }}>
-        //                                             <b>วันที่ :</b>
-        //                                         </InputAdornment>
-        //                                     ),
-        //                                     sx: {
-        //                                         fontSize: "16px",
-        //                                         height: "40px",
-        //                                         padding: "10px",
-        //                                         fontWeight: "bold",
-        //                                     },
-        //                                 },
-        //                             },
-        //                         }}
-        //                     />
-        //                     <DatePicker
-        //                         openTo="day"
-        //                         views={["year", "month", "day"]}
-        //                         value={selectedDateEnd ? dayjs(selectedDateEnd, "DD/MM/YYYY") : null}
-        //                         format="DD/MM/YYYY" // <-- ใช้แบบที่ MUI รองรับ
-        //                         onChange={handleDateChangeDateEnd}
-        //                         slotProps={{
-        //                             textField: {
-        //                                 size: "small",
-        //                                 fullWidth: true,
-        //                                 inputProps: {
-        //                                     value: formatThaiFull(selectedDateEnd), // ✅ แสดงวันแบบ "1 กรกฎาคม พ.ศ.2568"
-        //                                     readOnly: true, // ✅ ปิดไม่ให้พิมพ์เอง เพราะใช้ format แบบ custom
-        //                                 },
-        //                                 InputProps: {
-        //                                     startAdornment: (
-        //                                         <InputAdornment position="start" sx={{ marginRight: 2 }}>
-        //                                             <b>ถึงวันที่ :</b>
-        //                                         </InputAdornment>
-        //                                     ),
-        //                                     sx: {
-        //                                         fontSize: "16px",
-        //                                         height: "40px",
-        //                                         padding: "10px",
-        //                                         fontWeight: "bold",
-        //                                     },
-        //                                 },
-        //                             },
-        //                         }}
-        //                     />
-        //                 </LocalizationProvider>
-        //             </Box>
-        //         </Grid>
-        //     </Grid>
-        //     <Divider sx={{ marginBottom: 1 }} />
-        //     <Box sx={{ width: windowWidth <= 900 && windowWidth > 600 ? (windowWidth - 110) : windowWidth <= 600 ? (windowWidth) : (windowWidth - 260) }}>
         <Grid container spacing={2} width="100%" sx={{ marginTop: -4 }}>
             <Grid item xl={9} xs={12} />
             <Grid item xl={3} xs={12}>
@@ -644,7 +478,7 @@ const DeductionOfIncome = (props) => {
                         fullWidth
                         type="number"
                         value={period}
-                        onChange={(e) => setPeriod(Number(e.target.value))} // ✅ แปลงเป็น number
+                        onChange={(e) => setPeriod(Number(e.target.value))}
                         size="small"
                         sx={{
                             "& .MuiInputBase-root": {
@@ -673,7 +507,7 @@ const DeductionOfIncome = (props) => {
             <Grid item xl={3.5} md={5.5} xs={12} >
                 {
                     periods
-                        .filter((p) => p.no === period) // ✅ ใช้ filter
+                        .filter((p) => p.no === period)
                         .map((p) => (
                             <Typography key={p.id} variant="subtitle1" fontWeight="bold" color="gray" sx={{ marginTop: 0.5, marginLeft: { xl: 0, xs: 1 }, }}>
                                 {`( วันที่ ${formatThaiFull(dayjs(p.start, "DD/MM/YYYY"))} - วันที่ ${formatThaiFull(dayjs(p.end, "DD/MM/YYYY"))} )`}
@@ -683,7 +517,6 @@ const DeductionOfIncome = (props) => {
             </Grid>
             <Grid item xl={3} xs={12}>
                 <Box display="flex" alignItems="center" justifyContent="center" sx={{ marginLeft: { xl: 0, xs: 1 }, }} >
-                    {/* <Typography variant="subtitle1" fontWeight="bold" textAlign="right" sx={{ whiteSpace: "nowrap", marginRight: 1, marginTop: 0.5 }} gutterBottom>ค้นหา</Typography> */}
                     <Paper sx={{ width: "100%" }} >
                         <TextField
                             fullWidth

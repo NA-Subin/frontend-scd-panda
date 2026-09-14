@@ -73,17 +73,16 @@ const Financial = () => {
     const [group, setGroup] = useState("ทั้งหมด");
     const handleDateChangeDateStart = (newValue) => {
         if (newValue) {
-            setSelectedDateStart(newValue); // ✅ newValue เป็น dayjs อยู่แล้ว
+            setSelectedDateStart(newValue);
         }
     };
 
     const handleDateChangeDateEnd = (newValue) => {
         if (newValue) {
-            setSelectedDateEnd(newValue); // ✅ newValue เป็น dayjs อยู่แล้ว
+            setSelectedDateEnd(newValue);
         }
     };
 
-    // const { report } = useData();
     const { reghead, regtail, small, companypayment, expenseitems } = useBasicData();
     const { report, refetch: refetchTripData } = useTripData();
     const reports = Object.values(report || {});
@@ -92,9 +91,6 @@ const Financial = () => {
     const registrationS = Object.values(small);
     const expenseitem = Object.values(expenseitems);
     const companypaymentDetail = Object.values(companypayment);
-    // const reportDetail = reports.filter((row) => row.Status !== "ยกเลิก")
-
-    console.log("Company Detail : ", companypaymentDetail);
 
     const getRegistration = () => {
         const registartion = [
@@ -105,8 +101,6 @@ const Financial = () => {
 
         return registartion;
     };
-
-    console.log("getRegistration : ", getRegistration());
 
     // report_invoice.Registration is a real UUID FK into truck_registration
     // now, not "id:PlateText" text - the plate name is already on the row as
@@ -124,10 +118,8 @@ const Financial = () => {
     const handleSort = (key) => {
         setSortConfig((prev) => {
             if (prev.key === key) {
-                // ✅ ถ้าคลิกซ้ำ -> สลับ asc/desc
                 return { key, direction: prev.direction === "asc" ? "desc" : "asc" };
             } else {
-                // ✅ คลิกใหม่ -> asc ก่อน
                 return { key, direction: "asc" };
             }
         });
@@ -153,12 +145,10 @@ const Financial = () => {
         const aValue = a[sortConfig.key];
         const bValue = b[sortConfig.key];
 
-        // ถ้าเป็น number
         if (typeof aValue === "number" && typeof bValue === "number") {
             return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
         }
 
-        // ถ้าเป็นวันที่
         if (
             typeof aValue === "string" &&
             typeof bValue === "string" &&
@@ -172,14 +162,10 @@ const Financial = () => {
                 : dateB - dateA;
         }
 
-        // ถ้าเป็น string (ตัวหนังสือ)
         return sortConfig.direction === "asc"
             ? String(aValue).localeCompare(String(bValue), "th")
             : String(bValue).localeCompare(String(aValue), "th");
     });
-
-    console.log("Report : ", reports);
-    console.log("Report Detail : ", reportDetail);
 
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -189,7 +175,6 @@ const Financial = () => {
             ? reportDetail
             : reportDetail.filter(row => (row.Group ?? "เดี่ยว") === group);
 
-    // 🔥 สร้าง finalData ใหม่
     let finalData;
 
     const getMergeKey = (row) => {
@@ -210,7 +195,7 @@ const Financial = () => {
         Object.values(
             data.reduce((acc, row) => {
 
-                const mergeKey = getMergeKey(row); // 🔥 ใช้ key ใหม่
+                const mergeKey = getMergeKey(row);
 
                 if (!acc[mergeKey]) {
                     acc[mergeKey] = {
@@ -259,8 +244,6 @@ const Financial = () => {
     } else {
         finalData = filteredData;
     }
-
-    console.log("Final Data : ", finalData);
 
     const exportToExcel = async () => {
         const workbook = new ExcelJS.Workbook();
@@ -370,9 +353,7 @@ const Financial = () => {
                     console.error("Error pushing data:", error);
                 }
             },
-            () => {
-                console.log(`ยกเลิกการลบบิลลำดับที่ ${id + 1}`);
-            }
+            () => { }
         );
     }
 
@@ -398,7 +379,6 @@ const Financial = () => {
     const [finanCialCheck, setFinanCialCheck] = useState(null);
 
     const handleUpdateBill = (row) => {
-        console.log("ROW : ", row);
         setBillID(row.id);
         setInvoiceID(row.InvoiceID);
         setSelectedDateInvoice(row.SelectedDateInvoice);
@@ -424,7 +404,7 @@ const Financial = () => {
         let fileType = 1; // ค่าเริ่มต้น = ไม่มีไฟล์
 
         if (row.Path && row.Path !== "ไม่แนบไฟล์") {
-            const ext = row.Path.split(".").pop().toLowerCase(); // หานามสกุลไฟล์
+            const ext = row.Path.split(".").pop().toLowerCase();
 
             if (ext === "pdf") {
                 fileType = 2;
@@ -479,8 +459,6 @@ const Financial = () => {
 
         } catch (error) {
 
-            console.warn("Fetch file failed, fallback to mock object:", error);
-
             // 🔥 fallback กรณี CORS
             const fileName = url.split("/").pop().split("?")[0];
             const ext = fileName.split(".").pop().toLowerCase();
@@ -526,18 +504,17 @@ const Financial = () => {
         setFile(realFile);
         setFileType(fileTypes);
     }
-    console.log("Registration show : ", registration);
 
     const handleDateChangeDateInvoice = (newValue) => {
         if (newValue) {
-            const formattedDate = dayjs(newValue); // แปลงวันที่เป็นฟอร์แมต
+            const formattedDate = dayjs(newValue);
             setSelectedDateInvoice(formattedDate);
         }
     };
 
     const handleDateChangeDateTransfer = (newValue) => {
         if (newValue) {
-            const formattedDate = dayjs(newValue); // แปลงวันที่เป็นฟอร์แมต
+            const formattedDate = dayjs(newValue);
             setSelectedDateTransfer(formattedDate);
         }
     };
@@ -567,7 +544,6 @@ const Financial = () => {
 
         let img = "ไม่แนบไฟล์"; // ตั้งค่าเริ่มต้นไว้เลย
 
-        // ✅ ตรวจสอบก่อนว่า file เป็น "ไม่แนบไฟล์" หรือไม่
         if (file !== "ไม่แนบไฟล์") {
             const formData = new FormData();
             formData.append("pic", file);
@@ -619,7 +595,6 @@ const Financial = () => {
             ShowSuccess("เพิ่มข้อมูลสำเร็จ");
             refetchTripData?.();
 
-            // reset state
             setBillID("");
             setInvoiceID("");
             setSelectedDateInvoice("");
@@ -659,108 +634,7 @@ const Financial = () => {
     const pagedFinalData = activeFinalData.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
     const financialColumnCount = 11 + (group !== "กลุ่ม" ? 2 : 0) + (group === "ทั้งหมด" ? 1 : 0);
 
-    console.log("Registration : ", registration);
-
     return (
-        // <Container maxWidth="xl" sx={{ marginTop: 13, marginBottom: 5 }}>
-        //     <Grid container>
-        //         <Grid item xl={3.5} xs={12}>
-
-        //         </Grid>
-        //         <Grid item xl={6.5} xs={12}>
-        //             <Typography
-        //                 variant="h3"
-        //                 fontWeight="bold"
-        //                 textAlign="center"
-        //                 gutterBottom
-        //             >
-        //                 บิลค่าใช้จ่าย
-        //             </Typography>
-        //         </Grid>
-        //         <Grid item xl={2} xs={12} display="flex" justifyContent="center" alignItems="center">
-        //             <Box width="200px">
-        //                 <InsertFinancial />
-        //             </Box>
-        //         </Grid>
-        //         <Grid item xl={5} xs={12}>
-        //             <Box
-        //                 sx={{
-        //                     width: "100%", // กำหนดความกว้างของ Paper
-        //                     height: "40px",
-        //                     display: "flex",
-        //                     alignItems: "center",
-        //                     justifyContent: "center",
-        //                     marginTop: { xl: -8, xs: 2 },
-        //                     marginBottom: 3
-        //                 }}
-        //             >
-        //                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-        //                     <DatePicker
-        //                         openTo="day"
-        //                         views={["year", "month", "day"]}
-        //                         value={selectedDateStart ? dayjs(selectedDateStart, "DD/MM/YYYY") : null}
-        //                         format="DD/MM/YYYY" // <-- ใช้แบบที่ MUI รองรับ
-        //                         onChange={handleDateChangeDateStart}
-        //                         slotProps={{
-        //                             textField: {
-        //                                 size: "small",
-        //                                 fullWidth: true,
-        //                                 inputProps: {
-        //                                     value: formatThaiFull(selectedDateStart), // ✅ แสดงวันแบบ "1 กรกฎาคม พ.ศ.2568"
-        //                                     readOnly: true, // ✅ ปิดไม่ให้พิมพ์เอง เพราะใช้ format แบบ custom
-        //                                 },
-        //                                 InputProps: {
-        //                                     startAdornment: (
-        //                                         <InputAdornment position="start" sx={{ marginRight: 2 }}>
-        //                                             <b>วันที่ :</b>
-        //                                         </InputAdornment>
-        //                                     ),
-        //                                     sx: {
-        //                                         fontSize: "16px",
-        //                                         height: "40px",
-        //                                         padding: "10px",
-        //                                         fontWeight: "bold",
-        //                                     },
-        //                                 },
-        //                             },
-        //                         }}
-        //                     />
-        //                     <DatePicker
-        //                         openTo="day"
-        //                         views={["year", "month", "day"]}
-        //                         value={selectedDateEnd ? dayjs(selectedDateEnd, "DD/MM/YYYY") : null}
-        //                         format="DD/MM/YYYY" // <-- ใช้แบบที่ MUI รองรับ
-        //                         onChange={handleDateChangeDateEnd}
-        //                         slotProps={{
-        //                             textField: {
-        //                                 size: "small",
-        //                                 fullWidth: true,
-        //                                 inputProps: {
-        //                                     value: formatThaiFull(selectedDateEnd), // ✅ แสดงวันแบบ "1 กรกฎาคม พ.ศ.2568"
-        //                                     readOnly: true, // ✅ ปิดไม่ให้พิมพ์เอง เพราะใช้ format แบบ custom
-        //                                 },
-        //                                 InputProps: {
-        //                                     startAdornment: (
-        //                                         <InputAdornment position="start" sx={{ marginRight: 2 }}>
-        //                                             <b>ถึงวันที่ :</b>
-        //                                         </InputAdornment>
-        //                                     ),
-        //                                     sx: {
-        //                                         fontSize: "16px",
-        //                                         height: "40px",
-        //                                         padding: "10px",
-        //                                         fontWeight: "bold",
-        //                                     },
-        //                                 },
-        //                             },
-        //                         }}
-        //                     />
-        //                 </LocalizationProvider>
-        //             </Box>
-        //         </Grid>
-        //     </Grid>
-        //     <Divider sx={{ marginBottom: 1 }} />
-        //     <Box sx={{ width: windowWidth <= 900 && windowWidth > 600 ? (windowWidth - 110) : windowWidth <= 600 ? (windowWidth) : (windowWidth - 260) }}>
         <Grid container spacing={2} width="100%" sx={{ marginTop: -4 }}>
             <Grid item xl={9} xs={12}>
                 <Box display="flex" justifyContent="center" alignItems="center" sx={{ marginTop: 1, marginBottom: -1.5 }} >
@@ -822,7 +696,7 @@ const Financial = () => {
             <Grid item xl={5.5} xs={12} >
                 <Box
                     sx={{
-                        width: "100%", // กำหนดความกว้างของ Paper
+                        width: "100%",
                         height: "40px",
                         display: "flex",
                         alignItems: "center",
@@ -836,15 +710,15 @@ const Financial = () => {
                                 openTo="day"
                                 views={["year", "month", "day"]}
                                 value={selectedDateStart ? dayjs(selectedDateStart, "DD/MM/YYYY") : null}
-                                format="DD/MM/YYYY" // <-- ใช้แบบที่ MUI รองรับ
+                                format="DD/MM/YYYY"
                                 onChange={handleDateChangeDateStart}
                                 slotProps={{
                                     textField: {
                                         size: "small",
                                         fullWidth: true,
                                         inputProps: {
-                                            value: formatThaiFull(selectedDateStart), // ✅ แสดงวันแบบ "1 กรกฎาคม พ.ศ.2568"
-                                            readOnly: true, // ✅ ปิดไม่ให้พิมพ์เอง เพราะใช้ format แบบ custom
+                                            value: formatThaiFull(selectedDateStart),
+                                            readOnly: true,
                                         },
                                         InputProps: {
                                             startAdornment: (
@@ -876,15 +750,15 @@ const Financial = () => {
                                 openTo="day"
                                 views={["year", "month", "day"]}
                                 value={selectedDateEnd ? dayjs(selectedDateEnd, "DD/MM/YYYY") : null}
-                                format="DD/MM/YYYY" // <-- ใช้แบบที่ MUI รองรับ
+                                format="DD/MM/YYYY"
                                 onChange={handleDateChangeDateEnd}
                                 slotProps={{
                                     textField: {
                                         size: "small",
                                         fullWidth: true,
                                         inputProps: {
-                                            value: formatThaiFull(selectedDateEnd), // ✅ แสดงวันแบบ "1 กรกฎาคม พ.ศ.2568"
-                                            readOnly: true, // ✅ ปิดไม่ให้พิมพ์เอง เพราะใช้ format แบบ custom
+                                            value: formatThaiFull(selectedDateEnd),
+                                            readOnly: true,
                                         },
                                         InputProps: {
                                             startAdornment: (
@@ -916,7 +790,6 @@ const Financial = () => {
             </Grid>
             <Grid item xl={4.5} xs={12}>
                 <Box display="flex" alignItems="center" justifyContent="center" sx={{ marginLeft: { xl: 0, xs: 1 } }} >
-                    {/* <Typography variant="subtitle1" fontWeight="bold" textAlign="right" sx={{ whiteSpace: "nowrap", marginRight: 1, marginTop: 0.5 }} gutterBottom>ค้นหา</Typography> */}
                     <Paper sx={{ width: "100%", marginTop: 0.5 }} >
                         <TextField
                             fullWidth
@@ -1100,109 +973,12 @@ const Financial = () => {
                                         }}>{safePage * rowsPerPage + index + 1}</TableCell>
                                         <TableCell sx={{ textAlign: "left" }}>
                                             <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{row.InvoiceID}</Typography>
-                                            {/* {
-                                                billID !== row.id ?
-                                                    <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{row.InvoiceID}</Typography>
-                                                    :
-                                                    <Paper sx={{ width: "100%" }}>
-                                                        <TextField
-                                                            size="small"
-                                                            fullWidth
-                                                            value={invoiceID}
-                                                            sx={{
-                                                                "& .MuiInputBase-root": {
-                                                                    height: 30,
-                                                                },
-                                                                "& .MuiInputBase-input": {
-                                                                    padding: "4px 8px",
-                                                                    marginLeft: -0.5,
-                                                                    width: "100%"
-                                                                },
-                                                            }}
-                                                            onChange={(e) => { setInvoiceID(e.target.value); }}
-                                                        />
-                                                    </Paper>
-                                            } */}
                                         </TableCell>
                                         <TableCell sx={{ textAlign: "center" }}>
-                                            {
-                                                formatThaiSlash(dayjs(row.SelectedDateInvoice, "DD/MM/YYYY"))
-                                                // billID !== row.id ?
-                                                //     formatThaiSlash(dayjs(row.SelectedDateInvoice, "DD/MM/YYYY"))
-                                                //     :
-                                                //     <Paper sx={{ width: "100%" }}>
-                                                //         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                                //             <DatePicker
-                                                //                 openTo="day"
-                                                //                 views={["year", "month", "day"]}
-                                                //                 value={dayjs(selectedDateInvoice, "DD/MM/YYYY")} // แปลงสตริงกลับเป็น dayjs object
-                                                //                 format="DD/MM/YYYY"
-                                                //                 onChange={handleDateChangeDateInvoice}
-                                                //                 sx={{ marginRight: 2, }}
-                                                //                 slotProps={{
-                                                //                     textField: {
-                                                //                         size: "small",
-                                                //                         fullWidth: true,
-                                                //                         inputProps: {
-                                                //                             value: formatThaiSlash(dayjs(selectedDateInvoice, "DD/MM/YYYY")), // ✅ แสดงวันแบบ "1 กรกฎาคม พ.ศ.2568"
-                                                //                             readOnly: true, // ✅ ปิดไม่ให้พิมพ์เอง เพราะใช้ format แบบ custom
-                                                //                         },
-                                                //                         sx: {
-                                                //                             "& .MuiInputBase-root": {
-                                                //                                 height: 30,
-                                                //                             },
-                                                //                             "& .MuiInputBase-input": {
-                                                //                                 padding: "4px 8px",
-                                                //                                 marginLeft: -0.5,
-                                                //                                 width: "100%"
-                                                //                             },
-                                                //                         }
-                                                //                     },
-                                                //                 }}
-                                                //             />
-                                                //         </LocalizationProvider>
-                                                //     </Paper>
-                                            }
+                                            {formatThaiSlash(dayjs(row.SelectedDateInvoice, "DD/MM/YYYY"))}
                                         </TableCell>
                                         <TableCell sx={{ textAlign: "center" }}>
-                                            {
-                                                formatThaiSlash(dayjs(row.SelectedDateTransfer, "DD/MM/YYYY"))
-                                                // billID !== row.id ?
-                                                //     formatThaiSlash(dayjs(row.SelectedDateTransfer, "DD/MM/YYYY"))
-                                                //     :
-                                                //     <Paper sx={{ width: "100%" }}>
-                                                //         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                                //             <DatePicker
-                                                //                 openTo="day"
-                                                //                 views={["year", "month", "day"]}
-                                                //                 value={dayjs(selectedDateTransfer, "DD/MM/YYYY")} // แปลงสตริงกลับเป็น dayjs object
-                                                //                 format="DD/MM/YYYY"
-                                                //                 onChange={handleDateChangeDateTransfer}
-                                                //                 sx={{ marginRight: 2, }}
-                                                //                 slotProps={{
-                                                //                     textField: {
-                                                //                         size: "small",
-                                                //                         fullWidth: true,
-                                                //                         inputProps: {
-                                                //                             value: formatThaiSlash(dayjs(selectedDateTransfer, "DD/MM/YYYY")), // ✅ แสดงวันแบบ "1 กรกฎาคม พ.ศ.2568"
-                                                //                             readOnly: true, // ✅ ปิดไม่ให้พิมพ์เอง เพราะใช้ format แบบ custom
-                                                //                         },
-                                                //                         sx: {
-                                                //                             "& .MuiInputBase-root": {
-                                                //                                 height: 30,
-                                                //                             },
-                                                //                             "& .MuiInputBase-input": {
-                                                //                                 padding: "4px 8px",
-                                                //                                 marginLeft: -0.5,
-                                                //                                 width: "100%"
-                                                //                             },
-                                                //                         }
-                                                //                     },
-                                                //                 }}
-                                                //             />
-                                                //         </LocalizationProvider>
-                                                //     </Paper>
-                                            }
+                                            {formatThaiSlash(dayjs(row.SelectedDateTransfer, "DD/MM/YYYY"))}
                                         </TableCell>
                                         {
                                             group !== "กลุ่ม" &&
@@ -1216,45 +992,6 @@ const Financial = () => {
                                                 {
                                                     row.Group !== "กลุ่ม" &&
                                                     <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{`${resolveRegistrationDisplay(row)} (${row.TruckType})`}</Typography>
-                                                    // (billID !== row.id ?
-                                                    //     <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{`${row.RegistrationName} (${row.TruckType})`}</Typography>
-                                                    //     :
-                                                    //     <Paper sx={{ width: "100%" }}>
-                                                    //         <Autocomplete
-                                                    //             options={(getRegistration() || []).filter((row) => row.TruckType === trucktype)
-                                                    //             }
-                                                    //             getOptionLabel={(option) => { return `${option?.Registration} (${option?.TruckType})`; }}
-                                                    //             value={
-                                                    //                 (getRegistration() || []).filter((row) => row.TruckType === trucktype).find(
-                                                    //                     //(opt) => `${opt.id}:${opt.Registration}` === registration
-                                                    //                     (opt) => opt.id === regID) || null
-                                                    //             }
-                                                    //             onChange={(e, newValue) => {
-                                                    //                 if (newValue) {
-                                                    //                     const registrations = `${newValue.id}:${newValue.Registration}`;
-                                                    //                     setRegistration(registrations);
-                                                    //                 } else {
-                                                    //                     setRegistration("");
-                                                    //                 }
-                                                    //             }}
-                                                    //             renderInput={(params) => (
-                                                    //                 <TextField
-                                                    //                     {...params}
-                                                    //                     variant="outlined"
-                                                    //                     size="small"
-                                                    //                     sx={{
-                                                    //                         "& .MuiInputBase-root": { height: 30 },
-                                                    //                         "& .MuiInputBase-input": {
-                                                    //                             padding: "4px 8px",
-                                                    //                             marginLeft: -0.5,
-                                                    //                             width: "100%",
-                                                    //                         },
-                                                    //                     }}
-                                                    //                 />
-                                                    //             )}
-                                                    //         />
-                                                    //     </Paper>
-                                                    // )
                                                 }
                                             </TableCell>
                                         }
@@ -1272,205 +1009,42 @@ const Financial = () => {
                                         }
                                         <TableCell sx={{ textAlign: "left" }}>
                                             <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{row.CompanyName}</Typography>
-                                            {/* {
-                                                billID !== row.id ?
-                                                    <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{row.CompanyName}</Typography>
-                                                    :
-                                                    <Paper sx={{ width: "100%" }}>
-                                                        <Autocomplete
-                                                            options={companypaymentDetail.filter((item) => item.Status === "อยู่ในระบบ").sort((a, b) => (a?.Name || "").localeCompare(b?.Name || "", "th"))
-                                                            }
-                                                            getOptionLabel={(option) => option?.Name || ""}
-                                                            value={
-                                                                companypaymentDetail.filter((item) => item.Status === "อยู่ในระบบ").sort((a, b) => (a?.Name || "").localeCompare(b?.Name || "", "th")).find(
-                                                                    //(opt) => `${opt.id}:${opt.Name}` === company
-                                                                    (opt) => opt.id === companyID
-                                                                ) || null
-                                                            }
-                                                            onChange={(e, newValue) => {
-                                                                if (newValue) {
-                                                                    const companies = `${newValue.id}:${newValue.Name}`;
-                                                                    setCompany(companies);
-                                                                } else {
-                                                                    setCompany("");
-                                                                }
-                                                            }}
-                                                            renderInput={(params) => (
-                                                                <TextField
-                                                                    {...params}
-                                                                    variant="outlined"
-                                                                    size="small"
-                                                                    sx={{
-                                                                        "& .MuiInputBase-root": { height: 30 },
-                                                                        "& .MuiInputBase-input": {
-                                                                            padding: "4px 8px",
-                                                                            marginLeft: -0.5,
-                                                                            width: "100%",
-                                                                        },
-                                                                    }}
-                                                                />
-                                                            )}
-                                                        />
-                                                    </Paper>
-                                            } */}
                                         </TableCell>
                                         <TableCell sx={{ textAlign: "left" }}>
                                             <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{row.BankName}</Typography>
-                                            {/* {
-                                                billID !== row.id ?
-                                                    <Typography variant="subtitle2" sx={{ marginLeft: 2, whiteSpace: "nowrap", lineHeight: 1 }} >{row.BankName}</Typography>
-                                                    :
-                                                    <Paper sx={{ width: "100%" }}>
-                                                        <Autocomplete
-                                                            options={expenseitem.filter((item) => item.Status === "อยู่ในระบบ") // ✅ filter ตาม Status
-                                                                .sort((a, b) => a.Name.localeCompare(b.Name))}
-                                                            getOptionLabel={(option) => option?.Name || ""}
-                                                            value={
-                                                                expenseitem.filter((item) => item.Status === "อยู่ในระบบ").find(
-                                                                    (opt) => `${opt.id}:${opt.Name}` === bank
-                                                                ) || null
-                                                            }
-                                                            onChange={(e, newValue) => {
-                                                                if (newValue) {
-                                                                    const banks = `${newValue.id}:${newValue.Name}`;
-                                                                    setBank(banks);
-                                                                } else {
-                                                                    setBank("");
-                                                                }
-                                                            }}
-                                                            renderInput={(params) => (
-                                                                <TextField
-                                                                    {...params}
-                                                                    variant="outlined"
-                                                                    size="small"
-                                                                    sx={{
-                                                                        "& .MuiInputBase-root": { height: 30 },
-                                                                        "& .MuiInputBase-input": {
-                                                                            padding: "4px 8px",
-                                                                            marginLeft: -0.5,
-                                                                            width: "100%",
-                                                                        },
-                                                                    }}
-                                                                />
-                                                            )}
-                                                        />
-                                                    </Paper>
-                                            } */}
                                         </TableCell>
                                         <TableCell sx={{ textAlign: "right" }}>
-                                            {
-                                                <Typography variant="subtitle2"
-                                                    sx={{
-                                                        whiteSpace: "nowrap",
-                                                        lineHeight: 1,
-                                                        paddingLeft: "30px !important",
-                                                        paddingRight: "30px !important",
-                                                        fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน
-                                                    }}
-                                                >
-                                                    {new Intl.NumberFormat("en-US", {
-                                                        minimumFractionDigits: 2,
-                                                        maximumFractionDigits: 2
-                                                    }).format(row.Price)}
-                                                </Typography>
-                                                // billID !== row.id ?
-                                                //     <Typography variant="subtitle2"
-                                                //         sx={{
-                                                //             whiteSpace: "nowrap",
-                                                //             lineHeight: 1,
-                                                //             paddingLeft: "30px !important",
-                                                //             paddingRight: "30px !important",
-                                                //             fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน
-                                                //         }}
-                                                //     >
-                                                //         {new Intl.NumberFormat("en-US", {
-                                                //             minimumFractionDigits: 2,
-                                                //             maximumFractionDigits: 2
-                                                //         }).format(row.Price)}
-                                                //     </Typography>
-                                                //     :
-                                                //     <Paper sx={{ width: "100%" }}>
-                                                //         <TextField
-                                                //             size="small"
-                                                //             fullWidth
-                                                //             type="number"
-                                                //             value={price}
-                                                //             sx={{
-                                                //                 "& .MuiInputBase-root": {
-                                                //                     height: 30,
-                                                //                 },
-                                                //                 "& .MuiInputBase-input": {
-                                                //                     padding: "4px 8px",
-                                                //                     marginLeft: -0.5,
-                                                //                     width: "100%"
-                                                //                 },
-                                                //             }}
-                                                //             onChange={(e) => {
-                                                //                 setPrice(e.target.value);
-                                                //                 setTotal(Number(e.target.value) + Number(vat));
-                                                //             }}
-                                                //         />
-                                                //     </Paper>
-                                            }
+                                            <Typography variant="subtitle2"
+                                                sx={{
+                                                    whiteSpace: "nowrap",
+                                                    lineHeight: 1,
+                                                    paddingLeft: "30px !important",
+                                                    paddingRight: "30px !important",
+                                                    fontVariantNumeric: "tabular-nums",
+                                                }}
+                                            >
+                                                {new Intl.NumberFormat("en-US", {
+                                                    minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2
+                                                }).format(row.Price)}
+                                            </Typography>
                                         </TableCell>
                                         <TableCell sx={{ textAlign: "right" }}>
-                                            {
-                                                <Typography variant="subtitle2"
-                                                    sx={{
-                                                        marginLeft: 2,
-                                                        whiteSpace: "nowrap",
-                                                        lineHeight: 1,
-                                                        paddingLeft: "15px !important",
-                                                        paddingRight: "15px !important",
-                                                        fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน
-                                                    }}
-                                                >
-                                                    {new Intl.NumberFormat("en-US", {
-                                                        minimumFractionDigits: 2,
-                                                        maximumFractionDigits: 2
-                                                    }).format(row.Vat)}
-                                                </Typography>
-                                                // billID !== row.id ?
-                                                //     <Typography variant="subtitle2"
-                                                //         sx={{
-                                                //             marginLeft: 2,
-                                                //             whiteSpace: "nowrap",
-                                                //             lineHeight: 1,
-                                                //             paddingLeft: "15px !important",
-                                                //             paddingRight: "15px !important",
-                                                //             fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน
-                                                //         }}
-                                                //     >
-                                                //         {new Intl.NumberFormat("en-US", {
-                                                //             minimumFractionDigits: 2,
-                                                //             maximumFractionDigits: 2
-                                                //         }).format(row.Vat)}
-                                                //     </Typography>
-
-                                                //     :
-                                                //     <Paper sx={{ width: "100%" }}>
-                                                //         <TextField
-                                                //             size="small"
-                                                //             fullWidth
-                                                //             type="number"
-                                                //             value={vat}
-                                                //             sx={{
-                                                //                 "& .MuiInputBase-root": {
-                                                //                     height: 30,
-                                                //                 },
-                                                //                 "& .MuiInputBase-input": {
-                                                //                     padding: "4px 8px",
-                                                //                     marginLeft: -0.5,
-                                                //                     width: "100%"
-                                                //                 },
-                                                //             }}
-                                                //             onChange={(e) => {
-                                                //                 setVat(e.target.value);
-                                                //                 setTotal(Number(e.target.value) + Number(price));
-                                                //             }}
-                                                //         />
-                                                //     </Paper>
-                                            }
+                                            <Typography variant="subtitle2"
+                                                sx={{
+                                                    marginLeft: 2,
+                                                    whiteSpace: "nowrap",
+                                                    lineHeight: 1,
+                                                    paddingLeft: "15px !important",
+                                                    paddingRight: "15px !important",
+                                                    fontVariantNumeric: "tabular-nums",
+                                                }}
+                                            >
+                                                {new Intl.NumberFormat("en-US", {
+                                                    minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2
+                                                }).format(row.Vat)}
+                                            </Typography>
                                         </TableCell>
                                         <TableCell sx={{ textAlign: "right", backgroundColor: "#eeeeee", fontWeight: "bold" }}>
                                             <Typography variant="subtitle2"
@@ -1480,68 +1054,18 @@ const Financial = () => {
                                                     lineHeight: 1,
                                                     paddingLeft: "30px !important",
                                                     paddingRight: "30px !important",
-                                                    fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน
+                                                    fontVariantNumeric: "tabular-nums",
                                                 }} >
                                                 {
                                                     new Intl.NumberFormat("en-US", {
                                                         minimumFractionDigits: 2,
                                                         maximumFractionDigits: 2
                                                     }).format(row.Total)
-                                                    // billID !== row.id ?
-                                                    //     new Intl.NumberFormat("en-US", {
-                                                    //         minimumFractionDigits: 2,
-                                                    //         maximumFractionDigits: 2
-                                                    //     }).format(row.Total)
-                                                    //     :
-                                                    //     new Intl.NumberFormat("en-US", {
-                                                    //         minimumFractionDigits: 2,
-                                                    //         maximumFractionDigits: 2
-                                                    //     }).format(total)
-                                                    // <TextField
-                                                    //     size="small"
-                                                    //     fullWidth
-                                                    //     type="number"
-                                                    //     value={total}
-                                                    //     sx={{
-                                                    //         "& .MuiInputBase-root": {
-                                                    //             height: 30,
-                                                    //         },
-                                                    //         "& .MuiInputBase-input": {
-                                                    //             padding: "4px 8px",
-                                                    //             marginLeft: -0.5,
-                                                    //             width: "100%"
-                                                    //         },
-                                                    //     }}
-                                                    //     onChange={(e) => { setTotal(e.target.value); }}
-                                                    // />
                                                 }
                                             </Typography>
                                         </TableCell>
                                         <TableCell sx={{ textAlign: "left" }}>
-                                            {
-                                                <Typography variant="subtitle2" sx={{ marginLeft: 2 }} >{row.Details}</Typography>
-                                                // billID !== row.id ?
-                                                //     <Typography variant="subtitle2" sx={{ marginLeft: 2 }} >{row.Details}</Typography>
-                                                //     :
-                                                //     <Paper sx={{ width: "100%" }}>
-                                                //         <TextField
-                                                //             size="small"
-                                                //             fullWidth
-                                                //             value={details}
-                                                //             sx={{
-                                                //                 "& .MuiInputBase-root": {
-                                                //                     height: 30,
-                                                //                 },
-                                                //                 "& .MuiInputBase-input": {
-                                                //                     padding: "4px 8px",
-                                                //                     marginLeft: -0.5,
-                                                //                     width: "100%"
-                                                //                 },
-                                                //             }}
-                                                //             onChange={(e) => { setDetails(e.target.value); }}
-                                                //         />
-                                                //     </Paper>
-                                            }
+                                            <Typography variant="subtitle2" sx={{ marginLeft: 2 }} >{row.Details}</Typography>
                                         </TableCell>
                                         <TableCell sx={{ textAlign: "center" }}>
                                             {
@@ -1560,229 +1084,19 @@ const Financial = () => {
                                                 ) : (
                                                     "-"
                                                 ))
-                                                // billID !== row.id ?
-                                                //     (row.Path ? (
-                                                //         row.Path === "ไม่แนบไฟล์" ?
-                                                //             row.Path
-                                                //             :
-                                                //             <a
-                                                //                 href={row.Path.startsWith("http") ? row.Path : `https://${row.Path}`}
-                                                //                 target="_blank"
-                                                //                 rel="noopener noreferrer"
-                                                //                 style={{ color: "#1976d2", textDecoration: "underline" }}
-                                                //             >
-                                                //                 {row.Path}
-                                                //             </a>
-                                                //     ) : (
-                                                //         "-"
-                                                //     ))
-                                                //     :
-                                                //     (
-                                                //         file === null || file === "ไม่แนบไฟล์" ?
-                                                //             <Box display="flex" alignItems="center" justifyContent="center" sx={{ paddingLeft: 3, paddingRight: 3 }}>
-                                                //                 <Button
-                                                //                     variant="contained"
-                                                //                     component="label"
-                                                //                     size="small"
-                                                //                     fullWidth
-                                                //                     sx={{
-                                                //                         height: "30px",
-                                                //                         backgroundColor: fileType === 1 ? "#5552ffff" : "#eeeeee",
-                                                //                         borderRadius: 2,
-                                                //                         display: "flex",
-                                                //                         justifyContent: "center",
-                                                //                         alignItems: "center",
-                                                //                     }}
-                                                //                     onClick={() => { setFileType(1); setFile("ไม่แนบไฟล์"); }}
-                                                //                 >
-                                                //                     <Typography
-                                                //                         variant="subtitle2"
-                                                //                         fontWeight="bold"
-                                                //                         color={fileType === 1 ? "white" : "lightgray"}
-                                                //                         sx={{ whiteSpace: "nowrap", marginTop: 0.5 }}
-                                                //                         gutterBottom
-                                                //                     >
-                                                //                         ไม่แนบไฟล์
-                                                //                     </Typography>
-                                                //                     {/* <FolderOffIcon
-                                                //                         sx={{
-                                                //                             fontSize: 20,
-                                                //                             color: fileType === 1 ? "white" : "lightgray",
-                                                //                             marginLeft: 2,
-                                                //                         }}
-                                                //                     /> */}
-                                                //                 </Button>
-                                                //                 {/* <Chip label="หรือ" size="small" sx={{ marginLeft: 3, marginRight: 3 }} /> */}
-                                                //                 <Typography variant="subtitle2" fontWeight="bold" sx={{ marginLeft: 1, marginRight: 1, marginTop: 0.5 }} gutterBottom>หรือ</Typography>
-                                                //                 <Button
-                                                //                     variant="contained"
-                                                //                     component="label"
-                                                //                     size="small"
-                                                //                     fullWidth
-                                                //                     sx={{
-                                                //                         height: "30px",
-                                                //                         backgroundColor: fileType === 2 ? "#ff5252" : "#eeeeee",
-                                                //                         borderRadius: 2,
-                                                //                         display: "flex",
-                                                //                         justifyContent: "center",
-                                                //                         alignItems: "center",
-                                                //                     }}
-                                                //                     onClick={() => setFileType(2)}
-                                                //                 >
-                                                //                     <Typography
-                                                //                         variant="subtitle2"
-                                                //                         fontWeight="bold"
-                                                //                         color={fileType === 2 ? "white" : "lightgray"}
-                                                //                         gutterBottom
-                                                //                     >
-                                                //                         PDF
-                                                //                     </Typography>
-                                                //                     <PictureAsPdfIcon
-                                                //                         sx={{
-                                                //                             fontSize: 20,
-                                                //                             color: fileType === 2 ? "white" : "lightgray",
-                                                //                             marginLeft: 0.5,
-                                                //                         }}
-                                                //                     />
-                                                //                     <input
-                                                //                         type="file"
-                                                //                         hidden
-                                                //                         accept="application/pdf"
-                                                //                         onChange={(e) => {
-                                                //                             const file = e.target.files?.[0];
-                                                //                             if (file) setFile(file);
-                                                //                         }}
-                                                //                     />
-                                                //                 </Button>
-                                                //                 <Typography variant="subtitle2" fontWeight="bold" sx={{ marginLeft: 1, marginRight: 1, marginTop: 0.5 }} gutterBottom>หรือ</Typography>
-                                                //                 <Button
-                                                //                     variant="contained"
-                                                //                     component="label"
-                                                //                     size="small"
-                                                //                     fullWidth
-                                                //                     sx={{
-                                                //                         height: "30px",
-                                                //                         backgroundColor: fileType === 3 ? "#29b6f6" : "#eeeeee",
-                                                //                         borderRadius: 2,
-                                                //                         display: "flex",
-                                                //                         justifyContent: "center",
-                                                //                         alignItems: "center",
-                                                //                     }}
-                                                //                     onClick={() => setFileType(3)}
-                                                //                 >
-                                                //                     <Typography
-                                                //                         variant="subtitle2"
-                                                //                         fontWeight="bold"
-                                                //                         color={fileType === 3 ? "white" : "lightgray"}
-                                                //                         gutterBottom
-                                                //                     >
-                                                //                         รูปภาพ
-                                                //                     </Typography>
-                                                //                     <ImageIcon
-                                                //                         sx={{
-                                                //                             fontSize: 20,
-                                                //                             color: fileType === 3 ? "white" : "lightgray",
-                                                //                             marginLeft: 0.5,
-                                                //                         }}
-                                                //                     />
-                                                //                     <input
-                                                //                         type="file"
-                                                //                         hidden
-                                                //                         accept="image/*"
-                                                //                         onChange={(e) => {
-                                                //                             const file = e.target.files?.[0];
-                                                //                             if (file) setFile(file);
-                                                //                         }}
-                                                //                     />
-                                                //                 </Button>
-                                                //             </Box>
-                                                //             :
-                                                //             <Box display="flex" justifyContent="center" alignItems="center">
-                                                //                 <Typography variant="subtitle1" fontWeight="bold" textAlign="right" marginTop={1} sx={{ whiteSpace: "nowrap", marginRight: 1, marginLeft: 7.5 }} gutterBottom>File</Typography>
-                                                //                 <Box component="form" sx={{ width: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                                                //                     <TextField
-                                                //                         size="small"
-                                                //                         type="text"
-                                                //                         fullWidth
-                                                //                         value={file.name}
-                                                //                         sx={{
-                                                //                             "& .MuiInputBase-root": {
-                                                //                                 height: 30,
-                                                //                             },
-                                                //                             "& .MuiInputBase-input": {
-                                                //                                 padding: "4px 8px",
-                                                //                                 marginLeft: -0.5,
-                                                //                                 width: "100%"
-                                                //                             },
-                                                //                             marginRight: 2
-                                                //                         }}
-                                                //                     />
-                                                //                     <Button variant="outlined" color="error" size="small" sx={{ marginRight: 2 }} onClick={() => { setFile(null); setFileType(null); }}>
-                                                //                         ลบไฟล์
-                                                //                     </Button>
-                                                //                 </Box>
-                                                //             </Box>
-                                                //     )
                                             }
                                         </TableCell>
                                         {
                                             group !== "กลุ่ม" &&
                                             <TableCell sx={{ textAlign: "center", position: "sticky", right: 0, backgroundColor: "white" }}>
-                                                {/* <Box display="flex" alignItems="center" justifyContent="center">
-                                                    <Tooltip title="แก้ไขข้อมูล" placement="left" sx={{ marginRight: 1 }}>
-                                                        <IconButton size="small" color="warning">
-                                                            <EditIcon />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                    <Tooltip title="ลบข้อมูล" placement="right">
-                                                        <IconButton size="small" color="error" onClick={() => handleChangDelete(row.id)}>
-                                                            <DeleteIcon />
-                                                        </IconButton>
-                                                    </Tooltip>
-
-                                                </Box> */}
                                                 {
                                                     row.Group !== "กลุ่ม" ? (
                                                         <Box>
-                                                            {/* <IconButton size="small" color="warning" onClick={() => handleUpdateBill(row)}>
-                                                                <DriveFileRenameOutlineIcon />
-                                                            </IconButton> */}
-
                                                             <IconButton size="small" color="error" onClick={() => handleChangDelete(row.id)}>
                                                                 <DeleteIcon />
                                                             </IconButton>
 
                                                         </Box>
-                                                        // billID !== row.id ?
-                                                        //     <Box>
-                                                        //         <IconButton size="small" color="warning" onClick={() => handleUpdateBill(row)}>
-                                                        //             <DriveFileRenameOutlineIcon />
-                                                        //         </IconButton>
-
-                                                        //         <IconButton size="small" color="error" onClick={() => handleChangDelete(row.id)}>
-                                                        //             <DeleteIcon />
-                                                        //         </IconButton>
-
-                                                        //     </Box>
-                                                        //     :
-                                                        //     <Box>
-                                                        //         <IconButton
-                                                        //             size="small"
-                                                        //             color="error"
-                                                        //             onClick={handleCloseBill}
-                                                        //             sx={{ marginRight: -0.5 }}
-                                                        //         >
-                                                        //             <CloseIcon />
-                                                        //         </IconButton>
-
-                                                        //         <IconButton
-                                                        //             size="small"
-                                                        //             color="success"
-                                                        //             onClick={() => handleSaveBill()}
-                                                        //         >
-                                                        //             <SaveIcon />
-                                                        //         </IconButton>
-                                                        //     </Box>
                                                     )
                                                         :
                                                         (
@@ -1793,12 +1107,8 @@ const Financial = () => {
                                                             </Box>
                                                         )
                                                 }
-                                                {/* <Button variant="contained" size="small" color="error" fullWidth onClick={() => handleChangDelete(row.id)}>ลบ</Button> */}
                                             </TableCell>
                                         }
-                                        {/* {
-                                            finanCialCheck && <UpdateFinancial FinancialID={id} row={row} files={file} fileTypes={fileType} />
-                                        } */}
                                     </TableRow>
                                 ))
                             )}

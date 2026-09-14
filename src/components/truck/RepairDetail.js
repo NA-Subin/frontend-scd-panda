@@ -110,9 +110,6 @@ const RepairDetail = ({}) => {
     };
   });
 
-  console.log("Inspection Data:", data);
-  console.log("RegHead Data:", regheadData);
-
   const pageCount = Math.max(1, Math.ceil(data.length / rowsPerPage));
   const safePage = Math.min(page, pageCount - 1);
   const pagedData = data.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);

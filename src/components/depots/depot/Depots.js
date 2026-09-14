@@ -89,7 +89,6 @@ const Depots = ({openNavbar}) => {
       setWindowWidth(width);
     };
 
-    // เรียกครั้งแรกตอน mount
     handleResize();
 
     window.addEventListener('resize', handleResize);
@@ -97,7 +96,7 @@ const Depots = ({openNavbar}) => {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [openNavbar]); // ✅ ทำงานใหม่ทุกครั้งที่ openNavbar เปลี่ยน
+  }, [openNavbar]);
 
   const handleClickOpen = () => {
     setOpen(true);

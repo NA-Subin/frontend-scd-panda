@@ -55,20 +55,18 @@ const InsertDepot = (props) => {
     };
 
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-    
-      // ใช้ useEffect เพื่อรับฟังการเปลี่ยนแปลงของขนาดหน้าจอ
-      useEffect(() => {
-        const handleResize = () => {
-          setWindowWidth(window.innerWidth); // อัพเดตค่าขนาดหน้าจอ
-        };
-    
-        window.addEventListener('resize', handleResize); // เพิ่ม event listener
-    
-        // ลบ event listener เมื่อ component ถูกทำลาย
-        return () => {
-          window.removeEventListener('resize', handleResize);
-        };
-      }, []);
+
+    useEffect(() => {
+      const handleResize = () => {
+        setWindowWidth(window.innerWidth);
+      };
+
+      window.addEventListener('resize', handleResize);
+
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
+    }, []);
 
     const [name, setName] = React.useState("");
     const [no, setNo] = React.useState("");
@@ -80,8 +78,6 @@ const InsertDepot = (props) => {
     const [lat, setLat] = React.useState("");
     const [lng, setLng] = React.useState("");
     const [zone, setZone] = React.useState("-");
-
-    console.log("depot : ",depot);
 
     const handlePost = async () => {
         try {

@@ -49,11 +49,6 @@ const InsertGasStations = (props) => {
         setOpen(true);
     };
 
-    // const handleClose = () => {
-    //     setOpen(false);
-    // };
-
-    // const [checkTruck, setCheckTruck] = React.useState(false);
     const [checkTruck, setCheckTruck] = React.useState(false);
     const [name, setName] = React.useState("");
     const [code, setCode] = React.useState("");
@@ -83,10 +78,8 @@ const InsertGasStations = (props) => {
     const handleChange = (index, field, value) => {
         const updated = [...smallTrucks];
         updated[index][field] = value;
-        setSmallTrucks(reorderIds(updated));   // 🔥 เรียง id ใหม่หลังอัปเดต
+        setSmallTrucks(reorderIds(updated));
     };
-
-    // console.log("smallTrucks : ", smallTrucks);
 
     const handleAdd = () => {
         const updated = [
@@ -98,27 +91,26 @@ const InsertGasStations = (props) => {
 
     const handleDelete = (index) => {
         const updated = smallTrucks.filter((_, i) => i !== index);
-        setSmallTrucks(reorderIds(updated));  // 🔥 จัด id ใหม่เสมอหลังลบ
+        setSmallTrucks(reorderIds(updated));
     };
 
     const handleAddProduct = () => {
         if (number < oilWell) {
             setNumber(number + 1);
-            setProducts([...products, { Product: "", Capacity: "", Volume: "" }]); // เพิ่มช่องใหม่
+            setProducts([...products, { Product: "", Capacity: "", Volume: "" }]);
         }
     };
 
     const handleProductChange = (index, field, value) => {
         const updatedProducts = [...products];
-        updatedProducts[index][field] = value; // อัปเดตค่าตาม index และ field
+        updatedProducts[index][field] = value;
         setProducts(updatedProducts);
     };
 
-    // ใช้ useEffect เพื่อจัดการจำนวนของ products
     React.useEffect(() => {
         if (oilWell < products.length) {
-            setProducts(products.slice(0, oilWell)); // ตัดรายการที่เกินออก
-            setNumber(oilWell); // อัปเดต number ให้ตรงกับ oilWell
+            setProducts(products.slice(0, oilWell));
+            setNumber(oilWell);
         }
     }, [oilWell, products]);
 
@@ -126,52 +118,11 @@ const InsertGasStations = (props) => {
     const [stocks, setStocks] = React.useState({});
     const [volumeData, setVolumeData] = useState([]);
 
-    // console.log("volumeData : ", volumeData);
-
-    // const handleVolumeChange = (product, volume, isChecked) => {
-    //     setVolumeData((prevData) => {
-    //         const exists = prevData.some(
-    //             (item) => item.Name === product.ProductName
-    //         );
-
-    //         let updatedData;
-
-    //         if (exists) {
-    //             // ✅ ถ้ามีอยู่แล้ว → ลบออก (Toggle Off)
-    //             updatedData = prevData.filter(
-    //                 (item) => item.Name !== product.ProductName
-    //             );
-    //         } else {
-    //             // ✅ ถ้ายังไม่มี → เพิ่มเข้าไป (Toggle On)
-    //             updatedData = [
-    //                 ...prevData,
-    //                 {
-    //                     Name: product.ProductName,
-    //                     Capacity: product.Capacity,
-    //                     Color: product.Color,
-    //                     Volume: volume,
-    //                     CheckBox: isChecked,
-    //                 },
-    //             ];
-    //         }
-
-    //         // ✅ เรียงลำดับใหม่ (เช่น เรียงตาม Name A→Z)
-    //         updatedData.sort((a, b) => a.Name.localeCompare(b.Name));
-
-    //         // ✅ นับจำนวน CheckBox ที่เป็น true
-    //         const selectedCount = updatedData.filter((item) => item.CheckBox).length;
-    //         setOilWell(selectedCount);
-
-    //         return updatedData;
-    //     });
-    // };
-
     const handleVolumeUpdate = (product, volume) => {
         setVolumeData(prev => {
             const exists = prev.find(item => item.Name === product.ProductName);
 
             if (!exists) {
-                // ถ้ายังไม่มี → สร้างใหม่พร้อม Volume
                 return [
                     ...prev,
                     {
@@ -185,7 +136,6 @@ const InsertGasStations = (props) => {
                 ];
             }
 
-            // ถ้ามี → update Volume
             return prev.map(item =>
                 item.Name === product.ProductName
                     ? { ...item, Volume: volume }
@@ -199,8 +149,6 @@ const InsertGasStations = (props) => {
             let updatedData;
 
             if (isChecked) {
-                // ✅ เพิ่มข้อมูลเมื่อ Checkbox = true
-                // ถ้ามีอยู่แล้ว → update Volume
                 const exists = prevData.find(item => item.Name === product.ProductName);
 
                 if (exists) {
@@ -223,16 +171,13 @@ const InsertGasStations = (props) => {
                     ];
                 }
             } else {
-                // ❌ ถ้า Checkbox = false → ลบข้อมูลออก
                 updatedData = prevData.filter(
                     (item) => item.Name !== product.ProductName
                 );
             }
 
-            // 🔄 เรียงลำดับใหม่
             updatedData.sort((a, b) => a.Name.localeCompare(b.Name));
 
-            // 🔢 อัปเดตจำนวน Checkbox ที่เลือกอยู่
             const selectedCount = updatedData.filter((item) => item.CheckBox).length;
             setOilWell(selectedCount);
 
@@ -255,8 +200,6 @@ const InsertGasStations = (props) => {
     useEffect(() => {
         setStock(Object.values(stockDetail || {}));
     }, [stockDetail]);
-
-    // console.log(volumeData);
 
     const isSmallTrucksEmpty = (arr) => {
         return (
@@ -375,7 +318,7 @@ const InsertGasStations = (props) => {
                 <FormControlLabel control={<Checkbox onClick={() => setCheckTruck(!checkTruck)} checked={checkTruck}
                     sx={{
                         "& .MuiSvgIcon-root": {
-                            fontSize: 20, // ปรับขนาด Checkbox
+                            fontSize: 20,
                         },
                     }} />}
                     label="เพิ่มทะเบียนรถ"
@@ -413,20 +356,6 @@ const InsertGasStations = (props) => {
                                                         )
                                                     }
                                                 />
-
-                                                {/* <Checkbox
-                                                    checked={
-                                                        Array.isArray(volumeData) &&
-                                                        volumeData.find((item) => item.Name === product.ProductName)?.CheckBox === true
-                                                    }
-                                                    onChange={(e) =>
-                                                        handleVolumeChange(
-                                                            product,
-                                                            volumeData.find((item) => item.Name === product.ProductName)?.Volume || 0,
-                                                            e.target.checked
-                                                        )
-                                                    }
-                                                /> */}
                                             </Grid>
                                             <Grid item sm={1.5} xs={10}>
                                                 <Box sx={{ borderRadius: 3, backgroundColor: product.Color, width: "100%", height: 40, display: "flex", justifyContent: "center", alignItems: "center" }}>
@@ -450,7 +379,7 @@ const InsertGasStations = (props) => {
                                                     fullWidth
                                                     value={product.Capacity}
                                                     InputProps={{
-                                                        readOnly: true, // ช่องนี้ให้แก้ไขไม่ได้
+                                                        readOnly: true,
                                                     }}
                                                     disabled
                                                 />
@@ -476,27 +405,17 @@ const InsertGasStations = (props) => {
                                                             Number(
                                                                 volumeData.find((item) => item.Name === product.ProductName)?.Volume
                                                             ) > Number(product.Capacity)
-                                                            ? "error" // ใช้ 'error' color หาก Volume มากกว่า Capacity
+                                                            ? "error"
                                                             : Number(
                                                                 volumeData.find((item) => item.Name === product.ProductName)?.Volume
                                                             ) === Number(product.Capacity)
-                                                                ? "warning" // ใช้ 'warning' color หาก Volume เท่ากับ Capacity
-                                                                : "primary" // ใช้ 'primary' color หาก Volume น้อยกว่าหรือเท่ากับ Capacity
+                                                                ? "warning"
+                                                                : "primary"
                                                     }
                                                     value={
                                                         volumeData.find(i => i.Name === product.ProductName)?.Volume || ""
                                                     }
                                                     onChange={(e) => handleVolumeUpdate(product, e.target.value)}
-                                                    // value={
-                                                    //     Array.isArray(volumeData)
-                                                    //         ? volumeData.find(
-                                                    //             (item) => item.Name === product.ProductName
-                                                    //         )?.Volume || ""
-                                                    //         : ""
-                                                    // }
-                                                    // onChange={(e) =>
-                                                    //     handleVolumeChange(product, e.target.value)
-                                                    // }
                                                     disabled={
                                                         volumeData.find(i => i.Name === product.ProductName)?.Name !== product.ProductName
                                                     }
@@ -512,7 +431,7 @@ const InsertGasStations = (props) => {
                                                                         volumeData.find((item) => item.Name === product.ProductName)?.Volume
                                                                     ) === Number(product.Capacity)
                                                                         ? "orange"
-                                                                        : "black", // สีแดงถ้า Volume มากกว่า Capacity
+                                                                        : "black",
                                                         },
                                                     }}
                                                 />
@@ -634,13 +553,6 @@ const InsertGasStations = (props) => {
             <Grid item sm={5} xs={9}>
                 <TextField size="small" fullWidth value={lng} onChange={(e) => setLng(e.target.value)} />
             </Grid>
-            {/* <Grid item sm={12} xs={12} marginTop={1} marginBottom={1}>
-                <Divider sx={{ border: "1px solid " + theme.palette.panda.dark }} />
-            </Grid>
-            <Grid item sm={12} xs={12} display="flex" justifyContent="center" alignItems="center">
-                <Button onClick={handlePost} variant="contained" color="success" sx={{ marginRight: 1 }}>บันทึก</Button>
-                <Button onClick={handleClose} variant="contained" color="error">ยกเลิก</Button>
-            </Grid> */}
             <Grid item sm={12} xs={12} sx={{ position: "sticky", bottom: -20, backgroundColor: "white" }}>
                 <Divider sx={{ border: "1px solid " + theme.palette.panda.dark, marginBottom: 1 }} />
                 <Box display="flex" justifyContent="center" alignItems="center" marginTop={2} marginBottom={2}>

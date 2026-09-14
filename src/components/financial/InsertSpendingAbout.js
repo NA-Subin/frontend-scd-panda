@@ -69,17 +69,14 @@ const InsertSpendingAbout = ({ onSend }) => {
         row?.Name?.toLowerCase().includes(search.toLowerCase())
     );
 
-    console.log("Type : ", type);
-
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     useEffect(() => {
         const handleResize = () => {
-            setWindowWidth(window.innerWidth); // อัพเดตค่าขนาดหน้าจอ
+            setWindowWidth(window.innerWidth);
         };
 
-        window.addEventListener('resize', handleResize); // เพิ่ม event listener
+        window.addEventListener('resize', handleResize);
 
-        // ลบ event listener เมื่อ component ถูกทำลาย
         return () => {
             window.removeEventListener('resize', handleResize);
         };
@@ -172,9 +169,7 @@ const InsertSpendingAbout = ({ onSend }) => {
                     console.error("Error pushing data:", error);
                 }
             },
-            () => {
-                console.log(`ยกเลิกการลบบิลลำดับที่ ${id + 1}`);
-            }
+            () => { }
         );
     }
 
