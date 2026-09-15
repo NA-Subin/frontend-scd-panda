@@ -83,10 +83,7 @@ const InfoHint = ({ text, color = "#fff" }) => {
 };
 
 const Employee = ({ openNavbar }) => {
-  //const [update, setUpdate] = React.useState(true);
   const [open, setOpen] = React.useState(1);
-  //const [openMenu, setOpenMenu] = useState(1);
-  //const [openOfficeDetail, setOpenOfficeDetail] = useState(false);
   const [check, setCheck] = React.useState(1);
   const [setting, setSetting] = React.useState("");
   const [truck, setTruck] = React.useState("0:ไม่มี:ไม่มี");
@@ -102,7 +99,6 @@ const Employee = ({ openNavbar }) => {
       setWindowWidth(width);
     };
 
-    // เรียกครั้งแรกตอน mount
     handleResize();
 
     window.addEventListener('resize', handleResize);
@@ -110,21 +106,12 @@ const Employee = ({ openNavbar }) => {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [openNavbar]); // ✅ ทำงานใหม่ทุกครั้งที่ openNavbar เปลี่ยน
+  }, [openNavbar]);
 
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
-  // const handleClose = () => {
-  //   setOpenOfficeDetail(false);
-  // };
-
   const { officers, drivers, reghead, small, loading, refetch: refetchBasicData } = useBasicData();
-
-  // const dataofficers = Object.values(data.officers || {});
-  // const datadrivers = Object.values(data.drivers || {});
-  // const datareghead = Object.values(data.reghead || {});
-  // const datasmall = Object.values(data.small || {});
 
   // คำนวณค่าที่ใช้หลายครั้งด้วย useMemo
   const dataofficers = useMemo(() => Object.values(officers || {}), [officers]);
@@ -150,37 +137,6 @@ const Employee = ({ openNavbar }) => {
     if (check === 3) return datadrivers.filter(row => row.TruckType === "รถเล็ก" || row.TruckType === "รถใหญ่/รถเล็ก");
     return datadrivers;
   }, [datadrivers, check]);
-
-  // const [openTab, setOpenTab] = React.useState(true);
-
-  // const isMobile = useMediaQuery("(max-width:1000px)");
-
-  // const shouldDrawerOpen = React.useMemo(() => {
-  //   if (isMobile) {
-  //     return !openTab; // ถ้าเป็นจอโทรศัพท์ ให้เปิด drawer เมื่อ open === false
-  //   } else {
-  //     return openTab; // ถ้าไม่ใช่จอโทรศัพท์ ให้เปิด drawer เมื่อ open === true
-  //   }
-  // }, [openTab, isMobile]);
-
-  // const handleDrawerOpen = () => {
-  //   if (isMobile) {
-  //     // จอเท่ากับโทรศัพท์
-  //     setOpenTab((prevOpen) => !prevOpen);
-  //   } else {
-  //     // จอไม่เท่ากับโทรศัพท์
-  //     setOpenTab((prevOpen) => !prevOpen);
-  //   }
-  // };
-
-  // const toggleDrawer = (newOpen) => () => {
-  //   setOpenTab(newOpen);
-  // };
-
-  // ใช้ useEffect เพื่อรับฟังการเปลี่ยนแปลงของขนาดหน้าจอ
-
-  console.log("setting : ", setting);
-  console.log("trucks : ", truck);
 
   const handlePost = async () => {
     const driverRow = datadrivers.find((d) => d.id === Number(setting.split(":")[0]));
@@ -211,15 +167,6 @@ const Employee = ({ openNavbar }) => {
     }
   }
 
-  // const handleChangeOpen1 = (event) => {
-  //   setOpen(1);
-  //   setPage(0);
-  // };
-
-  // const handleChangeOpen2 = (event) => {
-  //   setOpen(2);
-  //   setPage(0);
-  // };
   const officersPageCount = Math.max(1, Math.ceil(dataofficers.length / rowsPerPage));
   const safeOfficersPage = Math.min(page, officersPageCount - 1);
   const driversPageCount = Math.max(1, Math.ceil(driverDetail.length / rowsPerPage));
@@ -232,24 +179,11 @@ const Employee = ({ openNavbar }) => {
   }, [driverDetail, safeDriversPage, rowsPerPage]);
 
   const renderSelectOptions = (truckType) => {
-    // if (truckType === "รถใหญ่") {
-    //   return registrationHead.map(head => (
-    //     <MenuItem key={head.id} value={`${head.id}:${head.RegHead}:รถใหญ่`}>{head.RegHead}</MenuItem>
-    //   ));
-    // }
-    // if (truckType === "รถเล็ก") {
-    //   return registrationSmallTruck.map(small => (
-    //     <MenuItem key={small.id} value={`${small.id}:${small.RegHead}:รถเล็ก`}>{small.RegHead}</MenuItem>
-    //   ));
-    // }
     return (
       <>
         {registrationHead.map(head => (
           <MenuItem key={head.id} value={`${head.id}:${head.RegHead}`}>{head.RegHead}</MenuItem>
         ))}
-        {/* {registrationSmallTruck.map(small => (
-          <MenuItem key={small.id} value={`${small.id}:${small.Registration}`}>{small.Registration}</MenuItem>
-        ))} */}
       </>
     );
   };
@@ -298,7 +232,6 @@ const Employee = ({ openNavbar }) => {
                   {registrationHead.map(head => (
                     <MenuItem key={head.id} value={`${head.id}:${head.RegHead}`}>{head.RegHead}</MenuItem>
                   ))}
-                  {/* {renderSelectOptions(row.TruckType)} */}
                 </Select>
               </Paper>
             </Grid>
@@ -423,14 +356,10 @@ const Employee = ({ openNavbar }) => {
                     <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 150 }}>
                       เบอร์โทร
                     </TablecellHeader>
-                    {/* <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 120 }}>
-                      สิทธิ์
-                    </TablecellHeader> */}
                     <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 150 }}>
                       UserID
                       <InfoHint text="รหัสบัญชีผู้ใช้งานที่พนักงานคนนี้ใช้เข้าสู่ระบบ" />
                     </TablecellHeader>
-                    {/* <TablecellHeader sx={{ width: 50 }} /> */}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -458,7 +387,6 @@ const Employee = ({ openNavbar }) => {
               />
             </TableContainer>
             :
-            // <DriverTable />
             <TableContainer
               component={Paper}
               sx={{ height: "70vh", marginTop: 2 }}
@@ -492,7 +420,6 @@ const Employee = ({ openNavbar }) => {
                       UserID
                       <InfoHint text="รหัสบัญชีผู้ใช้งานที่พนักงานคนนี้ใช้เข้าสู่ระบบ" />
                     </TablecellHeader>
-                    {/* <TablecellHeader sx={{ width: 50 }} /> */}
                   </TableRow>
                 </TableHead>
                 <TableBody>

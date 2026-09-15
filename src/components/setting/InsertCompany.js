@@ -44,8 +44,6 @@ const InsertCompany = () => {
     const { company, refetch } = useBasicData();
     const companyDetail = Object.values(company || {});
 
-    console.log("Company : ", companyDetail);
-
     const handleClickOpen = () => {
         setOpen(true);
     };
@@ -56,7 +54,6 @@ const InsertCompany = () => {
 
     const [companyType, setCompanyType] = React.useState("")
     const [name, setName] = React.useState("");
-    //const [company, setCompany] = React.useState([]);
     const [no, setNo] = React.useState("");
     const [village, setVillage] = React.useState("");
     const [road, setRoad] = React.useState("");
@@ -68,33 +65,19 @@ const InsertCompany = () => {
     const [zipCode, setZipCode] = React.useState("");
     const [cardId, setCardID] = React.useState("");
 
-    // const getCompany = async () => {
-    //     database.ref("/company").on("value", (snapshot) => {
-    //         const datas = snapshot.val();
-    //         setCompany(datas.length);
-    //     });
-    // };
-
-    // useEffect(() => {
-    //     getCompany();
-    // }, []);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-    // ใช้ useEffect เพื่อรับฟังการเปลี่ยนแปลงของขนาดหน้าจอ
     useEffect(() => {
         const handleResize = () => {
-            setWindowWidth(window.innerWidth); // อัพเดตค่าขนาดหน้าจอ
+            setWindowWidth(window.innerWidth);
         };
 
-        window.addEventListener('resize', handleResize); // เพิ่ม event listener
+        window.addEventListener('resize', handleResize);
 
-        // ลบ event listener เมื่อ component ถูกทำลาย
         return () => {
             window.removeEventListener('resize', handleResize);
         };
     }, []);
-
-    console.log("Company : ", companyDetail);
 
     const handlePost = async () => {
         const today = new Date();

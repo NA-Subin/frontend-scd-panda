@@ -1,7 +1,6 @@
 import React from "react";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-// import Logo from "../../../public/logoPanda.jpg";
 import theme from "../../theme/theme";
 
 const MySwal = withReactContent(Swal);
@@ -58,10 +57,8 @@ export function ShowConfirm(title, onConfirm, onCancel) {
     cancelButtonText: "ยกเลิก",
   }).then((result) => {
     if (result.isConfirmed) {
-      // เรียก callback เมื่อกดปุ่มตกลง
       if (onConfirm) onConfirm();
     } else if (result.isDismissed) {
-      // เรียก callback เมื่อกดปุ่มยกเลิก
       if (onCancel) onCancel();
     }
   });
@@ -69,10 +66,9 @@ export function ShowConfirm(title, onConfirm, onCancel) {
 
 export function showLogin(title, item) {
   MySwal.fire({
-    // imageUrl: Logo, // ใส่ URL ของโลโก้ที่ต้องการ
-    imageWidth: 200, // กำหนดความกว้างของโลโก้
-    imageHeight: 200, // กำหนดความสูงของโลโก้
-    imageAlt: "Logo", // ข้อความเมื่อไม่สามารถแสดงรูปได้
+    imageWidth: 200,
+    imageHeight: 200,
+    imageAlt: "Logo",
     customClass: {
       popup: "my-swal",
     },
@@ -87,10 +83,9 @@ export function showLogin(title, item) {
 
 export function showLogout(title, item) {
   MySwal.fire({
-    // imageUrl: Logo, // ใส่ URL ของโลโก้ที่ต้องการ
-    imageWidth: 200, // กำหนดความกว้างของโลโก้
-    imageHeight: 200, // กำหนดความสูงของโลโก้
-    imageAlt: "Logo", // ข้อความเมื่อไม่สามารถแสดงรูปได้
+    imageWidth: 200,
+    imageHeight: 200,
+    imageAlt: "Logo",
     customClass: {
       popup: "my-swal",
     },

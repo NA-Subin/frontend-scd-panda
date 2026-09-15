@@ -64,7 +64,6 @@ dayjs.extend(buddhistEra);
 
 const UpdateReport = (props) => {
     const { ticket, open, dateRanges, months } = props;
-    // const [open, setOpen] = useState(false);
     const [formData, setFormData] = useState({}); // เก็บค่าฟอร์มชั่วคราว
     const [show, setShow] = useState(false);
     const [test, setTest] = useState([]);
@@ -89,19 +88,6 @@ const UpdateReport = (props) => {
         };
     }, []);
 
-    // const {
-    //     tickets,
-    //     customertransports,
-    //     customergasstations,
-    //     customertickets,
-    //     trip,
-    //     reghead,
-    //     company,
-    //     banks,
-    //     transferMoney,
-    //     invoiceReport
-    // } = useData();
-
     const {
         tickets,
         customertransports,
@@ -116,9 +102,6 @@ const UpdateReport = (props) => {
 
     const { reghead, company } = useBasicData();
 
-    console.log("Show Data ", ticket);
-
-    //const showTickets = Object.values(tickets || {});
     const showTickets = Object.values(tickets || {}).filter(item => {
         const itemDate = dayjs(item.Date, "DD/MM/YYYY");
         return itemDate.isSameOrAfter(dayjs("01/01/2026", "DD/MM/YYYY"), 'day');
@@ -126,7 +109,6 @@ const UpdateReport = (props) => {
     const customertransport = Object.values(customertransports || {});
     const customergasstation = Object.values(customergasstations || {});
     const customerTickets = Object.values(customertickets || {});
-    //const showTrips = Object.values(trip || {});
     const showTrips = Object.values(trip || {}).filter(item => {
         const deliveryDate = dayjs(item.DateDelivery, "DD/MM/YYYY");
         const receiveDate = dayjs(item.DateReceive, "DD/MM/YYYY");
@@ -141,9 +123,6 @@ const UpdateReport = (props) => {
     const invoiceDetail = Object.values(invoiceReport || {});
 
     const transfer = transferMoneyDetail.filter((row) => row.TicketNo === ticket.No && row.TicketName === ticket.TicketName && row.Status !== "ยกเลิก");
-
-    console.log("Ticket No ", ticket.No);
-    console.log("Tranfer : ", transfer);
 
     let CountCompany1 = 0;
     let CountCompany2 = 0;
@@ -163,9 +142,6 @@ const UpdateReport = (props) => {
             CountCompany2 += incoming;
         }
     });
-
-    console.log("ยอดบริษัท 1:", CountCompany1);
-    console.log("ยอดบริษัท 2:", CountCompany2);
 
     const totalIncomingMoney = transferMoneyDetail
         .filter(trans => trans.TicketName === ticket.TicketName && trans.Status !== "ยกเลิก")
@@ -202,20 +178,8 @@ const UpdateReport = (props) => {
         Note: "",
     });
 
-    // const ticketsList = showTickets.filter(item => {
-    //     if (open === 1) return item.CustomerType === "ตั๋วน้ำมัน";
-    //     if (open === 2) return item.CustomerType === "ตั๋วรับจ้างขนส่ง";
-    //     if (open === 3) return item.CustomerType === "ตั๋วปั้ม";
-    //     return true; // หรือเปลี่ยนเป็น `false` ถ้าไม่ต้องการให้แสดงกรณีอื่น
-    //   });
-
-    //const ticketsList = showTickets.filter(item => item.TicketName === ticket.TicketName && item.Trip !== "ยกเลิก");
-
     const startDate = dayjs(ticket.DateStart, "DD/MM/YYYY");
     const endDate = dayjs(ticket.DateEnd, "DD/MM/YYYY");
-
-    console.log("DateStart : ", startDate);
-    console.log("DateEnd ", endDate);
 
     const ticketsList = showTickets.filter(item => {
         const itemDate = dayjs(item.Date, "DD/MM/YYYY"); // แปลง item.Date ก่อนนะ
@@ -226,18 +190,6 @@ const UpdateReport = (props) => {
             itemDate.isBetween(startDate, endDate, "day", "[]") // [] คือรวมวันแรกกับวันสุดท้ายด้วย
         );
     });
-
-    console.log(" Month : ", months);
-    console.log("ticketsList: ", ticketsList)
-    console.log("Show tickets List : ", ticket);
-    // console.log("Id : ", ticket.TicketName.split(":")[0]);
-    // console.log("Name : ", ticket.TicketName.split(":")[1]);
-    // console.log("Customer Type : ", ticket.CustomerType);
-    //console.log("Transport : ", customertransport.find(item => item.id === Number(ticket.TicketName.split(":")[0]) && item.Trip !== "ยกเลิก"));
-    //console.log("GasStation : ", customergasstation.find(item => item.id === Number(ticket.TicketName.split(":")[0]) && item.Trip !== "ยกเลิก"));
-    //console.log("Ticket : ", customerTickets.find(item => item.id === Number(ticket.TicketName.split(":")[0]) && item.Trip !== "ยกเลิก"));
-
-    console.log("Price : ", price);
 
     const calculateDueDate = (dateString, creditDays) => {
         if (!dateString || creditDays === null || creditDays === undefined) return "ไม่พบข้อมูลวันที่";
@@ -271,21 +223,6 @@ const UpdateReport = (props) => {
         return calculateDueDate(ticket.Date, ticket.CreditTime);
     };
 
-    // 🔥 ทดสอบโค้ด
-    console.log("Date:", ticket.Date);
-    console.log("Credit Time:", ticket.CreditTime);
-    console.log(calculateDueDate(ticket.Date, ticket.CreditTime));
-
-    console.log("ticketsList : ", ticketsList);
-
-    // const handleClickOpen = () => {
-    //     setOpen(true);
-    // };
-
-    // const handleClose = () => {
-    //     setOpen(false);
-    // };
-
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -297,7 +234,6 @@ const UpdateReport = (props) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
     };
-
 
     const [report, setReport] = useState({});
 
@@ -336,15 +272,7 @@ const UpdateReport = (props) => {
 
             const company = registrationHead.find(trip => trip.uuid === matchedTrip.Registration);
 
-            // console.log("Company (raw):", `"${company.Company}"`);
-            // console.log("Company (trim):", `"${company.Company.trim()}"`);
-            // console.log("Company (length):", company.Company.length);
-
             const companyAddress = companies.find(com => com.uuid === company.Company);
-
-            // console.log("Address (raw):", `"${companyAddress.Name}"`);
-            // console.log("Address (trim):", `"${companyAddress.Name.trim()}"`);
-            // console.log("Address (length):", companyAddress.Name.length);
 
             return Object.entries(row.Product)
                 .filter(([productName]) => productName !== "P")
@@ -357,7 +285,6 @@ const UpdateReport = (props) => {
                                 : 0,
                     Amount: Volume.Amount || 0,
                     Depot: matchedTrip ? matchedTrip.Depot : row.Depot,
-                    //Date: matchedTrip ? matchedTrip.DateDelivery : row.DateDelivery,
                     Date: row.Date,
                     Driver: matchedTrip ? matchedTrip.Driver : row.Driver,
                     Registration: matchedTrip ? matchedTrip.Registration : row.Registration,
@@ -376,8 +303,6 @@ const UpdateReport = (props) => {
         ticketsList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
         showTrips
     );
-
-    console.log("processedTickets  : ", processedTickets);
 
     // แยก processedTickets ออกเป็น 2 ส่วนตาม Company และเริ่ม No ใหม่ให้แต่ละส่วน
     const splitByCompany = (processedTickets) => {
@@ -408,9 +333,6 @@ const UpdateReport = (props) => {
             (acc, row) => {
                 const amount = row.Volume * row.Rate;
 
-                //console.log("Row Price : ", ticket.Price);
-                //console.log("Row Company : ", row.Company);
-
                 // คำนวณยอดโอนจาก Price ที่ตรงกับ Company
                 const totalIncomingMoney = Array.isArray(ticket.Price)
                     ? ticket.Price
@@ -440,14 +362,6 @@ const UpdateReport = (props) => {
     const total1 = calculateTotal(company1Tickets);
     const total2 = calculateTotal(company2Tickets);
 
-    console.log("บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)", company1Tickets);
-    console.log("หจก.พิชยา ทรานสปอร์ต (สำนักงานใหญ่)", company2Tickets);
-
-    console.log("Total for บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)", total1);
-    console.log("Total for หจก.พิชยา ทรานสปอร์ต (สำนักงานใหญ่)", total2);
-
-    console.log("processedTickets : ", processedTickets);
-
     // company1Tickets[0].Company / company2Tickets[0].Company are locally
     // reconstructed "id:Name" composites; invoice.Transport is a real company
     // uuid - resolve both sides to the same uuid to compare.
@@ -456,9 +370,6 @@ const UpdateReport = (props) => {
 
     const invoices1 = invoiceDetail.filter((row) => row.TicketNo === ticket.No && row.TicketName === ticket.TicketName && row.Transport === company1TransportUuid);
     const invoices2 = invoiceDetail.filter((row) => row.TicketNo === ticket.No && row.TicketName === ticket.TicketName && row.Transport === company2TransportUuid);
-
-    console.log("invoices1 : ", invoices1);
-    console.log("invoices2 : ", invoices2);
 
     const generatePDFCompany1 = () => {
         let Code = ""
@@ -485,7 +396,6 @@ const UpdateReport = (props) => {
                 TicketType: ticket.CustomerType,
             })
                 .then(() => {
-                    console.log("บันทึกข้อมูลเรียบร้อย ✅");
                     refetchTripData?.();
                 })
                 .catch((error) => {
@@ -525,7 +435,6 @@ const UpdateReport = (props) => {
             `width=${windowWidth},height=${windowHeight},left=${left},top=${top}`
         );
 
-
         if (!printWindow) {
             alert("กรุณาปิด pop-up blocker แล้วลองใหม่");
         }
@@ -559,7 +468,6 @@ const UpdateReport = (props) => {
                 TicketType: ticket.CustomerType,
             })
                 .then(() => {
-                    console.log("บันทึกข้อมูลเรียบร้อย ✅");
                     refetchTripData?.();
                 })
                 .catch((error) => {
@@ -604,10 +512,6 @@ const UpdateReport = (props) => {
         }
     };
 
-    console.log("Report : ", report);
-    console.log("price : ", price);
-    console.log("tickets : ", ticket);
-
     const handleSave = () => {
         (async () => {
             // Product is a single JSONB column, and several report rows can
@@ -619,13 +523,11 @@ const UpdateReport = (props) => {
 
             for (const data of Object.values(report)) {
                 if (data.No == null || data.ProductName == null || data.ProductName.trim() === "") {
-                    console.log("ไม่พบ id หรือ ProductName");
                     continue;
                 }
 
                 const ticketRow = showTickets.find((t) => t.No === data.No);
                 if (!ticketRow?.uuid) {
-                    console.log("ไม่พบตั๋วที่ No", data.No);
                     continue;
                 }
 
@@ -645,7 +547,6 @@ const UpdateReport = (props) => {
                 for (const [uuid, mergedProduct] of mergedProductByTicketUuid) {
                     await apiPut(`/api/tickets/${uuid}`, { Product: mergedProduct });
                 }
-                console.log("บันทึกข้อมูลเรียบร้อย ✅");
                 refetchTripData?.();
             } catch (error) {
                 ShowError("เพิ่มข้อมูลไม่สำเร็จ");
@@ -695,7 +596,6 @@ const UpdateReport = (props) => {
         apiPut(`/api/invoice/${invoices1[0].uuid}`, { TicketNo: "ยกเลิก" })
             .then(() => {
                 ShowSuccess("บันทึกข้อมูลเรียบร้อย");
-                console.log("บันทึกข้อมูลเรียบร้อย ✅");
                 refetchTripData?.();
             })
             .catch((error) => {
@@ -712,7 +612,6 @@ const UpdateReport = (props) => {
         apiPut(`/api/invoice/${invoices2[0].uuid}`, { TicketNo: "ยกเลิก" })
             .then(() => {
                 ShowSuccess("บันทึกข้อมูลเรียบร้อย");
-                console.log("บันทึกข้อมูลเรียบร้อย ✅");
                 refetchTripData?.();
             })
             .catch((error) => {
@@ -720,36 +619,6 @@ const UpdateReport = (props) => {
                 console.error("Error updating data:", error);
             });
     }
-
-    // const handleSubmit = () => {
-    //     database
-    //         .ref("transfermoney/")
-    //         .child(transferMoneyDetail.length)
-    //         .set(price) // ใช้ .set() แทน .update() เพื่อแทนที่ข้อมูลทั้งหมด
-    //         .then(() => {
-    //             let total = Number(newNumber) + 1
-    //             let formattedNumber = String(total).padStart(4, "0");
-    //             ShowSuccess("บันทึกข้อมูลเรียบร้อย");
-    //             console.log("บันทึกข้อมูลเรียบร้อย ✅");
-    //             setPrice({
-    //                 id: transferMoneyDetail.length,
-    //                 Code: currentCode,
-    //                 Number: formattedNumber,
-    //                 DateStart: dayjs(new Date()).format("DD/MM/YYYY"),
-    //                 BankName: "",
-    //                 Transport: "",
-    //                 IncomingMoney: "",
-    //                 TicketName: ticket.TicketName,
-    //                 TicketNo: ticket.No,
-    //                 TicketType: ticket.CustomerType,
-    //                 Note: "",
-    //             })
-    //         })
-    //         .catch((error) => {
-    //             ShowError("ไม่สำเร็จ");
-    //             console.error("Error updating data:", error);
-    //         });
-    // }
 
     const handleSubmit = () => {
         const newId = transferMoneyDetail.length;
@@ -763,7 +632,6 @@ const UpdateReport = (props) => {
         apiPost("/api/transfermoney", newPrice)
             .then(() => {
                 ShowSuccess("บันทึกข้อมูลเรียบร้อย");
-                console.log("บันทึกข้อมูลเรียบร้อย ✅");
                 refetchTripData?.();
 
                 // เตรียมค่าใหม่สำหรับ price หลังบันทึก
@@ -796,9 +664,6 @@ const UpdateReport = (props) => {
     let mergedCells2 = {};
     let displayIndex1 = 0;
     let displayIndex2 = 0;
-
-    console.log("Show Company 1 ", company1Tickets);
-    console.log("show company 2 ", company2Tickets);
 
     return (
         <React.Fragment>
@@ -972,50 +837,6 @@ const UpdateReport = (props) => {
                     >
                         <Table size="small" sx={{ tableLayout: "fixed", "& .MuiTableCell-root": { padding: "1px" }, width: "1250px" }}>
                             <TableHead>
-                                {/* <TableRow>
-                                    <TablecellSelling sx={{ textAlign: "center", fontSize: "14px", width: 50, height: '35px', backgroundColor: theme.palette.primary.dark }}>
-                                        ลำดับ
-                                    </TablecellSelling>
-                                    <TablecellSelling sx={{ textAlign: "center", fontSize: "14px", width: 100, height: '35px', backgroundColor: theme.palette.primary.dark }}>
-                                        วันที่
-                                    </TablecellSelling>
-                                    <TablecellSelling sx={{ textAlign: "center", fontSize: "14px", width: 150, height: '35px', backgroundColor: theme.palette.primary.dark }}>
-                                        พขร
-                                    </TablecellSelling>
-                                    <TableCellG95 sx={{ textAlign: "center", fontSize: "14px", width: 70, height: '35px' }}>
-                                        G95
-                                    </TableCellG95>
-                                    <TableCellB95 sx={{ textAlign: "center", fontSize: "14px", width: 70, height: '35px' }}>
-                                        B95
-                                    </TableCellB95>
-                                    <TableCellB7 sx={{ textAlign: "center", fontSize: "14px", width: 70, height: '35px' }}>
-                                        B7(D)
-                                    </TableCellB7>
-                                    <TableCellG91 sx={{ textAlign: "center", fontSize: "14px", width: 70, height: '35px' }}>
-                                        G91
-                                    </TableCellG91>
-                                    <TableCellE20 sx={{ textAlign: "center", fontSize: "14px", width: 70, height: '35px' }}>
-                                        E20
-                                    </TableCellE20>
-                                    <TableCellPWD sx={{ textAlign: "center", fontSize: "14px", width: 70, height: '35px' }}>
-                                        PWD
-                                    </TableCellPWD>
-                                    <TablecellSelling sx={{ textAlign: "center", fontSize: "14px", width: 100, height: '35px', backgroundColor: theme.palette.primary.dark }}>
-                                        จำนวนลิตร
-                                    </TablecellSelling>
-                                    <TablecellSelling sx={{ textAlign: "center", fontSize: "14px", width: 70, height: '35px', backgroundColor: theme.palette.primary.dark }}>
-                                        ค่าบรรทุก
-                                    </TablecellSelling>
-                                    <TablecellSelling sx={{ textAlign: "center", fontSize: "14px", width: 120, height: '35px', backgroundColor: theme.palette.primary.dark }}>
-                                        ยอดเงิน
-                                    </TablecellSelling>
-                                    <TablecellSelling sx={{ textAlign: "center", fontSize: "14px", width: 70, height: '35px', backgroundColor: theme.palette.primary.dark }}>
-                                        หักภาษี 1%
-                                    </TablecellSelling>
-                                    <TablecellSelling sx={{ textAlign: "center", fontSize: "14px", width: 100, height: '35px', backgroundColor: theme.palette.primary.dark }}>
-                                        ยอดชำระ
-                                    </TablecellSelling>
-                                </TableRow> */}
                                 <TableRow>
                                     <TablecellSelling sx={{ textAlign: "center", fontSize: "14px", width: 50, height: '35px', backgroundColor: theme.palette.primary.dark }}>
                                         ลำดับ
@@ -1059,86 +880,6 @@ const UpdateReport = (props) => {
                     >
                         <Table size="small" sx={{ tableLayout: "fixed", "& .MuiTableCell-root": { padding: "1px" }, width: "1250px" }}>
                             <TableBody>
-                                {/* {company1Tickets.map((row, index) => {
-                                    const key = `${row.Date} : ${row.Driver} : ${row.Registration}`;
-                                    const rowSpan = rowSpanMap1[key] && !mergedCells1[key] ? rowSpanMap1[key] : 0;
-                                    if (rowSpan) {
-                                        mergedCells1[key] = true;
-                                        displayIndex1++;
-                                    }
-
-                                    return (
-                                        <TableRow key={`${row.TicketName}-${row.ProductName}-${index}`}>
-                                            {rowSpan > 0 && (
-                                                <TableCell rowSpan={rowSpan}
-                                                    sx={{ textAlign: "center", height: '30px', width: 50, verticalAlign: "middle" }}>
-                                                    {displayIndex1}
-                                                </TableCell>
-                                            )}
-                                            {rowSpan > 0 && (
-                                                <TableCell
-                                                    rowSpan={rowSpan}
-                                                    sx={{ textAlign: "center", height: '30px', width: 100, verticalAlign: "middle" }}>
-                                                    <Typography variant="subtitle2" fontSize="14px" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>
-                                                        {row.Date}
-                                                    </Typography>
-                                                </TableCell>
-                                            )}
-                                            {rowSpan > 0 && (
-                                                <TableCell
-                                                    rowSpan={rowSpan}
-                                                    sx={{ textAlign: "center", height: '30px', width: 150, verticalAlign: "middle" }}
-                                                >
-                                                    <Typography variant="subtitle2" fontSize="14px" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>
-                                                        {row.RegistrationName}
-                                                    </Typography>
-                                                </TableCell>
-                                            )}
-                                            <TableCell sx={{
-                                                textAlign: "center", height: '30px', width: 100,
-                                                backgroundColor: row.ProductName === "G91" ? "#92D050" :
-                                                    row.ProductName === "G95" ? "#FFC000" :
-                                                        row.ProductName === "B7" ? "#FFFF99" :
-                                                            row.ProductName === "B95" ? "#B7DEE8" :
-                                                                row.ProductName === "B10" ? "#32CD32" :
-                                                                    row.ProductName === "B20" ? "#228B22" :
-                                                                        row.ProductName === "E20" ? "#C4BD97" :
-                                                                            row.ProductName === "E85" ? "#0000FF" :
-                                                                                row.ProductName === "PWD" ? "#F141D8" :
-                                                                                    "#FFFFFF"
-                                            }}>
-                                                <Typography variant="subtitle2" fontSize="14px" fontWeight="bold" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>
-                                                    {row.ProductName}
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell sx={{ textAlign: "center", height: '30px', width: 150 }}>
-                                                <Typography variant="subtitle2" fontSize="14px" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>
-                                                    {new Intl.NumberFormat("en-US").format(row.Volume)}
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell sx={{ textAlign: "center", height: '30px', width: 100 }}>
-                                                <Typography variant="subtitle2" fontSize="14px" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>
-                                                    {new Intl.NumberFormat("en-US").format(row.Rate)}
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell sx={{ textAlign: "center", height: '30px', width: 150 }}>
-                                                <Typography variant="subtitle2" fontSize="14px" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>
-                                                    {new Intl.NumberFormat("en-US").format(row.Volume * row.Rate)}
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell sx={{ textAlign: "center", height: '30px', width: 100 }}>
-                                                <Typography variant="subtitle2" fontSize="14px" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>
-                                                    {new Intl.NumberFormat("en-US").format((row.Volume * row.Rate) * (0.01))}
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell sx={{ textAlign: "center", height: '30px', width: 100 }}>
-                                                <Typography variant="subtitle2" fontSize="14px" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>
-                                                    {new Intl.NumberFormat("en-US").format((row.Volume * row.Rate) - ((row.Volume * row.Rate) * (0.01)))}
-                                                </Typography>
-                                            </TableCell>
-                                        </TableRow>
-                                    );
-                                })} */}
                                 {company1Tickets.map((row, index) => {
                                     const key = `${row.Date} : ${row.Driver} : ${row.Registration}`;
                                     const rowSpan = rowSpanMap1[key] && !mergedCells1[key] ? rowSpanMap1[key] : 0;
@@ -1261,9 +1002,6 @@ const UpdateReport = (props) => {
                                                 value={new Intl.NumberFormat("en-US").format(total1.totalVolume)}
                                             />
                                         </Paper>
-                                        {/* <Typography variant="subtitle2" fontSize="14px" sx={{ marginTop: -1.5 }} gutterBottom>
-                                            {new Intl.NumberFormat("en-US").format(total1.totalVolume)}
-                                        </Typography> */}
                                     </Grid>
                                 </Grid>
                             </Grid>
@@ -1296,9 +1034,6 @@ const UpdateReport = (props) => {
                                                 value={new Intl.NumberFormat("en-US").format(total1.totalAmount)}
                                             />
                                         </Paper>
-                                        {/* <Typography variant="subtitle2" fontSize="14px" sx={{ marginTop: -1.5 }} gutterBottom>
-                                            {new Intl.NumberFormat("en-US").format(total1.totalAmount)}
-                                        </Typography> */}
                                     </Grid>
                                 </Grid>
                             </Grid>
@@ -1331,9 +1066,6 @@ const UpdateReport = (props) => {
                                                 value={new Intl.NumberFormat("en-US").format(total1.totalTax)}
                                             />
                                         </Paper>
-                                        {/* <Typography variant="subtitle2" fontSize="14px" sx={{ marginTop: -1.5 }} gutterBottom>
-                                            {new Intl.NumberFormat("en-US").format(total1.totalTax)}
-                                        </Typography> */}
                                     </Grid>
                                 </Grid>
                             </Grid>
@@ -1366,9 +1098,6 @@ const UpdateReport = (props) => {
                                                 value={new Intl.NumberFormat("en-US").format(total1.totalPayment)}
                                             />
                                         </Paper>
-                                        {/* <Typography variant="subtitle2" fontSize="14px" sx={{ marginTop: -1.5 }} gutterBottom>
-                                            {new Intl.NumberFormat("en-US").format(total1.totalPayment)}
-                                        </Typography> */}
                                     </Grid>
                                 </Grid>
                             </Grid>
@@ -1401,9 +1130,6 @@ const UpdateReport = (props) => {
                                                 value={new Intl.NumberFormat("en-US").format(CountCompany1)}
                                             />
                                         </Paper>
-                                        {/* <Typography variant="subtitle2" fontSize="14px" sx={{ marginTop: -1.5 }} gutterBottom>
-                                            {new Intl.NumberFormat("en-US").format(total1.totalVolume)}
-                                        </Typography> */}
                                     </Grid>
                                 </Grid>
                             </Grid>
@@ -1436,39 +1162,10 @@ const UpdateReport = (props) => {
                                                 value={new Intl.NumberFormat("en-US").format(Number(total1.totalPayment) - Number(CountCompany1))}
                                             />
                                         </Paper>
-                                        {/* <Typography variant="subtitle2" fontSize="14px" sx={{ marginTop: -1.5 }} gutterBottom>
-                                            {new Intl.NumberFormat("en-US").format(total1.totalVolume)}
-                                        </Typography> */}
                                     </Grid>
                                 </Grid>
                             </Grid>
                         </Grid>
-                        {/* <Table size="small" sx={{ tableLayout: "fixed", "& .MuiTableCell-root": { padding: "1px" } }}>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell sx={{ textAlign: "center", height: '35px', width: 550, fontWeight: "bold", borderLeft: "1px solid white", backgroundColor: "#616161", color: "white" }} colSpan={4}>
-                                        <Typography variant="subtitle2" fontSize="14px" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>
-                                            รวม
-                                        </Typography>
-                                    </TableCell>
-                                    <TableCell sx={{ textAlign: "center", height: '35px', width: 150, fontWeight: "bold", borderLeft: "1px solid white", backgroundColor: "#616161", color: "white" }}>
-                                        <Typography variant="subtitle2" fontSize="14px" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>
-                                            {new Intl.NumberFormat("en-US").format(total1.totalVolume)}
-                                        </Typography>
-                                    </TableCell>
-                                    <TableCell sx={{ textAlign: "center", height: '35px', width: 250, fontWeight: "bold", borderLeft: "1px solid white", backgroundColor: "#616161", color: "white" }} colSpan={2}>
-                                        <Typography variant="subtitle2" fontSize="14px" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>
-                                            {new Intl.NumberFormat("en-US").format(total1.totalAmount)}
-                                        </Typography>
-                                    </TableCell>
-                                    <TableCell sx={{ textAlign: "center", height: '35px', width: 200, fontWeight: "bold", borderLeft: "1px solid white", backgroundColor: "#616161", color: "white" }} colSpan={2}>
-                                        <Typography variant="subtitle2" fontSize="14px" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>
-                                            {new Intl.NumberFormat("en-US").format(total1.totalPayment)}
-                                        </Typography>
-                                    </TableCell>
-                                </TableRow>
-                            </TableHead>
-                        </Table> */}
                     </Box>
                 </Paper>
             </Box>
@@ -1567,26 +1264,6 @@ const UpdateReport = (props) => {
                             </Button>
                         </Tooltip>
                     </Grid>
-                    {/* <Grid item xs={1.5}>
-                        <Tooltip title="พิมพ์ใบวางบิล" placement="top">
-                            <Button
-                                color="primary"
-                                variant='contained'
-                                fullWidth
-                                sx={{
-                                    flexDirection: "row",
-                                    gap: 0.5,
-                                    borderRadius: 2
-                                }}
-                                onClick={generatePDFCompany2}
-                            >
-                                <PrintIcon sx={{ color: "white" }} />
-                                <Typography sx={{ fontSize: "12px", fontWeight: "bold", color: "white", whiteSpace: "nowrap" }}>
-                                    พิมพ์ใบวางบิล
-                                </Typography>
-                            </Button>
-                        </Tooltip>
-                    </Grid> */}
                 </Grid>
                 <Paper
                     className="custom-scrollbar"
@@ -1776,9 +1453,6 @@ const UpdateReport = (props) => {
                                                 value={new Intl.NumberFormat("en-US").format(total2.totalVolume)}
                                             />
                                         </Paper>
-                                        {/* <Typography variant="subtitle2" fontSize="14px" sx={{ marginTop: -1.5 }} gutterBottom>
-                                            {new Intl.NumberFormat("en-US").format(total2.totalVolume)}
-                                        </Typography> */}
                                     </Grid>
                                 </Grid>
                             </Grid>
@@ -1811,9 +1485,6 @@ const UpdateReport = (props) => {
                                                 value={new Intl.NumberFormat("en-US").format(total2.totalAmount)}
                                             />
                                         </Paper>
-                                        {/* <Typography variant="subtitle2" fontSize="14px" sx={{ marginTop: -1.5 }} gutterBottom>
-                                            {new Intl.NumberFormat("en-US").format(total2.totalAmount)}
-                                        </Typography> */}
                                     </Grid>
                                 </Grid>
                             </Grid>
@@ -1846,9 +1517,6 @@ const UpdateReport = (props) => {
                                                 value={new Intl.NumberFormat("en-US").format(total2.totalTax)}
                                             />
                                         </Paper>
-                                        {/* <Typography variant="subtitle2" fontSize="14px" sx={{ marginTop: -1.5 }} gutterBottom>
-                                            {new Intl.NumberFormat("en-US").format(total2.totalTax)}
-                                        </Typography> */}
                                     </Grid>
                                 </Grid>
                             </Grid>
@@ -1881,9 +1549,6 @@ const UpdateReport = (props) => {
                                                 value={new Intl.NumberFormat("en-US").format(total2.totalPayment)}
                                             />
                                         </Paper>
-                                        {/* <Typography variant="subtitle2" fontSize="14px" sx={{ marginTop: -1.5 }} gutterBottom>
-                                            {new Intl.NumberFormat("en-US").format(total2.totalPayment)}
-                                        </Typography> */}
                                     </Grid>
                                 </Grid>
                             </Grid>
@@ -1916,9 +1581,6 @@ const UpdateReport = (props) => {
                                                 value={new Intl.NumberFormat("en-US").format(CountCompany2)}
                                             />
                                         </Paper>
-                                        {/* <Typography variant="subtitle2" fontSize="14px" sx={{ marginTop: -1.5 }} gutterBottom>
-                                            {new Intl.NumberFormat("en-US").format(total2.totalVolume)}
-                                        </Typography> */}
                                     </Grid>
                                 </Grid>
                             </Grid>
@@ -1951,39 +1613,10 @@ const UpdateReport = (props) => {
                                                 value={new Intl.NumberFormat("en-US").format(Number(total2.totalPayment) - Number(CountCompany2))}
                                             />
                                         </Paper>
-                                        {/* <Typography variant="subtitle2" fontSize="14px" sx={{ marginTop: -1.5 }} gutterBottom>
-                                            {new Intl.NumberFormat("en-US").format(total2.totalVolume)}
-                                        </Typography> */}
                                     </Grid>
                                 </Grid>
                             </Grid>
                         </Grid>
-                        {/* <Table size="small" sx={{ tableLayout: "fixed", "& .MuiTableCell-root": { padding: "1px" } }}>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell sx={{ textAlign: "center", height: '35px', width: 550, fontWeight: "bold", borderLeft: "1px solid white", backgroundColor: "#616161", color: "white" }} colSpan={4}>
-                                        <Typography variant="subtitle2" fontSize="14px" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>
-                                            รวม
-                                        </Typography>
-                                    </TableCell>
-                                    <TableCell sx={{ textAlign: "center", height: '35px', width: 150, fontWeight: "bold", borderLeft: "1px solid white", backgroundColor: "#616161", color: "white" }}>
-                                        <Typography variant="subtitle2" fontSize="14px" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>
-                                            {new Intl.NumberFormat("en-US").format(total2.totalVolume)}
-                                        </Typography>
-                                    </TableCell>
-                                    <TableCell sx={{ textAlign: "center", height: '35px', width: 250, fontWeight: "bold", borderLeft: "1px solid white", backgroundColor: "#616161", color: "white" }} colSpan={2}>
-                                        <Typography variant="subtitle2" fontSize="14px" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>
-                                            {new Intl.NumberFormat("en-US").format(total2.totalAmount)}
-                                        </Typography>
-                                    </TableCell>
-                                    <TableCell sx={{ textAlign: "center", height: '35px', width: 200, fontWeight: "bold", borderLeft: "1px solid white", backgroundColor: "#616161", color: "white" }} colSpan={2}>
-                                        <Typography variant="subtitle2" fontSize="14px" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>
-                                            {new Intl.NumberFormat("en-US").format(total2.totalPayment)}
-                                        </Typography>
-                                    </TableCell>
-                                </TableRow>
-                            </TableHead>
-                        </Table> */}
                     </Box>
                 </Paper>
             </Box >
@@ -2006,18 +1639,6 @@ const UpdateReport = (props) => {
                                             <TablecellSelling sx={{ textAlign: "center", fontSize: "14px", width: 250, height: "30px", backgroundColor: theme.palette.success.main }}>บริษัทรับจ้างขนส่ง</TablecellSelling>
                                             <TablecellSelling sx={{ textAlign: "center", fontSize: "14px", width: 130, height: "30px", backgroundColor: theme.palette.success.main }}>ยอดเงินเข้า</TablecellSelling>
                                             <TablecellSelling sx={{ textAlign: "center", fontSize: "14px", width: 150, height: "30px", backgroundColor: theme.palette.success.main }}>หมายเหตุ</TablecellSelling>
-                                            {/* <TableCell sx={{ textAlign: "center", fontSize: "14px", width: 60, height: "30px", backgroundColor: "white" }}>
-                                                    <Tooltip title="เพิ่มข้อมูลการโอนเงิน" placement="left">
-                                                        <IconButton color="success"
-                                                            size="small"
-                                                            fullWidth
-                                                            onClick={handlePost}
-                                                            sx={{ borderRadius: 2 }}
-                                                        >
-                                                            <AddBoxIcon />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                </TableCell> */}
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -2050,11 +1671,6 @@ const UpdateReport = (props) => {
                                                 {new Intl.NumberFormat("en-US").format(totalIncomingMoney)}
                                             </Typography>
                                         </TableCell>
-                                        {/* <TableCell sx={{ textAlign: "center", height: '30px', fontWeight: "bold", borderLeft: "1px solid white", width: 210, backgroundColor: "#616161", color: "white" }}>
-                                                    <Typography variant="subtitle2" fontSize="14px" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>
-            
-                                                    </Typography>
-                                                </TableCell> */}
                                     </TableRow>
                                 </TableBody>
                             </Table>
@@ -2185,8 +1801,6 @@ const UpdateReport = (props) => {
                                                             <MenuItem key={row.uuid} value={row.uuid} sx={{ fontSize: "14px", }}>{row.Name}</MenuItem>
                                                         ))
                                                     }
-                                                    {/* <MenuItem value="บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)" sx={{ fontSize: "14px", }}>บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)</MenuItem>
-                                                        <MenuItem value="หจก.พิชยา ทรานสปอร์ต (สำนักงานใหญ่)" sx={{ fontSize: "14px", }}>หจก.พิชยา ทรานสปอร์ต (สำนักงานใหญ่)</MenuItem> */}
                                                 </Select>
                                             </FormControl>
                                         </Paper>

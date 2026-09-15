@@ -61,7 +61,6 @@ const BankDetail = () => {
     const [search, setSearch] = React.useState("");
 
     const { banks, refetch: refetchTripData } = useTripData();
-    //const bankDetail = Object.values(banks || {});
 
     const bankDetail = Object.values(banks || {}).filter(row =>
         (
@@ -71,7 +70,6 @@ const BankDetail = () => {
         row?.Status !== "ยกเลิก"
     );
 
-
     const handleClickOpen = () => {
         setOpen(true);
     };
@@ -80,12 +78,12 @@ const BankDetail = () => {
         setOpen(false);
     };
 
-    const [updateId, setUpdateId] = useState(null); // เก็บ ID ที่กำลังแก้ไข
-    const [editedData, setEditedData] = useState({}); // เก็บค่าที่แก้ไข
+    const [updateId, setUpdateId] = useState(null);
+    const [editedData, setEditedData] = useState({});
 
     const handleEditClick = (id, row) => {
-        setUpdateId(id); // ตั้งค่า ID ที่ต้องการแก้ไข
-        setEditedData({ ...row }); // คัดลอกค่าของ row นั้นมาเก็บไว้
+        setUpdateId(id);
+        setEditedData({ ...row });
     };
 
     const [page, setPage] = useState(0);
@@ -115,7 +113,7 @@ const BankDetail = () => {
             setBank("")
             setBankShortName("")
             setStatus("")
-            setUpdateId(null); // รีเซ็ตค่า updateId กลับเป็น null
+            setUpdateId(null);
         } catch (error) {
             ShowError("เพิ่มข้อมูลไม่สำเร็จ");
             console.error("Error pushing data:", error);
@@ -128,8 +126,6 @@ const BankDetail = () => {
             [field]: value,
         }));
     };
-
-    console.log("editedData : ", editedData);
 
     const handleDeleteReport = (newID) => {
         if (newID === null) {
@@ -155,10 +151,7 @@ const BankDetail = () => {
                     console.error("Error updating data:", error);
                 }
             },
-            () => {
-                // ❌ ถ้ากดยกเลิก
-                console.log("ยกเลิกการลบข้อมูล ❌");
-            }
+            () => { }
         );
     };
 
@@ -170,7 +163,6 @@ const BankDetail = () => {
         const isDuplicateBankName = bankDetail.some(
             (bank) => bank.BankName === bankName
         );
-
 
         if (isDuplicateBankID || isDuplicateBankName) {
             let message = "ไม่สามารถบันทึกได้ เนื่องจาก";
@@ -206,21 +198,6 @@ const BankDetail = () => {
 
     return (
         <React.Fragment>
-            {/* <Box display="flex" justifyContent="center" alignItems="center">
-                เลขที่บัญชี
-                <Box textAlign="right">
-                    <Tooltip title="เพิ่มบัญชีธนาคาร" placement="right">
-                        <IconButton color="inherit"
-                            size="small"
-                            fullWidth
-                            onClick={handleClickOpen}
-                            sx={{ borderRadius: 2 }}
-                        >
-                            <AddBoxIcon />
-                        </IconButton>
-                    </Tooltip>
-                </Box>
-            </Box> */}
             <Tooltip title="เพิ่มเลขที่บัญชี" placement="left">
                 <Paper sx={{ display: "flex", justifyContent: "center", alignItems: "center", borderRadius: 2, backgroundColor: theme.palette.primary.main, marginLeft: -1, marginRight: -1, marginTop: 1 }}>
                     <Button
@@ -256,7 +233,6 @@ const BankDetail = () => {
                     </Grid>
                 </DialogTitle>
                 <DialogContent>
-                    {/* <Typography variant="subtitle1" fontWeight="bold" sx={{ marginTop: 1 }} gutterBottom>รายการบัญชีธนาคาร</Typography> */}
                     <Box display="flex" alignItems="center" justifyContent="center" sx={{ paddingLeft: 2, paddingRight: 2, marginTop: 3 }}>
                         <Typography variant="subtitle1" fontWeight="bold" textAlign="right" sx={{ whiteSpace: "nowrap", marginRight: 1, marginTop: -0.5 }} gutterBottom>ค้นหา</Typography>
                         <Paper sx={{ marginTop: -1, marginBottom: 1, width: "100%" }} >
@@ -267,14 +243,14 @@ const BankDetail = () => {
                                 size="small"
                                 sx={{
                                     '& .MuiInputBase-root': {
-                                        height: 30, // ปรับความสูงรวม
+                                        height: 30,
                                     },
                                     '& .MuiInputBase-input': {
-                                        padding: '4px 8px', // ปรับ padding ด้านใน input
-                                        fontSize: '0.85rem', // (ถ้าต้องการลดขนาดตัวอักษร)
+                                        padding: '4px 8px',
+                                        fontSize: '0.85rem',
                                     },
                                 }}
-                                InputProps={{ sx: { height: 30 } }} // เพิ่มตรงนี้ด้วยถ้า sx ไม่พอ
+                                InputProps={{ sx: { height: 30 } }}
                             />
                         </Paper>
                     </Box>
@@ -302,9 +278,6 @@ const BankDetail = () => {
                                             <TablecellSelling sx={{ textAlign: "center", fontSize: 16, width: 100 }}>
                                                 ชื่อย่อ
                                             </TablecellSelling>
-                                            {/* <TablecellSelling sx={{ textAlign: "center", fontSize: 16, width: 80 }}>
-                                                สถานะ
-                                            </TablecellSelling> */}
                                             <TablecellSelling sx={{ textAlign: "center", width: 60 }} />
                                         </TableRow>
                                     </TableHead>
@@ -380,24 +353,6 @@ const BankDetail = () => {
                                                                 />
                                                             </Paper>
                                                         </TableCell>
-                                                        {/* <TableCell sx={{ textAlign: "center", height: "30px" }}>
-                                                            <Paper component="form" sx={{ width: "100%", height: "25px" }}>
-                                                                <Select
-                                                                    value={editedData.Status}
-                                                                    onChange={(e) => handleChange("Status", e.target.value)}
-                                                                    size="small"
-                                                                    fullWidth
-                                                                    sx={{
-                                                                        height: "25px",
-                                                                        "& .MuiOutlinedInput-root": { height: "25px" },
-                                                                        "& .MuiInputBase-input": { fontSize: "14px", textAlign: "center" },
-                                                                    }}
-                                                                >
-                                                                    <MenuItem value="ใช้งานอยู่">ใช้งานอยู่</MenuItem>
-                                                                    <MenuItem value="ปิดการใช้งาน">ปิดการใช้งาน</MenuItem>
-                                                                </Select>
-                                                            </Paper>
-                                                        </TableCell> */}
                                                         <TableCell sx={{ textAlign: "center", display: "flex", justifyContent: "center", alignItems: "center" }}>
                                                             <IconButton onClick={() => setUpdateId(null)} color="error" sx={{ marginRight: -1.5 }}>
                                                                 <CancelIcon />
@@ -413,12 +368,11 @@ const BankDetail = () => {
                                                         <TableCell sx={{ textAlign: "center" }}>{row.BankName}</TableCell>
                                                         <TableCell sx={{ textAlign: "center" }}>{row.Bank}</TableCell>
                                                         <TableCell sx={{ textAlign: "center" }}>{row.BankShortName}</TableCell>
-                                                        {/* <TableCell sx={{ textAlign: "center" }}>{row.Status}</TableCell> */}
                                                         <TableCell sx={{ textAlign: "center" }}>
                                                             <Box display="flex" alignItems="center" justifyContent="center" >
                                                                 <IconButton
                                                                     color="warning"
-                                                                    onClick={() => handleEditClick(row.id, row)} // ✅ ใช้ arrow function
+                                                                    onClick={() => handleEditClick(row.id, row)}
                                                                     sx={{ marginTop: -0.5, marginBottom: -0.5, marginRight: -2 }}
                                                                 >
                                                                     <EditNoteIcon />
@@ -431,17 +385,6 @@ const BankDetail = () => {
                                                                     <DeleteForeverIcon />
                                                                 </IconButton>
                                                             </Box>
-                                                            {/* <Button
-                                                                variant="contained"
-                                                                color="warning"
-                                                                startIcon={<EditNoteIcon />}
-                                                                sx={{ height: "25px" }}
-                                                                onClick={() => handleEditClick(row.id, row)} // ✅ ใช้ arrow function
-                                                                size="small"
-                                                                fullWidth
-                                                            >
-                                                                แก้ไข
-                                                            </Button> */}
                                                         </TableCell>
                                                     </>
                                                 )}
@@ -479,14 +422,14 @@ const BankDetail = () => {
                                                         onChange={(e) => setBankID(e.target.value)}
                                                         sx={{
                                                             '& .MuiInputBase-root': {
-                                                                height: 30, // ปรับความสูงรวม
+                                                                height: 30,
                                                             },
                                                             '& .MuiInputBase-input': {
-                                                                padding: '4px 8px', // ปรับ padding ด้านใน input
-                                                                fontSize: '0.85rem', // (ถ้าต้องการลดขนาดตัวอักษร)
+                                                                padding: '4px 8px',
+                                                                fontSize: '0.85rem',
                                                             },
                                                         }}
-                                                        InputProps={{ sx: { height: 30 } }} // เพิ่มตรงนี้ด้วยถ้า sx ไม่พอ
+                                                        InputProps={{ sx: { height: 30 } }}
                                                     />
                                                 </Paper>
                                             </Grid>
@@ -502,14 +445,14 @@ const BankDetail = () => {
                                                         onChange={(e) => setBankName(e.target.value)}
                                                         sx={{
                                                             '& .MuiInputBase-root': {
-                                                                height: 30, // ปรับความสูงรวม
+                                                                height: 30,
                                                             },
                                                             '& .MuiInputBase-input': {
-                                                                padding: '4px 8px', // ปรับ padding ด้านใน input
-                                                                fontSize: '0.85rem', // (ถ้าต้องการลดขนาดตัวอักษร)
+                                                                padding: '4px 8px',
+                                                                fontSize: '0.85rem',
                                                             },
                                                         }}
-                                                        InputProps={{ sx: { height: 30 } }} // เพิ่มตรงนี้ด้วยถ้า sx ไม่พอ
+                                                        InputProps={{ sx: { height: 30 } }}
                                                     />
                                                 </Paper>
                                             </Grid>
@@ -525,14 +468,14 @@ const BankDetail = () => {
                                                         onChange={(e) => setBank(e.target.value)}
                                                         sx={{
                                                             '& .MuiInputBase-root': {
-                                                                height: 30, // ปรับความสูงรวม
+                                                                height: 30,
                                                             },
                                                             '& .MuiInputBase-input': {
-                                                                padding: '4px 8px', // ปรับ padding ด้านใน input
-                                                                fontSize: '0.85rem', // (ถ้าต้องการลดขนาดตัวอักษร)
+                                                                padding: '4px 8px',
+                                                                fontSize: '0.85rem',
                                                             },
                                                         }}
-                                                        InputProps={{ sx: { height: 30 } }} // เพิ่มตรงนี้ด้วยถ้า sx ไม่พอ
+                                                        InputProps={{ sx: { height: 30 } }}
                                                     />
                                                 </Paper>
                                             </Grid>
@@ -548,14 +491,14 @@ const BankDetail = () => {
                                                         onChange={(e) => setBankShortName(e.target.value)}
                                                         sx={{
                                                             '& .MuiInputBase-root': {
-                                                                height: 30, // ปรับความสูงรวม
+                                                                height: 30,
                                                             },
                                                             '& .MuiInputBase-input': {
-                                                                padding: '4px 8px', // ปรับ padding ด้านใน input
-                                                                fontSize: '0.85rem', // (ถ้าต้องการลดขนาดตัวอักษร)
+                                                                padding: '4px 8px',
+                                                                fontSize: '0.85rem',
                                                             },
                                                         }}
-                                                        InputProps={{ sx: { height: 30 } }} // เพิ่มตรงนี้ด้วยถ้า sx ไม่พอ
+                                                        InputProps={{ sx: { height: 30 } }}
                                                     />
                                                 </Paper>
                                             </Grid>

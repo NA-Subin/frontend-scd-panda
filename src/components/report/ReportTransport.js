@@ -133,11 +133,6 @@ const ReportTransports = ({ openNavbar }) => {
   const filteredItemsRef = useRef([]);
   const incomingMoneyRef = useRef([]);
 
-  console.log("sortConfig : ", sortConfig);
-  console.log("filteredItem รายการย่อย:", filteredItemsRef.current);
-  console.log("flattened รายการย่อย:", flattenedRef.current);
-  console.log("IncomingMoney รายการย่อย:", incomingMoneyRef.current);
-
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
@@ -188,7 +183,6 @@ const ReportTransports = ({ openNavbar }) => {
     }
   };
 
-  // const { reportFinancial, drivers } = useData();
   const { drivers, customertransports, reghead, regtail, small, transport, company } =
     useBasicData();
   const dataCompany = Object.values(company || {});
@@ -206,7 +200,6 @@ const ReportTransports = ({ openNavbar }) => {
   const registrationSm = Object.values(small).filter(
     (item) => item.StatusTruck !== "ยกเลิก",
   );
-  // const ticket = Object.values(tickets || {});
   const trips = Object.values(trip || {}).filter((item) => {
     const deliveryDate = dayjs(item.DateDelivery, "DD/MM/YYYY");
     const receiveDate = dayjs(item.DateReceive, "DD/MM/YYYY");
@@ -235,67 +228,13 @@ const ReportTransports = ({ openNavbar }) => {
 
     return d.isSameOrAfter(dayjs("01/01/2026", "DD/MM/YYYY"), "day");
   });
-  // const ticket = Object.values(tickets || {}).filter(item => {
-  //     const itemDate = dayjs(item.Date, "DD/MM/YYYY");
-  //     return itemDate.isSameOrAfter(dayjs("01/01/2026", "DD/MM/YYYY"), 'day');
-  // });
   const driver = Object.values(drivers || {});
   const ticketsT = Object.values(customertransports || {});
-  // const trips = Object.values(trip || {});
   const registration = Object.values(reghead || {});
   const transferMoneyDetail = Object.values(transferMoney || {}).filter(
     (t) => t.Status !== "ยกเลิก",
   );
 
-  console.log(
-    "1.Orders : ",
-    Object.values(tickets || {}).filter((t) => t.CustomerType === "-"),
-  );
-  // const orderDetail = ticket
-  //     .filter((item) => {
-  //         const itemDate = dayjs(item.Date, "DD/MM/YYYY");
-  //         const customerId = Number(item.TicketName.split(":")[0]);
-  //         console.log("checks : ", check);
-  //         let isInCompany =
-  //             check === 1 ?
-  //                 ticketsB.find((customer) => customer.id === Number(item.TicketName.split(":")[0]))
-  //                 : check === 2 ?
-  //                     ticketsB.find((customer) => customer.id === Number(item.TicketName.split(":")[0]) && customer.StatusCompany === "อยู่บริษัทในเครือ")
-  //                     : ticketsB.find((customer) => customer.id === Number(item.TicketName.split(":")[0]) && customer.StatusCompany === "ไม่อยู่บริษัทในเครือ");
-
-  //         return (
-  //             isInCompany && // <--- ป้องกัน error
-  //             isInCompany.id === customerId &&
-  //             item.CustomerType === "ตั๋วรถใหญ่" &&
-  //             item.Trip !== "ยกเลิก" &&
-  //             itemDate.isBetween(selectedDateStart, selectedDateEnd, null, "[]") // "[]" คือรวมวันที่ปลายทางด้วย
-  //         );
-  //     })
-  //     .map((item) => {
-  //         let totalVolume = 0;
-  //         let totalAmount = 0;
-  //         let totalOverdue = 0;
-
-  //         const totalIncomingMoney = transferMoneyDetail
-  //             .filter(trans => trans.TicketNo === item.No)
-  //             .reduce((sum, trans) => {
-  //                 const value = parseFloat(trans.IncomingMoney) || 0;
-  //                 return sum + value;
-  //             }, 0);
-
-  //         Object.entries(item.Product).forEach(([key, value]) => {
-  //             if (key !== "P") {
-  //                 totalVolume += parseFloat(value.Volume || 0) * 1000;
-  //                 totalAmount += parseFloat(value.Amount || 0);
-  //             }
-  //         });
-  //         return {
-  //             ...item,
-  //             TotalVolume: totalVolume,
-  //             TotalAmount: totalAmount,
-  //             TotalOverdue: totalIncomingMoney,
-  //         };
-  //     }).sort((a, b) => a.TicketName.localeCompare(b.TicketName));
   const normalizeDepotName = (depotName = "") => {
     // เอาข้อความหลัง :
     const name = depotName.split(":").pop().trim();
@@ -418,42 +357,13 @@ const ReportTransports = ({ openNavbar }) => {
         return aNamePart.localeCompare(bNamePart, "th");
       });
   }, [ticket, trips, registrationH, registrationT, date, months, years]);
-  console.log("filteredOrders truck : ", filteredOrders);
 
   const orderDetail = useMemo(() => {
     if (!selectedDateStart || !selectedDateEnd) return [];
 
-    // 1. กรอง order เฉพาะที่สถานะถูกต้องและอยู่ในช่วงวันที่
-    // const filteredItems = ticket.filter((item) => {
-    //     const itemDate = dayjs(item.Date, "DD/MM/YYYY");
-    //     const isValidStatus = item.Status === "จัดส่งสำเร็จ" && item.Status !== undefined;
-    //     const isInDateRange = itemDate.isBetween(selectedDateStart, selectedDateEnd, null, "[]");
-
-    //     let isRegistration = false;
-
-    //     if (check === "0:ทั้งหมด") {
-    //         isRegistration = true;
-    //     } else {
-    //         // รถต้องอยู่ในเครือบริษัทที่เลือก
-    //         isRegistration = registration.some(
-    //             (customer) =>
-    //                 customer.Company.split(":")[0] === check.split(":")[0] &&
-    //                 customer.id === Number(item.Registration || 0)
-    //         );
-    //     }
-
-    //     // ✅ ไม่เอาตั๋วรถใหญ่และตั๋วรถเล็ก
-    //     const isValidCustomerType =
-    //         item.CustomerType !== "ตั๋วรถใหญ่" &&
-    //         item.CustomerType !== "ตั๋วรถเล็ก";
-
-    //     return isValidStatus && isInDateRange && isRegistration && isValidCustomerType;
-    // });
-
     const filteredItems = ticket.filter((item) => {
       const itemDate = dayjs(item.Date, "DD/MM/YYYY", true); // ตัวสุดท้าย true = strict
       if (!itemDate.isValid()) {
-        console.log("❌ Parse date fail:", item.Date);
       }
 
       const isValidStatus =
@@ -552,12 +462,6 @@ const ReportTransports = ({ openNavbar }) => {
             const [monthPart] = t.month.split("_"); // "2026-03"
             const [tYear, tMonth] = monthPart.split("-").map(Number); // [2026, 3]
 
-            // if (t.TicketName === "26:T...JKR  สบปราบ/ลำปาง +ส่งรูป") {
-            //   console.log(
-            //     `Checking transfer: ${t.TicketName} (${t.CustomerType}) - month: ${t.month}, parsed: ${tYear}-${tMonth}, against filter month: ${month + 1}, year: ${year - 543}`,
-            //   );
-            // }
-
             // ✅ เช็คทั้งปี ค.ศ. และเดือน
             const isMatchMonth =
               tYear === year - 543 && tMonth === Number(month) + 1;
@@ -575,11 +479,6 @@ const ReportTransports = ({ openNavbar }) => {
               baseCondition && t.Transport.split(":")[0] === check.split(":")[0]
             );
           });
-
-          console.log(
-            `Matched transfer for ${item.TicketName} (${item.CustomerType}):`,
-            matchedTrans,
-          );
 
           totalIncomingMoney = matchedTrans.reduce((sum, t) => {
             const money = parseFloat(
@@ -622,29 +521,6 @@ const ReportTransports = ({ openNavbar }) => {
 
     flattenedRef.current = flattened;
 
-    console.log(
-      "registraion : ",
-      registration.filter(
-        (row) => row.Company.split(":")[0] === check.split(":")[0],
-      ),
-    );
-    console.log(
-      "flattened : ",
-      flattened.filter(
-        (row) =>
-          row.CustomerType === "ตั๋วรับจ้างขนส่ง" &&
-          row.TicketName === "26:T...JKR  สบปราบ/ลำปาง +ส่งรูป",
-      ),
-    );
-    console.log(
-      "transferMoneyDetail.filter((t) => ",
-      transferMoneyDetail.filter(
-        (t) =>
-          t.Status !== "ยกเลิก" &&
-          t.TicketName === "26:T...JKR  สบปราบ/ลำปาง +ส่งรูป",
-      ),
-    );
-
     // 3. รวมข้อมูลที่มี TicketName เดียวกัน (เฉพาะที่อยู่ในช่วงวันที่ที่เลือกแล้วเท่านั้น)
     const merged = Object.values(
       flattened.reduce((acc, curr) => {
@@ -659,13 +535,6 @@ const ReportTransports = ({ openNavbar }) => {
           acc[key].OverdueTransfer += curr.OverdueTransfer;
           acc[key].VatOnePercent += curr.VatOnePercent;
           acc[key].TotalAmount += curr.TotalAmount;
-          // acc[key].VatOnePercent += ((curr.Amount) * 0.01);
-          // acc[key].TotalAmount += (curr.Amount) - ((curr.Amount) * 0.01);
-
-          // กรณีข้อมูลรวมอ้างอิงวันเดียว: ให้เลือกวันล่าสุดหรือแรกสุดก็ได้ (ตัวอย่างใช้วันล่าสุด)
-          // const dateA = dayjs(acc[key].Date, "DD/MM/YYYY");
-          // const dateB = dayjs(curr.Date, "DD/MM/YYYY");
-          // acc[key].Date = dateA.isAfter(dateB) ? acc[key].Date : curr.Date;
         }
 
         return acc;
@@ -694,14 +563,6 @@ const ReportTransports = ({ openNavbar }) => {
         b.TicketNameName || "",
       );
     });
-    // return merged.sort((a, b) => {
-    //     const dateA = dayjs(a.Date, "DD/MM/YYYY");
-    //     const dateB = dayjs(b.Date, "DD/MM/YYYY");
-    //     if (!dateA.isSame(dateB)) {
-    //         return dateA - dateB;
-    //     }
-    //     return (a.driver?.split(":")[1] || '').localeCompare(b.driver?.split(":")[1] || '');
-    // });
   }, [
     ticket,
     selectedDateStart,
@@ -711,8 +572,6 @@ const ReportTransports = ({ openNavbar }) => {
     check,
     registration,
   ]);
-
-  console.log("orderDetail ss : ", orderDetail);
 
   const totalAmount = orderDetail.reduce(
     (sum, item) => sum + Number(item.Amount || 0),
@@ -759,9 +618,6 @@ const ReportTransports = ({ openNavbar }) => {
 
     return sorted;
   }, [orderDetail, sortConfig]);
-
-  console.log("Order Detail : ", orderDetail);
-  console.log("Select Tickets : ", selectTickets);
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -954,82 +810,6 @@ const ReportTransports = ({ openNavbar }) => {
             Export to Excel
           </Button>
         </Grid>
-        {/* <Grid item md={5} xs={12}>
-                    <Box
-                        sx={{
-                            width: "100%", // กำหนดความกว้างของ Paper
-                            height: "40px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            // marginTop: { md: -8, xs: 2 },
-                            marginBottom: 3
-                        }}
-                    >
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePicker
-                                openTo="day"
-                                views={["year", "month", "day"]}
-                                value={selectedDateStart ? dayjs(selectedDateStart, "DD/MM/YYYY") : null}
-                                format="DD/MM/YYYY" // <-- ใช้แบบที่ MUI รองรับ
-                                onChange={handleDateChangeDateStart}
-                                slotProps={{
-                                    textField: {
-                                        size: "small",
-                                        fullWidth: true,
-                                        inputProps: {
-                                            value: formatThaiFull(selectedDateStart), // ✅ แสดงวันแบบ "1 กรกฎาคม พ.ศ.2568"
-                                            readOnly: true, // ✅ ปิดไม่ให้พิมพ์เอง เพราะใช้ format แบบ custom
-                                        },
-                                        InputProps: {
-                                            startAdornment: (
-                                                <InputAdornment position="start" sx={{ marginRight: 2 }}>
-                                                    <b>วันที่ :</b>
-                                                </InputAdornment>
-                                            ),
-                                            sx: {
-                                                fontSize: "16px",
-                                                height: "40px",
-                                                padding: "10px",
-                                                fontWeight: "bold",
-                                            },
-                                        },
-                                    },
-                                }}
-                            />
-                            <DatePicker
-                                openTo="day"
-                                views={["year", "month", "day"]}
-                                value={selectedDateEnd ? dayjs(selectedDateEnd, "DD/MM/YYYY") : null}
-                                format="DD/MM/YYYY" // <-- ใช้แบบที่ MUI รองรับ
-                                onChange={handleDateChangeDateEnd}
-                                slotProps={{
-                                    textField: {
-                                        size: "small",
-                                        fullWidth: true,
-                                        inputProps: {
-                                            value: formatThaiFull(selectedDateEnd), // ✅ แสดงวันแบบ "1 กรกฎาคม พ.ศ.2568"
-                                            readOnly: true, // ✅ ปิดไม่ให้พิมพ์เอง เพราะใช้ format แบบ custom
-                                        },
-                                        InputProps: {
-                                            startAdornment: (
-                                                <InputAdornment position="start" sx={{ marginRight: 2 }}>
-                                                    <b>ถึงวันที่ :</b>
-                                                </InputAdornment>
-                                            ),
-                                            sx: {
-                                                fontSize: "16px",
-                                                height: "40px",
-                                                padding: "10px",
-                                                fontWeight: "bold",
-                                            },
-                                        },
-                                    },
-                                }}
-                            />
-                        </LocalizationProvider>
-                    </Box>
-                </Grid> */}
       </Grid>
       <Divider sx={{ marginBottom: 2 }} />
       <Box sx={{ width: "100%" }}>
@@ -1124,33 +904,6 @@ const ReportTransports = ({ openNavbar }) => {
             </Grid>
             <Grid item sm={12} lg={3.5}>
               <Paper>
-                {/* <TextField
-                                        select
-                                        value={check}
-                                        onChange={(e) => setCheck(e.target.value)}
-                                        size="small"
-                                        fullWidth
-                                        sx={{
-                                            '& .MuiInputBase-input': { fontSize: "16px", textAlign: 'center' },
-                                        }}
-                                        InputProps={{
-                                            startAdornment: (
-                                                <InputAdornment position="start" sx={{ marginRight: 2 }}>
-                                                    <b>กรุณาเลือกบริษัท :</b>
-                                                </InputAdornment>
-                                            ),
-                                        }}
-                                    >
-                                        <MenuItem value="0:ทั้งหมด" sx={{ fontSize: "16px" }}>
-                                            ทั้งหมด
-                                        </MenuItem>
-                                        <MenuItem value="2:บริษัท นาคราปิโตรเลียม2016 จำกัด (สำนักงานใหญ่)" sx={{ fontSize: "16px" }}>
-                                            บริษัท นาคราปิโตรเลียม2016 จำกัด (สำนักงานใหญ่)
-                                        </MenuItem>
-                                        <MenuItem value="3:บริษัท พิชยาทรานสปอร์ต จำกัด (สำนักงานใหญ่)" sx={{ fontSize: "16px" }}>
-                                            บริษัท พิชยาทรานสปอร์ต จำกัด (สำนักงานใหญ่)
-                                        </MenuItem>
-                                    </TextField> */}
                 <Autocomplete
                   options={companies}
                   getOptionLabel={(option) => option.label}
@@ -1185,12 +938,6 @@ const ReportTransports = ({ openNavbar }) => {
                   )}
                 />
               </Paper>
-              {/* <FormGroup row sx={{ marginBottom: -1.5 }}>
-                                    <Typography variant="subtitle1" fontWeight="bold" sx={{ marginTop: 1, marginRight: 2 }} gutterBottom>กรุณาเลือกสถานะที่ต้องการ : </Typography>
-                                    <FormControlLabel control={<Checkbox checked={check === 1 ? true : false} />} onChange={() => setCheck(1)} label="ทั้งหมด" />
-                                    <FormControlLabel control={<Checkbox checked={check === 2 ? true : false} />} onChange={() => setCheck(2)} label="อยู่บริษัทในเครือ" />
-                                    <FormControlLabel control={<Checkbox checked={check === 3 ? true : false} />} onChange={() => setCheck(3)} label="ไม่อยู่บริษัทในเครือ" />
-                                </FormGroup> */}
             </Grid>
             <Grid item sm={12} lg={4.5}>
               <FormGroup row sx={{ marginBottom: -1.5 }}>
@@ -1350,12 +1097,6 @@ const ReportTransports = ({ openNavbar }) => {
                   </MenuItem>
                 </TextField>
               </Paper>
-              {/* <FormGroup row sx={{ marginBottom: -1.5 }}>
-                                    <Typography variant="subtitle1" fontWeight="bold" sx={{ marginTop: 1, marginRight: 2 }} gutterBottom>กรุณาเลือกสถานะที่ต้องการ : </Typography>
-                                    <FormControlLabel control={<Checkbox checked={check === 1 ? true : false} />} onChange={() => setCheck(1)} label="ทั้งหมด" />
-                                    <FormControlLabel control={<Checkbox checked={check === 2 ? true : false} />} onChange={() => setCheck(2)} label="อยู่บริษัทในเครือ" />
-                                    <FormControlLabel control={<Checkbox checked={check === 3 ? true : false} />} onChange={() => setCheck(3)} label="ไม่อยู่บริษัทในเครือ" />
-                                </FormGroup> */}
             </Grid>
             <Grid item xs={12}>
               s
@@ -1640,8 +1381,6 @@ const ReportTransports = ({ openNavbar }) => {
                 </Paper>
               </Grid>
               <Grid item xs={3}>
-                {/* <Box sx={{ display: "flex", alignItems: "center", justifyContent: "right", marginRight: 2 }}>
-                                    <Typography variant="h6" sx={{ marginRight: 1, fontWeight: "bold" }} gutterBottom>รวมลิตร</Typography> */}
                 <Paper sx={{ backgroundColor: "white" }}>
                   <TextField
                     fullWidth
@@ -1682,11 +1421,8 @@ const ReportTransports = ({ openNavbar }) => {
                     }}
                   />
                 </Paper>
-                {/* </Box> */}
               </Grid>
               <Grid item xs={3}>
-                {/* <Box sx={{ display: "flex", alignItems: "center", justifyContent: "right", marginRight: 2 }}>
-                                    <Typography variant="h6" sx={{ marginRight: 1, fontWeight: "bold" }} gutterBottom>รวมลิตร</Typography> */}
                 <Paper sx={{ backgroundColor: "white" }}>
                   <TextField
                     fullWidth
@@ -1715,21 +1451,11 @@ const ReportTransports = ({ openNavbar }) => {
                           </Typography>
                         </InputAdornment>
                       ),
-                      // endAdornment: (
-                      //     <InputAdornment position="end">
-                      //         <Typography sx={{ fontSize: '18px', fontWeight: 'bold' }}>
-                      //             บาท
-                      //         </Typography>
-                      //     </InputAdornment>
-                      // ),
                     }}
                   />
                 </Paper>
-                {/* </Box> */}
               </Grid>
               <Grid item xs={3}>
-                {/* <Box sx={{ display: "flex", alignItems: "center", justifyContent: "right", marginRight: 2 }}>
-                                    <Typography variant="h6" sx={{ marginRight: 1, fontWeight: "bold" }} gutterBottom>รวมลิตร</Typography> */}
                 <Paper sx={{ backgroundColor: "white" }}>
                   <TextField
                     fullWidth
@@ -1770,7 +1496,6 @@ const ReportTransports = ({ openNavbar }) => {
                     }}
                   />
                 </Paper>
-                {/* </Box> */}
               </Grid>
               <Grid item xs={3}></Grid>
               <Grid item xs={3}></Grid>
@@ -1815,12 +1540,6 @@ const ReportTransports = ({ openNavbar }) => {
                     }}
                   />
                 </Paper>
-                {/* <Box sx={{ display: "flex", alignItems: "center", justifyContent: "left", marginLeft: 2 }}>
-                                    <Typography variant="h6" sx={{ marginRight: 1, fontWeight: "bold" }} gutterBottom>ยอดเงิน</Typography>
-                                    <Paper>
-                                        <TextField fullWidth size="small" value={new Intl.NumberFormat("en-US").format(totalAmount)} />
-                                    </Paper>
-                                </Box> */}
               </Grid>
               <Grid item xs={3}>
                 <Paper sx={{ backgroundColor: "white" }}>

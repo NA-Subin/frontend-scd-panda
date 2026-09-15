@@ -52,8 +52,6 @@ const SellingDetail = (props) => {
         return number.toLocaleString(); // => 3000 -> "3,000"
     };
 
-    console.log("Depot : ", depots);
-
     return (
         <React.Fragment>
             <TableRow>
@@ -80,19 +78,18 @@ const SellingDetail = (props) => {
                                     }}
                                     sx={{
                                         '& .MuiOutlinedInput-root': {
-                                            height: '22px', // ปรับความสูงของ TextField
+                                            height: '22px',
                                         },
                                         '& .MuiInputBase-input': {
-                                            fontSize: '12px', // ขนาด font เวลาพิมพ์
+                                            fontSize: '12px',
                                             fontWeight: 'bold',
-                                            padding: '2px 6px', // ปรับ padding ภายใน input
+                                            padding: '2px 6px',
                                             paddingLeft: 2
                                         },
                                     }}
                                     value={detail.Rate ?? ""}
                                     onChange={(e) => {
                                         let newValue = e.target.value;
-                                        //onUpdateOrder("Rate", newValue);
                                         onUpdateOrder("Rate", newValue === "" ? "" : Number(newValue.replace(/^0+(?=\d)/, "")));
                                     }}
                                     onFocus={(e) => {
@@ -120,19 +117,18 @@ const SellingDetail = (props) => {
                                     }}
                                     sx={{
                                         '& .MuiOutlinedInput-root': {
-                                            height: '22px', // ปรับความสูงของ TextField
+                                            height: '22px',
                                         },
                                         '& .MuiInputBase-input': {
-                                            fontSize: '12px', // ขนาด font เวลาพิมพ์
+                                            fontSize: '12px',
                                             fontWeight: 'bold',
-                                            padding: '2px 6px', // ปรับ padding ภายใน input
+                                            padding: '2px 6px',
                                             paddingLeft: 2
                                         },
                                     }}
                                     value={detail.CreditTime ?? ""}
                                     onChange={(e) => {
                                         let newValue = e.target.value;
-                                        //onUpdateOrder("CreditTime", newValue);
                                         onUpdateOrder("CreditTime", newValue === "" ? "" : Number(newValue.replace(/^0+(?=\d)/, "")));
                                     }}
                                     onFocus={(e) => {
@@ -147,9 +143,6 @@ const SellingDetail = (props) => {
                             <Typography variant="subtitle2" fontSize="12px" color="black" fontWeight="bold" gutterBottom>{detail.CreditTime || "-"}</Typography>
                     }
                 </TableCell>
-                {/* <TableCell sx={{ textAlign: "center", height: "20px", width: 50 }} >
-                    <Typography variant="subtitle2" fontSize="14px" fontWeight="bold" sx={{ lineHeight: 1, margin: 0 }} gutterBottom>{detail.CreditTime}</Typography>
-                </TableCell> */}
                 <TableCellG95 sx={{ textAlign: "center", height: "20px", width: 70 }}>
                     {
                         editMode ?
@@ -163,20 +156,20 @@ const SellingDetail = (props) => {
                                     }}
                                     sx={{
                                         '& .MuiOutlinedInput-root': {
-                                            height: '22px', // ปรับความสูงของ TextField
-                                            display: 'flex', // ใช้ flexbox
-                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                            height: '22px',
+                                            display: 'flex',
+                                            alignItems: 'center',
                                         },
                                         '& .MuiInputBase-input': {
-                                            fontSize: '12px', // ขนาด font เวลาพิมพ์
+                                            fontSize: '12px',
                                             fontWeight: 'bold',
-                                            padding: '2px 6px', // ปรับ padding ภายใน input
-                                            textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                            padding: '2px 6px',
+                                            textAlign: 'center',
                                         },
                                     }}
                                     value={isFocused ? (detail.Product?.G95?.Volume || "") : formatNumber(detail.Product?.G95?.Volume || "")}
                                     onChange={(e) => {
-                                        const val = e.target.value.replace(/,/g, ""); // ลบ comma ออกถ้ามี
+                                        const val = e.target.value.replace(/,/g, "");
                                         if (/^\d*$/.test(val)) {
                                             onAddProduct("G95", "Volume", val === "" ? "" : parseInt(val, 10));
                                         }
@@ -206,20 +199,20 @@ const SellingDetail = (props) => {
                                     }}
                                     sx={{
                                         '& .MuiOutlinedInput-root': {
-                                            height: '22px', // ปรับความสูงของ TextField
-                                            display: 'flex', // ใช้ flexbox
-                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                            height: '22px',
+                                            display: 'flex',
+                                            alignItems: 'center',
                                         },
                                         '& .MuiInputBase-input': {
-                                            fontSize: '12px', // ขนาด font เวลาพิมพ์
+                                            fontSize: '12px',
                                             fontWeight: 'bold',
-                                            padding: '2px 6px', // ปรับ padding ภายใน input
+                                            padding: '2px 6px',
                                             textAlign: 'center',
                                         },
                                     }}
                                     value={isFocused ? (detail.Product?.B95?.Volume || "") : formatNumber(detail.Product?.B95?.Volume || "")}
                                     onChange={(e) => {
-                                        const val = e.target.value.replace(/,/g, ""); // ลบ comma ออกถ้ามี
+                                        const val = e.target.value.replace(/,/g, "");
                                         if (/^\d*$/.test(val)) {
                                             onAddProduct("B95", "Volume", val === "" ? "" : parseInt(val, 10));
                                         }
@@ -249,20 +242,20 @@ const SellingDetail = (props) => {
                                     }}
                                     sx={{
                                         '& .MuiOutlinedInput-root': {
-                                            height: '22px', // ปรับความสูงของ TextField
-                                            display: 'flex', // ใช้ flexbox
-                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                            height: '22px',
+                                            display: 'flex',
+                                            alignItems: 'center',
                                         },
                                         '& .MuiInputBase-input': {
-                                            fontSize: '12px', // ขนาด font เวลาพิมพ์
+                                            fontSize: '12px',
                                             fontWeight: 'bold',
-                                            padding: '2px 6px', // ปรับ padding ภายใน input
+                                            padding: '2px 6px',
                                             textAlign: 'center',
                                         },
                                     }}
                                     value={isFocused ? (detail.Product?.B7?.Volume || "") : formatNumber(detail.Product?.B7?.Volume || "")}
                                     onChange={(e) => {
-                                        const val = e.target.value.replace(/,/g, ""); // ลบ comma ออกถ้ามี
+                                        const val = e.target.value.replace(/,/g, "");
                                         if (/^\d*$/.test(val)) {
                                             onAddProduct("B7", "Volume", val === "" ? "" : parseInt(val, 10));
                                         }
@@ -292,20 +285,20 @@ const SellingDetail = (props) => {
                                     }}
                                     sx={{
                                         '& .MuiOutlinedInput-root': {
-                                            height: '22px', // ปรับความสูงของ TextField
-                                            display: 'flex', // ใช้ flexbox
-                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                            height: '22px',
+                                            display: 'flex',
+                                            alignItems: 'center',
                                         },
                                         '& .MuiInputBase-input': {
-                                            fontSize: '12px', // ขนาด font เวลาพิมพ์
+                                            fontSize: '12px',
                                             fontWeight: 'bold',
-                                            padding: '2px 6px', // ปรับ padding ภายใน input
+                                            padding: '2px 6px',
                                             textAlign: 'center',
                                         },
                                     }}
                                     value={isFocused ? (detail.Product?.G91?.Volume || "") : formatNumber(detail.Product?.G91?.Volume || "")}
                                     onChange={(e) => {
-                                        const val = e.target.value.replace(/,/g, ""); // ลบ comma ออกถ้ามี
+                                        const val = e.target.value.replace(/,/g, "");
                                         if (/^\d*$/.test(val)) {
                                             onAddProduct("G91", "Volume", val === "" ? "" : parseInt(val, 10));
                                         }
@@ -335,20 +328,20 @@ const SellingDetail = (props) => {
                                     }}
                                     sx={{
                                         '& .MuiOutlinedInput-root': {
-                                            height: '22px', // ปรับความสูงของ TextField
-                                            display: 'flex', // ใช้ flexbox
-                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                            height: '22px',
+                                            display: 'flex',
+                                            alignItems: 'center',
                                         },
                                         '& .MuiInputBase-input': {
-                                            fontSize: '12px', // ขนาด font เวลาพิมพ์
+                                            fontSize: '12px',
                                             fontWeight: 'bold',
-                                            padding: '2px 6px', // ปรับ padding ภายใน input
+                                            padding: '2px 6px',
                                             textAlign: 'center',
                                         },
                                     }}
                                     value={isFocused ? (detail.Product?.E20?.Volume || "") : formatNumber(detail.Product?.E20?.Volume || "")}
                                     onChange={(e) => {
-                                        const val = e.target.value.replace(/,/g, ""); // ลบ comma ออกถ้ามี
+                                        const val = e.target.value.replace(/,/g, "");
                                         if (/^\d*$/.test(val)) {
                                             onAddProduct("E20", "Volume", val === "" ? "" : parseInt(val, 10));
                                         }
@@ -378,20 +371,20 @@ const SellingDetail = (props) => {
                                     }}
                                     sx={{
                                         '& .MuiOutlinedInput-root': {
-                                            height: '22px', // ปรับความสูงของ TextField
-                                            display: 'flex', // ใช้ flexbox
-                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                            height: '22px',
+                                            display: 'flex',
+                                            alignItems: 'center',
                                         },
                                         '& .MuiInputBase-input': {
-                                            fontSize: '12px', // ขนาด font เวลาพิมพ์
+                                            fontSize: '12px',
                                             fontWeight: 'bold',
-                                            padding: '2px 6px', // ปรับ padding ภายใน input
+                                            padding: '2px 6px',
                                             textAlign: 'center',
                                         },
                                     }}
                                     value={isFocused ? (detail.Product?.PWD?.Volume || "") : formatNumber(detail.Product?.PWD?.Volume || "")}
                                     onChange={(e) => {
-                                        const val = e.target.value.replace(/,/g, ""); // ลบ comma ออกถ้ามี
+                                        const val = e.target.value.replace(/,/g, "");
                                         if (/^\d*$/.test(val)) {
                                             onAddProduct("PWD", "Volume", val === "" ? "" : parseInt(val, 10));
                                         }
@@ -421,19 +414,18 @@ const SellingDetail = (props) => {
                                     }}
                                     sx={{
                                         '& .MuiOutlinedInput-root': {
-                                            height: '22px', // ปรับความสูงของ TextField
+                                            height: '22px',
                                         },
                                         '& .MuiInputBase-input': {
-                                            fontSize: '12px', // ขนาด font เวลาพิมพ์
+                                            fontSize: '12px',
                                             fontWeight: 'bold',
-                                            padding: '2px 6px', // ปรับ padding ภายใน input
+                                            padding: '2px 6px',
                                             paddingLeft: 2
                                         },
                                     }}
                                     value={detail.Travel ?? ""}
                                     onChange={(e) => {
                                         let newValue = e.target.value;
-                                        //onUpdateOrder("Travel", newValue);
                                         onUpdateOrder("Travel", newValue === "" ? "" : Number(newValue.replace(/^0+(?=\d)/, "")));
                                     }}
                                     onFocus={(e) => {
@@ -454,8 +446,6 @@ const SellingDetail = (props) => {
                             <Button variant="contained" color="error" size="small" sx={{ height: "20px", width: "30px" }} onClick={onDelete}>ยกเลิก</Button>
                             : ""
                     }
-
-                    {/* <Button variant="contained" color="success" size="small" sx={{ width: 30 }} onClick={SubmitOrder}>บันทึก</Button> */}
                 </TableCell>
             </TableRow>
         </React.Fragment>

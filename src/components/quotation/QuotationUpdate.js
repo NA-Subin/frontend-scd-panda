@@ -149,7 +149,6 @@ const QuotationUpdate = ({ setOpen }) => {
         { code: "PWD", name: "ดีเซลพรีเมียม (Premium Diesel)" },
     ];
 
-    // 🧠 สร้างค่าเริ่มต้นจาก products
     const initialFuelData = Object.fromEntries(
         products.map(({ code }) => [
             code,
@@ -159,7 +158,6 @@ const QuotationUpdate = ({ setOpen }) => {
 
     const [fuelData, setFuelData] = useState(initialFuelData);
 
-    // ฟังก์ชันกรองเฉพาะค่าที่กรอกจริง ๆ
     const getFilledFuelData = (data) => {
         return Object.fromEntries(
             Object.entries(data).filter(([code, { Volume, RateOil }]) =>
@@ -169,25 +167,18 @@ const QuotationUpdate = ({ setOpen }) => {
         );
     };
 
-    // แสดงผลเฉพาะข้อมูลที่กรอก
-    console.log("fuelData:", getFilledFuelData(fuelData));
-    console.log("quotations : ", quotations);
-
     const filteredQuotations = useMemo(() => {
         return quotations.filter(q => {
-            // เอาเฉพาะข้อความหลัง ":"
             const codeText = q.Code.split(":")[1] || q.Code;
             const companyText = q.CompanyName || q.Company;
             const customerText = q.Customer.split(":")[1] || q.Customer;
 
-            // กรองตาม search
             const matchesSearch = search
                 ? codeText.toLowerCase().includes(search.toLowerCase()) ||
                 companyText.toLowerCase().includes(search.toLowerCase()) ||
                 customerText.toLowerCase().includes(search.toLowerCase())
                 : true;
 
-            // กรองตามช่วงวันที่ DateStart
             const dateStart = dayjs(q.Date, "DD/MM/YYYY");
             const matchesDate = dateStart.isSameOrAfter(selectedDateStart, 'day') &&
                 dateStart.isSameOrBefore(selectedDateEnd, 'day');
@@ -225,8 +216,6 @@ const QuotationUpdate = ({ setOpen }) => {
         });
     }, [quotations, search, selectedDateStart, selectedDateEnd, sortConfig]);
 
-    console.log("filteredQuotations : ", filteredQuotations);
-
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const quotationPageCount = Math.max(1, Math.ceil(filteredQuotations.length / rowsPerPage));
@@ -252,7 +241,6 @@ const QuotationUpdate = ({ setOpen }) => {
 
         const customerId = getIdFromString(row.Customer);
 
-        // หา object ที่ตรงกับ id
         const cn = companyDetail.find((com) => com.uuid === row.Company);
 
         const cm =
@@ -262,12 +250,10 @@ const QuotationUpdate = ({ setOpen }) => {
 
         const em = employees.find((emp) => emp.uuid === row.Employee);
 
-        // ตั้งค่า state
         setCompanies(cn);
         setCustomer(cm);
         setEmployee(em);
         setInvoice(true);
-        // เปลี่ยนหน้า
         setCheck(row.Truck === "รถใหญ่");
         setSelectedDate(dayjs(row.Date, "DD/MM/YYYY"))
         setSelectedDateDelivery(dayjs(row.DateDelivery, "DD/MM/YYYY"))
@@ -275,7 +261,7 @@ const QuotationUpdate = ({ setOpen }) => {
         setSelectedIndex(row.selectedIndex);
 
         // 🔹 merge fuelData: เติม "" ให้สินค้าที่ไม่มีค่าใน row.Product
-        const newFuelData = { ...initialFuelData }; // copy ค่า default
+        const newFuelData = { ...initialFuelData };
         Object.keys(newFuelData).forEach((code) => {
             if (row.Product?.[code]) {
                 newFuelData[code] = { ...row.Product[code] };
@@ -286,28 +272,28 @@ const QuotationUpdate = ({ setOpen }) => {
 
     const handleDateChangeDate = (newValue) => {
         if (newValue) {
-            const formattedDate = dayjs(newValue); // แปลงวันที่เป็นฟอร์แมต
+            const formattedDate = dayjs(newValue);
             setSelectedDate(formattedDate);
         }
     };
 
     const handleDateChangeDateDelivery = (newValue) => {
         if (newValue) {
-            const formattedDate = dayjs(newValue); // แปลงวันที่เป็นฟอร์แมต
+            const formattedDate = dayjs(newValue);
             setSelectedDateDelivery(formattedDate);
         }
     };
 
     const handleDateChangeDateStart = (newValue) => {
         if (newValue) {
-            const formattedDate = dayjs(newValue); // แปลงวันที่เป็นฟอร์แมต
+            const formattedDate = dayjs(newValue);
             setSelectedDateStart(formattedDate);
         }
     };
 
     const handleDateChangeDateEnd = (newValue) => {
         if (newValue) {
-            const formattedDate = dayjs(newValue); // แปลงวันที่เป็นฟอร์แมต
+            const formattedDate = dayjs(newValue);
             setSelectedDateEnd(formattedDate);
         }
     };
@@ -327,7 +313,6 @@ const QuotationUpdate = ({ setOpen }) => {
                 Truck: check ? "รถใหญ่" : "รถเล็ก",
                 Note: note,
             });
-            console.log("บันทึกข้อมูลเรียบร้อย ✅");
             ShowSuccess("บันทึกข้อมูลเรียบร้อย ✅");
             setEdit(true);
             refetch?.();
@@ -350,9 +335,7 @@ const QuotationUpdate = ({ setOpen }) => {
                     console.error("Error updating data:", error);
                 }
             },
-            () => {
-                console.log(`ยกเลิกการลบบิลลำดับที่ ${row.id + 1}`);
-            }
+            () => {}
         );
     }
 
@@ -369,9 +352,7 @@ const QuotationUpdate = ({ setOpen }) => {
                     console.error("Error updating data:", error);
                 }
             },
-            () => {
-                console.log(`ยกเลิกการลบบิลลำดับที่ ${row.id + 1}`);
-            }
+            () => {}
         );
     }
 
@@ -389,10 +370,8 @@ const QuotationUpdate = ({ setOpen }) => {
             items: items[selectedIndex] || "",
         };
 
-        // บันทึกข้อมูลลง sessionStorage
         sessionStorage.setItem("invoiceData", JSON.stringify(invoiceData));
 
-        // เปิดหน้าต่างใหม่ไปที่ /print-invoice
         const screenWidth = window.screen.width;
         const screenHeight = window.screen.height;
 
@@ -417,9 +396,6 @@ const QuotationUpdate = ({ setOpen }) => {
     return (
         <React.Fragment>
             <Grid container spacing={2} marginTop={1}>
-                {/* <Grid item xs={12}>
-                            <Typography variant="subtitle1" fontWeight="bold" sx={{ marginTop: -2, marginBottom: -1 }} gutterBottom>กรอกข้อมูลใบเสนอราคาลูกค้า</Typography>
-                        </Grid> */}
                 <Grid item xs={12} sm={12} md={12} textAlign="right">
                     <Button variant="contained" color="error" onClick={() => setOpen(true)} startIcon={<KeyboardDoubleArrowLeftIcon />} >กลับไปยังหน้าสำหรับเพิ่มข้อมูล</Button>
                 </Grid>
@@ -520,7 +496,6 @@ const QuotationUpdate = ({ setOpen }) => {
                 </Grid>
                 <Grid item xs={12} sm={2} md={1}>
                     <FormGroup row >
-                        {/* <Typography variant="subtitle1" fontWeight="bold" sx={{ marginTop: 1, marginRight: 2 }} gutterBottom>สถานะ : </Typography> */}
                         <FormControlLabel control={<Checkbox checked={cancel} />} onChange={() => setCancel(!cancel)} label="ยกเลิก" />
                     </FormGroup>
                 </Grid>
@@ -1047,40 +1022,6 @@ const QuotationUpdate = ({ setOpen }) => {
                                 </Table>
                             </TableContainer>
                         </Grid>
-                        {/* <Grid item xs={6}>
-                            <Box sx={{ marginLeft: 1 }}>
-                                <Typography variant="subtitle1" fontWeight="bold" color="error" gutterBottom>
-                                    หมายเหตุ*
-                                </Typography>
-                                <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                                    ข้อกำหนดและเงื่อนไขการขอใบเสนอราคา
-                                </Typography>
-                                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "left" }}>
-                                    <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                                        ราคาที่เสนอ :
-                                    </Typography>
-                                    <Typography variant="subtitle2" sx={{ marginLeft: 2 }} gutterBottom>
-                                        เงินบาทไทย ราคานี้รวมภาษีมูลค่าเพิ่มแล้ว
-                                    </Typography>
-                                </Box>
-                                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "left" }}>
-                                    <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                                        ชำระเงิน :
-                                    </Typography>
-                                    <Typography variant="subtitle2" sx={{ marginLeft: 2 }} gutterBottom>
-                                        {companies ? companies?.Name.split("(")[0] : ""}
-                                    </Typography>
-                                </Box>
-                                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "left" }}>
-                                    <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                                        ธนาคาร :
-                                    </Typography>
-                                    <Typography variant="subtitle2" sx={{ marginLeft: 2 }} gutterBottom>
-                                        {isBangchak ? "กสิกรไทย 663-100-9768" : "กสิกรไทย 633-101-3579"}
-                                    </Typography>
-                                </Box>
-                            </Box>
-                        </Grid> */}
                         <Grid item xs={12} sm={12} md={12} sx={{ mb: -2 }}>
                             <Typography variant="subtitle1" fontWeight="bold" color={edit ? "gray" : "black"} gutterBottom>
                                 เลือกหมายเหตุมาตรฐานที่ต้องการเพิ่มในใบเสนอราคา

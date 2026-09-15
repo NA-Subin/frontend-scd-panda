@@ -81,15 +81,10 @@ const ReportSmallTruck = () => {
     RegHead: "แสดงทั้งหมด",
     ShortName: "",
   }); // ค่าเริ่มต้นเป็น allOption
-  // const match = selectOrder.match(/\d{1,3}-\d{3,4}/);
-  // const plate = match ? match[0] : "";
-  // console.log(plate); // "70-2232"
 
   const handleChangeOrder = (event) => {
     setSelectOrder(event);
   };
-
-  console.log("Selected Order: ", selectOrder);
 
   const handleDateChangeDateStart = (newValue) => {
     if (newValue) {
@@ -126,7 +121,6 @@ const ReportSmallTruck = () => {
     };
   }, []);
 
-  // const { company, drivers, typeFinancial, order, reghead, trip } = useData();
   const { company, drivers, small, customerbigtruck, customersmalltruck } =
     useBasicData();
   const { order, trip, typeFinancial, reghead, tickets } = useTripData();
@@ -140,7 +134,6 @@ const ReportSmallTruck = () => {
   const companies = Object.values(company || {});
   const driver = Object.values(drivers || {});
   const typeF = Object.values(typeFinancial || {});
-  // const orders = Object.values(order || {});
   const orders = Object.values(order || {}).filter((item) => {
     const itemDate = dayjs(item.Date, "DD/MM/YYYY");
     return itemDate.isSameOrAfter(dayjs("01/01/2026", "DD/MM/YYYY"), "day");
@@ -150,7 +143,6 @@ const ReportSmallTruck = () => {
   const registration = Object.values(small || {}).filter(
     (item) => item.StatusTruck !== "ยกเลิก",
   );
-  // const trips = Object.values(trip || {});
   const trips = Object.values(trip || {}).filter((item) => {
     const deliveryDate = dayjs(item.DateDelivery, "DD/MM/YYYY");
     const receiveDate = dayjs(item.DateReceive, "DD/MM/YYYY");
@@ -169,41 +161,13 @@ const ReportSmallTruck = () => {
       row.StatusTrip === "จบทริป",
   );
 
-  // const matchedOrders = orders
-  //   .filter((order) => order.CustomerType === "ตั๋วรถใหญ่" && order.Status === "จัดส่งสำเร็จ" &&
-  //     customerB.some((cust) =>
-  //       cust.StatusCompany === "ไม่อยู่บริษัทในเครือ" && cust.id === Number(order.TicketName.split(":")[0])
-  //     )
-  //   ).sort((a, b) => dayjs(a.Date, "DD/MM/YYYY").toDate() - dayjs(b.Date, "DD/MM/YYYY").toDate());
-
   // แยกเฉพาะรับเข้า (จาก customerB)
 
   const customerDetails = [
     { id: "0", RegHead: "แสดงทั้งหมด", ShortName: "" }, // allOption
     ...registration,
-    // ...customerB.filter((cust) => cust.StatusCompany === "อยู่บริษัทในเครือ" && cust.Name.split(".")[0] === "S").map((item) => {
-    //         const regHeadId = item.Registration; // แยก id ก่อน :
-
-    //         const regHead = registration.find((row) => row.id === regHeadId);
-
-    //         return {
-    //             ...item,
-    //             RegistrationHead: regHead ? regHead?.RegHead : null,
-    //             ShortName: regHead ? regHead?.ShortName : null,
-    //         };
-    //     })
   ];
 
-  console.log(
-    "registration : ",
-    registration.filter((item) => item.RegHead === "ยจ.2652 ชม."),
-  );
-  console.log(
-    "orders : ",
-    orders.filter((item) => item.CustomerType === "-"),
-  );
-  console.log("customerB : ", customerB);
-  console.log("customerDetails : ", customerDetails);
   // แยกเฉพาะส่งออก (จาก trips)
   const normalizePlate = (text) => {
     const match = text?.match(/\d{1,2}-\d{3,4}/);
@@ -212,15 +176,9 @@ const ReportSmallTruck = () => {
 
   const outboundList = orders
     .filter((order) => {
-      // const orderDate = dayjs(order.Date, "DD/MM/YYYY");
-      // const isInDateRange =
-      //   orderDate.isValid() &&
-      //   orderDate.isBetween(selectedDateStart, selectedDateEnd, null, "[]");
-
       if (
         order.CustomerType !== "ตั๋วรถเล็ก" ||
         order.Status === "ยกเลิก"
-        // !isInDateRange
       ) {
         return false;
       }
@@ -242,11 +200,6 @@ const ReportSmallTruck = () => {
       type: "ส่งออก",
       ...order,
     }));
-
-  console.log(
-    "outboundList :",
-    outboundList.filter((item) => item.CustomerType === "-"),
-  );
 
   const travelSummary = {};
 
@@ -288,18 +241,6 @@ const ReportSmallTruck = () => {
 
   // แปลงกลับเป็น array ถ้าต้องการ
   const summarizedList = Object.values(travelSummary);
-
-  console.log("ผลรวม Travel ตาม Driver + Registration:", summarizedList);
-
-  console.log(
-    "order : ",
-    orders.filter((row) => row.CustomerType === "-"),
-  );
-  console.log(
-    "ticket : ",
-    ticketsdetail?.filter((row) => row.CustomerType === "-"),
-  );
-  console.log("selectOrder : ", selectOrder);
 
   const customerMap = useMemo(() => {
     const map = new Map();
@@ -493,12 +434,6 @@ const ReportSmallTruck = () => {
       TruckType: "รถใหญ่",
     };
 
-    // const carryDate = dayjs(fixedCarryIn.Date, "DD/MM/YYYY");
-
-    // const isCarryInDateRange =
-    //   carryDate.isValid() &&
-    //   carryDate.isBetween(selectedDateStart, selectedDateEnd, null, "[]");
-
     if (
       selectedRegHead === "71-1639" ||
       selectedRegHead === "แสดงทั้งหมด" ||
@@ -519,35 +454,11 @@ const ReportSmallTruck = () => {
     selectOrder,
   ]);
 
-  console.log(
-    "Matched Orders (ก่อนกรองวันที่): ",
-    matchedOrders.filter((item) => item.sourceType === "ticket"),
-  );
-
   const matchedOrdersWithAll = [...matchedOrders, ...outboundList].sort(
     (a, b) =>
       dayjs(a.Date, "DD/MM/YYYY").toDate() -
       dayjs(b.Date, "DD/MM/YYYY").toDate(),
   );
-
-  console.log("Customer Details: ", customerDetails);
-  console.log(
-    "Matched Orders: ",
-    matchedOrdersWithAll.filter((item) => {
-      const itemDate = dayjs(item.Date, "DD/MM/YYYY");
-
-      if (
-        !itemDate.isValid() ||
-        !itemDate.isBetween(selectedDateStart, selectedDateEnd, null, "[]")
-      ) {
-        return false;
-      }
-
-      return true;
-    }),
-  );
-
-  console.log("Order Filter : ", matchedOrders);
 
   const formatmonth = (dateString) => {
     if (!dateString) return "ไม่พบข้อมูลวันที่"; // ถ้า undefined หรือ null ให้คืนค่าเริ่มต้น
@@ -591,12 +502,6 @@ const ReportSmallTruck = () => {
       return acc;
     }, []);
 
-  console.log("filtered : ", filtered);
-
-  // const tripdetail = trips.find((row) => orders.find((r) => r.Trip === row.id-1));
-
-  // console.log("tripdetail : ", tripdetail.Depot);
-
   const detail = filtered.map((row) => {
     // row.Registration is a real truck_registration/truck_small uuid now,
     // not "id:plate" text - match on uuid.
@@ -609,8 +514,6 @@ const ReportSmallTruck = () => {
       Company: regInfo ? regInfo.Company : null, // ถ้าไม่เจอให้เป็น null
     };
   });
-
-  console.log("detail : ", detail);
 
   // คำนวณผลรวม
   const summary = {
@@ -693,41 +596,15 @@ const ReportSmallTruck = () => {
             balance[key] = Number(balance[key]) - Number(liters);
           }
         });
-
-      // Object.entries(order.Product || {})
-      //   .filter(([key]) => key !== "P")
-      //   .forEach(([key, product]) => {
-      //     const volume = Number(product?.Volume) || 0;
-
-      //     if (isInbound) {
-      //       balance[key] += volume;
-      //     } else {
-      //       balance[key] -= volume;
-      //     }
-      //   });
     });
 
     return { balance };
   }, [matchedOrders, outboundList, selectedDateStart]);
 
-  console.log("carryOverSummary inbound:", carryOverSummary.inbound);
-  console.log("carryOverSummary outbound:", carryOverSummary.outbound);
-  console.log("carryOverSummary balance:", carryOverSummary.balance);
-
   // คำนวณคงเหลือ
   productTypes.forEach((key) => {
     summary.balance[key] = summary.inbound[key] + summary.outbound[key];
   });
-
-  // const differenceBalanceSummary = {
-  //   balance: {},
-  // };
-
-  // productTypes.forEach((key) => {
-  //   const current = summary?.balance?.[key] || 0;
-  //   const carryOver = carryOverSummary?.balance?.[key] || 0;
-  //   differenceBalanceSummary.balance[key] = carryOver + current;
-  // });
 
   const differenceBalanceSummary = {
     balance: {},
@@ -744,19 +621,6 @@ const ReportSmallTruck = () => {
   const [driverDataNotCancel, setDriverDataNotCancel] = useState([]);
   const [data, setData] = useState([]);
   const [dataNotCancel, setDataNotCancel] = useState([]);
-
-  //setDriverData(detail);
-  //};
-
-  //useEffect(() => {
-  //    getDriver();
-  //}, []);
-
-  console.log("data : ", data);
-  console.log("Data Not Cancel : ", dataNotCancel);
-
-  console.log("carryOverSummary : ", carryOverSummary);
-  console.log("differenceBalanceSummary : ", differenceBalanceSummary);
 
   const cellComponents = {
     G95: TableCellG95,
@@ -1136,9 +1000,6 @@ const ReportSmallTruck = () => {
     );
   };
 
-  console.log("matchedOrdersWithAll : ", matchedOrdersWithAll);
-  console.log("productTypes : ", productTypes);
-
   const filteredMatchedOrders = matchedOrdersWithAll.filter((item) => {
     const itemDate = dayjs(item.Date, "DD/MM/YYYY");
 
@@ -1501,14 +1362,6 @@ const ReportSmallTruck = () => {
                 >
                   ค่าเที่ยว
                 </TablecellFinancial>
-                {/* {
-                  summarizedList.map((row) => (
-                    <TablecellFinancial sx={{ textAlign: "center", fontSize: 16, width: 200 }}>
-                      <Typography variant="subtitle2" fontSize="16px" fontWeight="bold" sx={{ whiteSpace: "nowrap", lineHeight: 1, marginTop: 1 }} gutterBottom>ค่าเที่ยว {row.DriverName}</Typography>
-                      <Typography variant="subtitle2" fontSize="16px" fontWeight="bold" sx={{ whiteSpace: "nowrap", lineHeight: 1 }} gutterBottom>{row.RegistrationName}</Typography>
-                    </TablecellFinancial>
-                  ))
-                } */}
               </TableRow>
               {renderSummaryRow(
                 "ยอดยกมา",
@@ -1614,11 +1467,6 @@ const ReportSmallTruck = () => {
                           -
                         </TableCell>
                       ))}
-                      {/* {data.map((h) => (
-                      <TableCell key={`${h.Driver}:${h.Registration}`} sx={{ textAlign: "center" }}>
-                        {row.amounts[`${h.Driver}:${h.Registration}`] || "-"}
-                      </TableCell>
-                    ))} */}
                     </TableRow>
                   ) : (
                     <TableRow
@@ -1751,14 +1599,6 @@ const ReportSmallTruck = () => {
               )}
             </TableFooter>
           </Table>
-
-          {/* <Table size="small" sx={{ tableLayout: "fixed", "& .MuiTableCell-root": { padding: "2px" }, width: "1280px" }}>
-            <TableFooter sx={{ height: "5vh", position: "sticky", bottom: 0, zIndex: 3 }}>
-              {renderSummaryRow("รวมรับเข้า", "inbound", "#e0f7fa")}
-              {renderSummaryRow("รวมส่งออก", "outbound", "#ffe0b2")}
-              {renderSummaryRow("คงเหลือ", "balance", "#f1f8e9", differenceBalanceSummary)}
-            </TableFooter>
-          </Table> */}
         </TableContainer>
         <TablePaginationBar
           count={filteredMatchedOrders.length}

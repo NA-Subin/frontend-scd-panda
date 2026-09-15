@@ -120,24 +120,6 @@ const ChartPanel = ({ title, description, height = "60vh", children }) => (
 const Dashboard = () => {
   const navigate = useNavigate();
 
-  // const { officers,
-  //   drivers,
-  //   creditors,
-  //   order,
-  //   trip,
-  //   tickets,
-  //   gasstation,
-  //   reghead,
-  //   regtail,
-  //   small,
-  //   depots,
-  //   customertransports,
-  //   customergasstations,
-  //   customerbigtruck,
-  //   customersmalltruck,
-  //   customertickets
-  // } = useData();
-
   const { order, trip, tickets, reportFinancial, report } = useTripData();
 
   const {
@@ -160,17 +142,11 @@ const Dashboard = () => {
 
   const { gasstationDetail } = useGasStationData();
 
-  // const orders = Object.values(order || {});
   const orders = Object.values(order || {}).filter((item) => {
     const itemDate = dayjs(item.Date, "DD/MM/YYYY");
     return itemDate.isSameOrAfter(dayjs("01/01/2026", "DD/MM/YYYY"), "day");
   });
 
-  console.log(
-    "show Orders : ",
-    orders.filter((item) => item.file_path !== undefined),
-  );
-  // const trips = Object.values(trip || {});
   const trips = Object.values(trip || {}).filter((item) => {
     const deliveryDate = dayjs(item.DateDelivery, "DD/MM/YYYY");
     const receiveDate = dayjs(item.DateReceive, "DD/MM/YYYY");
@@ -183,7 +159,6 @@ const Dashboard = () => {
   });
   const creditor = Object.values(creditors || {});
   const driver = Object.values(drivers || {});
-  //const ticket = Object.values(tickets || {});
   const ticket = Object.values(tickets || {}).filter((item) => {
     const itemDate = dayjs(item.Date, "DD/MM/YYYY");
     return itemDate.isSameOrAfter(dayjs("01/01/2026", "DD/MM/YYYY"), "day");
@@ -222,9 +197,9 @@ const Dashboard = () => {
   const Cbigtruck2 = Cbigtruck.filter((row) => row.Type === "เชียงราย");
   const Csmalltruck1 = Csmalltruck.filter((row) => row.Type === "เชียงใหม่");
   const Csmalltruck2 = Csmalltruck.filter((row) => row.Type === "บ้านโฮ่ง");
-  const [date, setDate] = useState(dayjs(new Date())); // เก็บชื่อเดือน
-  const [volumeAll, setVolumeAll] = useState([]); // เก็บข้อมูลทั้งหมด
-  const [checkDate, setCheckDate] = useState(false); // เก็บข้อมูลทั้งหมด
+  const [date, setDate] = useState(dayjs(new Date()));
+  const [volumeAll, setVolumeAll] = useState([]);
+  const [checkDate, setCheckDate] = useState(false);
   const [selectedTruck, setSelectedTruck] = useState([
     "รถใหญ่",
     "รถเล็ก",
@@ -235,11 +210,8 @@ const Dashboard = () => {
   );
   const [selectedFlow, setSelectedFlow] = useState(["in", "out"]);
 
-  console.log("selectedMonth : ", selectedMonth);
-
   const handleDateChangeDate = (newValue) => {
-    const monthName = newValue.format("MMMM"); // แปลงเป็นชื่อเดือนที่เลือก
-    // เตรียมโครงสร้างเก็บผลรวม
+    const monthName = newValue.format("MMMM");
     const monthOrders = {};
     const monthTickets = {};
     const monthTrips = {};
@@ -247,29 +219,25 @@ const Dashboard = () => {
     const monthTicketCancel = {};
     const monthStats = {};
 
-    const startOfMonth = newValue.startOf("month"); // วันเริ่มต้นของเดือนที่เลือก
-    const endOfMonth = newValue.endOf("month"); // วันสิ้นสุดของเดือนที่เลือก
+    const startOfMonth = newValue.startOf("month");
+    const endOfMonth = newValue.endOf("month");
 
-    // สร้างวันที่ทั้งหมดในเดือนที่เลือก
     const allDatesInMonth = [];
     let currentDate = startOfMonth;
 
-    // Loop สร้างวันที่ทั้งหมดจากวันที่เริ่มต้นถึงสิ้นเดือน
     while (currentDate.isBefore(endOfMonth) || currentDate.isSame(endOfMonth)) {
-      allDatesInMonth.push(currentDate.format("DD/MM/YYYY")); // เก็บวันที่ในรูปแบบ 'DD/MM/YYYY'
-      currentDate = currentDate.add(1, "day"); // เพิ่มวันไปทีละวัน
+      allDatesInMonth.push(currentDate.format("DD/MM/YYYY"));
+      currentDate = currentDate.add(1, "day");
     }
 
-    // Orders
     orders.forEach((o) => {
       const [day, monthStr] = o.Date.split("/");
       const monthIndex = parseInt(monthStr, 10) - 1;
       const monthName = months[monthIndex];
-      const orderDate = dayjs(o.Date, "DD/MM/YYYY"); // แปลงวันที่เป็น dayjs object
+      const orderDate = dayjs(o.Date, "DD/MM/YYYY");
 
-      // เช็คว่าเป็นวันที่ตรงกับเดือนที่เลือก
       if (allDatesInMonth.includes(orderDate.format("DD/MM/YYYY"))) {
-        const dayOnly = orderDate.format("DD"); // ใช้เพียงแค่วันที่
+        const dayOnly = orderDate.format("DD");
         if (!monthOrders[dayOnly]) {
           monthOrders[dayOnly] = { date: dayOnly, orders: 0 };
         }
@@ -278,14 +246,10 @@ const Dashboard = () => {
     });
 
     ticket.forEach((t) => {
-      // const [day, monthStr] = t.Date.split('/');
-      // const monthIndex = parseInt(monthStr, 10) - 1;
-      // const monthName = months[monthIndex];
-      const orderDate = dayjs(t.Date, "DD/MM/YYYY"); // แปลงวันที่เป็น dayjs object
+      const orderDate = dayjs(t.Date, "DD/MM/YYYY");
 
-      // เช็คว่าเป็นวันที่ตรงกับเดือนที่เลือก
       if (allDatesInMonth.includes(orderDate.format("DD/MM/YYYY"))) {
-        const dayOnly = orderDate.format("DD"); // ใช้เพียงแค่วันที่
+        const dayOnly = orderDate.format("DD");
         if (!monthTickets[dayOnly]) {
           monthTickets[dayOnly] = { date: dayOnly, ticket: 0 };
         }
@@ -295,14 +259,10 @@ const Dashboard = () => {
 
     orders.forEach((o) => {
       if (o.Trip === "ยกเลิก") {
-        // const [day, monthStr] = o.Date.split('/');
-        // const monthIndex = parseInt(monthStr, 10) - 1;
-        // const monthName = months[monthIndex];
-        const ordersDate = dayjs(o.Date, "DD/MM/YYYY"); // แปลงวันที่เป็น dayjs object
+        const ordersDate = dayjs(o.Date, "DD/MM/YYYY");
 
-        // เช็คว่าเป็นวันที่ตรงกับเดือนที่เลือก
         if (allDatesInMonth.includes(ordersDate.format("DD/MM/YYYY"))) {
-          const dayOnly = ordersDate.format("DD"); // ใช้เพียงแค่วันที่
+          const dayOnly = ordersDate.format("DD");
           if (!monthOrderCancel[dayOnly]) {
             monthOrderCancel[dayOnly] = { date: dayOnly, ordersCancel: 0 };
           }
@@ -311,17 +271,12 @@ const Dashboard = () => {
       }
     });
 
-    // Tickets
     ticket.forEach((t) => {
       if (t.Trip === "ยกเลิก") {
-        // const [day, monthStr] = t.Date.split('/');
-        // const monthIndex = parseInt(monthStr, 10) - 1;
-        // const monthName = months[monthIndex];
-        const ticketDate = dayjs(t.Date, "DD/MM/YYYY"); // แปลงวันที่เป็น dayjs object
+        const ticketDate = dayjs(t.Date, "DD/MM/YYYY");
 
-        // เช็คว่าเป็นวันที่ตรงกับเดือนที่เลือก
         if (allDatesInMonth.includes(ticketDate.format("DD/MM/YYYY"))) {
-          const dayOnly = ticketDate.format("DD"); // ใช้เพียงแค่วันที่
+          const dayOnly = ticketDate.format("DD");
           if (!monthTicketCancel[dayOnly]) {
             monthTicketCancel[dayOnly] = { date: dayOnly, ticketCancel: 0 };
           }
@@ -330,16 +285,11 @@ const Dashboard = () => {
       }
     });
 
-    // Trips
     trips.forEach((r) => {
-      // const [day, monthStr] = r.DateStart.split('/');
-      // const monthIndex = parseInt(monthStr, 10) - 1;
-      // const monthName = months[monthIndex];
-      const tripDate = dayjs(r.DateStart, "DD/MM/YYYY"); // แปลงวันที่เป็น dayjs object
+      const tripDate = dayjs(r.DateStart, "DD/MM/YYYY");
 
-      // เช็คว่าเป็นวันที่ตรงกับเดือนที่เลือก
       if (allDatesInMonth.includes(tripDate.format("DD/MM/YYYY"))) {
-        const dayOnly = tripDate.format("DD"); // ใช้เพียงแค่วันที่
+        const dayOnly = tripDate.format("DD");
         if (!monthTrips[dayOnly]) {
           monthTrips[dayOnly] = { date: dayOnly, trips: 0 };
         }
@@ -347,11 +297,10 @@ const Dashboard = () => {
       }
     });
 
-    // สร้าง array สำหรับ BarChart ตามวันที่ที่เลือก
     const fullOrders = allDatesInMonth.map((date) => {
-      const day = dayjs(date, "DD/MM/YYYY").format("DD"); // แสดงแค่วันที่
+      const day = dayjs(date, "DD/MM/YYYY").format("DD");
       return {
-        date: day, // แสดงแค่วัน
+        date: day,
         orders: monthOrders[day]?.orders || 0,
         ticket: monthTickets[day]?.ticket || 0,
         trips: monthTrips[day]?.trips || 0,
@@ -360,8 +309,8 @@ const Dashboard = () => {
       };
     });
 
-    setDate(newValue); // ตั้งค่าชื่อเดือนที่เลือก
-    setVolumeAll(fullOrders); // ตั้งค่าข้อมูลที่ใช้แสดง
+    setDate(newValue);
+    setVolumeAll(fullOrders);
     setCheckDate(true);
   };
 
@@ -397,10 +346,6 @@ const Dashboard = () => {
 
   const tripMap = Object.fromEntries(
     trips.filter((item) => item.StatusTrip === "จบทริป").map((t) => [t.id, t]),
-  );
-  console.log(
-    "show Trips : ",
-    trips.filter((item) => item.StatusTrip !== "จบทริป"),
   );
 
   const monthVolumes = {};
@@ -443,7 +388,7 @@ const Dashboard = () => {
       }
 
       return {
-        flowType: "in", // 🔥 สำคัญ
+        flowType: "in",
         tripId: t.Trip,
         truckType: trip.TruckType,
         driver: trip.DriverName ?? trip.Driver,
@@ -493,7 +438,7 @@ const Dashboard = () => {
       }
 
       return {
-        flowType: "out", // 🔥 สำคัญ
+        flowType: "out",
         tripId: o.Trip,
         truckType: trip.TruckType,
         driver: trip.DriverName ?? trip.Driver,
@@ -505,8 +450,6 @@ const Dashboard = () => {
     .filter(Boolean);
 
   const allData = [...ticketData, ...orderData];
-
-  console.log("monthVolumes : ", monthVolumes);
 
   const getDriverName = (driverStr = "") => {
     const str = String(driverStr ?? "");
@@ -525,9 +468,6 @@ const Dashboard = () => {
     .forEach((o) => {
       if (!o.Date) return;
 
-      // const date = dayjs(o.Date, 'DD/MM/YYYY');
-      // const monthKey = date.format('MM/YYYY');
-
       const trip = tripMap[Number(o.Trip) + 1];
       if (!trip) return;
 
@@ -543,15 +483,12 @@ const Dashboard = () => {
 
       const totalVolume = getTotalVolumePerRow(o);
 
-      // ✅ ใช้ key เดียวทุกประเภท
       const key = `${driver}|${registration}`;
 
-      // init เดือน
       if (!driverMonthVolumes[monthKey]) {
         driverMonthVolumes[monthKey] = {};
       }
 
-      // init group
       if (!driverMonthVolumes[monthKey][key]) {
         driverMonthVolumes[monthKey][key] = {
           driver,
@@ -561,11 +498,8 @@ const Dashboard = () => {
         };
       }
 
-      // sum
       driverMonthVolumes[monthKey][key].volume += totalVolume;
     });
-
-  console.log("driverMonthVolumes : ", driverMonthVolumes);
 
   const driverChartData = [];
 
@@ -663,8 +597,6 @@ const Dashboard = () => {
     return Array.from(months).sort(); // ["01/2026", "02/2026"]
   }, [flatDriverData]);
 
-  console.log("monthOptions : ", monthOptions);
-
   const filtered = useMemo(() => {
     return allData.filter((d) => {
       const matchTruck = selectedTruck.includes(d.truckType);
@@ -686,7 +618,7 @@ const Dashboard = () => {
       const driveName = getDriverName(d.driver);
       const regName = getRegistration(d.registration);
       const key = `${driveName} ${regName}`;
-      map[key] = (map[key] || 0) + 1; // 🔥 นับแทน volume
+      map[key] = (map[key] || 0) + 1;
     });
 
     return Object.entries(map).map(([name, count]) => ({
@@ -745,10 +677,6 @@ const Dashboard = () => {
     setCheckDate(false);
   };
 
-  console.log("trip : ", trips.length);
-  console.log("orders : ", orders);
-  console.log("date : ", date);
-
   const pieParams = {
     width: 290,
     height: 160,
@@ -778,26 +706,12 @@ const Dashboard = () => {
     "ธ.ค.",
   ];
 
-  // เตรียมโครงสร้างเก็บผลรวม
   const monthOrders = {};
   const monthTickets = {};
   const monthTrips = {};
   const monthStats = {};
   const monthOrderCancel = {};
   const monthTicketCancel = {};
-
-  // Orders
-  // orders.forEach((o) => {
-  //   const [day, monthStr] = o.Date.split('/');
-  //   const monthIndex = parseInt(monthStr, 10) - 1;
-  //   const monthName = months[monthIndex];
-
-  //   if (!monthOrders[monthName]) {
-  //     monthOrders[monthName] = { month: monthName, orders: 0 };
-  //   }
-
-  //   monthOrders[monthName].orders += 1;
-  // });
 
   orders.forEach((o) => {
     if (o.Trip === "ยกเลิก") {
@@ -813,19 +727,6 @@ const Dashboard = () => {
     }
   });
 
-  // Tickets
-  // ticket.forEach((t) => {
-  //   const [day, monthStr] = t.Date.split('/');
-  //   const monthIndex = parseInt(monthStr, 10) - 1;
-  //   const monthName = months[monthIndex];
-
-  //   if (!monthTickets[monthName]) {
-  //     monthTickets[monthName] = { month: monthName, ticket: 0 };
-  //   }
-
-  //   monthTickets[monthName].ticket += 1;
-  // });
-
   ticket.forEach((t) => {
     if (
       t.Trip === "ยกเลิก" &&
@@ -835,7 +736,6 @@ const Dashboard = () => {
       const [day, monthStr] = t.Date.split("/");
       const monthIndex = parseInt(monthStr, 10) - 1;
 
-      // ตรวจสอบว่า monthIndex อยู่ในช่วง 0-11 และ months มีข้อมูล
       if (!isNaN(monthIndex) && monthIndex >= 0 && monthIndex < 12) {
         const monthName = months[monthIndex];
 
@@ -860,7 +760,6 @@ const Dashboard = () => {
     monthTrips[monthName].trips += 1;
   });
 
-  // สร้าง array สำหรับ BarChart ครบ 12 เดือน
   const fullOrders = months.map((month) => {
     return {
       month,
@@ -873,13 +772,6 @@ const Dashboard = () => {
   });
 
   const valueFormatter = (v) => `${v?.toLocaleString?.() ?? "-"} รายการ`;
-
-  console.log("monthStats : ", monthStats);
-  console.log("monthOrders : ", monthOrders);
-  console.log("monthTickets : ", monthTickets);
-  console.log("monthTrips : ", monthTrips);
-  console.log("fullOrders : ", fullOrders);
-  console.log("volumeAll : ", volumeAll);
 
   return (
     <Container maxWidth="xl" sx={{ marginTop: 10, marginBottom: 5 }}>
@@ -900,7 +792,6 @@ const Dashboard = () => {
         </Box>
       </Stack>
       <Divider sx={{ mb: 3 }} />
-      {/* <JsonUploader /> */}
       <Grid
         container
         spacing={4}
@@ -1091,7 +982,6 @@ const Dashboard = () => {
             <Typography variant="body2" fontWeight="bold" color="text.secondary" sx={{ width: "100%" }}>
               ตัวกรองสำหรับกราฟด้านล่าง - เลือกเดือน ประเภทงาน และประเภทรถที่ต้องการดู
             </Typography>
-            {/* เดือน */}
             <TextField
               select
               value={selectedMonth}
@@ -1117,7 +1007,6 @@ const Dashboard = () => {
               <Typography fontWeight="bold">ประเภทงาน :</Typography>
 
               <FormGroup row>
-                {/* ทั้งหมด */}
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -1134,7 +1023,6 @@ const Dashboard = () => {
                   label="ทั้งหมด"
                 />
 
-                {/* รับเข้า */}
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -1151,7 +1039,6 @@ const Dashboard = () => {
                   label="รับเข้า"
                 />
 
-                {/* ส่งออก */}
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -1180,7 +1067,7 @@ const Dashboard = () => {
                     key={type}
                     control={
                       <Checkbox
-                        disabled={selectedFlow.length === 0} // 🔥 ยังไม่เลือก flow → ห้ามเลือก
+                        disabled={selectedFlow.length === 0}
                         checked={selectedTruck.includes(type)}
                         onChange={(e) => {
                           setSelectedTruck((prev) =>

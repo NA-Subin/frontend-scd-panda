@@ -72,7 +72,6 @@ const UpdateTrip = (props) => {
         driversdetail
     } = props;
 
-    console.log("Date : ", dateStart);
     const [open, setOpen] = React.useState(false);
     const dialogRef = useRef(null);
     const [html2canvasLoaded, setHtml2canvasLoaded] = useState(false);
@@ -81,8 +80,6 @@ const UpdateTrip = (props) => {
     const [selectedDateReceive, setSelectedDateReceive] = useState(dateReceive);
     const [selectedDateDelivery, setSelectedDateDelivery] = useState(dateDelivery);
     const [windowWidths, setWindowWidth] = useState(window.innerWidth);
-
-    console.log("Trip s : ", trip);
 
     // ใช้ useEffect เพื่อรับฟังการเปลี่ยนแปลงของขนาดหน้าจอ
     useEffect(() => {
@@ -117,13 +114,9 @@ const UpdateTrip = (props) => {
     const driver = Object.values(drivers || {});
     const driverDetail = driver.filter((row) => row.Registration === "0:ไม่มี" || row.Registration === registrations);
 
-    console.log("Driver Detail ", driverDetail);
-    console.log("Driver Detail ss ", driversdetail);
-
     const depotOptions = Object.values(depots || {});
     const smalls = Object.values(small || {}).filter((item) => item.StatusTruck !== "ยกเลิก");
     const registrationTruck = smalls.filter((row) => (row.Driver === "0:ไม่มี" && row.Status === "ว่าง") || row.Driver === driverss);
-    console.log("registrationTruck : ", registrationTruck);
 
     const { order: orderData, tickets: ticketsTableData, refetch: refetchTripData } = useTripData();
     const orderLength = orderData ? Object.keys(orderData).length : 0;
@@ -197,56 +190,13 @@ const UpdateTrip = (props) => {
         }
     };
 
-    // const handleSaveAsImage = async () => {
-    //     setEditMode(false); // เปลี่ยนเป็นโหมดแสดงผลแบบ Typography
-
-    //     setTimeout(async () => {
-    //         if (dialogRef.current && html2canvasLoaded) {
-    //             // ดึงค่าความสูงของ TextField และกำหนดให้ inline style
-    //             const inputElement = dialogRef.current.querySelector("input");
-    //             if (inputElement) {
-    //                 const computedStyle = window.getComputedStyle(inputElement);
-    //                 inputElement.style.height = computedStyle.height;
-    //                 inputElement.style.fontSize = computedStyle.fontSize;
-    //                 inputElement.style.fontWeight = computedStyle.fontWeight;
-    //                 inputElement.style.padding = computedStyle.padding;
-    //             }
-
-    //             // ใช้ html2canvas จับภาพ
-    //             const canvas = await window.html2canvas(dialogRef.current, {
-    //                 scrollY: 0,
-    //                 useCORS: true,
-    //                 width: dialogRef.current.scrollWidth,
-    //                 height: dialogRef.current.scrollHeight,
-    //                 scale: window.devicePixelRatio,
-    //             });
-
-    //             const image = canvas.toDataURL("image/png");
-
-    //             // สร้างลิงก์ดาวน์โหลด
-    //             const link = document.createElement("a");
-    //             link.href = image;
-    //             link.download = "บันทึกข้อมูลการขนส่งน้ำมันวันที่" + dateStart + ".png";
-    //             link.click();
-
-    //             setEditMode(true);
-    //         } else {
-    //             console.error("html2canvas ยังไม่ถูกโหลด");
-    //         }
-    //     }, 500); // รอให้ React เปลี่ยน UI ก่อนแคปภาพ
-    // };
-
     const handleClickOpen = () => {
         setOpen(true);
     };
 
-    console.log("Ticket Length : ", ticketLength);
-
     const handleCancle = () => {
         setOpen(false);
     }
-
-    console.log("Orderss : ", order.filter((row) => row.CustomerType === "-"));
 
     const [editMode, setEditMode] = useState(false);
     const [editableTickets, setEditableTickets] = useState([]);
@@ -260,9 +210,6 @@ const UpdateTrip = (props) => {
     const [depot, setDepot] = useState(depotTrip);
     const [registration, setRegistration] = useState(registrations);
 
-    console.log("registration : ", registration);
-    console.log("driver : ", driverss);
-
     useEffect(() => {
         if (ticket && ticket.length > 0) {
             setEditableTickets(ticket.map(item => ({ ...item }))); // คัดลอกข้อมูลมาใช้
@@ -271,21 +218,6 @@ const UpdateTrip = (props) => {
                 const newTickets = {};
                 ticket.forEach((item, index) => {
                     const newIndex = index + 1; // ใช้ 1-based index
-                    // const branches = [
-                    //     "( สาขาที่  00001)/",
-                    //     "( สาขาที่  00002)/",
-                    //     "( สาขาที่  00003)/",
-                    //     "( สำนักงานใหญ่)/"
-                    // ];
-
-                    // let ticketName = `${item.TicketName}`;
-                    // for (const branch of branches) {
-                    //     if (ticketName.includes(branch)) {
-                    //         ticketName = ticketName.split(branch)[1];
-                    //         break;
-                    //     }
-                    // }
-
                     newTickets[`Ticket${newIndex}`] = item.TicketName;
                 });
 
@@ -300,21 +232,6 @@ const UpdateTrip = (props) => {
                 const newOrders = {};
                 order.forEach((item, index) => {
                     const newIndex = index + 1; // ใช้ 1-based index
-                    // const branches = [
-                    //     "( สาขาที่  00001)/",
-                    //     "( สาขาที่  00002)/",
-                    //     "( สาขาที่  00003)/",
-                    //     "( สำนักงานใหญ่)/"
-                    // ];
-
-                    // let ticketName = `${item.TicketName}`;
-                    // for (const branch of branches) {
-                    //     if (ticketName.includes(branch)) {
-                    //         ticketName = ticketName.split(branch)[1];
-                    //         break;
-                    //     }
-                    // }
-
                     newOrders[`Order${newIndex}`] = item.TicketName;
                 });
 
@@ -340,21 +257,6 @@ const UpdateTrip = (props) => {
                 const newTickets = {};
                 ticket.forEach((item, index) => {
                     const newIndex = index + 1; // ใช้ 1-based index
-                    // const branches = [
-                    //     "( สาขาที่  00001)/",
-                    //     "( สาขาที่  00002)/",
-                    //     "( สาขาที่  00003)/",
-                    //     "( สำนักงานใหญ่)/"
-                    // ];
-
-                    // let ticketName = `${item.TicketName}`;
-                    // for (const branch of branches) {
-                    //     if (ticketName.includes(branch)) {
-                    //         ticketName = ticketName.split(branch)[1];
-                    //         break;
-                    //     }
-                    // }
-
                     newTickets[`Ticket${newIndex}`] = item.TicketName;
                 });
 
@@ -369,21 +271,6 @@ const UpdateTrip = (props) => {
                 const newOrders = {};
                 order.forEach((item, index) => {
                     const newIndex = index + 1; // ใช้ 1-based index
-                    // const branches = [
-                    //     "( สาขาที่  00001)/",
-                    //     "( สาขาที่  00002)/",
-                    //     "( สาขาที่  00003)/",
-                    //     "( สำนักงานใหญ่)/"
-                    // ];
-
-                    // let ticketName = `${item.TicketName}`;
-                    // for (const branch of branches) {
-                    //     if (ticketName.includes(branch)) {
-                    //         ticketName = ticketName.split(branch)[1];
-                    //         break;
-                    //     }
-                    // }
-
                     newOrders[`Order${newIndex}`] = item.TicketName;
                 });
 
@@ -415,8 +302,6 @@ const UpdateTrip = (props) => {
             const numericValue = parseFloat(value) || 0;
             obj[fields[fields.length - 1]] = numericValue;
 
-            console.log("Updated Value:", numericValue);
-
             // ถ้าเป็นการเพิ่ม Product ใหม่ และ Value > 0 ให้เพิ่มโครงสร้าง Product
             if (fields[0] === "Product" && numericValue > 0) {
                 const productType = fields[1];
@@ -429,7 +314,6 @@ const UpdateTrip = (props) => {
             // **ลบ Product ที่มี Volume เป็น 0 ออก**
             if (fields[0] === "Product" && numericValue === 0) {
                 const productType = fields[1];
-                console.log(`Removing Product: ${productType}`);
 
                 // ลบ key ของ Product
                 delete updatedTickets[index].Product[productType];
@@ -446,21 +330,6 @@ const UpdateTrip = (props) => {
 
                 allTickets.forEach((item, i) => {
                     const newIndex = i + 1; // ใช้ 1-based index
-                    // const branches = [
-                    //     "( สาขาที่  00001)/",
-                    //     "( สาขาที่  00002)/",
-                    //     "( สาขาที่  00003)/",
-                    //     "( สำนักงานใหญ่)/"
-                    // ];
-
-                    // let ticketName = `${item.TicketName}`;
-                    // for (const branch of branches) {
-                    //     if (ticketName.includes(branch)) {
-                    //         ticketName = ticketName.split(branch)[1];
-                    //         break;
-                    //     }
-                    // }
-
                     newTickets[`Ticket${newIndex}`] = item.TicketName;
                 });
 
@@ -493,8 +362,6 @@ const UpdateTrip = (props) => {
             const numericValue = parseFloat(value) || 0;
             obj[fields[fields.length - 1]] = numericValue;
 
-            console.log("Updated Value:", numericValue);
-
             // ถ้าเป็นการเพิ่ม Product ใหม่ และ Value > 0 ให้เพิ่มโครงสร้าง Product
             if (fields[0] === "Product" && numericValue > 0) {
                 const productType = fields[1];
@@ -507,7 +374,6 @@ const UpdateTrip = (props) => {
             // **ลบ Product ที่มี Volume เป็น 0 ออก**
             if (fields[0] === "Product" && numericValue === 0) {
                 const productType = fields[1];
-                console.log(`Removing Product: ${productType}`);
 
                 // ลบ key ของ Product
                 delete updatedOrders[index].Product[productType];
@@ -518,7 +384,6 @@ const UpdateTrip = (props) => {
                 }
             }
 
-            console.log("Order Length :  ", updatedOrders.length);
 
             // **อัปเดต setOrderTrip ในรูปแบบที่ต้องการ**
             setOrderTrip((prev) => {
@@ -527,21 +392,6 @@ const UpdateTrip = (props) => {
 
                 allOrders.forEach((item, i) => {
                     const newIndex = i + 1; // ใช้ 1-based index
-                    // const branches = [
-                    //     "( สาขาที่  00001)/",
-                    //     "( สาขาที่  00002)/",
-                    //     "( สาขาที่  00003)/",
-                    //     "( สำนักงานใหญ่)/"
-                    // ];
-
-                    // let ticketName = `${item.TicketName}`;
-                    // for (const branch of branches) {
-                    //     if (ticketName.includes(branch)) {
-                    //         ticketName = ticketName.split(branch)[1];
-                    //         break;
-                    //     }
-                    // }
-
                     newOrders[`Order${newIndex}`] = item.TicketName;
                 });
 
@@ -552,17 +402,12 @@ const UpdateTrip = (props) => {
         });
     };
 
-    console.log("Edit Mode : ", editMode);
-
     const handleUpdate = () => {
         setEditMode(true); // สลับโหมดแก้ไข <-> อ่านอย่างเดียว
     };
 
     const [totalVolumesTicket, setTotalVolumesTicket] = useState({});
     const [totalVolumesOrder, setTotalVolumesOrder] = useState({});
-
-    console.log("Show Total volume Ticket ", totalVolumesTicket);
-    console.log("Show Total volume Order ", totalVolumesOrder);
 
     useEffect(() => {
         // คำนวณยอดรวมของแต่ละ product ใน editableTickets
@@ -590,27 +435,6 @@ const UpdateTrip = (props) => {
                 newCostTrip = 3200 + (orderCount - 1) * 200;
             }
         }
-
-        // คำนวณน้ำมันเบาและน้ำมันหนัก
-        const calculateOil = (volume, factor) => (volume * factor) * 1000; // สูตรคำนวณน้ำมัน
-
-        // const oilLight =
-        //     calculateOil(totalsTicket["G91"], 0.740) +
-        //     calculateOil(totalsTicket["G95"], 0.740) +
-        //     calculateOil(totalsTicket["B95"], 0.740) +
-        //     calculateOil(totalsTicket["E20"], 0.740) +
-        //     calculateOil(totalsTicket["PWD"], 0.740);
-
-        // const oilHeavy =
-        //     calculateOil(totalsTicket["B7"], 0.837);
-
-        // const totalWeight = parseFloat(weightTrucks) +
-        //     calculateOil(totalsTicket["G91"], 0.740) +
-        //     calculateOil(totalsTicket["G95"], 0.740) +
-        //     calculateOil(totalsTicket["B95"], 0.740) +
-        //     calculateOil(totalsTicket["E20"], 0.740) +
-        //     calculateOil(totalsTicket["PWD"], 0.740) +
-        //     calculateOil(totalsTicket["B7"], 0.837);
 
         const totalOilT =
             totalsTicket["G91"] +
@@ -657,11 +481,6 @@ const UpdateTrip = (props) => {
             totalWeight: totalWeight
         });
 
-        // setCostTrip((prevCost) => {
-        //     console.log("🔄 Previous CostTrip:", prevCost);
-        //     console.log("✅ New CostTrip:", newCostTrip);
-        //     return newCostTrip;
-        // });
         // คำนวณผลรวมค่า Travel ทุกครั้งที่ selling เปลี่ยน
         const totalTravel = Object.values(editableOrders).reduce((sum, item) => sum + (item.Travel || 0), 0);
         setCostTrip(totalTravel);
@@ -808,13 +627,6 @@ const UpdateTrip = (props) => {
         }
     };
 
-    console.log("registration : ", registration);
-
-    console.log("Updated Cost Trip:", costTrip);
-    // console.log("Updated Oil Heavy:", totalVolumesTicket.oilHeavy);
-    // console.log("Updated Oil Light:", totalVolumesTicket.oilLight);
-    // console.log("Updated Total Weight:", totalVolumesTicket.totalWeight);
-
     const getTickets = () => {
         const tickets = [
             { Name: "ตั๋วเปล่า", TicketName: "ตั๋วเปล่า", id: 1, Rate1: 0, Rate2: 0, Rate3: 0, CustomerType: "ตั๋วเปล่า" },  // เพิ่มตั๋วเปล่าเข้าไป
@@ -836,17 +648,7 @@ const UpdateTrip = (props) => {
     const getCustomers = () => {
         if (!registration || registration === "0:0:0:0") return [];
 
-        // const selectedTruck = allTruck.find(
-        //     (item) => `${item.id}:${item.RegHead}:${item.Driver}:${item.type}` === registration
-        // );
-
-        // if (!selectedTruck) return [];
-
         const customers = [
-            // ...ticketsPS.map((item) => ({ ...item })),
-            // ...ticketsT
-            //     .filter((item) => item.Status === "ผู้รับ" || item.Status === "ตั๋ว/ผู้รับ")
-            //     .map((item) => ({ ...item })),
             ...ticketsS
                 .filter((item) => item.Status === "ลูกค้าประจำ" && item.SystemStatus !== "ไม่อยู่ในระบบ")
                 .sort((a, b) => {
@@ -855,46 +657,10 @@ const UpdateTrip = (props) => {
                     return nameA.localeCompare(nameB, "th"); // รองรับภาษาไทย
                 })
                 .map((item) => ({ ...item, CustomerType: "ตั๋วรถเล็ก" }))
-            // ...(selectedTruck.type === "รถใหญ่"
-            //     ? ticketsB.filter((item) => item.Status === "ลูกค้าประจำ").map((item) => ({ ...item })) // รถใหญ่ใช้ ticketsB
-            //     : ticketsS.filter((item) => item.Status === "ลูกค้าประจำ").map((item) => ({ ...item })) // รถเล็กใช้ ticketsS
-            //),
         ];
 
         return customers.filter((item) => item.id || item.TicketsCode);
     };
-
-    // const handleDeleteTickets = (indexToDelete) => {
-    //     console.log("Show Index Tickets : ", indexToDelete);
-
-    //     setEditableTickets((prev) => {
-    //         // แปลง object เป็น array ก่อน
-    //         const prevArray = Object.values(prev);
-
-    //         // ลบ ticket ตาม id ที่ต้องการ แล้วจัดเรียง id ใหม่
-    //         const updatedArray = prevArray
-    //             .filter((ticket) => ticket.id !== indexToDelete)
-    //             .map((ticket, index) => ({ ...ticket, id: index }));
-
-    //         return updatedArray;
-    //     });
-
-    //     setTicketTrip((prev) => {
-    //         // แปลง object เป็น array ของ entries
-    //         const entries = Object.entries(prev);
-
-    //         // กรองรายการที่ key ไม่ตรงกับ key ที่ต้องการลบ (เช่น Ticket1)
-    //         const filtered = entries.filter(([key]) => key !== `Ticket${parseInt(indexToDelete, 10) + 1}`);
-
-    //         // เรียงลำดับใหม่โดย re-index key ให้ต่อเนื่อง เริ่มจาก Ticket1
-    //         const newTicketTrip = filtered.reduce((acc, [_, value], index) => {
-    //             acc[`Ticket${index + 1}`] = value;
-    //             return acc;
-    //         }, {});
-
-    //         return newTicketTrip;
-    //     });
-    // };
 
     const handleDeleteTickets = (indexToDelete, id) => {
         const ticketIndex = Number(id) - 1;
@@ -945,9 +711,7 @@ const UpdateTrip = (props) => {
                     console.error("Error pushing data:", error);
                 }
             },
-            () => {
-                console.log(`ยกเลิกลบตั๋วที่ ${id}`);
-            }
+            () => { }
         );
     };
 
@@ -977,8 +741,6 @@ const UpdateTrip = (props) => {
     const handleDeleteOrder = (indexToDelete, id) => {
         const orderIndex = Number(id) - 1;
         const orders = order[orderIndex];
-
-        console.log("Show Index Order : ", orders);
 
         if (!orders || !orders.uuid) {
             // ลบจาก editableOrders
@@ -1027,13 +789,9 @@ const UpdateTrip = (props) => {
                     console.error("Error pushing data:", error);
                 }
             },
-            () => {
-                console.log(`ยกเลิกลบออเดอร์ที่ ${id}`);
-            }
+            () => { }
         );
     };
-
-
 
     const updateStateAfterOrderDelete = (indexToDelete, id) => {
         setEditableOrders((prev) => {
@@ -1057,40 +815,6 @@ const UpdateTrip = (props) => {
             return newOrderTrip;
         });
     };
-
-    // const handleDeleteOrder = (indexToDelete) => {
-    //     setEditableOrders((prev) => {
-    //         // แปลง object เป็น array ก่อน
-    //         const prevArray = Object.values(prev);
-
-    //         // ลบ order ตาม id ที่ต้องการ แล้วจัดเรียง id ใหม่
-    //         const updatedArray = prevArray
-    //             .filter((order) => order.id !== indexToDelete)
-    //             .map((order, index) => ({ ...order, id: index }));
-
-    //         return updatedArray;
-    //     });
-
-    //     setOrderTrip((prev) => {
-    //         // แปลง object เป็น array ของ entries
-    //         const entries = Object.entries(prev);
-
-    //         // กรองรายการที่ key ไม่ตรงกับ key ที่ต้องการลบ (เช่น Order1)
-    //         const filtered = entries.filter(([key]) => key !== `Order${parseInt(indexToDelete, 10) + 1}`);
-
-    //         // เรียงลำดับใหม่โดย re-index key ให้ต่อเนื่อง เริ่มจาก Order1
-    //         const newOrderTrip = filtered.reduce((acc, [_, value], index) => {
-    //             acc[`Order${index + 1}`] = value;
-    //             return acc;
-    //         }, {});
-
-    //         return newOrderTrip;
-    //     });
-
-    // };
-
-    console.log("registration before change status : ", registration);
-
 
     const handleChangeStatus = () => {
         const selectedTruck = resolveTruckSmall(registration);
@@ -1130,9 +854,7 @@ const UpdateTrip = (props) => {
                     ShowError("เกิดข้อผิดพลาดในการบันทึก");
                 }
             },
-            () => {
-                console.log("ยกเลิกลบตั๋ว");
-            }
+            () => { }
         );
     };
 
@@ -1174,9 +896,7 @@ const UpdateTrip = (props) => {
                     ShowError("เกิดข้อผิดพลาดในการบันทึก");
                 }
             },
-            () => {
-                console.log("ยกเลิกลบตั๋ว");
-            }
+            () => { }
         )
     }
 
@@ -1184,32 +904,23 @@ const UpdateTrip = (props) => {
         const registrationValue = event;
         setRegistration(registrationValue);
         setWeightTrucks(weight);
-        console.log("show registration : ", registrationValue);
 
         if (Object.keys(editableTickets).length > 0) {
-            // const driver = `${registrationValue.split(":")[0]}:${registrationValue.split(":")[1]}`;
-            // const registration = `${registrationValue.split(":")[2]}:${registrationValue.split(":")[3]}`;
-
             const updatedTicketsArray = Object.values(editableTickets).map((item) => ({
                 ...item,
                 Registration: registrationValue,
             }));
 
-            // ถ้าคุณต้องการ set เป็น array:
             setEditableTickets(updatedTicketsArray);
         }
 
         // ตรวจสอบว่า selling ไม่ใช่ object ว่าง
         if (Object.keys(editableOrders).length > 0) {
-            // const driver = `${registrationValue.split(":")[0]}:${registrationValue.split(":")[1]}`;
-            // const registration = `${registrationValue.split(":")[2]}:${registrationValue.split(":")[3]}`;
-
             const updatedOrdersArray = Object.values(editableOrders).map((item) => ({
                 ...item,
                 Registration: registrationValue
             }));
 
-            // ถ้าคุณต้องการ set เป็น array:
             setEditableOrders(updatedOrdersArray);
         }
     }
@@ -1217,41 +928,26 @@ const UpdateTrip = (props) => {
     const handleDriver = (event) => {
         const driversValue = event;
         setDriverss(driversValue);
-        console.log("show drivers : ", driversValue);
 
         if (Object.keys(editableTickets).length > 0) {
-            // const driver = `${registrationValue.split(":")[0]}:${registrationValue.split(":")[1]}`;
-            // const registration = `${registrationValue.split(":")[2]}:${registrationValue.split(":")[3]}`;
-
             const updatedTicketsArray = Object.values(editableTickets).map((item) => ({
                 ...item,
                 Driver: driversValue,
             }));
 
-            // ถ้าคุณต้องการ set เป็น array:
             setEditableTickets(updatedTicketsArray);
         }
 
         // ตรวจสอบว่า selling ไม่ใช่ object ว่าง
         if (Object.keys(editableOrders).length > 0) {
-            // const driver = `${registrationValue.split(":")[0]}:${registrationValue.split(":")[1]}`;
-            // const registration = `${registrationValue.split(":")[2]}:${registrationValue.split(":")[3]}`;
-
             const updatedOrdersArray = Object.values(editableOrders).map((item) => ({
                 ...item,
                 Driver: driversValue,
             }));
 
-            // ถ้าคุณต้องการ set เป็น array:
             setEditableOrders(updatedOrdersArray);
         }
     }
-
-    console.log("Updated Tickets : ", editableTickets);
-    console.log("Updated Orders : ", editableOrders);
-    console.log("Depot : ", depot);
-
-    console.log("Trip Detail : ", trip);
 
     return (
         <React.Fragment>
@@ -1263,7 +959,6 @@ const UpdateTrip = (props) => {
                             <LocationOffIcon />
                         </IconButton>
                     </Tooltip>
-                    // <Button variant="contained" size="small" color="success" sx={{ height: 20,marginRight: 0.5 }} onClick={handleChangeStatus}>จบทริป</Button>
                 }
                 {
                     trip.StatusTrip !== "จบทริป" && trip.StatusTrip !== "ยกเลิก" &&
@@ -1272,9 +967,7 @@ const UpdateTrip = (props) => {
                             <WhereToVoteIcon />
                         </IconButton>
                     </Tooltip>
-                    // <Button variant="contained" size="small" color="success" sx={{ height: 20,marginRight: 0.5 }} onClick={handleChangeStatus}>จบทริป</Button>
                 }
-                {/* <Button variant="contained" size="small" color="info" sx={{ height: 20 }} onClick={handleClickOpen}>ตรวจสอบ</Button> */}
                 <Tooltip title="กดเพื่อดูรายละเอียด" placement="bottom">
                     <IconButton color="info" size="small" onClick={handleClickOpen}>
                         <FmdBadIcon />
@@ -1402,7 +1095,6 @@ const UpdateTrip = (props) => {
                                                             onChange={(event, newValue) => {
                                                                 if (newValue) {
                                                                     const value = `${newValue.id}:${newValue.RegHead}`;
-                                                                    console.log("Truck : ", value);
                                                                     handleRegistration(value, newValue.Weight)
                                                                 } else {
                                                                     setRegistration("0:0");
@@ -1495,71 +1187,9 @@ const UpdateTrip = (props) => {
                                                 </Typography>
 
                                             </Grid>
-                                            {/* <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginRight: 1, marginTop: 1, color: theme.palette.success.dark }} gutterBottom>ตั๋วน้ำมัน</Typography>
-                                            <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginRight: 5, marginTop: 1 }} gutterBottom>วันที่รับ : {trip.DateReceive}</Typography>
-                                            <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginTop: 1 }} gutterBottom>ผู้ขับ/ป้ายทะเบียน :
-                                                {
-                                                    trip.Driver !== undefined &&
-                                                        trip.DriverName !== undefined ?
-                                                        trip.DriverName
-                                                        :
-                                                        trip.Driver
-                                                }/
-                                                {
-                                                    trip.Registration !== undefined &&
-                                                        trip.RegistrationName !== undefined ?
-                                                        trip.RegistrationName
-                                                        :
-                                                        trip.Registration
-                                                }
-                                            </Typography> */}
                                         </Grid>
                                 }
                             </Grid>
-                            {/* {
-                                editMode &&
-                                <Grid item sm={3.5} xs={12} display="flex" justifyContent="center" alignItems="center">
-                                    <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: "nowrap", marginRight: 0.5 }} gutterBottom>คลังรับน้ำมัน</Typography>
-                                    <Paper
-                                        component="form"
-                                        sx={{ height: "30px", width: "100%" }}
-                                    >
-                                        <Autocomplete
-                                            id="depot-autocomplete"
-                                            options={depotOptions}
-                                            getOptionLabel={(option) => `${option.Name}`}
-                                            value={depotOptions.find((d) => d.Name + ":" + d.Zone === depot) || null}
-                                            onChange={(event, newValue) => {
-                                                setDepot(newValue ? `${newValue.Name}:${newValue.Zone}` : '')
-                                            }}
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    label={depot === "" ? "กรุณาเลือกคลัง" : ""} // เปลี่ยน label กลับหากไม่เลือก
-                                                    variant="outlined"
-                                                    size="small"
-                                                    sx={{
-                                                        "& .MuiOutlinedInput-root": { height: "30px" },
-                                                        "& .MuiInputBase-input": { fontSize: "16px", marginLeft: -1 },
-                                                    }}
-                                                />
-                                            )}
-                                            sx={{
-                                                "& .MuiOutlinedInput-root": { height: "30px" },
-                                                "& .MuiInputBase-input": {
-                                                    fontSize: "16px",
-                                                    padding: "2px 6px",
-                                                },
-                                            }}
-                                            renderOption={(props, option) => (
-                                                <li {...props}>
-                                                    <Typography fontSize="16px">{option.Name}</Typography>
-                                                </li>
-                                            )}
-                                        />
-                                    </Paper>
-                                </Grid>
-                            } */}
                         </Grid>
                         <Paper
                             sx={{ p: 1, backgroundColor: "lightgray", marginBottom: 1 }}
@@ -1709,35 +1339,6 @@ const UpdateTrip = (props) => {
                                                         </TableCell>
 
 
-                                                        {/* OrderID */}
-                                                        {/* <TableCell sx={{ textAlign: "center", height: "25px", padding: "1px 4px", width: 150 }}>
-                                                            {editMode ? (
-                                                                <TextField
-                                                                    value={row.OrderID}
-                                                                    fullWidth
-                                                                    InputLabelProps={{
-                                                                        sx: {
-                                                                            fontSize: '12px',
-                                                                        },
-                                                                    }}
-                                                                    sx={{
-                                                                        '& .MuiOutlinedInput-root': {
-                                                                            height: '22px', // ปรับความสูงของ TextField
-                                                                        },
-                                                                        '& .MuiInputBase-input': {
-                                                                            fontSize: '12px', // ขนาด font เวลาพิมพ์
-                                                                            fontWeight: 'bold',
-                                                                            padding: '2px 6px', // ปรับ padding ภายใน input
-                                                                            paddingLeft: 2
-                                                                        },
-                                                                    }}
-                                                                    onChange={(e) => handleEditChange(rowIdx, "OrderID", e.target.value)}
-                                                                />
-                                                            ) : (
-                                                                <Typography variant="subtitle2" fontSize="14px" fontWeight="bold">{row.OrderID}</Typography>
-                                                            )}
-                                                        </TableCell>
-
                                                         <TableCell sx={{ textAlign: "center", height: "25px", padding: "1px 4px", width: 100 }}>
                                                             {editMode ? (
                                                                 depot.split(":")[1] === "ลำปาง" ?
@@ -1752,12 +1353,12 @@ const UpdateTrip = (props) => {
                                                                         }}
                                                                         sx={{
                                                                             '& .MuiOutlinedInput-root': {
-                                                                                height: '22px', // ปรับความสูงของ TextField
+                                                                                height: '22px',
                                                                             },
                                                                             '& .MuiInputBase-input': {
-                                                                                fontSize: '12px', // ขนาด font เวลาพิมพ์
+                                                                                fontSize: '12px',
                                                                                 fontWeight: 'bold',
-                                                                                padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                                padding: '2px 6px',
                                                                                 paddingLeft: 2
                                                                             },
                                                                         }}
@@ -1775,12 +1376,12 @@ const UpdateTrip = (props) => {
                                                                             }}
                                                                             sx={{
                                                                                 '& .MuiOutlinedInput-root': {
-                                                                                    height: '22px', // ปรับความสูงของ TextField
+                                                                                    height: '22px',
                                                                                 },
                                                                                 '& .MuiInputBase-input': {
-                                                                                    fontSize: '12px', // ขนาด font เวลาพิมพ์
+                                                                                    fontSize: '12px',
                                                                                     fontWeight: 'bold',
-                                                                                    padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                                    padding: '2px 6px',
                                                                                     paddingLeft: 2
                                                                                 },
                                                                             }}
@@ -1798,12 +1399,12 @@ const UpdateTrip = (props) => {
                                                                                 }}
                                                                                 sx={{
                                                                                     '& .MuiOutlinedInput-root': {
-                                                                                        height: '22px', // ปรับความสูงของ TextField
+                                                                                        height: '22px',
                                                                                     },
                                                                                     '& .MuiInputBase-input': {
-                                                                                        fontSize: '12px', // ขนาด font เวลาพิมพ์
+                                                                                        fontSize: '12px',
                                                                                         fontWeight: 'bold',
-                                                                                        padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                                        padding: '2px 6px',
                                                                                         paddingLeft: 2
                                                                                     },
                                                                                 }}
@@ -2000,114 +1601,6 @@ const UpdateTrip = (props) => {
                                         </Paper>
                                     </Grid>
                                 }
-                                {/* <Grid item sm={editMode ? 2 : 3} xs={6} display="flex" alignItems="center" justifyContent="center">
-                                    <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: "nowrap", marginRight: 0.5, marginTop: 0.5 }} gutterBottom>น้ำมันหนัก</Typography>
-                                    <Paper
-                                        component="form">
-                                        <TextField size="small" fullWidth
-                                            sx={{
-                                                '& .MuiOutlinedInput-root': {
-                                                    height: '30px', // ปรับความสูงของ TextField
-                                                    display: 'flex', // ใช้ flexbox
-                                                    alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
-                                                },
-                                                '& .MuiInputBase-input': {
-                                                    fontSize: '16px', // ขนาด font เวลาพิมพ์
-                                                    fontWeight: 'bold',
-                                                    padding: '1px 4px', // ปรับ padding ภายใน input
-                                                    textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
-                                                },
-                                                borderRadius: 10
-                                            }}
-                                            value={new Intl.NumberFormat("en-US", {
-                                                minimumFractionDigits: 2,
-                                                maximumFractionDigits: 2,
-                                            }).format(parseFloat(editMode ? totalVolumesTicket.oilHeavy : trip.WeightHigh))}
-                                        />
-                                    </Paper>
-                                </Grid>
-                                <Grid item sm={editMode ? 2 : 3} xs={6} display="flex" alignItems="center" justifyContent="center">
-                                    <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: "nowrap", marginRight: 0.5, marginTop: 0.5 }} gutterBottom>น้ำมันเบา</Typography>
-                                    <Paper
-                                        component="form">
-                                        <TextField size="small" fullWidth
-                                            sx={{
-                                                '& .MuiOutlinedInput-root': {
-                                                    height: '30px', // ปรับความสูงของ TextField
-                                                    display: 'flex', // ใช้ flexbox
-                                                    alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
-                                                },
-                                                '& .MuiInputBase-input': {
-                                                    fontSize: '16px', // ขนาด font เวลาพิมพ์
-                                                    fontWeight: 'bold',
-                                                    padding: '1px 4px', // ปรับ padding ภายใน input
-                                                    textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
-                                                },
-                                                borderRadius: 10
-                                            }}
-                                            value={new Intl.NumberFormat("en-US", {
-                                                minimumFractionDigits: 2,
-                                                maximumFractionDigits: 2,
-                                            }).format(parseFloat(editMode ? totalVolumesTicket.oilLight : trip.WeightLow))}
-                                        />
-                                    </Paper>
-                                </Grid>
-                                <Grid item sm={editMode ? 2 : 3} xs={6} display="flex" justifyContent="center" alignItems="center">
-                                    <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: "nowrap", marginRight: 0.5, marginTop: 0.5 }} gutterBottom>น้ำหนักรถ</Typography>
-                                    <Paper
-                                        component="form">
-                                        <TextField size="small" fullWidth
-                                            sx={{
-                                                '& .MuiOutlinedInput-root': {
-                                                    height: '30px', // ปรับความสูงของ TextField
-                                                    display: 'flex', // ใช้ flexbox
-                                                    alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
-                                                },
-                                                '& .MuiInputBase-input': {
-                                                    fontSize: '16px', // ขนาด font เวลาพิมพ์
-                                                    fontWeight: 'bold',
-                                                    padding: '1px 4px', // ปรับ padding ภายใน input
-                                                    textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
-                                                },
-                                                borderRadius: 10
-                                            }}
-                                            value={new Intl.NumberFormat("en-US", {
-                                                minimumFractionDigits: 2,
-                                                maximumFractionDigits: 2,
-                                            }).format(parseFloat(weightTrucks))}
-                                        />
-                                    </Paper>
-                                </Grid>
-                                {
-                                    !editMode &&
-                                    <Grid item sm={3} xs={6} display="flex" justifyContent="center" alignItems="center">
-                                        <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: "nowrap", marginRight: 0.5, marginTop: 0.5 }} gutterBottom>รวม</Typography>
-                                        <Paper
-                                            component="form" sx={{ width: "100%" }}>
-                                            <TextField size="small" fullWidth
-                                                sx={{
-                                                    '& .MuiOutlinedInput-root': {
-                                                        height: '30px', // ปรับความสูงของ TextField
-                                                        display: 'flex', // ใช้ flexbox
-                                                        alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
-                                                    },
-                                                    '& .MuiInputBase-input': {
-                                                        fontSize: '16px', // ขนาด font เวลาพิมพ์
-                                                        fontWeight: 'bold',
-                                                        padding: '1px 4px', // ปรับ padding ภายใน input
-                                                        textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
-                                                        paddingLeft: 2
-                                                    },
-                                                    borderRadius: 10
-                                                }}
-                                                value={new Intl.NumberFormat("en-US", {
-                                                    minimumFractionDigits: 2,
-                                                    maximumFractionDigits: 2,
-                                                }).format(editMode ? totalVolumesTicket.totalWeight : totalWeight)}
-                                            />
-                                        </Paper>
-                                    </Grid>
-                                } */}
                             </Grid>
                         </Paper>
                         <Grid container spacing={1}>
@@ -2178,23 +1671,6 @@ const UpdateTrip = (props) => {
                                                     <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginRight: 1, marginTop: 1 }} gutterBottom>ผู้ขับ/ป้ายทะเบียน</Typography>
                                                     <Paper
                                                         component="form" sx={{ height: "30px", width: "100%" }}>
-                                                        {/* <TextField size="small" fullWidth disabled
-                                                            sx={{
-                                                                "& .MuiOutlinedInput-root": { height: "30px" },
-                                                                "& .MuiInputBase-input": {
-                                                                    fontSize: "16px",
-                                                                    padding: "1px 4px",
-                                                                },
-                                                                borderRadius: 10
-                                                            }}
-                                                            value={(() => {
-                                                                const selectedItem = registrationTruck.find(item =>
-                                                                    `${item.Driver}:${item.id}:${item.RegHead}` === registration
-                                                                );
-                                                                return selectedItem && selectedItem.Driver !== "ไม่มี" &&
-                                                                    `${selectedItem.Driver ? selectedItem.DriverName : ""} : ${selectedItem.RegHead ? selectedItem.RegHead : ""}/${selectedItem.RegTail ? selectedItem.RegTail : ""} (รถเล็ก)`;
-                                                            })()}
-                                                        /> */}
                                                         <TextField size="small" fullWidth disabled
                                                             sx={{
                                                                 "& .MuiOutlinedInput-root": { height: "30px" },
@@ -2280,62 +1756,8 @@ const UpdateTrip = (props) => {
 
                                             </Grid>
                                         </Grid>
-                                    // <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginRight: 1, marginTop: 1, color: theme.palette.info.dark }} gutterBottom>จัดเที่ยววิ่ง</Typography>
-                                    // <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginRight: 5, marginTop: 1 }} gutterBottom>วันที่ส่ง : {trip.DateDelivery}</Typography>
-                                    // <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginTop: 1 }} gutterBottom>ผู้ขับ/ป้ายทะเบียน :
-                                    //     {
-                                    //         trip.Driver !== undefined &&
-                                    //             trip.DriverName !== undefined ?
-                                    //             trip.DriverName
-                                    //             :
-                                    //             trip.Driver
-                                    //     }/
-                                    //     {
-                                    //         trip.Registration !== undefined &&
-                                    //             trip.RegistrationName !== undefined ?
-                                    //             trip.RegistrationName
-                                    //             :
-                                    //             trip.Registration
-                                    //     }
-                                    // </Typography>
-
                                 }
                             </Grid>
-                            {/* {
-                                editMode &&
-                                <Grid item sm={2.5} xs={12}>
-                                    <Box sx={{ backgroundColor: editMode ? (totalVolumesTicket.totalWeight || totalWeight) > 50300 ? "red" : "lightgray" : totalWeight > 50300 ? "red" : "lightgray", display: "flex", justifyContent: "center", alignItems: "center", p: 0.5, marginTop: -1, borderBottomLeftRadius: 5, borderBottomRightRadius: 5 }}>
-                                        <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: "nowrap", marginRight: 0.5, marginTop: 1 }} gutterBottom>รวม</Typography>
-                                        <Paper
-                                            component="form" sx={{ width: "100%" }}>
-                                            <TextField size="small" fullWidth
-                                                sx={{
-                                                    '& .MuiOutlinedInput-root': {
-                                                        height: '30px', // ปรับความสูงของ TextField
-                                                        display: 'flex', // ใช้ flexbox
-                                                        alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
-                                                    },
-                                                    '& .MuiInputBase-input': {
-                                                        fontSize: '16px', // ขนาด font เวลาพิมพ์
-                                                        fontWeight: 'bold',
-                                                        padding: '1px 4px', // ปรับ padding ภายใน input
-                                                        textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
-                                                        paddingLeft: 2
-                                                    },
-                                                    borderRadius: 10
-                                                }}
-                                                value={new Intl.NumberFormat("en-US", {
-                                                    minimumFractionDigits: 2,
-                                                    maximumFractionDigits: 2,
-                                                }).format(editMode ? (totalVolumesTicket.totalWeight) : totalWeight)}
-                                            // InputProps={{
-                                            //     endAdornment: <InputAdornment position="end">กก.</InputAdornment>, // เพิ่ม endAdornment ที่นี่
-                                            // }}
-                                            />
-                                        </Paper>
-                                    </Box>
-                                </Grid>
-                            } */}
                         </Grid>
                         <Paper sx={{ backgroundColor: theme.palette.panda.contrastText, p: 1 }}>
                             <Paper
@@ -2424,40 +1846,9 @@ const UpdateTrip = (props) => {
                                                         </TableCell>
 
                                                         <TableCell sx={{ textAlign: "left", height: "25px", padding: "1px 4px", width: 240 }}>
-                                                            {/* {editMode ? (
-                                                            <TextField
-                                                                value={editableOrders[rowIdx]?.TicketName || ""}
-                                                                fullWidth
-                                                                sx={{
-                                                                    '& .MuiOutlinedInput-root': { height: '22px' },
-                                                                    '& .MuiInputBase-input': { fontSize: '12px', fontWeight: 'bold', padding: '2px 6px', paddingLeft: 2 }
-                                                                }}
-                                                                onChange={(e) => handleOrderChange(rowIdx, "TicketName", e.target.value)}
-                                                            />
-                                                        ) : (
-                                                            <Typography variant="subtitle2" fontSize="14px" fontWeight="bold">
-                                                                {row.TicketName.includes("/") ? row.TicketName.split("/")[1] : row.TicketName}
-                                                            </Typography>
-                                                        )} */}
                                                             <Box sx={{ marginLeft: 2 }}>
                                                                 <Typography variant="subtitle2" fontSize="14px" fontWeight="bold">
                                                                     {
-                                                                        // (() => {
-                                                                        //     const branches = [
-                                                                        //         "( สาขาที่  00001)/",
-                                                                        //         "( สาขาที่  00002)/",
-                                                                        //         "( สาขาที่  00003)/",
-                                                                        //         "(สำนักงานใหญ่)/"
-                                                                        //     ];
-
-                                                                        //     for (const branch of branches) {
-                                                                        //         if (row.TicketName.includes(branch)) {
-                                                                        //             return row.TicketName.split(branch)[1];
-                                                                        //         }
-                                                                        //     }
-
-                                                                        //     return row.TicketName;
-                                                                        // })()
                                                                         row.TicketNameName || row.TicketName
                                                                     }
                                                                 </Typography>
@@ -2466,40 +1857,6 @@ const UpdateTrip = (props) => {
 
                                                         <TableCell sx={{ textAlign: "center", height: "25px", padding: "1px 4px", width: 60 }}>
                                                             {editMode ? (
-                                                                // depot.split(":")[1] === "ลำปาง" ?
-                                                                //     <TextField
-                                                                //         value={editableOrders[rowIdx]?.Rate1 || ""}
-                                                                //         type="number"
-                                                                //         fullWidth
-                                                                //         sx={{
-                                                                //             '& .MuiOutlinedInput-root': { height: '22px' },
-                                                                //             '& .MuiInputBase-input': { fontSize: '12px', fontWeight: 'bold', padding: '2px 6px', paddingLeft: 2 }
-                                                                //         }}
-                                                                //         onChange={(e) => handleOrderChange(rowIdx, "Rate1", e.target.value)}
-                                                                //     />
-                                                                //     : depot.split(":")[1] === "พิจิตร" ?
-                                                                //         <TextField
-                                                                //             value={editableOrders[rowIdx]?.Rate2 || ""}
-                                                                //             type="number"
-                                                                //             fullWidth
-                                                                //             sx={{
-                                                                //                 '& .MuiOutlinedInput-root': { height: '22px' },
-                                                                //                 '& .MuiInputBase-input': { fontSize: '12px', fontWeight: 'bold', padding: '2px 6px', paddingLeft: 2 }
-                                                                //             }}
-                                                                //             onChange={(e) => handleOrderChange(rowIdx, "Rate2", e.target.value)}
-                                                                //         />
-                                                                //         : depot.split(":")[1] === "สระบุรี" || depot.split(":")[1] === "บางปะอิน" || depot.split(":")[1] === "IR" ?
-                                                                //             <TextField
-                                                                //                 value={editableOrders[rowIdx]?.Rate3 || ""}
-                                                                //                 type="number"
-                                                                //                 fullWidth
-                                                                //                 sx={{
-                                                                //                     '& .MuiOutlinedInput-root': { height: '22px' },
-                                                                //                     '& .MuiInputBase-input': { fontSize: '12px', fontWeight: 'bold', padding: '2px 6px', paddingLeft: 2 }
-                                                                //                 }}
-                                                                //                 onChange={(e) => handleOrderChange(rowIdx, "Rate3", e.target.value)}
-                                                                //             />
-                                                                //             : ""
                                                                 <TextField
                                                                     value={editableOrders[rowIdx]?.Rate || ""}
                                                                     type="number"
@@ -2512,12 +1869,6 @@ const UpdateTrip = (props) => {
                                                                 />
                                                             ) : (
                                                                 <Typography variant="subtitle2" fontSize="14px" fontWeight="bold">
-                                                                    {/* {
-                                                                        depot.split(":")[1] === "ลำปาง" ? row.Rate1
-                                                                            : depot.split(":")[1] === "พิจิตร" ? row.Rate2
-                                                                                : depot.split(":")[1] === "สระบุรี" || depot.split(":")[1] === "บางปะอิน" || depot.split(":")[1] === "IR" ? row.Rate3
-                                                                                    : ""
-                                                                    } */}
                                                                     {row.Rate}
                                                                 </Typography>
                                                             )}
@@ -2728,7 +2079,6 @@ const UpdateTrip = (props) => {
                                                     isOptionEqualToValue={(option, value) => option.Name === value.Name} // ตรวจสอบค่าที่เลือก
                                                     onChange={(event, newValue) => {
                                                         if (newValue) {
-                                                            console.log("customer : ", getCustomers());
                                                             setEditableOrders((prev) => {
                                                                 const updatedOrders = [...prev];
 
@@ -2800,30 +2150,6 @@ const UpdateTrip = (props) => {
                                             </Paper>
                                         </Grid>
                                     </>
-                                    // :
-                                    // <Grid item sm={4} xs={12} display="flex" justifyContent="center" alignItems="center">
-                                    //     <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: "nowrap", marginRight: 0.5 }} gutterBottom>คลังรับน้ำมัน</Typography>
-                                    //     <Paper sx={{ width: "100%", marginTop: -0.5 }}
-                                    //         component="form">
-                                    //         <TextField size="small" fullWidth
-                                    //             sx={{
-                                    //                 '& .MuiOutlinedInput-root': {
-                                    //                     height: '30px', // ปรับความสูงของ TextField
-                                    //                     display: 'flex', // ใช้ flexbox
-                                    //                     alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
-                                    //                 },
-                                    //                 '& .MuiInputBase-input': {
-                                    //                     fontSize: '16px', // ขนาด font เวลาพิมพ์
-                                    //                     fontWeight: 'bold',
-                                    //                     padding: '1px 4px', // ปรับ padding ภายใน input
-                                    //                     textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
-                                    //                 },
-                                    //                 borderRadius: 10
-                                    //             }}
-                                    //             value={depot.split(":")[0]}
-                                    //         />
-                                    //     </Paper>
-                                    // </Grid>
                                 }
                                 <Grid item md={editMode ? 2 : 12} xs={6} display="flex" alignItems="center" justifyContent="center">
                                     <Paper sx={{ width: "100%" }}
@@ -2831,15 +2157,15 @@ const UpdateTrip = (props) => {
                                         <TextField size="small" fullWidth
                                             sx={{
                                                 '& .MuiOutlinedInput-root': {
-                                                    height: '30px', // ปรับความสูงของ TextField
-                                                    display: 'flex', // ใช้ flexbox
-                                                    alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                    height: '30px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
                                                 },
                                                 '& .MuiInputBase-input': {
-                                                    fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                    fontSize: '16px',
                                                     fontWeight: 'bold',
-                                                    padding: '1px 4px', // ปรับ padding ภายใน input
-                                                    textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                    padding: '1px 4px',
+                                                    textAlign: 'center',
                                                 },
                                                 borderRadius: 10
                                             }}
@@ -2868,13 +2194,10 @@ const UpdateTrip = (props) => {
                                                 getOptionLabel={(option) =>
                                                     `${option.Name}`
                                                 } // กำหนดรูปแบบของ Label ที่แสดง
-                                                //isOptionEqualToValue={(option, value) => option.id === value.id} // ตรวจสอบค่าที่เลือก
                                                 value={driverDetail.find(item => `${item.id}:${item.Name}` === driverss) || null} // ถ้ามีการเลือกจะไปค้นหาค่าที่ตรง
                                                 onChange={(event, newValue) => {
                                                     if (newValue) {
                                                         const value = `${newValue.id}:${newValue.Name}`;
-                                                        console.log("Driver Detail : ", value);
-                                                        console.log("Driver ss Detail : ", driverss);
                                                         handleDriver(value); // อัพเดตค่าเมื่อเลือก
                                                     } else {
                                                         setDriverss("0:0"); // รีเซ็ตค่าเป็น default หากไม่มีการเลือก
@@ -2910,31 +2233,8 @@ const UpdateTrip = (props) => {
                                                         <Typography fontSize="14px">{`${option.Name}`}</Typography>
                                                     </li>
                                                 )}
-                                            //disabled={!showTrips} // ปิดการใช้งานถ้า showTrips เป็น false
                                             />
                                         </Paper>
-                                        {/* <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: "nowrap", marginRight: 0.5 }} gutterBottom>สถานะ</Typography>
-                                    <Paper sx={{ width: "100%", marginTop: -0.5 }}
-                                        component="form">
-                                        <TextField size="small" fullWidth
-                                            sx={{
-                                                '& .MuiOutlinedInput-root': {
-                                                    height: '30px', // ปรับความสูงของ TextField
-                                                    display: 'flex', // ใช้ flexbox
-                                                    alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
-                                                },
-                                                '& .MuiInputBase-input': {
-                                                    fontSize: '16px', // ขนาด font เวลาพิมพ์
-                                                    fontWeight: 'bold',
-                                                    padding: '1px 4px', // ปรับ padding ภายใน input
-                                                    textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
-                                                },
-                                                borderRadius: 10
-                                            }}
-                                            value={status}
-                                            onChange={(e) => setStatus(e.target.value)}
-                                        />
-                                    </Paper> */}
                                     </Grid>
                                 }
                             </Grid>

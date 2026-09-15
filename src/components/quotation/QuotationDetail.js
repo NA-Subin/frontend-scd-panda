@@ -130,14 +130,12 @@ const QuotationDetail = ({ setOpen }) => {
     { code: "PWD", name: "ดีเซลพรีเมียม (Premium Diesel)" },
   ];
 
-  // 🧠 สร้างค่าเริ่มต้นจาก products
   const initialFuelData = Object.fromEntries(
     products.map(({ code }) => [code, { Volume: "", RateOil: "" }]),
   );
 
   const [fuelData, setFuelData] = useState(initialFuelData);
 
-  // ฟังก์ชันกรองเฉพาะค่าที่กรอกจริง ๆ
   const getFilledFuelData = (data) => {
     return Object.fromEntries(
       Object.entries(data).filter(
@@ -147,10 +145,6 @@ const QuotationDetail = ({ setOpen }) => {
       ),
     );
   };
-
-  // แสดงผลเฉพาะข้อมูลที่กรอก
-  console.log("fuelData:", getFilledFuelData(fuelData));
-  console.log("company : ", companies);
 
   const handleChange = (type, field, value) => {
     setFuelData((prev) => ({
@@ -173,7 +167,6 @@ const QuotationDetail = ({ setOpen }) => {
       return acc;
     }, {});
 
-    console.log({ Product });
     alert(JSON.stringify({ Product }, null, 2));
   };
 
@@ -252,7 +245,6 @@ const QuotationDetail = ({ setOpen }) => {
         Status: "อยู่ในระบบ",
       });
 
-      console.log("บันทึกข้อมูลเรียบร้อย ✅");
       refetch?.();
 
       // 🔹 เตรียมข้อมูลสำหรับหน้าพิมพ์
@@ -297,9 +289,6 @@ const QuotationDetail = ({ setOpen }) => {
   return (
     <React.Fragment>
       <Grid container spacing={2} marginTop={1}>
-        {/* <Grid item xs={12}>
-                            <Typography variant="subtitle1" fontWeight="bold" sx={{ marginTop: -2, marginBottom: -1 }} gutterBottom>กรอกข้อมูลใบเสนอราคาลูกค้า</Typography>
-                        </Grid> */}
         <Grid item xs={12} sm={6} md={8} textAlign="left">
           <Typography variant="h6" fontWeight="bold" gutterBottom>
             กรอกข้อมูลใบเสนอราคาลูกค้า
@@ -414,9 +403,6 @@ const QuotationDetail = ({ setOpen }) => {
             />
           </FormGroup>
         </Grid>
-        {/* <Grid item xs={4} textAlign="right">
-                    <Button variant="contained" color="warning" onClick={() => setOpen(false)} endIcon={<KeyboardDoubleArrowRightIcon />} >ตรวจสอบใบวางบิลที่เคยกรอกข้อมูล</Button>
-                </Grid> */}
         <Grid item xs={12} sm={12} md={6}>
           <Paper sx={{ width: "100%" }}>
             <Autocomplete
@@ -686,40 +672,6 @@ const QuotationDetail = ({ setOpen }) => {
             </Table>
           </TableContainer>
         </Grid>
-        {/* <Grid item xs={6}>
-                    <Box sx={{ marginLeft: 1 }}>
-                        <Typography variant="subtitle1" fontWeight="bold" color="error" gutterBottom>
-                            หมายเหตุ*
-                        </Typography>
-                        <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                            ข้อกำหนดและเงื่อนไขการขอใบเสนอราคา
-                        </Typography>
-                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "left" }}>
-                            <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                                ราคาที่เสนอ :
-                            </Typography>
-                            <Typography variant="subtitle2" sx={{ marginLeft: 2 }} gutterBottom>
-                                เงินบาทไทย ราคานี้รวมภาษีมูลค่าเพิ่มแล้ว
-                            </Typography>
-                        </Box>
-                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "left" }}>
-                            <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                                ชำระเงิน :
-                            </Typography>
-                            <Typography variant="subtitle2" sx={{ marginLeft: 2 }} gutterBottom>
-                                {companies ? companies?.Name.split("(")[0] : ""}
-                            </Typography>
-                        </Box>
-                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "left" }}>
-                            <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                                ธนาคาร :
-                            </Typography>
-                            <Typography variant="subtitle2" sx={{ marginLeft: 2 }} gutterBottom>
-                                {isBangchak ? "กสิกรไทย 663-100-9768" : "กสิกรไทย 633-101-3579"}
-                            </Typography>
-                        </Box>
-                    </Box>
-                </Grid> */}
         <Grid item xs={12} sm={12} md={12} sx={{ mb: -2 }}>
           <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
             เลือกหมายเหตุมาตรฐานที่ต้องการเพิ่มในใบเสนอราคา

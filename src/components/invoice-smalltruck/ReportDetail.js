@@ -87,16 +87,6 @@ const ReportDetail = (props) => {
         });
 
     const totalAmount = orders.reduce((sum, o) => sum + o.Amount, 0);
-    // const totalVolume = orders.reduce((sum, o) => sum + o.VolumeProduct, 0);
-    // const totalOverdueTransfer = orders.reduce((sum, o) => sum + o.OverdueTransfer, 0);
-    // const totalIncomingMoney =
-    //     (orders?.IncomingMoneyDetail ?? []).reduce(
-    //         (sum, o) => sum + (Number(o?.IncomingMoney) || 0),
-    //         0
-    //     );
-
-    console.log("Total Amount : ", totalAmount);
-    console.log("orders Detail : ", orders);
 
     // 1. จัดกลุ่มตาม Date + Driver/Registration
     const grouped = orders.reduce((acc, order) => {
@@ -106,7 +96,6 @@ const ReportDetail = (props) => {
         return acc;
     }, {});
 
-    console.log("Grouped Orders : ", grouped);
     // 2. แปลงเป็น array สำหรับแสดงผล
     const groupedOrders = Object.entries(grouped); // [ [key, [order1, order2]], ... ]
 
@@ -255,21 +244,6 @@ const ReportDetail = (props) => {
                                             <TablecellTickets sx={{ textAlign: "center", width: 130, fontSize: "16px" }}>ยอดเงิน</TablecellTickets>
                                         </TableRow>
                                     </TableHead>
-                                    {/* <TableBody>
-                                        {
-                                            orders.map((order, index) => (
-                                                <TableRow>
-                                                    <TableCell sx={{ textAlign: "center" }}>{index + 1}</TableCell>
-                                                    <TableCell sx={{ textAlign: "center" }}>{order.Date}</TableCell>
-                                                    <TableCell sx={{ textAlign: "center" }}>{`${order.DriverName}/${row.RegistrationName}`}</TableCell>
-                                                    <TableCell sx={{ textAlign: "center" }}>{order.ProductName}</TableCell>
-                                                    <TableCell sx={{ textAlign: "center" }}>{new Intl.NumberFormat("en-US").format(order.VolumeProduct)}</TableCell>
-                                                    <TableCell sx={{ textAlign: "center" }}>{new Intl.NumberFormat("en-US").format(order.RateOil)}</TableCell>
-                                                    <TableCell sx={{ textAlign: "center" }}>{new Intl.NumberFormat("en-US").format(order.Amount)}</TableCell>
-                                                </TableRow>
-                                            ))
-                                        }
-                                    </TableBody> */}
                                     <TableBody>
                                         {groupedOrders.map(([groupKey, groupOrders], groupIndex) => {
                                             const rowSpan = groupOrders.length;

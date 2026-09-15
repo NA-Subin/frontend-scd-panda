@@ -71,8 +71,6 @@ const UpdateTrip = (props) => {
         registrations
     } = props;
 
-    console.log("Date : ", dateStart);
-    console.log("registrations : ", registrations);
     const [open, setOpen] = React.useState(false);
     const dialogRef = useRef(null);
     const [html2canvasLoaded, setHtml2canvasLoaded] = useState(false);
@@ -123,8 +121,6 @@ const UpdateTrip = (props) => {
     const ticketsB = Object.values(customerbigtruck || {});
     const ticketsS = Object.values(customersmalltruck || {});
 
-    console.log("truckH : ", truckH);
-
     // โหลด html2canvas จาก CDN
     useEffect(() => {
         const script = document.createElement("script");
@@ -172,50 +168,9 @@ const UpdateTrip = (props) => {
         }
     };
 
-    // const handleSaveAsImage = async () => {
-    //     setEditMode(false); // เปลี่ยนเป็นโหมดแสดงผลแบบ Typography
-
-    //     setTimeout(async () => {
-    //         if (dialogRef.current && html2canvasLoaded) {
-    //             // ดึงค่าความสูงของ TextField และกำหนดให้ inline style
-    //             const inputElement = dialogRef.current.querySelector("input");
-    //             if (inputElement) {
-    //                 const computedStyle = window.getComputedStyle(inputElement);
-    //                 inputElement.style.height = computedStyle.height;
-    //                 inputElement.style.fontSize = computedStyle.fontSize;
-    //                 inputElement.style.fontWeight = computedStyle.fontWeight;
-    //                 inputElement.style.padding = computedStyle.padding;
-    //             }
-
-    //             // ใช้ html2canvas จับภาพ
-    //             const canvas = await window.html2canvas(dialogRef.current, {
-    //                 scrollY: 0,
-    //                 useCORS: true,
-    //                 width: dialogRef.current.scrollWidth,
-    //                 height: dialogRef.current.scrollHeight,
-    //                 scale: window.devicePixelRatio,
-    //             });
-
-    //             const image = canvas.toDataURL("image/png");
-
-    //             // สร้างลิงก์ดาวน์โหลด
-    //             const link = document.createElement("a");
-    //             link.href = image;
-    //             link.download = "บันทึกข้อมูลการขนส่งน้ำมันวันที่" + dateStart + ".png";
-    //             link.click();
-
-    //             setEditMode(true);
-    //         } else {
-    //             console.error("html2canvas ยังไม่ถูกโหลด");
-    //         }
-    //     }, 500); // รอให้ React เปลี่ยน UI ก่อนแคปภาพ
-    // };
-
     const handleClickOpen = () => {
         setOpen(true);
     };
-
-    console.log("Ticket Length : ", ticketLength);
 
     const handleCancle = () => {
         setOpen(false);
@@ -234,20 +189,6 @@ const UpdateTrip = (props) => {
     const [depot, setDepot] = useState(depotTrip);
     const [registration, setRegistration] = useState(registrations);
 
-    console.log("editMode : ", !editMode);
-
-    console.log("order : ", order);
-    console.log("ticket : ", ticket);
-    console.log("orderTrip : ", orderTrip);
-    console.log("ticketTrip : ", ticketTrip);
-    console.log("registrations : ", registrations);
-    console.log("registration : ", registration);
-
-    console.log("1.วันที่รับ : ", trip.DateReceive);
-    console.log("2.วันที่รับ : ", selectedDateReceive);
-    console.log("3.วันที่ส่ง : ", trip.DateDelivery);
-    console.log("3.วันที่ส่ง : ", selectedDateDelivery);
-
     useEffect(() => {
         if (ticket && ticket.length > 0) {
             setEditableTickets(ticket.map(item => ({ ...item }))); // คัดลอกข้อมูลมาใช้
@@ -256,21 +197,6 @@ const UpdateTrip = (props) => {
                 const newTickets = {};
                 ticket.forEach((item, index) => {
                     const newIndex = index + 1; // ใช้ 1-based index
-                    // const branches = [
-                    //     "( สาขาที่  00001)/",
-                    //     "( สาขาที่  00002)/",
-                    //     "( สาขาที่  00003)/",
-                    //     "( สำนักงานใหญ่)/"
-                    // ];
-
-                    // let ticketName = `${item.TicketName}`;
-                    // for (const branch of branches) {
-                    //     if (ticketName.includes(branch)) {
-                    //         ticketName = ticketName.split(branch)[1];
-                    //         break;
-                    //     }
-                    // }
-
                     newTickets[`Ticket${newIndex}`] = item.TicketName;
                 });
 
@@ -288,21 +214,6 @@ const UpdateTrip = (props) => {
                 const newOrders = {};
                 order.forEach((item, index) => {
                     const newIndex = index + 1; // ใช้ 1-based index
-                    // const branches = [
-                    //     "( สาขาที่  00001)/",
-                    //     "( สาขาที่  00002)/",
-                    //     "( สาขาที่  00003)/",
-                    //     "( สำนักงานใหญ่)/"
-                    // ];
-
-                    // let ticketName = `${item.TicketName}`;
-                    // for (const branch of branches) {
-                    //     if (ticketName.includes(branch)) {
-                    //         ticketName = ticketName.split(branch)[1];
-                    //         break;
-                    //     }
-                    // }
-
                     newOrders[`Order${newIndex}`] = item.TicketName;
                 });
 
@@ -335,21 +246,6 @@ const UpdateTrip = (props) => {
                 const newTickets = {};
                 ticket.forEach((item, index) => {
                     const newIndex = index + 1; // ใช้ 1-based index
-                    // const branches = [
-                    //     "( สาขาที่  00001)/",
-                    //     "( สาขาที่  00002)/",
-                    //     "( สาขาที่  00003)/",
-                    //     "( สำนักงานใหญ่)/"
-                    // ];
-
-                    // let ticketName = `${item.TicketName}`;
-                    // for (const branch of branches) {
-                    //     if (ticketName.includes(branch)) {
-                    //         ticketName = ticketName.split(branch)[1];
-                    //         break;
-                    //     }
-                    // }
-
                     newTickets[`Ticket${newIndex}`] = item.TicketName;
                 });
 
@@ -367,21 +263,6 @@ const UpdateTrip = (props) => {
                 const newOrders = {};
                 order.forEach((item, index) => {
                     const newIndex = index + 1; // ใช้ 1-based index
-                    // const branches = [
-                    //     "( สาขาที่  00001)/",
-                    //     "( สาขาที่  00002)/",
-                    //     "( สาขาที่  00003)/",
-                    //     "( สำนักงานใหญ่)/"
-                    // ];
-
-                    // let ticketName = `${item.TicketName}`;
-                    // for (const branch of branches) {
-                    //     if (ticketName.includes(branch)) {
-                    //         ticketName = ticketName.split(branch)[1];
-                    //         break;
-                    //     }
-                    // }
-
                     newOrders[`Order${newIndex}`] = item.TicketName;
                 });
 
@@ -474,8 +355,6 @@ const UpdateTrip = (props) => {
             const numericValue = parseFloat(value) || 0;
             obj[fields[fields.length - 1]] = numericValue;
 
-            console.log("Updated Value:", numericValue);
-
             // ถ้าเป็นการเพิ่ม Product ใหม่ และ Value > 0 ให้เพิ่มโครงสร้าง Product
             if (fields[0] === "Product" && numericValue > 0) {
                 const productType = fields[1];
@@ -488,7 +367,6 @@ const UpdateTrip = (props) => {
             // **ลบ Product ที่มี Volume เป็น 0 ออก**
             if (fields[0] === "Product" && numericValue === 0) {
                 const productType = fields[1];
-                console.log(`Removing Product: ${productType}`);
 
                 // ลบ key ของ Product
                 delete updatedOrders[index].Product[productType];
@@ -499,8 +377,6 @@ const UpdateTrip = (props) => {
                 }
             }
 
-            console.log("Order Length :  ", updatedOrders.length);
-
             // **อัปเดต setOrderTrip ในรูปแบบที่ต้องการ**
             setOrderTrip((prev) => {
                 const newOrders = {};
@@ -508,21 +384,6 @@ const UpdateTrip = (props) => {
 
                 allOrders.forEach((item, i) => {
                     const newIndex = i + 1; // ใช้ 1-based index
-                    // const branches = [
-                    //     "( สาขาที่  00001)/",
-                    //     "( สาขาที่  00002)/",
-                    //     "( สาขาที่  00003)/",
-                    //     "( สำนักงานใหญ่)/"
-                    // ];
-
-                    // let ticketName = `${item.TicketName}`;
-                    // for (const branch of branches) {
-                    //     if (ticketName.includes(branch)) {
-                    //         ticketName = ticketName.split(branch)[1];
-                    //         break;
-                    //     }
-                    // }
-
                     newOrders[`Order${newIndex}`] = item.TicketName;
                 });
 
@@ -610,8 +471,6 @@ const UpdateTrip = (props) => {
         });
 
         setCostTrip((prevCost) => {
-            console.log("🔄 Previous CostTrip:", prevCost);
-            console.log("✅ New CostTrip:", newCostTrip);
             return newCostTrip;
         });
 
@@ -769,13 +628,6 @@ const UpdateTrip = (props) => {
         }
     };
 
-    console.log("registration : ", registration);
-
-    console.log("Updated Cost Trip:", costTrip);
-    console.log("Updated Oil Heavy:", totalVolumesTicket.oilHeavy);
-    console.log("Updated Oil Light:", totalVolumesTicket.oilLight);
-    console.log("Updated Total Weight:", totalVolumesTicket.totalWeight);
-
     const getDriver = () => {
         const driverss = [
             ...[...truckH]
@@ -791,8 +643,6 @@ const UpdateTrip = (props) => {
 
         return driverss.filter((item) => item.id);
     };
-
-    console.log("Driver : ", getDriver());
 
     const getTickets = () => {
         const tickets = [
@@ -835,38 +685,6 @@ const UpdateTrip = (props) => {
 
         return customers.filter((item) => item.id || item.TicketsCode);
     };
-
-    // const handleDeleteTickets = (indexToDelete) => {
-    //     console.log("Show Index Tickets : ", indexToDelete);
-
-    //     setEditableTickets((prev) => {
-    //         // แปลง object เป็น array ก่อน
-    //         const prevArray = Object.values(prev);
-
-    //         // ลบ ticket ตาม id ที่ต้องการ แล้วจัดเรียง id ใหม่
-    //         const updatedArray = prevArray
-    //             .filter((ticket) => ticket.id !== indexToDelete)
-    //             .map((ticket, index) => ({ ...ticket, id: index }));
-
-    //         return updatedArray;
-    //     });
-
-    //     setTicketTrip((prev) => {
-    //         // แปลง object เป็น array ของ entries
-    //         const entries = Object.entries(prev);
-
-    //         // กรองรายการที่ key ไม่ตรงกับ key ที่ต้องการลบ (เช่น Ticket1)
-    //         const filtered = entries.filter(([key]) => key !== `Ticket${parseInt(indexToDelete, 10) + 1}`);
-
-    //         // เรียงลำดับใหม่โดย re-index key ให้ต่อเนื่อง เริ่มจาก Ticket1
-    //         const newTicketTrip = filtered.reduce((acc, [_, value], index) => {
-    //             acc[`Ticket${index + 1}`] = value;
-    //             return acc;
-    //         }, {});
-
-    //         return newTicketTrip;
-    //     });
-    // };
 
     const handleDeleteTickets = (indexToDelete, id) => {
         const ticketIndex = Number(id) - 1;
@@ -917,9 +735,7 @@ const UpdateTrip = (props) => {
                     console.error("Error pushing data:", error);
                 }
             },
-            () => {
-                console.log(`ยกเลิกลบตั๋วที่ ${id}`);
-            }
+            () => { }
         );
     };
 
@@ -955,8 +771,6 @@ const UpdateTrip = (props) => {
     const handleDeleteOrder = (indexToDelete, id) => {
         const orderIndex = Number(id) - 1;
         const orders = order[orderIndex];
-
-        console.log("Show Index Order : ", orders);
 
         if (!orders || !orders.uuid) {
             // ลบจาก editableOrders
@@ -1005,9 +819,7 @@ const UpdateTrip = (props) => {
                     console.error("Error pushing data:", error);
                 }
             },
-            () => {
-                console.log(`ยกเลิกลบออเดอร์ที่ ${id}`);
-            }
+            () => { }
         );
     };
 
@@ -1098,9 +910,7 @@ const UpdateTrip = (props) => {
                     console.error("Error pushing data:", error);
                 }
             },
-            () => {
-                console.log("ยกเลิกลบตั๋ว");
-            }
+            () => { }
         )
     }
 
@@ -1135,19 +945,14 @@ const UpdateTrip = (props) => {
                     console.error("Error pushing data:", error);
                 }
             },
-            () => {
-                console.log("ยกเลิกลบตั๋ว");
-            }
+            () => { }
         )
     }
 
-    console.log("Registration : ", registration);
-    console.log("Weight Truck : ", weightTrucks);
     const handleRegistration = (event, weight) => {
         const registrationValue = event;
         setRegistration(registrationValue);
         setWeightTrucks(weight);
-        console.log("show registration : ", registrationValue);
 
         if (Object.keys(editableTickets).length > 0) {
             const registration = `${registrationValue.split(":")[0]}:${registrationValue.split(":")[1]}`;
@@ -1187,15 +992,8 @@ const UpdateTrip = (props) => {
 
     const matched = getDriver().find(item => {
         const str = `${item.id}:${item.RegHead}:${item.Driver}:${item.Type}`;
-        console.log("COMPARE:", str, "==?", registration);
         return str === registration;
     });
-    console.log("MATCHED VALUE:", matched);
-
-    console.log("Updated Tickets : ", editableTickets);
-    console.log("Updated Orders : ", editableOrders);
-    console.log("Total Volumes : ", totalVolumesTicket);
-    console.log("Depot : ", depot);
 
     return (
         <React.Fragment>
@@ -1216,9 +1014,7 @@ const UpdateTrip = (props) => {
                             <WhereToVoteIcon />
                         </IconButton>
                     </Tooltip>
-                    // <Button variant="contained" size="small" color="success" sx={{ height: 20,marginRight: 0.5 }} onClick={handleChangeStatus}>จบทริป</Button>
                 }
-                {/* <Button variant="contained" size="small" color="info" sx={{ height: 20 }} onClick={handleClickOpen}>ตรวจสอบ</Button> */}
                 <Tooltip title="กดเพื่อดูรายละเอียด" placement="bottom">
                     <IconButton color="info" size="small" onClick={handleClickOpen}>
                         <FmdBadIcon />
@@ -1396,52 +1192,6 @@ const UpdateTrip = (props) => {
                                                                 </li>
                                                             )}
                                                         />
-                                                        {/* <Autocomplete
-                                                            id="autocomplete-registration-1"
-                                                            options={truckH}
-                                                            getOptionLabel={(option) => {
-                                                                if (option.Driver === "ไม่มี" && option.Status === "ว่าง") return "";
-
-                                                                const driverName = option.DriverName ?? option.Driver ?? "";
-                                                                const regHead = option.RegHead ?? "";
-                                                                const regTail = option.RegTail ?? "";
-
-                                                                return `${driverName} : ${regHead}/${regTail} (รถใหญ่)`;
-                                                            }}
-                                                            value={truckH.find(
-                                                                (d) => `${d.Driver}:${d.id}:${d.RegHead}` === registration
-                                                            ) || null}
-                                                            onChange={(event, newValue) => {
-                                                                if (newValue) {
-                                                                    const value = `${newValue.Driver}:${newValue.id}:${newValue.RegHead}`;
-                                                                    console.log("Truck : ", value);
-                                                                    handleRegistration(value, newValue.TotalWeight)
-                                                                } else {
-                                                                    setRegistration("0:0:0:0");
-                                                                }
-                                                            }}
-                                                            renderInput={(params) => (
-                                                                <TextField
-                                                                    {...params}
-                                                                    label={!registration || registration === "0:0:0:0" ? "กรุณาเลือกผู้ขับ/ป้ายทะเบียน" : ""}
-                                                                    variant="outlined"
-                                                                    size="small"
-                                                                    sx={{
-                                                                        "& .MuiOutlinedInput-root": { height: "30px" },
-                                                                        "& .MuiInputBase-input": { fontSize: "16px", marginLeft: -1 },
-                                                                    }}
-                                                                />
-                                                            )}
-                                                            fullWidth
-                                                            renderOption={(props, option) => (
-                                                                <li {...props}>
-                                                                    {
-                                                                        option.Driver !== "ไม่มี" && option.Status === "ว่าง" &&
-                                                                        <Typography fontSize="16px">{`${option.DriverName} : ${option.RegHead}/${option.RegTail} (รถใหญ่)`}</Typography>
-                                                                    }
-                                                                </li>
-                                                            )}
-                                                        /> */}
                                                     </Paper>
                                                 </Box>
                                             </Grid>
@@ -1497,44 +1247,8 @@ const UpdateTrip = (props) => {
                                                         })()}
                                                     </Box>
                                                 </Typography>
-                                                {/* <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginTop: 1 }} gutterBottom>ผู้ขับ/ป้ายทะเบียน :
-                                                    {
-                                                        trip.Driver !== undefined &&
-                                                            trip.DriverName !== undefined ?
-                                                            trip.DriverName
-                                                            :
-                                                            trip.Driver
-                                                    }/
-                                                    {
-                                                        trip.Registration !== undefined &&
-                                                            trip.RegistrationName !== undefined ?
-                                                            trip.RegistrationName
-                                                            :
-                                                            trip.Registration
-                                                    }
-                                                </Typography> */}
                                             </Grid>
                                         </Grid>
-                                    // <>
-                                    //     <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginRight: 1, marginTop: 1, color: theme.palette.success.dark }} gutterBottom>ตั๋วน้ำมัน</Typography>
-                                    //     <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginRight: 5, marginTop: 1 }} gutterBottom>วันที่รับ : {trip.DateReceive}</Typography>
-                                    //     <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginTop: 1 }} gutterBottom>ผู้ขับ/ป้ายทะเบียน :
-                                    //         {
-                                    //             trip.Driver !== undefined &&
-                                    //                 trip.DriverName !== undefined ?
-                                    //                 trip.DriverName
-                                    //                 :
-                                    //                 trip.Driver
-                                    //         }/
-                                    //         {
-                                    //             trip.Registration !== undefined &&
-                                    //                 trip.RegistrationName !== undefined ?
-                                    //                 trip.RegistrationName
-                                    //                 :
-                                    //                 trip.Registration
-                                    //         }
-                                    //     </Typography>
-                                    // </>
                                 }
                             </Grid>
                             {
@@ -1683,9 +1397,6 @@ const UpdateTrip = (props) => {
                                                                                     Product: row.Product,
                                                                                     // ✅ เพิ่มเฉพาะเมื่อจบทริป
                                                                                     ...(trip.StatusTrip === "จบทริป" && { Status: "จัดส่งสำเร็จ" }),
-                                                                                    // Product: {
-                                                                                    //     P: { Volume: 0, Cost: 0, Selling: 0 },
-                                                                                    // }
                                                                                 };
                                                                                 return updatedTickets;
                                                                             });
@@ -1767,12 +1478,12 @@ const UpdateTrip = (props) => {
                                                                     }}
                                                                     sx={{
                                                                         '& .MuiOutlinedInput-root': {
-                                                                            height: '22px', // ปรับความสูงของ TextField
+                                                                            height: '22px',
                                                                         },
                                                                         '& .MuiInputBase-input': {
-                                                                            fontSize: '12px', // ขนาด font เวลาพิมพ์
+                                                                            fontSize: '12px',
                                                                             fontWeight: 'bold',
-                                                                            padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                            padding: '2px 6px',
                                                                             paddingLeft: 2
                                                                         },
                                                                     }}
@@ -1802,12 +1513,12 @@ const UpdateTrip = (props) => {
                                                                         }}
                                                                         sx={{
                                                                             '& .MuiOutlinedInput-root': {
-                                                                                height: '22px', // ปรับความสูงของ TextField
+                                                                                height: '22px',
                                                                             },
                                                                             '& .MuiInputBase-input': {
-                                                                                fontSize: '12px', // ขนาด font เวลาพิมพ์
+                                                                                fontSize: '12px',
                                                                                 fontWeight: 'bold',
-                                                                                padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                                padding: '2px 6px',
                                                                                 paddingLeft: 2
                                                                             },
                                                                         }}
@@ -1829,12 +1540,12 @@ const UpdateTrip = (props) => {
                                                                             }}
                                                                             sx={{
                                                                                 '& .MuiOutlinedInput-root': {
-                                                                                    height: '22px', // ปรับความสูงของ TextField
+                                                                                    height: '22px',
                                                                                 },
                                                                                 '& .MuiInputBase-input': {
-                                                                                    fontSize: '12px', // ขนาด font เวลาพิมพ์
+                                                                                    fontSize: '12px',
                                                                                     fontWeight: 'bold',
-                                                                                    padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                                    padding: '2px 6px',
                                                                                     paddingLeft: 2
                                                                                 },
                                                                             }}
@@ -1856,12 +1567,12 @@ const UpdateTrip = (props) => {
                                                                                 }}
                                                                                 sx={{
                                                                                     '& .MuiOutlinedInput-root': {
-                                                                                        height: '22px', // ปรับความสูงของ TextField
+                                                                                        height: '22px',
                                                                                     },
                                                                                     '& .MuiInputBase-input': {
-                                                                                        fontSize: '12px', // ขนาด font เวลาพิมพ์
+                                                                                        fontSize: '12px',
                                                                                         fontWeight: 'bold',
-                                                                                        padding: '2px 6px', // ปรับ padding ภายใน input
+                                                                                        padding: '2px 6px',
                                                                                         paddingLeft: 2
                                                                                     },
                                                                                 }}
@@ -2054,15 +1765,15 @@ const UpdateTrip = (props) => {
                                         <TextField size="small" fullWidth
                                             sx={{
                                                 '& .MuiOutlinedInput-root': {
-                                                    height: '30px', // ปรับความสูงของ TextField
-                                                    display: 'flex', // ใช้ flexbox
-                                                    alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                    height: '30px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
                                                 },
                                                 '& .MuiInputBase-input': {
-                                                    fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                    fontSize: '16px',
                                                     fontWeight: 'bold',
-                                                    padding: '1px 4px', // ปรับ padding ภายใน input
-                                                    textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                    padding: '1px 4px',
+                                                    textAlign: 'center',
                                                 },
                                                 borderRadius: 10
                                             }}
@@ -2080,15 +1791,15 @@ const UpdateTrip = (props) => {
                                         <TextField size="small" fullWidth
                                             sx={{
                                                 '& .MuiOutlinedInput-root': {
-                                                    height: '30px', // ปรับความสูงของ TextField
-                                                    display: 'flex', // ใช้ flexbox
-                                                    alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                    height: '30px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
                                                 },
                                                 '& .MuiInputBase-input': {
-                                                    fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                    fontSize: '16px',
                                                     fontWeight: 'bold',
-                                                    padding: '1px 4px', // ปรับ padding ภายใน input
-                                                    textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                    padding: '1px 4px',
+                                                    textAlign: 'center',
                                                 },
                                                 borderRadius: 10
                                             }}
@@ -2106,15 +1817,15 @@ const UpdateTrip = (props) => {
                                         <TextField size="small" fullWidth
                                             sx={{
                                                 '& .MuiOutlinedInput-root': {
-                                                    height: '30px', // ปรับความสูงของ TextField
-                                                    display: 'flex', // ใช้ flexbox
-                                                    alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                    height: '30px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
                                                 },
                                                 '& .MuiInputBase-input': {
-                                                    fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                    fontSize: '16px',
                                                     fontWeight: 'bold',
-                                                    padding: '1px 4px', // ปรับ padding ภายใน input
-                                                    textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                    padding: '1px 4px',
+                                                    textAlign: 'center',
                                                 },
                                                 borderRadius: 10
                                             }}
@@ -2134,15 +1845,15 @@ const UpdateTrip = (props) => {
                                             <TextField size="small" fullWidth
                                                 sx={{
                                                     '& .MuiOutlinedInput-root': {
-                                                        height: '30px', // ปรับความสูงของ TextField
-                                                        display: 'flex', // ใช้ flexbox
-                                                        alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                        height: '30px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
                                                     },
                                                     '& .MuiInputBase-input': {
-                                                        fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                        fontSize: '16px',
                                                         fontWeight: 'bold',
-                                                        padding: '1px 4px', // ปรับ padding ภายใน input
-                                                        textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                        padding: '1px 4px',
+                                                        textAlign: 'center',
                                                         paddingLeft: 2
                                                     },
                                                     borderRadius: 10
@@ -2165,15 +1876,15 @@ const UpdateTrip = (props) => {
                                                 <TextField size="small" fullWidth
                                                     sx={{
                                                         '& .MuiOutlinedInput-root': {
-                                                            height: '30px', // ปรับความสูงของ TextField
-                                                            display: 'flex', // ใช้ flexbox
-                                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                            height: '30px',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
                                                         },
                                                         '& .MuiInputBase-input': {
-                                                            fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                            fontSize: '16px',
                                                             fontWeight: 'bold',
-                                                            padding: '1px 4px', // ปรับ padding ภายใน input
-                                                            textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                            padding: '1px 4px',
+                                                            textAlign: 'center',
                                                             paddingLeft: 2
                                                         },
                                                         borderRadius: 10
@@ -2182,9 +1893,6 @@ const UpdateTrip = (props) => {
                                                         minimumFractionDigits: 2,
                                                         maximumFractionDigits: 2,
                                                     }).format(editMode ? (totalVolumesTicket.totalWeight) : totalWeight)}
-                                                // InputProps={{
-                                                //     endAdornment: <InputAdornment position="end">กก.</InputAdornment>, // เพิ่ม endAdornment ที่นี่
-                                                // }}
                                                 />
                                             </Paper>
                                         </Box>
@@ -2357,44 +2065,8 @@ const UpdateTrip = (props) => {
                                                         })()}
                                                     </Box>
                                                 </Typography>
-                                                {/* <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginTop: 1 }} gutterBottom>ผู้ขับ/ป้ายทะเบียน :
-                                                    {
-                                                        trip.Driver !== undefined &&
-                                                            trip.DriverName !== undefined ?
-                                                            trip.DriverName
-                                                            :
-                                                            trip.Driver
-                                                    }/
-                                                    {
-                                                        trip.Registration !== undefined &&
-                                                            trip.RegistrationName !== undefined ?
-                                                            trip.RegistrationName
-                                                            :
-                                                            trip.Registration
-                                                    }
-                                                </Typography> */}
                                             </Grid>
                                         </Grid>
-                                    // <>
-                                    //     <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginRight: 1, marginTop: 1, color: theme.palette.info.dark }} gutterBottom>จัดเที่ยววิ่ง</Typography>
-                                    //     <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginRight: 5, marginTop: 1 }} gutterBottom>วันที่ส่ง : {trip.DateDelivery}</Typography>
-                                    //     <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: 'nowrap', marginTop: 1 }} gutterBottom>ผู้ขับ/ป้ายทะเบียน :
-                                    //         {
-                                    //             trip.Driver !== undefined &&
-                                    //                 trip.DriverName !== undefined ?
-                                    //                 trip.DriverName
-                                    //                 :
-                                    //                 trip.Driver
-                                    //         }/
-                                    //         {
-                                    //             trip.Registration !== undefined &&
-                                    //                 trip.RegistrationName !== undefined ?
-                                    //                 trip.RegistrationName
-                                    //                 :
-                                    //                 trip.Registration
-                                    //         }
-                                    //     </Typography>
-                                    // </>
                                 }
                             </Grid>
                             {
@@ -2407,15 +2079,15 @@ const UpdateTrip = (props) => {
                                             <TextField size="small" fullWidth
                                                 sx={{
                                                     '& .MuiOutlinedInput-root': {
-                                                        height: '30px', // ปรับความสูงของ TextField
-                                                        display: 'flex', // ใช้ flexbox
-                                                        alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                        height: '30px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
                                                     },
                                                     '& .MuiInputBase-input': {
-                                                        fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                        fontSize: '16px',
                                                         fontWeight: 'bold',
-                                                        padding: '1px 4px', // ปรับ padding ภายใน input
-                                                        textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                        padding: '1px 4px',
+                                                        textAlign: 'center',
                                                         paddingLeft: 2
                                                     },
                                                     borderRadius: 10
@@ -2424,9 +2096,6 @@ const UpdateTrip = (props) => {
                                                     minimumFractionDigits: 2,
                                                     maximumFractionDigits: 2,
                                                 }).format(editMode ? (totalVolumesTicket.totalWeight) : totalWeight)}
-                                            // InputProps={{
-                                            //     endAdornment: <InputAdornment position="end">กก.</InputAdornment>, // เพิ่ม endAdornment ที่นี่
-                                            // }}
                                             />
                                         </Paper>
                                     </Box>
@@ -2554,9 +2223,6 @@ const UpdateTrip = (props) => {
 
                                                                                     // ✅ เพิ่มเฉพาะเมื่อจบทริป
                                                                                     ...(trip.StatusTrip === "จบทริป" && { Status: "จัดส่งสำเร็จ" }),
-                                                                                    // Product: {
-                                                                                    //     P: { Volume: 0, Cost: 0, Selling: 0 },
-                                                                                    // }
                                                                                 };
                                                                                 return updatedTickets;
                                                                             });
@@ -2566,13 +2232,10 @@ const UpdateTrip = (props) => {
 
                                                                                 Object.entries(updated).forEach(([key, value]) => {
                                                                                     const match = key.match(/^Order(\d+)$/);
-                                                                                    console.log("match : ", match);
                                                                                     if (match) {
                                                                                         const orderId = parseInt(match[1], 10);
-                                                                                        console.log("orderId : ", orderId);
                                                                                         if (orderId === (row.id + 1)) {
                                                                                             updated[key] = `${newValue.id}:${newValue.Name}`;
-                                                                                            console.log("updated[key] : ", updated[key]);
                                                                                         }
                                                                                     }
                                                                                 });
@@ -2806,7 +2469,6 @@ const UpdateTrip = (props) => {
                                                         isOptionEqualToValue={(option, value) => option.Name === value.Name} // ตรวจสอบค่าที่เลือก
                                                         onChange={(event, newValue) => {
                                                             if (newValue) {
-                                                                console.log("customer : ", getCustomers());
                                                                 setEditableOrders((prev) => {
                                                                     const updatedOrders = [...prev];
 
@@ -2892,15 +2554,15 @@ const UpdateTrip = (props) => {
                                                 <TextField size="small" fullWidth
                                                     sx={{
                                                         '& .MuiOutlinedInput-root': {
-                                                            height: '30px', // ปรับความสูงของ TextField
-                                                            display: 'flex', // ใช้ flexbox
-                                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                            height: '30px',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
                                                         },
                                                         '& .MuiInputBase-input': {
-                                                            fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                            fontSize: '16px',
                                                             fontWeight: 'bold',
-                                                            padding: '1px 4px', // ปรับ padding ภายใน input
-                                                            textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                            padding: '1px 4px',
+                                                            textAlign: 'center',
                                                         },
                                                         borderRadius: 10
                                                     }}
@@ -2918,15 +2580,15 @@ const UpdateTrip = (props) => {
                                             <TextField size="small" fullWidth
                                                 sx={{
                                                     '& .MuiOutlinedInput-root': {
-                                                        height: '30px', // ปรับความสูงของ TextField
-                                                        display: 'flex', // ใช้ flexbox
-                                                        alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                        height: '30px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
                                                     },
                                                     '& .MuiInputBase-input': {
-                                                        fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                        fontSize: '16px',
                                                         fontWeight: 'bold',
-                                                        padding: '1px 4px', // ปรับ padding ภายใน input
-                                                        textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                        padding: '1px 4px',
+                                                        textAlign: 'center',
                                                     },
                                                     borderRadius: 10
                                                 }}
@@ -2943,15 +2605,15 @@ const UpdateTrip = (props) => {
                                         <TextField size="small" fullWidth
                                             sx={{
                                                 '& .MuiOutlinedInput-root': {
-                                                    height: '30px', // ปรับความสูงของ TextField
-                                                    display: 'flex', // ใช้ flexbox
-                                                    alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                    height: '30px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
                                                 },
                                                 '& .MuiInputBase-input': {
-                                                    fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                    fontSize: '16px',
                                                     fontWeight: 'bold',
-                                                    padding: '1px 4px', // ปรับ padding ภายใน input
-                                                    textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                    padding: '1px 4px',
+                                                    textAlign: 'center',
                                                 },
                                                 borderRadius: 10
                                             }}

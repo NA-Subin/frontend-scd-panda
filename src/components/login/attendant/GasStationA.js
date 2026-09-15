@@ -32,8 +32,6 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import ReplyAllIcon from '@mui/icons-material/ReplyAll';
 import SettingsIcon from '@mui/icons-material/Settings';
-import PostAddIcon from '@mui/icons-material/PostAdd';
-import FactCheckIcon from '@mui/icons-material/FactCheck';
 import dayjs from 'dayjs';
 import Cookies from 'js-cookie';
 import 'dayjs/locale/th';
@@ -113,25 +111,6 @@ const GasStationAdmin = () => {
     const handleGasStationChange = (e) => {
         setGasStation(e.target.value);
     };
-
-    // const [showButton, setShowButton] = useState(false);
-
-    // useEffect(() => {
-    //     const checkTime = () => {
-    //         const now = dayjs(); // เวลาปัจจุบัน
-    //         const start = dayjs().hour(17).minute(0).second(0); // 17:00
-    //         const end = dayjs().hour(20).minute(0).second(0); // 20:00
-    //         setShowButton(now.isAfter(start) && now.isBefore(end)); // อัปเดตสถานะปุ่มตามช่วงเวลา
-    //     };
-
-    //     checkTime(); // ตรวจสอบครั้งแรกเมื่อคอมโพเนนต์โหลด
-    //     const interval = setInterval(checkTime, 1000); // ตรวจสอบทุก 1 วินาที
-
-    //     return () => clearInterval(interval); // ล้าง interval เมื่อคอมโพเนนต์ถูกทำลาย
-    // }, []);
-
-    console.log("GasStation :", gasStation);
-    console.log("GasStationOil ::", gasStationOil);
 
     return (
         <Container sx={{ p: { xs: 2, sm: 3, md: 4 }, maxWidth: { xs: "lg", sm: "lg", md: "lg" } }}>
@@ -241,10 +220,10 @@ const GasStationAdmin = () => {
                                             variant: "standard",
                                             inputProps: {
                                                 value: formatThaiSlash(selectedDate), // ✅ แสดงเป็น 05/11/2568
-                                                readOnly: true, // ปิดการพิมพ์เอง
+                                                readOnly: true,
                                             },
                                             InputProps: {
-                                                disableUnderline: false, // ยังมีเส้นอยู่
+                                                disableUnderline: false,
                                                 sx: {
                                                     '& .MuiOutlinedInput-root': {
                                                         height: '25px',
@@ -256,11 +235,9 @@ const GasStationAdmin = () => {
                                                         fontWeight: 'bold',
                                                         padding: '2px 6px',
                                                         textAlign: 'center',
-                                                        // color: "#616161",
                                                     },
                                                 },
                                             },
-                                            // ✅ เพิ่มเส้นประที่ด้านล่าง
                                             sx: {
                                                 "& .MuiInput-underline:before": {
                                                     borderBottom: "1px solid gray",
@@ -297,24 +274,17 @@ const GasStationAdmin = () => {
                                 </Select>
                             </FormControl>
                         </Grid>
-                        {/* <Grid item xs={5} md={3} lg={2} textAlign="right">
-                            {
-                                openOil === true || openOil === false ? <Button variant="contained" color="error" onClick={() => setOpenOil("")}>ย้อนกลับ</Button> : ""
-                            }
-                        </Grid> */}
                     </Grid>
                     {gasStationOil.map((row, index) => {
-                        const prevIndex = index - 1; // index ก่อนหน้า
-                        const prevGas = gasStationOil[prevIndex] || {}; // ✅ ใช้ {} แทน []
-                        const latestGas = gasStationOil[index] || {}; // ✅ ใช้ {} แทน []
+                        const prevIndex = index - 1;
+                        const prevGas = gasStationOil[prevIndex] || {};
+                        const latestGas = gasStationOil[index] || {};
 
                         const selectedDateKey = dayjs(selectedDate).format("DD-MM-YYYY");
 
-                        // ตรวจสอบว่ามีค่าเป็นอาร์เรย์ก่อนใช้ spread operator
                         const prevReport = Array.isArray(prevGas.Report?.[selectedDateKey]) ? [...prevGas.Report[selectedDateKey]] : [];
                         const latestReport = Array.isArray(latestGas.Report?.[selectedDateKey]) ? [...latestGas.Report[selectedDateKey]] : [];
 
-                        // ตรวจสอบข้อมูลซ้ำ
                         const reportOilBalance = prevReport.map((prevItem) => {
                             const matchingLatestItem = latestReport.find(
                                 (latestItem) => latestItem.ProductName === prevItem.ProductName
@@ -357,33 +327,12 @@ const GasStationAdmin = () => {
                             };
                         });
 
-                        // const handleSave = () => {
-                        //     console.log("latestGas ::::::: ",prevGas.id);
-                        //     console.log("✅ reportOilBalance "+`${index}:`, oilBalance);
-                        //     database
-                        //         .ref("/depot/gasStations/" + (prevGas.id - 1) + "/Report")
-                        //         .child(dayjs(selectedDate).format("DD-MM-YYYY"))
-                        //         .update(oilBalance)
-                        //         .then(() => {
-                        //             ShowSuccess("บันทึกข้อมูลสำเร็จ");
-                        //             console.log("Data pushed successfully");
-                        //         })
-                        //         .catch((error) => {
-                        //             ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-                        //             console.error("Error pushing data:", error);
-                        //         });
-
-                        // }
-
                         return (
                             <React.Fragment key={index}>
                                 <GasStationDetail
                                     stock={stock}
                                     gasStationID={gasStationID}
-                                    // report={report}
-                                    // gasStationReport={gasStationReport}
                                     selectedDate={selectedDate}
-                                    // gasStationOil={gasStationOil}
                                     isToday={isToday}
                                     gas={row}
                                     gasID={index}
@@ -396,77 +345,6 @@ const GasStationAdmin = () => {
                             </React.Fragment>
                         );
                     })}
-
-                    {/* {
-                        // gasStation !== "0:0" ?
-                        // (
-                            openOil === true ?
-                            <ReceiveOil
-                                stock={stock}
-                                gasStationID={gasStationID}
-                                report={report}
-                                gasStationReport={gasStationReport}
-                                selectedDate={selectedDate}
-                                gasStationOil={gasStationOil}
-                                isToday={isToday}
-                            />
-                            : openOil === false ?
-                                <OilBalance
-                                    stock={stock}
-                                    gasStationID={gasStationID}
-                                    report={report}
-                                    gasStationReport={gasStationReport}
-                                    selectedDate={selectedDate}
-                                    gasStationOil={gasStationOil}
-                                    isToday={isToday}
-                                />
-                                :
-                                <Grid container spacing={5} marginTop={1}>
-                                    <Grid item xs={1} />
-                                    <Grid item xs={5}>
-                                        <Button
-                                            variant="contained"
-                                            color="info"
-                                            fullWidth
-                                            sx={{
-                                                height: 100,
-                                                borderRadius: 3,
-                                                fontSize: 24, // ขนาดตัวหนังสือ
-                                                fontWeight: "bold"
-                                            }}
-                                            onClick={() => setOpenOil(true)}
-                                            startIcon={isMobile ? "" : <PostAddIcon style={{ fontSize: "50px" }} />} // กำหนดขนาดไอคอน
-                                        >
-                                            {isMobile ? <PostAddIcon style={{ fontSize: "50px" }} /> : "รับน้ำมัน"}
-                                        </Button>
-                                    </Grid>
-                                        <Grid item xs={5}>
-                                            <Button
-                                                variant="contained"
-                                                color="info"
-                                                fullWidth
-                                                sx={{
-                                                    height: 100,
-                                                    borderRadius: 3,
-                                                    fontSize: 24, // ขนาดตัวหนังสือ
-                                                    fontWeight: "bold"
-                                                }}
-                                                onClick={() => setOpenOil(false)}
-                                                startIcon={isMobile ? "" : <FactCheckIcon style={{ fontSize: "50px" }} />} // กำหนดขนาดไอคอน
-                                            >
-                                                {isMobile ? <FactCheckIcon style={{ fontSize: "50px" }} /> : "ปิดยอดสต็อก"}
-                                            </Button>
-                                        </Grid>
-                                    <Grid item xs={1} />
-                                </Grid>
-                        // )
-                        // :
-                        // <Grid container spacing={2} sx={{ backgroundColor: "#eeeeee", marginTop: 2, p: 3, borderRadius: 5 }}>
-                        //     <Grid item xs={12}>
-                        //         <Typography variant="h4" fontWeight="bold" textAlign="center" color="gray" gutterBottom>กรุณาเลือกปั้มให้เรียบร้อย</Typography>
-                        //     </Grid>
-                        // </Grid>
-                    } */}
                 </Box>
                 <Box
                     height={50}

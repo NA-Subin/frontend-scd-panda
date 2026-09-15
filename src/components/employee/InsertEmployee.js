@@ -55,14 +55,12 @@ const InsertEmployee = (props) => {
     const [menu, setMenu] = React.useState(type);
 
     React.useEffect(() => {
-        setMenu(type);  // อัปเดต state เมื่อ props.type เปลี่ยน
+        setMenu(type);
     }, [type]);
 
     const { gasstation, positions, refetch: refetchBasicData } = useBasicData();
     const gasStation = Object.values(gasstation || {});
     const positionDetail = Object.values(positions || {});
-
-    console.log("Positions : ", positionDetail);
 
     const [error, setError] = useState(false);
     const [open, setOpen] = React.useState(false);
@@ -84,18 +82,13 @@ const InsertEmployee = (props) => {
     const [bigTrucks, setBigTrucks] = useState(true);
     const [smallTrucks, setSmallTrucks] = useState(true);
 
-    console.log("user truck : ", `t${driver.length.toString().padStart(4, '0')}`);
-    console.log(!bigTrucks && !smallTrucks ? "รถใหญ่/รถเล็ก" : !bigTrucks && smallTrucks ? "รถใหญ่" : bigTrucks && !smallTrucks ? "รถเล็ก" : "กรุณาเลือกประเภทรถ")
-
-    // ใช้ useEffect เพื่อรับฟังการเปลี่ยนแปลงของขนาดหน้าจอ
     useEffect(() => {
         const handleResize = () => {
-            setWindowWidth(window.innerWidth); // อัพเดตค่าขนาดหน้าจอ
+            setWindowWidth(window.innerWidth);
         };
 
-        window.addEventListener('resize', handleResize); // เพิ่ม event listener
+        window.addEventListener('resize', handleResize);
 
-        // ลบ event listener เมื่อ component ถูกทำลาย
         return () => {
             window.removeEventListener('resize', handleResize);
         };
@@ -221,9 +214,8 @@ const InsertEmployee = (props) => {
 
                 if (!file) return alert("กรุณาเลือกไฟล์ก่อน");
 
-                let img = "ไม่แนบไฟล์"; // ตั้งค่าเริ่มต้นไว้เลย
+                let img = "ไม่แนบไฟล์";
 
-                // ✅ ตรวจสอบก่อนว่า file เป็น "ไม่แนบไฟล์" หรือไม่
                 if (file !== "ไม่แนบไฟล์") {
                     const formData = new FormData();
                     formData.append("pic", file);
@@ -331,8 +323,6 @@ const InsertEmployee = (props) => {
         }
     };
 
-    console.log("registration Truck ", regTruck);
-
     return (
         <React.Fragment>
             <Box
@@ -370,33 +360,12 @@ const InsertEmployee = (props) => {
                 </DialogTitle>
                 <DialogContent>
                     <Grid container spacing={2} marginTop={2} marginBottom={2}>
-                        {/* <Grid item md={3} xs={12}>
-                            <Paper
-                                component="form" sx={{ width: "100%" }}>
-                                <Select
-                                    id="demo-simple-select"
-                                    value={prefix}
-                                    size="small"
-                                    sx={{ textAlign: "left" }}
-                                    onChange={(e) => setPrefix(e.target.value)}
-                                    fullWidth
-                                >
-                                    <MenuItem value={0}>
-                                        เลือกคำนำหน้าชื่อ
-                                    </MenuItem>
-                                    <MenuItem value={"นาย"}>นาย</MenuItem>
-                                    <MenuItem value={"นาง"}>นาง</MenuItem>
-                                    <MenuItem value={"นางสาว"}>นางสาว</MenuItem>
-                                </Select>
-                            </Paper>
-                        </Grid> */}
                         <Grid item md={2} xs={3}>
                             <Typography variant="subtitle1" fontWeight="bold" textAlign="right" marginTop={1} gutterBottom>ชื่อ</Typography>
                         </Grid>
                         <Grid item md={4} xs={9}>
                             <Box display="flex" justifyContent="center" alignItems="center">
                                 <Paper component="form" sx={{ width: "100%" }}>
-                                    {/* <TextField size="small" fullWidth value={name} onChange={(e) => setName(e.target.value)} /> */}
                                     <TextField
                                         size="small"
                                         fullWidth
@@ -419,7 +388,6 @@ const InsertEmployee = (props) => {
                         <Grid item md={4} xs={9}>
                             <Box display="flex" justifyContent="center" alignItems="center">
                                 <Paper component="form" sx={{ width: "100%" }}>
-                                    {/* <TextField size="small" fullWidth value={lastname} onChange={(e) => setLastname(e.target.value)} /> */}
                                     <TextField
                                         size="small"
                                         fullWidth
@@ -468,7 +436,6 @@ const InsertEmployee = (props) => {
                                     </Grid>
                                     <Grid item md={4} xs={9}>
                                         <Paper component="form" sx={{ width: "100%" }}>
-                                            {/* <TextField size="small" fullWidth value={idCard} onChange={(e) => setIDCard(e.target.value)} /> */}
                                             <TextField
                                                 size="small"
                                                 fullWidth
@@ -486,28 +453,6 @@ const InsertEmployee = (props) => {
                                     </Grid>
                                 </>
                         }
-                        {/* <Grid item md={6} xs={12}>
-                            <Box display="flex" justifyContent="center" alignItems="center">
-                                <Typography variant="subtitle1" fontWeight="bold" textAlign="right" marginTop={1} sx={{ whiteSpace: "nowrap", marginRight: 1, marginLeft: { md: 4, xs: 3.5 } }} gutterBottom>ประเภทพนักงาน</Typography>
-                                <Paper
-                                    component="form" sx={{ width: "100%" }}>
-                                    <Select
-                                        id="demo-simple-select"
-                                        value={menu}
-                                        size="small"
-                                        sx={{ textAlign: "left" }}
-                                        onChange={(e) => setMenu(e.target.value)}
-                                        fullWidth
-                                    >
-                                        <MenuItem value={0}>
-                                            กรุณาเลือกประเภทพนักงาน
-                                        </MenuItem>
-                                        <MenuItem value={2}>พนักงานทั่วไป</MenuItem>
-                                        <MenuItem value={1}>พนักงานขับรถ</MenuItem>
-                                    </Select>
-                                </Paper>
-                            </Box>
-                        </Grid> */}
                         <Grid item md={2} xs={3}>
                             <Typography variant="subtitle1" fontWeight="bold" textAlign="right" marginTop={1} gutterBottom>เบอร์โทร</Typography>
                         </Grid>
@@ -760,23 +705,6 @@ const InsertEmployee = (props) => {
                                             <FormControlLabel control={<Checkbox onChange={() => setBigTrucks(!bigTrucks)} />} label="รถใหญ่" />
                                             <FormControlLabel control={<Checkbox onChange={() => setSmallTrucks(!smallTrucks)} />} label="รถเล็ก" />
                                         </FormGroup>
-                                        {/* <Paper
-                                            component="form">
-                                            <Select
-                                                id="demo-simple-select"
-                                                value={trucks}
-                                                size="small"
-                                                sx={{ textAlign: "left" }}
-                                                onChange={(e) => setTrucks(e.target.value)}
-                                                fullWidth
-                                            >
-                                                <MenuItem value={0}>
-                                                    กรุณาเลือกประเภทรถ
-                                                </MenuItem>
-                                                <MenuItem value={"รถใหญ่"}>รถใหญ่</MenuItem>
-                                                <MenuItem value={"รถเล็ก"}>รถเล็ก</MenuItem>
-                                            </Select>
-                                        </Paper> */}
                                     </Grid>
                                     <Grid item md={2} xs={3}>
                                         <Typography variant="subtitle1" fontWeight="bold" textAlign="right" marginTop={1} gutterBottom>ทะเบียนรถ</Typography>
@@ -844,7 +772,6 @@ const InsertEmployee = (props) => {
                                     <Grid item md={4} xs={9}>
                                         <Box display="flex" justifyContent="center" alignItems="center">
                                             <Paper component="form" sx={{ width: "100%" }}>
-                                                {/* <TextField size="small" fullWidth value={phone} onChange={(e) => setPhone(e.target.value)} /> */}
                                                 <TextField
                                                     size="small"
                                                     fullWidth
@@ -871,7 +798,6 @@ const InsertEmployee = (props) => {
                                     </Grid>
                                     <Grid item md={4} xs={9}>
                                         <Paper component="form">
-                                            {/* <TextField size="small" fullWidth value={bankID} onChange={(e) => setBankID(e.target.value)} /> */}
                                             <TextField
                                                 size="small"
                                                 fullWidth
@@ -892,7 +818,6 @@ const InsertEmployee = (props) => {
                                     </Grid>
                                     <Grid item md={4} xs={9}>
                                         <Paper component="form">
-                                            {/* <TextField size="small" fullWidth value={bank} onChange={(e) => setBank(e.target.value)} /> */}
                                             <TextField
                                                 size="small"
                                                 fullWidth
@@ -913,7 +838,6 @@ const InsertEmployee = (props) => {
                                     </Grid>
                                     <Grid item md={4} xs={9}>
                                         <Paper component="form">
-                                            {/* <TextField size="small" fullWidth value={salary} onChange={(e) => setSalary(e.target.value)} /> */}
                                             <TextField
                                                 size="small"
                                                 fullWidth
@@ -934,7 +858,6 @@ const InsertEmployee = (props) => {
                                     </Grid>
                                     <Grid item md={4} xs={9}>
                                         <Paper component="form">
-                                            {/* <TextField size="small" fullWidth value={security} onChange={(e) => setSecurity(e.target.value)} /> */}
                                             <TextField
                                                 size="small"
                                                 fullWidth
@@ -955,7 +878,6 @@ const InsertEmployee = (props) => {
                                     </Grid>
                                     <Grid item md={4} xs={9}>
                                         <Paper component="form">
-                                            {/* <TextField size="small" fullWidth value={tripCost} onChange={(e) => setTripCost(e.target.value)} /> */}
                                             <TextField
                                                 size="small"
                                                 fullWidth
@@ -976,7 +898,6 @@ const InsertEmployee = (props) => {
                                     </Grid>
                                     <Grid item md={4} xs={9}>
                                         <Paper component="form">
-                                            {/* <TextField size="small" fullWidth value={pointCost} onChange={(e) => setPointCost(e.target.value)} /> */}
                                             <TextField
                                                 size="small"
                                                 fullWidth
@@ -997,7 +918,6 @@ const InsertEmployee = (props) => {
                                     </Grid>
                                     <Grid item md={4} xs={9}>
                                         <Paper component="form">
-                                            {/* <TextField size="small" fullWidth value={telephoneBill} onChange={(e) => setTelephoneBill(e.target.value)} /> */}
                                             <TextField
                                                 size="small"
                                                 fullWidth
@@ -1018,7 +938,6 @@ const InsertEmployee = (props) => {
                                     </Grid>
                                     <Grid item md={4} xs={9}>
                                         <Paper component="form">
-                                            {/* <TextField size="small" fullWidth value={deposit} onChange={(e) => setDeposit(e.target.value)} /> */}
                                             <TextField
                                                 size="small"
                                                 fullWidth
@@ -1039,7 +958,6 @@ const InsertEmployee = (props) => {
                                     </Grid>
                                     <Grid item md={4} xs={9}>
                                         <Paper component="form">
-                                            {/* <TextField size="small" fullWidth value={loan} onChange={(e) => setLoan(e.target.value)} /> */}
                                             <TextField
                                                 size="small"
                                                 fullWidth
@@ -1066,7 +984,6 @@ const InsertEmployee = (props) => {
                                     </Grid>
                                     <Grid item md={4} xs={9}>
                                         <Paper component="form">
-                                            {/* <TextField size="small" fullWidth value={drivingLicense} onChange={(e) => setDrivingLicense(e.target.value)} /> */}
                                             <TextField
                                                 size="small"
                                                 fullWidth
@@ -1134,7 +1051,6 @@ const InsertEmployee = (props) => {
                                                             }}
                                                         />
                                                     </Button>
-                                                    {/* <Chip label="หรือ" size="small" sx={{ marginLeft: 3, marginRight: 3 }} /> */}
                                                     <Typography variant="subtitle1" fontWeight="bold" sx={{ marginLeft: 3, marginRight: 3, marginTop: 0.5 }} gutterBottom>หรือ</Typography>
                                                     <Button
                                                         variant="contained"
@@ -1220,14 +1136,6 @@ const InsertEmployee = (props) => {
                                                 </Box>
                                                 :
                                                 <Box textAlign="center">
-                                                    {/* <TextField
-                                                                        size="small"
-                                                                        type="text"
-                                                                        fullWidth
-                                                                        value={file.name}
-                                                                        sx={{ marginRight: 2 }}
-                                                                    /> */}
-
                                                     <Box display="flex" alignItems="center" justifyContent="center" >
                                                         <FilePreview file={file} />
                                                         <Button variant="outlined" color="error" size="small" sx={{ marginLeft: 2 }} onClick={() => { setFileType(1); setFile("ไม่แนบไฟล์"); }}>
@@ -1238,22 +1146,6 @@ const InsertEmployee = (props) => {
                                                         <Typography variant="subtitle1" gutterBottom>{file.name}</Typography>
                                                     </Box>
                                                 </Box>
-                                            // <Box sx={{
-                                            //     display: "flex",
-                                            //     alignItems: "center",
-                                            //     justifyContent: "space-between", // ช่วยแยกซ้ายขวา
-                                            //     paddingLeft: 12,
-                                            // }}>
-                                            //     <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                                            //         File : {file.name}
-                                            //     </Typography>
-                                            //     {/* <IconButton color="error" onClick={() => { setFile(null); setFileType(null); }}>
-                                            //         <DeleteForeverIcon />
-                                            //     </IconButton> */}
-                                            //     <Button variant="outlined" color="error" size="small" onClick={() => { setFile(null); setFileType(null); }}>
-                                            //         ลบไฟล์
-                                            //     </Button>
-                                            // </Box>
                                         }
                                     </Grid>
                                 </>

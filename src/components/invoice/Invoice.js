@@ -63,7 +63,6 @@ const Invoice = ({ openNavbar }) => {
       direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
     }));
   };
-  console.log("Date Start : ", dayjs(selectedDateStart));
 
   const handleDateChangeDateStart = (newValue) => {
     if (newValue) {
@@ -149,19 +148,14 @@ const Invoice = ({ openNavbar }) => {
     setDate(newDate);
   };
 
-  console.log("selectedRow : ", selectedRow);
-  console.log("indexes : ", indexes);
-
   const { customerbigtruck } = useBasicData();
   const { order, trip, transferMoney } = useTripData();
-  // const orders = Object.values(order || {});
   const orders = Object.values(order || {}).filter(item => {
     const itemDate = dayjs(item.Date, "DD/MM/YYYY");
     return itemDate.isSameOrAfter(dayjs("01/01/2026", "DD/MM/YYYY"), 'day');
   });
 
   const customerB = Object.values(customerbigtruck || {});
-  // const trips = Object.values(trip || {});
   const trips = Object.values(trip || {}).filter(item => {
     const deliveryDate = dayjs(item.DateDelivery, "DD/MM/YYYY");
     const receiveDate = dayjs(item.DateReceive, "DD/MM/YYYY");
@@ -170,8 +164,6 @@ const Invoice = ({ openNavbar }) => {
     return deliveryDate.isSameOrAfter(targetDate, 'day') || receiveDate.isSameOrAfter(targetDate, 'day');
   });
   const transferMoneyDetail = Object.values(transferMoney || {}).filter((row) => row.Status !== "ยกเลิก");
-
-  console.log("Transfer Money : ", transferMoneyDetail.filter((t) => t.TicketName.split(":")[1] === "A...ทรัพย์ทวี......ลำปาง+ส่งรูป"));
 
   const orderDetail = orders
     .map((item) => {
@@ -289,9 +281,6 @@ const Invoice = ({ openNavbar }) => {
     return result !== 0 || (amount === 0 && overdue === 0);
   });
 
-  console.log("sortedOrderDetail : ", sortedOrderDetail.filter(row => ((Number(row.TotalAmount) - Number(row.TotalOverdue)) !== 0) || (row.TotalAmount === 0 && row.TotalOverdue === 0)));
-  console.log("Order Detail : ", orderDetail);
-
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const activeRows = checkOverdueTransfer ? displayRows : sortedOrderDetail;
@@ -388,32 +377,6 @@ const Invoice = ({ openNavbar }) => {
                   },
                 }}
               />
-              {/* <DatePicker
-                openTo="day"
-                views={["year", "month", "day"]}
-                value={dayjs(selectedDateEnd)} // แปลงสตริงกลับเป็น dayjs object
-                format="DD/MM/YYYY"
-                onChange={handleDateChangeDateEnd}
-                slotProps={{
-                  textField: {
-                    size: "small",
-                    fullWidth: true,
-                    InputProps: {
-                      startAdornment: (
-                        <InputAdornment position="start" sx={{ marginRight: 2 }}>
-                          วันที่สิ้นสุด :
-                        </InputAdornment>
-                      ),
-                      sx: {
-                        fontSize: "16px", // ขนาดตัวอักษรภายใน Input
-                        height: "40px",  // ความสูงของ Input
-                        padding: "10px", // Padding ภายใน Input
-                        fontWeight: "bold",
-                      },
-                    },
-                  },
-                }}
-              /> */}
             </LocalizationProvider>
           </Box>
         </Grid>
@@ -421,35 +384,6 @@ const Invoice = ({ openNavbar }) => {
       <Divider sx={{ marginBottom: 1 }} />
       <Box sx={{ width: "100%" }}>
         <Grid container spacing={2} marginTop={3}>
-          {/*  <Grid item xs={4}>
-          <Button variant="contained" color={open === 1 ? "info" : "inherit"} sx={{ height: "10vh", fontSize: "22px", fontWeight: "bold", borderRadius: 3, borderBottom: open === 1 && "5px solid" + theme.palette.panda.light }} fullWidth onClick={() => setOpen(1)}>ลูกค้า</Button>
-        </Grid>
-        <Grid item xs={4}>
-          <Button variant="contained" color={open === 2 ? "info" : "inherit"} sx={{ height: "10vh", fontSize: "22px", fontWeight: "bold", borderRadius: 3, borderBottom: open === 2 && "5px solid" + theme.palette.panda.light }} fullWidth onClick={() => setOpen(2)}>ขนส่ง</Button>
-        </Grid>
-        <Grid item xs={4}>
-          <Button variant="contained" color={open === 3 ? "info" : "inherit"} sx={{ height: "10vh", fontSize: "22px", fontWeight: "bold", borderRadius: 3, borderBottom: open === 3 && "5px solid" + theme.palette.panda.light }} fullWidth onClick={() => setOpen(3)}>ปั้ม</Button>
-        </Grid>
-        <Grid item xs={4} sx={{ marginTop: -3 }}>
-          {
-            open === 1 && <Typography variant="h3" fontWeight="bold" textAlign="center" color={theme.palette.panda.loght} gutterBottom>||</Typography>
-          }
-        </Grid>
-        <Grid item xs={4} sx={{ marginTop: -3 }}>
-          {
-            open === 1 && <Typography variant="h3" fontWeight="bold" textAlign="center" color={theme.palette.panda.loght} gutterBottom>||</Typography>
-          }
-        </Grid>
-        <Grid item xs={4} sx={{ marginTop: -3 }}>
-          {
-            open === 2 && <Typography variant="h3" fontWeight="bold" textAlign="center" color={theme.palette.panda.light} gutterBottom>||</Typography>
-          }
-        </Grid>
-        <Grid item xs={4} sx={{ marginTop: -3 }}>
-          {
-            open === 3 && <Typography variant="h3" fontWeight="bold" textAlign="center" color={theme.palette.panda.light} gutterBottom>||</Typography>
-          }
-        </Grid> */}
           <Grid item xs={12}>
             <FormGroup row sx={{ marginBottom: -1.5 }}>
               <Typography variant="subtitle1" fontWeight="bold" sx={{ marginTop: 1, marginRight: 2 }} gutterBottom>กรุณาเลือกสถานะที่ต้องการ : </Typography>
@@ -459,9 +393,7 @@ const Invoice = ({ openNavbar }) => {
             </FormGroup>
           </Grid>
           <Grid item xs={12}>
-            {/* <Paper sx={{ backgroundColor: "#fafafa", borderRadius: 3, p: 5, borderTop: "5px solid" + theme.palette.panda.light, marginTop: -3 }}> */}
             {
-              //open === 1 ?
               <Grid container spacing={2} sx={{ marginTop: -5, }}>
                 <Grid item xs={12}>
                   <Grid container spacing={2}>
@@ -472,7 +404,6 @@ const Invoice = ({ openNavbar }) => {
                             <Checkbox
                               color="warning"
                               checked={checkOverdueTransfer}
-                              //onChange={() => setCheckOverdueTransfer(!checkOverdueTransfer)}
                               onChange={handleChangeCheck}
                               />
                           }
@@ -493,7 +424,6 @@ const Invoice = ({ openNavbar }) => {
                               <Checkbox
                                 color="warning"
                                 checked={checkOverdueTransfer}
-                                //onChange={() => setCheckOverdueTransfer(!checkOverdueTransfer)}
                                 onChange={handleChangeCheck}
                               />
                             }
@@ -660,46 +590,6 @@ const Invoice = ({ openNavbar }) => {
                               </TableRow>
                             ))
                         }
-                        {/* {
-                          checkOverdueTransfer ?
-                          resultBigTruck.map((row,index) => (
-                            (row.TotalOverdueTransfer !== 0 || (row.Amount === 0 && row.TotalOverdueTransfer === 0)) && (
-                            <TableRow
-                              key={row.No}
-                              onClick={() => handleRowClick(row,index)}
-                              sx={{ cursor: "pointer", "&:hover": { backgroundColor: "#e0e0e0" }, backgroundColor: (selectedRow === row.No) || (indexes === index) ? "#fff59d" : "" }}
-                            >
-                              <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>{index+1}</TableCell>
-                              <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>{row.TicketNameName}</TableCell>
-                              <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>
-                                {new Intl.NumberFormat("en-US").format(row.Volume || 0)}
-                              </TableCell>
-                              <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>{new Intl.NumberFormat("en-US").format(row.Amount || 0)}</TableCell>
-                              <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>{new Intl.NumberFormat("en-US").format(row.TransferAmount || 0)}</TableCell>
-                              <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>{new Intl.NumberFormat("en-US").format(row.TotalOverdueTransfer || 0)}
-                              </TableCell>
-                            </TableRow>
-                            )
-                          ))
-                          
-                          : resultBigTruck.map((row,index) => (
-                            <TableRow
-                              key={row.No}
-                              onClick={() => handleRowClick(row,index)}
-                              sx={{ cursor: "pointer", "&:hover": { backgroundColor: "#e0e0e0" }, backgroundColor: (selectedRow === row.No) || (indexes === index) ? "#fff59d" : "" }}
-                            >
-                              <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>{index+1}</TableCell>
-                              <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>{row.TicketNameName}</TableCell>
-                              <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>
-                                {new Intl.NumberFormat("en-US").format(row.Volume || 0)}
-                              </TableCell>
-                              <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>{new Intl.NumberFormat("en-US").format(row.Amount || 0)}</TableCell>
-                              <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>{new Intl.NumberFormat("en-US").format(row.TransferAmount || 0)}</TableCell>
-                              <TableCell sx={{ textAlign: "center", fontWeight: (selectedRow === row.No) || (indexes === index) ? "bold" : "" }}>{new Intl.NumberFormat("en-US").format(row.TotalOverdueTransfer || 0)}
-                              </TableCell>
-                            </TableRow>
-                          ))
-                        } */}
                       </TableBody>
                     </Table>
                   </TableContainer>
@@ -721,138 +611,7 @@ const Invoice = ({ openNavbar }) => {
                   }
                 </Grid>
               </Grid>
-              //     : open === 2 ?
-              //       <Grid container spacing={2} sx={{ marginTop: -5, }}>
-              //         <Grid item xs={12}>
-              //           <Typography variant='subtitle1' fontWeight="bold" sx={{ fontSize: "12px", color: "red", }} gutterBottom>*กรุณาคลิกชื่อลูกค้าในตารางเพื่อดูรายละเอียด*</Typography>
-              //           <TableContainer
-              //             component={Paper}
-              //             sx={resultTransport.length <= 8 ? { marginBottom: 2 } : { marginBottom: 2, height: "250px" }}
-              //           >
-              //             <Table stickyHeader size="small" sx={{ tableLayout: "fixed", "& .MuiTableCell-root": { padding: "4px" } }}>
-              //               <TableHead sx={{ height: "5vh" }}>
-              //                 <TableRow>
-              //                   <TablecellHeader width={50} sx={{ textAlign: "center", fontSize: 16 }}>
-              //                     ลำดับ
-              //                   </TablecellHeader>
-              //                   <TablecellHeader sx={{ textAlign: "center", fontSize: 16 }}>
-              //                     ชื่อ-สกุล
-              //                   </TablecellHeader>
-              //                   <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 120 }}>
-              //                     จำนวนลิตร
-              //                   </TablecellHeader>
-              //                   <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 120 }}>
-              //                     ยอดเงิน
-              //                   </TablecellHeader>
-              //                   <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 120 }}>
-              //                     ยอดโอน
-              //                   </TablecellHeader>
-              //                   <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 120 }}>
-              //                     ค้างโอน
-              //                   </TablecellHeader>
-              //                 </TableRow>
-              //               </TableHead>
-              //               <TableBody>
-              //                 {
-              //                   resultTransport.map((row) => (
-              //                     <TableRow
-              //                       key={row.No}
-              //                       onClick={() => handleRowClick(row)}
-              //                       sx={{ cursor: "pointer", "&:hover": { backgroundColor: "#e0e0e0" }, backgroundColor: selectedRow === row.No ? "#fff59d" : "" }}
-              //                     >
-              //                       <TableCell sx={{ textAlign: "center", fontWeight: selectedRow === row.No ? "bold" : "" }}>{row.No}</TableCell>
-              //                       <TableCell sx={{ textAlign: "center", fontWeight: selectedRow === row.No ? "bold" : "" }}>{row.TicketName}</TableCell>
-              //                       <TableCell sx={{ textAlign: "center", fontWeight: selectedRow === row.No ? "bold" : "" }}>
-              //                         {new Intl.NumberFormat("en-US").format(row.Volume || 0)}
-              //                       </TableCell>
-              //                       <TableCell sx={{ textAlign: "center", fontWeight: selectedRow === row.No ? "bold" : "" }}>{new Intl.NumberFormat("en-US").format(row.Amount || 0)}</TableCell>
-              //                       <TableCell sx={{ textAlign: "center", fontWeight: selectedRow === row.No ? "bold" : "" }}>{new Intl.NumberFormat("en-US").format(row.TransferAmount || 0)}</TableCell>
-              //                       <TableCell sx={{ textAlign: "center", fontWeight: selectedRow === row.No ? "bold" : "" }}>{new Intl.NumberFormat("en-US").format(row.TotalOverdueTransfer || 0)}
-              //                       </TableCell>
-              //                     </TableRow>
-              //                   ))
-              //                 }
-              //               </TableBody>
-              //             </Table>
-              //           </TableContainer>
-              //         </Grid>
-              //         <Grid item xs={12}>
-              //           {
-              //             resultTransport.map((row) => (
-              //               selectedRow && selectedRow === row.No ?
-              //                 <UpdateInvoice key={row.No} ticket={row} />
-              //                 : ""
-              //             ))
-              //           }
-              //         </Grid>
-              //       </Grid>
-              //       :
-              //       <Grid container spacing={2} sx={{ marginTop: -5, }}>
-              //         <Grid item xs={12}>
-              //           <Typography variant='subtitle1' fontWeight="bold" sx={{ fontSize: "12px", color: "red", }} gutterBottom>*กรุณาคลิกชื่อลูกค้าในตารางเพื่อดูรายละเอียด*</Typography>
-              //           <TableContainer
-              //             component={Paper}
-              //             sx={resultGasStation.length <= 8 ? { marginBottom: 2 } : { marginBottom: 2, height: "250px" }}
-              //           >
-              //             <Table stickyHeader size="small" sx={{ tableLayout: "fixed", "& .MuiTableCell-root": { padding: "4px" } }}>
-              //               <TableHead sx={{ height: "5vh" }}>
-              //                 <TableRow>
-              //                   <TablecellHeader width={50} sx={{ textAlign: "center", fontSize: 16 }}>
-              //                     ลำดับ
-              //                   </TablecellHeader>
-              //                   <TablecellHeader sx={{ textAlign: "center", fontSize: 16 }}>
-              //                     ชื่อ-สกุล
-              //                   </TablecellHeader>
-              //                   <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 120 }}>
-              //                     จำนวนลิตร
-              //                   </TablecellHeader>
-              //                   <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 120 }}>
-              //                     ยอดเงิน
-              //                   </TablecellHeader>
-              //                   <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 120 }}>
-              //                     ยอดโอน
-              //                   </TablecellHeader>
-              //                   <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 120 }}>
-              //                     ค้างโอน
-              //                   </TablecellHeader>
-              //                 </TableRow>
-              //               </TableHead>
-              //               <TableBody>
-              //                 {
-              //                   resultGasStation.map((row) => (
-              //                     <TableRow
-              //                       key={row.No}
-              //                       onClick={() => handleRowClick(row)}
-              //                       sx={{ cursor: "pointer", "&:hover": { backgroundColor: "#e0e0e0" }, backgroundColor: selectedRow === row.No ? "#fff59d" : "" }}
-              //                     >
-              //                       <TableCell sx={{ textAlign: "center", fontWeight: selectedRow === row.No ? "bold" : "" }}>{row.No}</TableCell>
-              //                       <TableCell sx={{ textAlign: "center", fontWeight: selectedRow === row.No ? "bold" : "" }}>{row.TicketName}</TableCell>
-              //                       <TableCell sx={{ textAlign: "center", fontWeight: selectedRow === row.No ? "bold" : "" }}>
-              //                         {new Intl.NumberFormat("en-US").format(row.Volume || 0)}
-              //                       </TableCell>
-              //                       <TableCell sx={{ textAlign: "center", fontWeight: selectedRow === row.No ? "bold" : "" }}>{new Intl.NumberFormat("en-US").format(row.Amount || 0)}</TableCell>
-              //                       <TableCell sx={{ textAlign: "center", fontWeight: selectedRow === row.No ? "bold" : "" }}>{new Intl.NumberFormat("en-US").format(row.TransferAmount || 0)}</TableCell>
-              //                       <TableCell sx={{ textAlign: "center", fontWeight: selectedRow === row.No ? "bold" : "" }}>{new Intl.NumberFormat("en-US").format(row.TotalOverdueTransfer || 0)}
-              //                       </TableCell>
-              //                     </TableRow>
-              //                   ))
-              //                 }
-              //               </TableBody>
-              //             </Table>
-              //           </TableContainer>
-              //         </Grid>
-              //         <Grid item xs={12}>
-              //           {
-              //             resultGasStation.map((row) => (
-              //               selectedRow && selectedRow === row.No ?
-              //                 <UpdateInvoice key={row.No} ticket={row} />
-              //                 : ""
-              //             ))
-              //           }
-              //         </Grid>
-              //       </Grid>
             }
-            {/* </Paper> */}
           </Grid>
         </Grid>
       </Box>

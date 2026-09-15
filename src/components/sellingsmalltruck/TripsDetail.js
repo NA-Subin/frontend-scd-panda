@@ -72,8 +72,6 @@ const TripsDetail = (props) => {
 
     const ShortName = smalls.find((t) => t.uuid === trips.Registration)?.ShortName || "-";
 
-    console.log("trips:", trips);
-
     return (
         <React.Fragment>
             <TableRow>
@@ -106,9 +104,7 @@ const TripsDetail = (props) => {
                             })()}
                         </Typography>
                     </Box>
-                    {/* {trips.Driver}/{trips.Registration} */}
                 </TableCell>
-                {/* ✅ Order dynamic */}
                 {Array.from({ length: maxOrder }, (_, i) => {
                     const key = `Order${i + 1}`;
                     return (
@@ -147,32 +143,6 @@ const TripsDetail = (props) => {
                         maximumFractionDigits: 2,
                     }).format(parseFloat(trips.WeightOil))}
                 </TableCell>
-                {/* <TableCell
-                    sx={{
-                        textAlign: "right",
-                        paddingLeft: "20px !important",
-                        paddingRight: "20px !important",
-                        fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน
-                    }}
-                >
-                    {new Intl.NumberFormat("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                    }).format(trips.WeightTruck)}
-                </TableCell>
-                <TableCell
-                    sx={{
-                        textAlign: "right",
-                        paddingLeft: "20px !important",
-                        paddingRight: "20px !important",
-                        fontVariantNumeric: "tabular-nums", // ✅ ให้ตัวเลขแต่ละหลักมีความกว้างเท่ากัน
-                    }}
-                >
-                    {new Intl.NumberFormat("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                    }).format(trips.TotalWeight)}
-                </TableCell> */}
                 <TableCell sx={{ textAlign: "center" }}>
                     {trips.StatusTrip}
                 </TableCell>
@@ -192,73 +162,6 @@ const TripsDetail = (props) => {
                         driversdetail={trips.Driver}
                     />
                 </TableCell>
-                {/* <TableCell sx={{
-                    textAlign: "center",
-                    color: "white",
-                    backgroundColor:
-                        trips.Status === "รออนุมัติ" ? "yellowgreen"
-                            : trips.Status === "ไม่อนุมัติ" ? "orangered"
-                                : trips.Status === "อนุมัติแล้ว" ? "blue"
-                                    : trips.Status === "ยกเลิก" ? "red"
-                                        : "green",
-                    position: "sticky",
-                    right: windowWidth <= 900 ? 0 : "200px", // ติดซ้ายสุด
-                    zIndex: windowWidth <= 900 ? 2 : 4,
-                }}>{trips.Status}</TableCell>
-                <TableCell sx={
-                    windowWidth <= 900 ?
-                        { textAlign: "center" }
-                        :
-                        (trips.Status === "รออนุมัติ" ?
-                            { textAlign: "center" }
-                            :
-                            {
-                                textAlign: "center",
-                                position: "sticky",
-                                right: 0, // ระยะที่ชิดซ้ายต่อจากเซลล์ก่อนหน้า
-                                backgroundColor: "#fff", // ใส่พื้นหลังเพื่อไม่ให้โปร่งใส
-                                zIndex: 1,
-                            })
-                }>{trips.Creditor}</TableCell>
-                <TableCell
-                    sx={
-                        windowWidth <= 900 ?
-                            {
-                                textAlign: "center",
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                            }
-                            :
-                            trips.Status === "รออนุมัติ" ?
-                                {
-                                    textAlign: "center",
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    position: "sticky",
-                                    right: 0, // ระยะที่ชิดซ้ายต่อจากเซลล์ก่อนหน้า
-                                    backgroundColor: "#fff", // ใส่พื้นหลังเพื่อไม่ให้โปร่งใส
-                                    zIndex: 1,
-                                }
-                                :
-                                {
-                                    textAlign: "center",
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                }
-                    }>
-                    {
-                        trips.Status === "รออนุมัติ" ?
-                            <>
-                                <Button variant="contained" color="warning" size="small" onClick={handleApprove} sx={{ marginRight: 1 }} fullWidth>อนุมัติ</Button>
-                                <Button variant="contained" color="error" size="small" onClick={handleNonApprove} fullWidth>ไม่อนุมัติ</Button>
-                            </>
-                            :
-                            <Button variant="text" size="small" fullWidth>-</Button>
-                    }
-                </TableCell> */}
             </TableRow>
         </React.Fragment>
 

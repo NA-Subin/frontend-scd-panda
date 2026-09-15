@@ -78,7 +78,6 @@ const UpdateEmployee = (props) => {
                 Position: position,
                 PositionName: positionRow?.Name || "",
                 Phone: phone
-                //Rights: rights === 1 ? "แอดมิน" : rights === 2 ? "หน้าลาน" : rights === 3 ? "เจ้าหนี้น้ำมัน" : ""
             });
             ShowSuccess("เพิ่มข้อมูลสำเร็จ");
             refetchBasicData?.();
@@ -105,7 +104,6 @@ const UpdateEmployee = (props) => {
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{row.Name}</TableCell>
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{row.PositionName}</TableCell>
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{row.Phone}</TableCell>
-                {/* <TableCell sx={{ textAlign: "center", height: "35px" }}>{row.Rights}</TableCell> */}
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{row.User}</TableCell>
             </TableRow>
             <Dialog
@@ -180,40 +178,6 @@ const UpdateEmployee = (props) => {
                             <Grid item xs={5}>
                                 <TextField fullWidth variant="standard" value={user} disabled />
                             </Grid>
-                            {/* <Grid item xs={12} display="flex" justifyContent="center" alignItems="center">
-                                <FormGroup row>
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={rights === 1 ? true : false}
-                                                onChange={() => setRights(1)}
-                                                size="small"
-                                            />
-                                        }
-                                        disabled={update ? true : false}
-                                        label="แอดมิน" />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={rights === 2 ? true : false}
-                                                onChange={() => setRights(2)}
-                                                size="small"
-                                            />
-                                        }
-                                        disabled={update ? true : false}
-                                        label="หน้าลาน" />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={rights === 3 ? true : false}
-                                                onChange={() => setRights(3)}
-                                                size="small"
-                                            />
-                                        }
-                                        disabled={update ? true : false}
-                                        label="เจ้าหนี้น้ำมัน" />
-                                </FormGroup>
-                            </Grid> */}
                         </Grid>
                     </Paper>
                 </DialogContent>

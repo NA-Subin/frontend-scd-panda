@@ -70,20 +70,17 @@ const ReportTrip = ({ openNavbar }) => {
         direction: 'asc',
     });
 
-    console.log("sortConfig : ", sortConfig);
-
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
     useEffect(() => {
         const handleResize = () => {
             let width = window.innerWidth;
             if (!openNavbar) {
-                width += 120; // ✅ เพิ่ม 200 ถ้า openNavbar = false
+                width += 120;
             }
             setWindowWidth(width);
         };
 
-        // เรียกครั้งแรกตอน mount
         handleResize();
 
         window.addEventListener('resize', handleResize);
@@ -110,28 +107,25 @@ const ReportTrip = ({ openNavbar }) => {
 
     const handleDateChangeDateStart = (newValue) => {
         if (newValue) {
-            const formattedDate = dayjs(newValue); // แปลงวันที่เป็นฟอร์แมต
+            const formattedDate = dayjs(newValue);
             setSelectedDateStart(formattedDate);
         }
     };
 
     const handleDateChangeDateEnd = (newValue) => {
         if (newValue) {
-            const formattedDate = dayjs(newValue); // แปลงวันที่เป็นฟอร์แมต
+            const formattedDate = dayjs(newValue);
             setSelectedDateEnd(formattedDate);
         }
     };
 
-    // const { reportFinancial, drivers } = useData();
     const { drivers, customertransports, customergasstations, customerbigtruck, customersmalltruck, customertickets } = useBasicData();
     const { order, trip } = useTripData();
-    // const orders = Object.values(order || {});
     const orders = Object.values(order || {}).filter(item => {
         const itemDate = dayjs(item.Date, "DD/MM/YYYY");
         return itemDate.isSameOrAfter(dayjs("01/01/2026", "DD/MM/YYYY"), 'day');
     });
 
-    // const trips = Object.values(trip || {});
     const trips = Object.values(trip || {}).filter(item => {
         const deliveryDate = dayjs(item.DateDelivery, "DD/MM/YYYY");
         const receiveDate = dayjs(item.DateReceive, "DD/MM/YYYY");
@@ -146,21 +140,10 @@ const ReportTrip = ({ openNavbar }) => {
     const ticketsS = Object.values(customersmalltruck || {});
     const ticketsA = Object.values(customertickets || {});
 
-    console.log("Select Driver ID : ", selectDriver);
-    console.log("orders : ", orders);
-
     const TripDetail = useMemo(() => {
         if (!selectedDateStart || !selectedDateEnd) return [];
 
-        // 1. กรอง orders ที่อยู่ในช่วงวันที่และมี Product
-        // const filteredOrders = orders.filter((order) => {
-        //     if (!order.Product || !order.Date) return false;
-
-        //     const orderDate = dayjs(order.Date, "DD/MM/YYYY");
-        //     return orderDate.isBetween(selectedDateStart, selectedDateEnd, null, "[]");
-        // });
-
-        // 2. สร้าง Map: tripId → totalVolumeProduct
+        // 1. สร้าง Map: tripId → totalVolumeProduct
         const volumeByTripId = orders.reduce((acc, order) => {
             const totalVolume = Object.entries(order.Product || {})
                 .filter(([productName]) => productName !== "P")
@@ -170,7 +153,7 @@ const ReportTrip = ({ openNavbar }) => {
             return acc;
         }, {});
 
-        // 3. กรอง trips แล้วรวม totalVolumeProduct เข้าไป
+        // 2. กรอง trips แล้วรวม totalVolumeProduct เข้าไป
         return trips
             .filter((item) => {
                 const itemDate = dayjs(item.DateReceive, "DD/MM/YYYY");
@@ -197,7 +180,6 @@ const ReportTrip = ({ openNavbar }) => {
 
     const totalCostTrip = TripDetail.reduce((sum, item) => sum + Number(item.CostTrip || 0), 0);
     const totalVolume = TripDetail.reduce((sum, item) => sum + Number(item.totalVolumeProduct || 0), 0);
-    //const totalVolume = TripDetail.reduce((sum, item) => sum + (Number(item.WeightHigh) + Number(item.WeightLow)), 0);
 
     const sortedDrivers = [...driver].sort((a, b) => {
         // จัดกลุ่มรถใหญ่ไว้ก่อน
@@ -210,24 +192,17 @@ const ReportTrip = ({ openNavbar }) => {
         return ticketA.localeCompare(ticketB, "th"); // ใช้ "th" สำหรับเรียงตามพจนานุกรมไทย
     });
 
-    console.log("Driver : ", sortedDrivers);
-
     useEffect(() => {
         if (sortedDrivers.length > 0 && !selectDriver) {
             setSelectDriver(sortedDrivers[0]);
         }
     }, [sortedDrivers, selectDriver]);
 
-    console.log("Trip Detail : ", TripDetail);
-    console.log("Select Driver : ", selectDriver);
-
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const pageCount = Math.max(1, Math.ceil(TripDetail.length / rowsPerPage));
     const safePage = Math.min(page, pageCount - 1);
     const pagedTripDetail = TripDetail.slice(safePage * rowsPerPage, safePage * rowsPerPage + rowsPerPage);
-
-    console.log(sortedDrivers.find(item => item.id === 1));
 
     const exportToExcel = async () => {
         const workbook = new ExcelJS.Workbook();
@@ -303,7 +278,7 @@ const ReportTrip = ({ openNavbar }) => {
         footerRow.alignment = { horizontal: "center", vertical: "middle" };
         footerRow.height = 25;
         footerRow.eachCell((cell, colNumber) => {
-            cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFFE699" } }; // สีเหลือง
+            cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFFE699" } };
             cell.border = { top: { style: "thin" }, left: { style: "thin" }, bottom: { style: "thin" }, right: { style: "thin" } };
             if (worksheet.columns[colNumber - 1].key !== "no" && worksheet.columns[colNumber - 1].key !== "orders") {
                 cell.numFmt = "#,##0.00";
@@ -337,7 +312,7 @@ const ReportTrip = ({ openNavbar }) => {
                             <Grid item sm={12} lg={5}>
                                 <Box
                                     sx={{
-                                        width: "100%", // กำหนดความกว้างของ Paper
+                                        width: "100%",
                                         height: "40px",
                                         display: "flex",
                                         alignItems: "center",
@@ -414,47 +389,6 @@ const ReportTrip = ({ openNavbar }) => {
                                 </Box>
                             </Grid>
                             <Grid item sm={12} lg={5}>
-                                {/* <Paper>
-                            <FormControl size="small" fullWidth>
-                                <Select
-                                    value={selectDriver}
-                                    onChange={handleChangeDriver}
-                                    input={
-                                        <OutlinedInput
-                                            startAdornment={
-                                                <InputAdornment position="start" sx={{ marginRight: 1 }}>
-                                                    กรุณาเลือกผู้ขับ/ป้ายทะเบียน :
-                                                </InputAdornment>
-                                            }
-                                        />
-                                    }
-                                    MenuProps={{
-                                        PaperProps: {
-                                            style: {
-                                                maxHeight: 250, // ความสูงสูงสุดที่จะแสดงก่อนมี scroll
-                                                width: 300,     // ปรับความกว้างตามต้องการ
-                                            },
-                                        },
-                                    }}
-                                >
-                                    <MenuItem value={0}>แสดงทั้งหมด</MenuItem>
-                                    {[...driver]
-                                        .sort((a, b) => {
-                                            // รถใหญ่ต้องมาก่อน
-                                            if (a.TruckType === "รถใหญ่" && b.TruckType !== "รถใหญ่") return -1;
-                                            if (a.TruckType !== "รถใหญ่" && b.TruckType === "รถใหญ่") return 1;
-
-                                            // ถ้า TruckType เหมือนกัน ให้เรียงตามชื่อ
-                                            return a.Name.localeCompare(b.Name);
-                                        })
-                                        .map((row) => (
-                                            <MenuItem key={row.id} value={row.id}>
-                                                {`${row.Name}/${row.RegistrationName} (${row.TruckType})`}
-                                            </MenuItem>
-                                        ))}
-
-                                </Select>
-                            </FormControl> */}
                                 <Paper>
                                     <Paper>
                                         <Autocomplete
@@ -504,38 +438,6 @@ const ReportTrip = ({ openNavbar }) => {
                                             }}
                                         />
                                     </Paper>
-
-                                    {/* <FormControl size="small" fullWidth>
-                                <Select
-                                    value={selectTickets}
-                                    onChange={handleChangeTickets}
-                                    input={
-                                        <OutlinedInput
-                                            startAdornment={
-                                                <InputAdornment position="start" sx={{ marginRight: 1 }}>
-                                                    กรุณาเลือกผู้ขับ/ป้ายทะเบียน :
-                                                </InputAdornment>
-                                            }
-                                        />
-                                    }
-                                    MenuProps={{
-                                        PaperProps: {
-                                            style: {
-                                                maxHeight: 250, // ความสูงสูงสุดที่จะแสดงก่อนมี scroll
-                                                width: 300,     // ปรับความกว้างตามต้องการ
-                                            },
-                                        },
-                                    }}
-                                >
-                                    <MenuItem value={0}>แสดงทั้งหมด</MenuItem>
-                                    {getCustomers().map((row) => (
-                                        <MenuItem key={row.id} value={`${row.id}:${row.Name}`}>
-                                            {`${row.Name} (${row.CustomerType})`}
-                                        </MenuItem>
-                                    ))}
-
-                                </Select>
-                            </FormControl> */}
                                 </Paper>
                             </Grid>
                             <Grid item sm={3} lg={2}>
@@ -547,7 +449,7 @@ const ReportTrip = ({ openNavbar }) => {
                             <Grid item xs={12}>
                                 <Box
                                     sx={{
-                                        width: "100%", // กำหนดความกว้างของ Paper
+                                        width: "100%",
                                         height: "40px",
                                         display: "flex",
                                         alignItems: "center",
@@ -761,8 +663,6 @@ const ReportTrip = ({ openNavbar }) => {
                         <Grid container spacing={1} marginTop={1} paddingBottom={1} sx={{ backgroundColor: theme.palette.info.main }}>
                             <Grid item xs={3} />
                             <Grid item xs={3}>
-                                {/* <Box sx={{ display: "flex", alignItems: "center", justifyContent: "right", marginRight: 2 }}>
-                                    <Typography variant="h6" sx={{ marginRight: 1, fontWeight: "bold" }} gutterBottom>รวมลิตร</Typography> */}
                                 <Paper sx={{ backgroundColor: "white" }}>
                                     <TextField
                                         fullWidth
@@ -801,7 +701,6 @@ const ReportTrip = ({ openNavbar }) => {
                                     />
 
                                 </Paper>
-                                {/* </Box> */}
                             </Grid>
                             <Grid item xs={3}>
                                 <Paper sx={{ backgroundColor: "white" }}>
@@ -842,12 +741,6 @@ const ReportTrip = ({ openNavbar }) => {
                                     />
 
                                 </Paper>
-                                {/* <Box sx={{ display: "flex", alignItems: "center", justifyContent: "left", marginLeft: 2 }}>
-                                    <Typography variant="h6" sx={{ marginRight: 1, fontWeight: "bold" }} gutterBottom>ยอดเงิน</Typography>
-                                    <Paper>
-                                        <TextField fullWidth size="small" value={new Intl.NumberFormat("en-US").format(totalCostTrip)} />
-                                    </Paper>
-                                </Box> */}
                             </Grid>
                             <Grid item xs={3} />
                         </Grid>

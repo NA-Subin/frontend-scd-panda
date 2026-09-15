@@ -47,8 +47,6 @@ const TripsDetail = (props) => {
 
   const orders = orderDetail.find((item) => Number(item.Trip) === trips.id - 1);
   const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
-  console.log("order : ", orders);
-  console.log("orderName : ", orderName);
 
   const handleApprove = async () => {
     try {
@@ -117,14 +115,11 @@ const TripsDetail = (props) => {
               (item) => Number(item.Trip) === trips.id - 1,
             );
 
-            // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
-
             if (!(trips.Order1?.split(":")[1] === order?.TicketNameName && order?.file_path))
               return null;
 
             let fileUrl = order.file_path;
 
-            // ✅ ถ้าไม่มี http/https → เติม https ให้
             if (
               !fileUrl.startsWith("http://") &&
               !fileUrl.startsWith("https://")
@@ -161,14 +156,11 @@ const TripsDetail = (props) => {
               (item) => Number(item.Trip) === trips.id - 1,
             );
 
-            // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
-
             if (!(trips.Order2?.split(":")[1] === order?.TicketNameName && order?.file_path))
               return null;
 
             let fileUrl = order.file_path;
 
-            // ✅ ถ้าไม่มี http/https → เติม https ให้
             if (
               !fileUrl.startsWith("http://") &&
               !fileUrl.startsWith("https://")
@@ -205,14 +197,11 @@ const TripsDetail = (props) => {
               (item) => Number(item.Trip) === trips.id - 1,
             );
 
-            // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
-
             if (!(trips.Order3?.split(":")[1] === order?.TicketNameName && order?.file_path))
               return null;
 
             let fileUrl = order.file_path;
 
-            // ✅ ถ้าไม่มี http/https → เติม https ให้
             if (
               !fileUrl.startsWith("http://") &&
               !fileUrl.startsWith("https://")
@@ -249,14 +238,11 @@ const TripsDetail = (props) => {
               (item) => Number(item.Trip) === trips.id - 1,
             );
 
-            // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
-
             if (!(trips.Order4?.split(":")[1] === order?.TicketNameName && order?.file_path))
               return null;
 
             let fileUrl = order.file_path;
 
-            // ✅ ถ้าไม่มี http/https → เติม https ให้
             if (
               !fileUrl.startsWith("http://") &&
               !fileUrl.startsWith("https://")
@@ -293,14 +279,11 @@ const TripsDetail = (props) => {
               (item) => Number(item.Trip) === trips.id - 1,
             );
 
-            // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
-
             if (!(trips.Order5?.split(":")[1] === order?.TicketNameName && order?.file_path))
               return null;
 
             let fileUrl = order.file_path;
 
-            // ✅ ถ้าไม่มี http/https → เติม https ให้
             if (
               !fileUrl.startsWith("http://") &&
               !fileUrl.startsWith("https://")
@@ -337,14 +320,11 @@ const TripsDetail = (props) => {
               (item) => Number(item.Trip) === trips.id - 1,
             );
 
-            // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
-
             if (!(trips.Order6?.split(":")[1] === order?.TicketNameName && order?.file_path))
               return null;
 
             let fileUrl = order.file_path;
 
-            // ✅ ถ้าไม่มี http/https → เติม https ให้
             if (
               !fileUrl.startsWith("http://") &&
               !fileUrl.startsWith("https://")
@@ -381,14 +361,11 @@ const TripsDetail = (props) => {
               (item) => Number(item.Trip) === trips.id - 1,
             );
 
-            // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
-
             if (!(trips.Order7?.split(":")[1] === order?.TicketNameName && order?.file_path))
               return null;
 
             let fileUrl = order.file_path;
 
-            // ✅ ถ้าไม่มี http/https → เติม https ให้
             if (
               !fileUrl.startsWith("http://") &&
               !fileUrl.startsWith("https://")
@@ -425,14 +402,11 @@ const TripsDetail = (props) => {
               (item) => Number(item.Trip) === trips.id - 1,
             );
 
-            // const orderName = trips.Order1?.split(":")[1] ?? trips.Order1;
-
             if (!(trips.Order8?.split(":")[1] === order?.TicketNameName && order?.file_path))
               return null;
 
             let fileUrl = order.file_path;
 
-            // ✅ ถ้าไม่มี http/https → เติม https ให้
             if (
               !fileUrl.startsWith("http://") &&
               !fileUrl.startsWith("https://")
@@ -509,73 +483,6 @@ const TripsDetail = (props) => {
             }
           />
         </TableCell>
-        {/* <TableCell sx={{
-                    textAlign: "center",
-                    color: "white",
-                    backgroundColor:
-                        trips.Status === "รออนุมัติ" ? "yellowgreen"
-                            : trips.Status === "ไม่อนุมัติ" ? "orangered"
-                                : trips.Status === "อนุมัติแล้ว" ? "blue"
-                                    : trips.Status === "ยกเลิก" ? "red"
-                                        : "green",
-                    position: "sticky",
-                    right: windowWidth <= 900 ? 0 : "200px", // ติดซ้ายสุด
-                    zIndex: windowWidth <= 900 ? 2 : 4,
-                }}>{trips.Status}</TableCell>
-                <TableCell sx={
-                    windowWidth <= 900 ?
-                        { textAlign: "center" }
-                        :
-                        (trips.Status === "รออนุมัติ" ?
-                            { textAlign: "center" }
-                            :
-                            {
-                                textAlign: "center",
-                                position: "sticky",
-                                right: 0, // ระยะที่ชิดซ้ายต่อจากเซลล์ก่อนหน้า
-                                backgroundColor: "#fff", // ใส่พื้นหลังเพื่อไม่ให้โปร่งใส
-                                zIndex: 1,
-                            })
-                }>{trips.Creditor}</TableCell>
-                <TableCell
-                    sx={
-                        windowWidth <= 900 ?
-                            {
-                                textAlign: "center",
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                            }
-                            :
-                            trips.Status === "รออนุมัติ" ?
-                                {
-                                    textAlign: "center",
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    position: "sticky",
-                                    right: 0, // ระยะที่ชิดซ้ายต่อจากเซลล์ก่อนหน้า
-                                    backgroundColor: "#fff", // ใส่พื้นหลังเพื่อไม่ให้โปร่งใส
-                                    zIndex: 1,
-                                }
-                                :
-                                {
-                                    textAlign: "center",
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                }
-                    }>
-                    {
-                        trips.Status === "รออนุมัติ" ?
-                            <>
-                                <Button variant="contained" color="warning" size="small" onClick={handleApprove} sx={{ marginRight: 1 }} fullWidth>อนุมัติ</Button>
-                                <Button variant="contained" color="error" size="small" onClick={handleNonApprove} fullWidth>ไม่อนุมัติ</Button>
-                            </>
-                            :
-                            <Button variant="text" size="small" fullWidth>-</Button>
-                    }
-                </TableCell> */}
       </TableRow>
     </React.Fragment>
   );

@@ -106,7 +106,6 @@ const PrintReport = () => {
   const formatAddress = (address) => {
     let addrObj = null;
 
-    // ถ้าเป็น string
     if (typeof address === "string") {
       const parts = address.trim().split(/\s+/);
       if (parts.length < 5) return "-";
@@ -121,14 +120,12 @@ const PrintReport = () => {
         road: "",
       };
     }
-    // ถ้าเป็น object
     else if (typeof address === "object" && address !== null) {
       addrObj = address;
     } else {
       return "-";
     }
 
-    // ตรวจสอบค่าที่จำเป็น
     if (
       !addrObj.no ||
       !addrObj.village ||
@@ -139,7 +136,6 @@ const PrintReport = () => {
       return "-";
     }
 
-    // ฟอร์แมต address
     const roadPart =
       addrObj.road && addrObj.road !== "-" ? ` ถ.${addrObj.road}` : "";
     const zipPart = addrObj.zipCode ? ` ${addrObj.zipCode}` : "";
@@ -362,8 +358,6 @@ const PrintReport = () => {
     }
   };
 
-  console.log("invoiceData : ", invoiceData);
-
   return (
     <Box display="flex" justifyContent="center" mt={5} overflow="auto">
       <Box
@@ -545,7 +539,6 @@ const PrintReport = () => {
                   <b>ส่งวันที่ : </b>
                 </Typography>
                 <Typography variant="subtitle2" marginLeft={4}>
-                  {/* {formatThai(deliveryDate)} */}
                   {formatThai(dayjs(invoiceData?.DateD).format("DD/MM/YYYY"))}
                 </Typography>
               </Box>
@@ -721,13 +714,12 @@ const PrintReport = () => {
                 <TableBody>
                   {invoiceData?.Products.map((p, index) => {
                     const data = invoiceData?.Product[p.code]; // ดึงข้อมูลจาก key เช่น B7, G95
-                    if (!data) return null; // ถ้าไม่มีข้อมูลของสินค้านั้น ข้ามไป
+                    if (!data) return null;
 
-                    const total = data.RateOil * data.Volume; // ✅ จำนวนเงินทั้งหมด
+                    const total = data.RateOil * data.Volume;
 
                     return (
                       <TableRow key={p.code}>
-                        {/* ✅ ลำดับ */}
                         <TableCell
                           sx={{
                             textAlign: "center",
@@ -737,7 +729,6 @@ const PrintReport = () => {
                           {(no = no + 1)}
                         </TableCell>
 
-                        {/* ✅ ชื่อสินค้า */}
                         <TableCell
                           sx={{
                             textAlign: "left",
@@ -747,7 +738,6 @@ const PrintReport = () => {
                           <Box sx={{ ml: 2 }}>{p.name}</Box>
                         </TableCell>
 
-                        {/* ✅ ราคา (บาท/ลิตร) */}
                         <TableCell
                           align="right"
                           sx={{
@@ -761,7 +751,6 @@ const PrintReport = () => {
                           }).format(data.RateOil)}
                         </TableCell>
 
-                        {/* ✅ จำนวน (ลิตร) */}
                         <TableCell
                           align="right"
                           sx={{ borderLeft: "2px solid rgba(0, 0, 0, 0.7)" }}
@@ -771,7 +760,6 @@ const PrintReport = () => {
                           </Box>
                         </TableCell>
 
-                        {/* ✅ จำนวนเงิน (บาท) */}
                         <TableCell
                           sx={{
                             textAlign: "right",
@@ -789,7 +777,6 @@ const PrintReport = () => {
                       </TableRow>
                     );
                   })}
-                  {/* ✅ เพิ่มแถวว่าง 3 แถว */}
                   {Array.from({ length: 2 }).map((_, i) => (
                     <TableRow
                       key={`empty-${i}`}
@@ -890,14 +877,6 @@ const PrintReport = () => {
                       colSpan={3}
                     >
                       <Grid container sx={{ pl: 0.5, pr: 0.5 }}>
-                        {/* <Grid item xs={1.5}>
-                            <Typography variant="subtitle2" fontSize="13px" sx={{ fontWeight: "bold" }} gutterBottom>หมายเหตุ :</Typography>
-                          </Grid>
-                          <Grid item xs={10.5}>
-                            <Typography variant="subtitle2" fontSize="13px" gutterBottom>
-                              {invoiceData?.items}
-                            </Typography>
-                          </Grid> */}
                         <Grid item xs={1.5}>
                           <Typography
                             variant="subtitle2"
@@ -944,32 +923,7 @@ const PrintReport = () => {
                         }).format(vat)}
                       </Box>
                     </TableCell>
-                    {/* <TableCell sx={{ textAlign: "center", fontWeight: "bold", borderLeft: "2px solid rgba(0, 0, 0, 0.7)" }}>
-                        รวมเป็นเงิน
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "right", borderLeft: "2px solid rgba(0, 0, 0, 0.7)", borderRight: "2px solid rgba(0, 0, 0, 0.7)" }}>
-                        <Box sx={{ mr: 1 }}>
-                          {new Intl.NumberFormat("en-US", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                          }).format(beforeVat)}
-                        </Box>
-                      </TableCell> */}
                   </TableRow>
-
-                  {/* <TableRow>
-                      <TableCell sx={{ textAlign: "center", fontWeight: "bold", borderTop: "2px solid rgba(0, 0, 0, 0.7)", borderLeft: "2px solid rgba(0, 0, 0, 0.7)" }}>
-                        Vat 7%
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "right", borderTop: "2px solid rgba(0, 0, 0, 0.7)", borderLeft: "2px solid rgba(0, 0, 0, 0.7)", borderRight: "2px solid rgba(0, 0, 0, 0.7)" }}>
-                        <Box sx={{ mr: 1 }}>
-                          {new Intl.NumberFormat("en-US", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                          }).format(vat)}
-                        </Box>
-                      </TableCell>
-                    </TableRow> */}
 
                   <TableRow>
                     <TableCell
@@ -1141,11 +1095,7 @@ const PrintReport = () => {
             marginTop: "20px",
             marginBottom: "20px",
           }}
-        >
-          {/* <Button variant="contained" onClick={handleDownloadImage}>
-            บันทึกรูปภาพ
-          </Button> */}
-        </div>
+        ></div>
       </Box>
     </Box>
   );

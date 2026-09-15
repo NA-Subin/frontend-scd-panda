@@ -36,7 +36,6 @@ const customOrder = ["G95", "B95", "B7", "B7(1)", "B7(2)", "G91", "E20", "PWD"];
 const GasStationDetail = (props) => {
     const { stock, gasStationID, selectedDate, gas, gasID, first, last, reportOilBalance, oilBalance, status } = props;
     const { refetch: refetchGasStationData } = useGasStationData();
-    // const [selectedDates, setSelectedDates] = React.useState(dayjs(selectedDate));
     const [product, setProduct] = React.useState([]);
     const [notReport, setNotReport] = React.useState([]);
     const [reports, setReports] = React.useState([]);
@@ -51,19 +50,6 @@ const GasStationDetail = (props) => {
     const [eightDayAgo, setEightDaysAgoData] = React.useState("");
     const [nineDayAgo, setNineDaysAgoData] = React.useState("");
     const [tenDayAgo, setTenDaysAgoData] = React.useState("");
-
-    console.log("วันก่อนหน้า : ", yesterday);
-    console.log("2 วันก่อนหน้า : ", twoDayAgo);
-    console.log("3 วันก่อนหน้า : ", threeDayAgo);
-    console.log("4 วันก่อนหน้า : ", fourDayAgo);
-    console.log("5 วันก่อนหน้า : ", fiveDayAgo);
-    console.log("6 วันก่อนหน้า : ", sixDayAgo);
-    console.log("7 วันก่อนหน้า : ", sevenDayAgo);
-    console.log("8 วันก่อนหน้า : ", eightDayAgo);
-    console.log("9 วันก่อนหน้า : ", nineDayAgo);
-    console.log("10 วันก่อนหน้า : ", tenDayAgo);
-
-    console.log("Status : ", save);
 
     const getGasStations = async () => {
         // gas.Products is a JSONB array of {Name, Color, Capacity, Volume,
@@ -122,17 +108,10 @@ const GasStationDetail = (props) => {
     };
 
     useEffect(() => {
-        // setSelectedDates(dayjs(selectedDate));
         getGasStations();
-        setVolumes({}); // รีเซ็ตค่า Volume เป็นค่าเริ่มต้น
+        setVolumes({});
         setStocks({});
     }, [selectedDate, gas.id, gas.Report, status]);
-
-    console.log("Date : ", dayjs(selectedDate).format('DD-MM-YYYY'));
-    console.log("Name : ", gas.ShortName);
-    console.log("ShowProduct : ", product);
-    console.log("ShowReport : ", reports);
-    console.log("reportOilBalance: ", gasID === 1 && reportOilBalance);
 
     const [volumes, setVolumes] = useState({});
     const [stocks, setStocks] = useState({});
@@ -140,57 +119,40 @@ const GasStationDetail = (props) => {
     const [setting, setSetting] = React.useState(true);
     let showSingleButton = true;
 
-    console.log("Update Volume : ", volumes);
-    console.log("Update Stock : ", stocks);
-
-    // ฟังก์ชันอัปเดตค่า newVolume
     const handleNewVolumeChange = (key, value) => {
         setVolumes((prev) => ({
             ...prev,
-            [key]: value, // อัปเดตเฉพาะ ProductName ที่เปลี่ยน
+            [key]: value,
         }));
     };
 
     const handleNewStockChange = (key, value) => {
         setStocks((prev) => ({
             ...prev,
-            [key]: value, // อัปเดตเฉพาะ ProductName ที่เปลี่ยน
+            [key]: value,
         }));
     };
 
-    const [updateVolumes, setUpdateVolumes] = useState({}); // สำหรับเก็บข้อมูล NewVolume ที่ถูกแก้ไข
-    const [updateStocks, setUpdateStocks] = useState({}); // สำหรับเก็บข้อมูล NewVolume ที่ถูกแก้ไข
+    const [updateVolumes, setUpdateVolumes] = useState({});
+    const [updateStocks, setUpdateStocks] = useState({});
 
     const handleUpdateVolumeChange = (productName, newVolume) => {
-        // อัปเดตค่าใหม่ใน state
         setUpdateVolumes((prevVolumes) => ({
             ...prevVolumes,
-            [productName]: newVolume, // เก็บค่าใหม่สำหรับแต่ละ productName
+            [productName]: newVolume,
         }));
     };
 
     const handleUpdateStockChange = (productName, newStock) => {
-        // อัปเดตค่าใหม่ใน state
         setUpdateStocks((prevStocks) => ({
             ...prevStocks,
-            [productName]: newStock, // เก็บค่าใหม่สำหรับแต่ละ productName
+            [productName]: newStock,
         }));
     };
 
-    // console.log("show :", stock);
-    // console.log("gasStation :", gasStationID);
-    // console.log("Report: ", report);
-    // console.log("gasStationOil::: :", gasStationOil);
-    // console.log("gas ::: :", gas);
-    // console.log("shortName: ", gas.ShortName);
-    // console.log("product: ", gas.Products);
-    // const formattedDate = dayjs(selectedDates).format('DD-MM-YYYY');
-    // const dataReport = gas.Report ? gas.Report[formattedDate] : [];
-    // console.log("report: ", dataReport);
-
     const saveProduct = async () => {
         const updatedProducts = notReport
-            .map(({ ProductName, Volume }) => { // ✅ ใช้ destructuring ถูกต้อง
+            .map(({ ProductName, Volume }) => {
                 const matchingStock = stock.find((s) => s.ProductName === ProductName);
                 const yesterdayEntry = Object.values(yesterday || {}).find(entry => entry?.ProductName === ProductName) || { OilBalance: 0 };
                 const twoDaysAgoEntry = Object.values(twoDayAgo || {}).find(entry => entry?.ProductName === ProductName) || { OilBalance: 0 };
@@ -203,13 +165,7 @@ const GasStationDetail = (props) => {
                 const nineDaysAgoEntry = Object.values(nineDayAgo || {}).find(entry => entry?.ProductName === ProductName) || { OilBalance: 0 };
                 const tenDaysAgoEntry = Object.values(tenDayAgo || {}).find(entry => entry?.ProductName === ProductName) || { OilBalance: 0 };
 
-                console.log("Squeeze วันก่อน : ", yesterdayEntry?.Squeeze)
-                console.log("EstimateSell วันก่อน : ", yesterdayEntry?.EstimateSell)
-                console.log("Squeeze 2 วันก่อน : ", twoDaysAgoEntry?.Squeeze)
-                console.log("EstimateSell 2 วันก่อน : ", twoDaysAgoEntry?.EstimateSell)
-
-                if (!matchingStock) return null; // ถ้าไม่มีข้อมูล ให้ return null (แต่ filter ทิ้งภายหลัง)
-                console.log("differenceAdd : ", (difference[ProductName] ?? 0))
+                if (!matchingStock) return null;
                 return {
                     ProductName,
                     Capacity: matchingStock.Capacity ?? 0,
@@ -222,7 +178,7 @@ const GasStationDetail = (props) => {
                     EstimateSell: yesterdayEntry?.EstimateSell || twoDaysAgoEntry?.EstimateSell || threeDaysAgoEntry?.EstimateSell || fourDaysAgoEntry?.EstimateSell || fiveDaysAgoEntry?.EstimateSell || sixDaysAgoEntry?.EstimateSell || sevenDaysAgoEntry?.EstimateSell || eightDaysAgoEntry?.EstimateSell || nineDaysAgoEntry?.EstimateSell || tenDaysAgoEntry?.EstimateSell
                 };
             })
-            .filter(Boolean); // กรองค่าที่เป็น null ออกไป
+            .filter(Boolean);
 
         // Products is a JSONB array of {Name, Color, Capacity, Volume,
         // CheckBox}, not a plain {ProductName: number} map - update Volume in
@@ -232,8 +188,6 @@ const GasStationDetail = (props) => {
             const matchingStock = stock.find((s) => s.ProductName === p.Name);
             return matchingStock ? { ...p, Volume: Number(matchingStock.Volume || 0) } : p;
         });
-
-        console.log("Update : ", updatedProducts)
 
         setSave(true);
 
@@ -259,28 +213,25 @@ const GasStationDetail = (props) => {
             ShowError("เพิ่มข้อมูลไม่สำเร็จ");
             console.error("Error pushing data:", error);
         }
-
-        console.log("Update Difference : ", difference);
     };
 
     const updateProduct = async () => {
         const updatedProducts =
-            reports.length !== 0 // ตรวจสอบว่ามีข้อมูลใน gasStationReport หรือไม่
+            reports.length !== 0
                 ? reports.map((row) => {
-                    console.log("differenceUpdates : ", (difference[row.ProductName] ?? 0))
                     return {
                         ProductName: row.ProductName,
                         Capacity: row.Capacity,
                         Color: row.Color,
                         Volume: row.Volume,
-                        Squeeze: row.Squeeze || 0, // ใช้ค่าจาก state ถ้ามี
+                        Squeeze: row.Squeeze || 0,
                         Delivered: Number(updateVolumes[row.ProductName] || row.Delivered),
                         Pending1: row.Pending1 || 0,
                         Pending2: row.Pending2 || 0,
                         Pending3: row.Pending3 || 0,
                         Driver1: row.Driver1 || "",
                         Driver2: row.Driver2 || "",
-                        EstimateSell: row.EstimateSell || 0, // ใช้ค่าจาก state ถ้ามี
+                        EstimateSell: row.EstimateSell || 0,
                         Period: row.Period || 0,
                         DownHole: row.DownHole || 0,
                         YesterDay: row.YesterDay || 0,
@@ -328,9 +279,6 @@ const GasStationDetail = (props) => {
     };
 
     const handleSave = async () => {
-        console.log("latestGas ::::::: ", first.id);
-        console.log("✅ reportOilBalance " + `${gasID}:`, oilBalance);
-
         if (!first?.uuid) {
             ShowError("ไม่พบข้อมูลปั้ม");
             return;
@@ -350,13 +298,11 @@ const GasStationDetail = (props) => {
         }
     }
 
-    // สร้าง `gasStationNotReports` โดยใช้ Name/Volume ของ Products (array)
     const gasStationNotReports = (Array.isArray(product) ? product : []).map((p) => ({
         ProductName: p.Name,
         Volume: p.Volume
     }));
 
-    // ✅ เรียงลำดับ `gasStationNotReports` ตาม `customOrder`
     const sortedNotReport = gasStationNotReports.sort((a, b) => {
         return customOrder.indexOf(a.ProductName) - customOrder.indexOf(b.ProductName);
     });
@@ -369,23 +315,6 @@ const GasStationDetail = (props) => {
     const sortedOilBalance = reportOilBalance.sort((a, b) => {
         return customOrder.indexOf(a.ProductName) - customOrder.indexOf(b.ProductName);
     });
-
-    console.log("reports : ", reports);
-    console.log("sortReport : ", sortedReport);
-    console.log("not report : ", notReport);
-
-    console.log("stock : ", stocks);
-    console.log("volume : ", volumes);
-    console.log("update stock : ", updateStocks);
-    console.log("update volume : ", updateVolumes);
-
-    // useEffect(() => {
-    //     const newDifference = sortedOilBalance.reduce((acc, item) => {
-    //         acc[item.ProductName] = item.prevOilBalance - item.latestOilBalance;
-    //         return acc;
-    //     }, {});
-    //     setDifference(newDifference); // ✅ อัปเดตค่าทันทีหลังโหลด
-    // }, [sortedOilBalance]); // ✅ อัปเดตเมื่อ `sortedOilBalance` เปลี่ยน
 
     return (
         <React.Fragment>
@@ -438,25 +367,24 @@ const GasStationDetail = (props) => {
                                             size="small"
                                             type="number"
                                             fullWidth
-                                            value={volumes[row.ProductName] === "" ? "" : volumes[row.ProductName] || 0} // ถ้าค่าว่างให้แสดง 0
+                                            value={volumes[row.ProductName] === "" ? "" : volumes[row.ProductName] || 0}
                                             onChange={(e) => {
                                                 let newValue = e.target.value;
 
-                                                // ตรวจสอบว่าเป็นค่าว่างหรือไม่
                                                 if (newValue === "") {
-                                                    handleNewVolumeChange(row.ProductName, ""); // ให้เป็นค่าว่างชั่วคราว
+                                                    handleNewVolumeChange(row.ProductName, "");
                                                 } else {
-                                                    handleNewVolumeChange(row.ProductName, newValue.replace(/^0+(?=\d)/, "")); // ลบ 0 นำหน้าทันที
+                                                    handleNewVolumeChange(row.ProductName, newValue.replace(/^0+(?=\d)/, ""));
                                                 }
                                             }}
                                             onFocus={(e) => {
                                                 if (e.target.value === "0") {
-                                                    handleNewVolumeChange(row.ProductName, ""); // ล้าง 0 ออกเมื่อเริ่มพิมพ์
+                                                    handleNewVolumeChange(row.ProductName, "");
                                                 }
                                             }}
                                             onBlur={(e) => {
                                                 if (e.target.value === "") {
-                                                    handleNewVolumeChange(row.ProductName, 0); // ถ้าค่าว่างให้เป็น 0
+                                                    handleNewVolumeChange(row.ProductName, 0);
                                                 }
                                             }}
                                         />
@@ -466,25 +394,24 @@ const GasStationDetail = (props) => {
                                     <Typography variant="subtitle2" fontWeight="bold" gutterBottom >ปิดยอดสต็อก</Typography>
                                     <Paper component="form" sx={{ marginTop: -1 }}>
                                         <TextField size="small" type="number" fullWidth
-                                            value={stocks[row.ProductName] === "" ? "" : stocks[row.ProductName] || 0} // ถ้าค่าว่างให้แสดง 0
+                                            value={stocks[row.ProductName] === "" ? "" : stocks[row.ProductName] || 0}
                                             onChange={(e) => {
                                                 let newValue = e.target.value;
 
-                                                // ตรวจสอบว่าเป็นค่าว่างหรือไม่
                                                 if (newValue === "") {
-                                                    handleNewStockChange(row.ProductName, ""); // ให้เป็นค่าว่างชั่วคราว
+                                                    handleNewStockChange(row.ProductName, "");
                                                 } else {
-                                                    handleNewStockChange(row.ProductName, newValue.replace(/^0+(?=\d)/, "")); // ลบ 0 นำหน้าทันที
+                                                    handleNewStockChange(row.ProductName, newValue.replace(/^0+(?=\d)/, ""));
                                                 }
                                             }}
                                             onFocus={(e) => {
                                                 if (e.target.value === "0") {
-                                                    handleNewStockChange(row.ProductName, ""); // ล้าง 0 ออกเมื่อเริ่มพิมพ์
+                                                    handleNewStockChange(row.ProductName, "");
                                                 }
                                             }}
                                             onBlur={(e) => {
                                                 if (e.target.value === "") {
-                                                    handleNewStockChange(row.ProductName, 0); // ถ้าค่าว่างให้เป็น 0
+                                                    handleNewStockChange(row.ProductName, 0);
                                                 }
                                             }}
                                         />
@@ -495,7 +422,6 @@ const GasStationDetail = (props) => {
                         :
                         sortedReport.map((row) => (
                             <React.Fragment>
-                                {/* {row.Difference === 0 || row.Difference === undefined && setSave(false)} */}
                                 <Grid item xs={5} md={2} lg={1}>
                                     <Box
                                         sx={{
@@ -517,14 +443,12 @@ const GasStationDetail = (props) => {
                                             size="small"
                                             type="number"
                                             fullWidth
-                                            value={updateVolumes[row.ProductName] ?? row.Delivered} // ใช้ ?? ป้องกัน undefined
+                                            value={updateVolumes[row.ProductName] ?? row.Delivered}
                                             onChange={(e) => {
                                                 let newValue = e.target.value;
 
-                                                // ลบ 0 ที่นำหน้าทันที และป้องกันการกรอก "0" ต่อท้าย
                                                 newValue = newValue.replace(/^0+(?=\d)/, "");
 
-                                                // ถ้าค่าเป็น "" หรือ "0" ให้แสดงเป็น ""
                                                 if (newValue === "" || newValue === "0") {
                                                     handleUpdateVolumeChange(row.ProductName, "");
                                                 } else {
@@ -533,12 +457,12 @@ const GasStationDetail = (props) => {
                                             }}
                                             onFocus={(e) => {
                                                 if (e.target.value === "0") {
-                                                    handleUpdateVolumeChange(row.ProductName, ""); // ล้างค่า 0 ออก
+                                                    handleUpdateVolumeChange(row.ProductName, "");
                                                 }
                                             }}
                                             onBlur={(e) => {
                                                 if (e.target.value === "") {
-                                                    handleUpdateVolumeChange(row.ProductName, 0); // ถ้าค่าว่างให้เป็น 0
+                                                    handleUpdateVolumeChange(row.ProductName, 0);
                                                 }
                                             }}
                                             disabled={setting ? true : false}
@@ -552,14 +476,12 @@ const GasStationDetail = (props) => {
                                             size="small"
                                             type="number"
                                             fullWidth
-                                            value={updateStocks[row.ProductName] ?? row.OilBalance} // ใช้ ?? ป้องกัน undefined
+                                            value={updateStocks[row.ProductName] ?? row.OilBalance}
                                             onChange={(e) => {
                                                 let newValue = e.target.value;
 
-                                                // ลบ 0 ที่นำหน้าทันที และป้องกันการกรอก "0" ต่อท้าย
                                                 newValue = newValue.replace(/^0+(?=\d)/, "");
 
-                                                // ถ้าค่าเป็น "" หรือ "0" ให้แสดงเป็น ""
                                                 if (newValue === "" || newValue === "0") {
                                                     handleUpdateStockChange(row.ProductName, "");
                                                 } else {
@@ -568,12 +490,12 @@ const GasStationDetail = (props) => {
                                             }}
                                             onFocus={(e) => {
                                                 if (e.target.value === "0") {
-                                                    handleUpdateStockChange(row.ProductName, ""); // ล้างค่า 0 ออก
+                                                    handleUpdateStockChange(row.ProductName, "");
                                                 }
                                             }}
                                             onBlur={(e) => {
                                                 if (e.target.value === "") {
-                                                    handleUpdateStockChange(row.ProductName, 0); // ถ้าค่าว่างให้เป็น 0
+                                                    handleUpdateStockChange(row.ProductName, 0);
                                                 }
                                             }}
                                             disabled={setting ? true : false}
@@ -585,16 +507,7 @@ const GasStationDetail = (props) => {
                 }
                 <Grid item xs={12}>
                     <Box display="flex" justifyContent="center" alignItems="center" marginTop={2}>
-                        {/* <Button variant="contained" color="success" onClick={saveProduct}>
-                                        บันทึก
-                                    </Button> */}
-                        {/* {
-                    isToday &&
-                    (
-                        <Button variant="contained" color="success" onClick={updateProduct}>
-                                        บันทึก
-                                    </Button>
-                */}{
+                        {
                             reports.length === 0 ?
                                 <Button variant="contained" color="success" onClick={saveProduct}>
                                     บันทึก
@@ -615,7 +528,6 @@ const GasStationDetail = (props) => {
                                             </Button>
                                         </>
                                 )
-                            //)
                         }
                     </Box>
                 </Grid>
@@ -629,7 +541,7 @@ const GasStationDetail = (props) => {
                                     : gas.Stock === "ป่าแดด" ? "#B1A0C7"
                                         : "", marginTop: -1, p: 2, borderBottomLeftRadius: 20, borderBottomRightRadius: 20, marginLeft: -2
             }}></Box>
-            {gasID === 1 && ( // แสดง <Box> เมื่อถึงข้อมูลลำดับที่ 2
+            {gasID === 1 && (
                 <React.Fragment>
                     <Box sx={{
                         backgroundColor:
@@ -654,7 +566,6 @@ const GasStationDetail = (props) => {
                                             paddingTop: 2,
                                             paddingBottom: 1
                                         }}
-                                        //disabled
                                     >
                                         <Typography variant="h5" fontWeight="bold" gutterBottom>
                                             {item.ProductName}
@@ -671,7 +582,6 @@ const GasStationDetail = (props) => {
                                             type="text"
                                             fullWidth
                                             value={new Intl.NumberFormat("en-US").format(item.PrevOilBalance)}
-                                            //disabled={save ? false : true}
                                         />
                                     </Paper>
                                 </Grid>
@@ -685,7 +595,6 @@ const GasStationDetail = (props) => {
                                             type="text"
                                             fullWidth
                                             value={new Intl.NumberFormat("en-US").format(item.LatestOilBalance)}
-                                            //disabled={save ? false : true}
                                         />
                                     </Paper>
                                 </Grid>
@@ -699,7 +608,6 @@ const GasStationDetail = (props) => {
                                             type="text"
                                             fullWidth
                                             value={new Intl.NumberFormat("en-US").format(item.Difference)}
-                                            //disabled={save ? false : true}
                                         />
                                     </Paper>
                                 </Grid>

@@ -130,30 +130,25 @@ const Setting = () => {
   const [updatePosition, setUpdatePosition] = React.useState(true);
   const [name, setName] = useState("");
 
-  // ใช้ useEffect เพื่อรับฟังการเปลี่ยนแปลงของขนาดหน้าจอ
   useEffect(() => {
     const handleResize = () => {
-      setWindowWidth(window.innerWidth); // อัพเดตค่าขนาดหน้าจอ
+      setWindowWidth(window.innerWidth);
     };
 
-    window.addEventListener('resize', handleResize); // เพิ่ม event listener
+    window.addEventListener('resize', handleResize);
 
-    // ลบ event listener เมื่อ component ถูกทำลาย
     return () => {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
 
   const userId = Cookies.get("sessionToken");
-  // const { company, officers } = useData();
 
   const { company, companyHistory, officers, positions, refetch } = useBasicData();
   const companyDetail = Object.values(company || {});
   const companyHistoryDetail = Object.values(companyHistory || {});
   const officersDetail = Object.values(officers || {});
   const positionsDetail = Object.values(positions || {});
-  console.log("company : ", company);
-  console.log("Officers : ", officers);
 
   const [companyPage, setCompanyPage] = useState(0);
   const [companyRowsPerPage, setCompanyRowsPerPage] = useState(10);
@@ -179,9 +174,6 @@ const Setting = () => {
       setOpen(1);
     }
   }, [isAdmin, open]);
-
-  console.log("User : ", userId);
-  console.log("User Detail : ", userDetail);
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -257,7 +249,7 @@ const Setting = () => {
     setNewLat(row.Lat || "");
     setNewLng(row.Lng || "");
     setNewCardID(row.CardID || "");
-    setUpdate(true); // เริ่มแบบดูอย่างเดียวก่อน
+    setUpdate(true);
   };
 
 
@@ -293,24 +285,6 @@ const Setting = () => {
       console.error("Error pushing data:", error);
     }
   }
-  // const [company, setCompany] = useState([]);
-
-  // const getCompany = async () => {
-  //   database.ref("/company").on("value", (snapshot) => {
-  //     const datas = snapshot.val();
-  //     const dataCompany = [];
-  //     const dataTranSport = [];
-  //     for (let id in datas) {
-  //       dataCompany.push({ id, ...datas[id] })
-  //     }
-  //     setCompany(dataCompany);
-  //   });
-  // };
-  // useEffect(() => {
-  //   getCompany();
-  // }, []);
-
-  console.log("BasucData : ", checkBasicData);
 
   const formatAddress = (address) => {
     if (!address) return "-";
@@ -409,8 +383,6 @@ const Setting = () => {
       console.error("Error pushing data:", error);
     }
   }
-
-  console.log("Positon Detail : ", positionsDetail);
 
   return (
     <Container maxWidth="xl" sx={{ marginTop: 13, marginBottom: 5 }}>
@@ -657,8 +629,8 @@ const Setting = () => {
                                   onClose={() => setOpenDetailCompany(false)}
                                   sx={{
                                     "& .MuiDialog-paper": {
-                                      width: "800px", // กำหนดความกว้างแบบ Fixed
-                                      maxWidth: "none", // ปิดการปรับอัตโนมัติ
+                                      width: "800px",
+                                      maxWidth: "none",
                                     },
                                   }}
                                 >
@@ -683,15 +655,15 @@ const Setting = () => {
                                           <Box
                                             sx={{
                                               display: "flex",
-                                              alignItems: "center", // ให้แนวตั้งตรงกัน
+                                              alignItems: "center",
                                               width: "100%",
-                                              gap: 1, // ระยะห่างระหว่าง label กับช่องกรอก
+                                              gap: 1,
                                             }}
                                           >
                                             <Typography
                                               variant="subtitle1"
                                               fontWeight="bold"
-                                              sx={{ whiteSpace: "nowrap" }} // ป้องกันตัดบรรทัด
+                                              sx={{ whiteSpace: "nowrap" }}
                                             >
                                               ชื่อบริษัท
                                             </Typography>
@@ -709,15 +681,15 @@ const Setting = () => {
                                           <Box
                                             sx={{
                                               display: "flex",
-                                              alignItems: "center", // ให้แนวตั้งตรงกัน
+                                              alignItems: "center",
                                               width: "100%",
-                                              gap: 1, // ระยะห่างระหว่าง label กับช่องกรอก
+                                              gap: 1,
                                             }}
                                           >
                                             <Typography
                                               variant="subtitle1"
                                               fontWeight="bold"
-                                              sx={{ whiteSpace: "nowrap" }} // ป้องกันตัดบรรทัด
+                                              sx={{ whiteSpace: "nowrap" }}
                                             >
                                               เลขที่ภาษี
                                             </Typography>
@@ -735,15 +707,15 @@ const Setting = () => {
                                           <Box
                                             sx={{
                                               display: "flex",
-                                              alignItems: "center", // ให้แนวตั้งตรงกัน
+                                              alignItems: "center",
                                               width: "100%",
-                                              gap: 1, // ระยะห่างระหว่าง label กับช่องกรอก
+                                              gap: 1,
                                             }}
                                           >
                                             <Typography
                                               variant="subtitle1"
                                               fontWeight="bold"
-                                              sx={{ whiteSpace: "nowrap" }} // ป้องกันตัดบรรทัด
+                                              sx={{ whiteSpace: "nowrap" }}
                                             >
                                               บ้านเลขที่
                                             </Typography>
@@ -761,15 +733,15 @@ const Setting = () => {
                                           <Box
                                             sx={{
                                               display: "flex",
-                                              alignItems: "center", // ให้แนวตั้งตรงกัน
+                                              alignItems: "center",
                                               width: "100%",
-                                              gap: 1, // ระยะห่างระหว่าง label กับช่องกรอก
+                                              gap: 1,
                                             }}
                                           >
                                             <Typography
                                               variant="subtitle1"
                                               fontWeight="bold"
-                                              sx={{ whiteSpace: "nowrap" }} // ป้องกันตัดบรรทัด
+                                              sx={{ whiteSpace: "nowrap" }}
                                             >
                                               หมู่ที่
                                             </Typography>
@@ -787,15 +759,15 @@ const Setting = () => {
                                           <Box
                                             sx={{
                                               display: "flex",
-                                              alignItems: "center", // ให้แนวตั้งตรงกัน
+                                              alignItems: "center",
                                               width: "100%",
-                                              gap: 1, // ระยะห่างระหว่าง label กับช่องกรอก
+                                              gap: 1,
                                             }}
                                           >
                                             <Typography
                                               variant="subtitle1"
                                               fontWeight="bold"
-                                              sx={{ whiteSpace: "nowrap" }} // ป้องกันตัดบรรทัด
+                                              sx={{ whiteSpace: "nowrap" }}
                                             >
                                               ถนน
                                             </Typography>
@@ -813,15 +785,15 @@ const Setting = () => {
                                           <Box
                                             sx={{
                                               display: "flex",
-                                              alignItems: "center", // ให้แนวตั้งตรงกัน
+                                              alignItems: "center",
                                               width: "100%",
-                                              gap: 1, // ระยะห่างระหว่าง label กับช่องกรอก
+                                              gap: 1,
                                             }}
                                           >
                                             <Typography
                                               variant="subtitle1"
                                               fontWeight="bold"
-                                              sx={{ whiteSpace: "nowrap" }} // ป้องกันตัดบรรทัด
+                                              sx={{ whiteSpace: "nowrap" }}
                                             >
                                               ตำบล
                                             </Typography>
@@ -839,15 +811,15 @@ const Setting = () => {
                                           <Box
                                             sx={{
                                               display: "flex",
-                                              alignItems: "center", // ให้แนวตั้งตรงกัน
+                                              alignItems: "center",
                                               width: "100%",
-                                              gap: 1, // ระยะห่างระหว่าง label กับช่องกรอก
+                                              gap: 1,
                                             }}
                                           >
                                             <Typography
                                               variant="subtitle1"
                                               fontWeight="bold"
-                                              sx={{ whiteSpace: "nowrap" }} // ป้องกันตัดบรรทัด
+                                              sx={{ whiteSpace: "nowrap" }}
                                             >
                                               อำเภอ
                                             </Typography>
@@ -865,15 +837,15 @@ const Setting = () => {
                                           <Box
                                             sx={{
                                               display: "flex",
-                                              alignItems: "center", // ให้แนวตั้งตรงกัน
+                                              alignItems: "center",
                                               width: "100%",
-                                              gap: 1, // ระยะห่างระหว่าง label กับช่องกรอก
+                                              gap: 1,
                                             }}
                                           >
                                             <Typography
                                               variant="subtitle1"
                                               fontWeight="bold"
-                                              sx={{ whiteSpace: "nowrap" }} // ป้องกันตัดบรรทัด
+                                              sx={{ whiteSpace: "nowrap" }}
                                             >
                                               จังหวัด
                                             </Typography>
@@ -891,15 +863,15 @@ const Setting = () => {
                                           <Box
                                             sx={{
                                               display: "flex",
-                                              alignItems: "center", // ให้แนวตั้งตรงกัน
+                                              alignItems: "center",
                                               width: "100%",
-                                              gap: 1, // ระยะห่างระหว่าง label กับช่องกรอก
+                                              gap: 1,
                                             }}
                                           >
                                             <Typography
                                               variant="subtitle1"
                                               fontWeight="bold"
-                                              sx={{ whiteSpace: "nowrap" }} // ป้องกันตัดบรรทัด
+                                              sx={{ whiteSpace: "nowrap" }}
                                             >
                                               รหัสไปรษณีย์
                                             </Typography>
@@ -917,15 +889,15 @@ const Setting = () => {
                                           <Box
                                             sx={{
                                               display: "flex",
-                                              alignItems: "center", // ให้แนวตั้งตรงกัน
+                                              alignItems: "center",
                                               width: "100%",
-                                              gap: 1, // ระยะห่างระหว่าง label กับช่องกรอก
+                                              gap: 1,
                                             }}
                                           >
                                             <Typography
                                               variant="subtitle1"
                                               fontWeight="bold"
-                                              sx={{ whiteSpace: "nowrap" }} // ป้องกันตัดบรรทัด
+                                              sx={{ whiteSpace: "nowrap" }}
                                             >
                                               Latitude(ละติจูด)
                                             </Typography>
@@ -943,15 +915,15 @@ const Setting = () => {
                                           <Box
                                             sx={{
                                               display: "flex",
-                                              alignItems: "center", // ให้แนวตั้งตรงกัน
+                                              alignItems: "center",
                                               width: "100%",
-                                              gap: 1, // ระยะห่างระหว่าง label กับช่องกรอก
+                                              gap: 1,
                                             }}
                                           >
                                             <Typography
                                               variant="subtitle1"
                                               fontWeight="bold"
-                                              sx={{ whiteSpace: "nowrap" }} // ป้องกันตัดบรรทัด
+                                              sx={{ whiteSpace: "nowrap" }}
                                             >
                                               Longitude(ลองจิจูด)
                                             </Typography>
@@ -1131,12 +1103,12 @@ const Setting = () => {
                                               }}
                                               sx={{
                                                 '& .MuiOutlinedInput-root': {
-                                                  height: '30px', // ปรับความสูงของ TextField
+                                                  height: '30px',
                                                 },
                                                 '& .MuiInputBase-input': {
-                                                  fontSize: '14px', // ขนาด font เวลาพิมพ์
+                                                  fontSize: '14px',
                                                   fontWeight: 'bold',
-                                                  padding: '2px 6px', // ปรับ padding ภายใน input
+                                                  padding: '2px 6px',
                                                   textAlign: "center"
                                                 },
                                               }}

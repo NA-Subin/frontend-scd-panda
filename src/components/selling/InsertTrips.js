@@ -107,54 +107,11 @@ const InsertTrips = () => {
         document.body.appendChild(script);
     }, []);
 
-    // const handleSaveAsImage = async () => {
-    //     setEditMode(false); // เปลี่ยนเป็นโหมดแสดงผลแบบ Typography
-
-    //     setTimeout(async () => {
-    //         if (dialogRef.current && html2canvasLoaded) {
-    //             // ดึงค่าความสูงของ TextField และกำหนดให้ inline style
-    //             const inputElement = dialogRef.current.querySelector("input");
-    //             if (inputElement) {
-    //                 const computedStyle = window.getComputedStyle(inputElement);
-    //                 inputElement.style.height = computedStyle.height;
-    //                 inputElement.style.fontSize = computedStyle.fontSize;
-    //                 inputElement.style.fontWeight = computedStyle.fontWeight;
-    //                 inputElement.style.padding = computedStyle.padding;
-    //             }
-
-    //             // ใช้ html2canvas จับภาพ
-    //             const canvas = await window.html2canvas(dialogRef.current, {
-    //                 scrollY: 0,
-    //                 useCORS: true,
-    //                 width: dialogRef.current.scrollWidth,
-    //                 height: dialogRef.current.scrollHeight,
-    //                 scale: window.devicePixelRatio,
-    //             });
-
-    //             const image = canvas.toDataURL("image/png");
-
-    //             // สร้างลิงก์ดาวน์โหลด
-    //             const link = document.createElement("a");
-    //             link.href = image;
-    //             link.download = "บันทึกข้อมูลการขนส่งน้ำมันวันที่" + dayjs(selectedDate).format("DD-MM-YYYY") + ".png";
-    //             link.click();
-
-    //             setEditMode(true);
-    //         } else {
-    //             console.error("html2canvas ยังไม่ถูกโหลด");
-    //         }
-    //     }, 500); // รอให้ React เปลี่ยน UI ก่อนแคปภาพ
-    // };
-
-
     const handleDateChangeReceive = (newValue) => {
         if (newValue) {
             const formattedDate = dayjs(newValue);
             setSelectedDateReceive(formattedDate);
             setSelectedDateDelivery(formattedDate.add(1, 'day'));
-
-            console.log("order Ticket : ", Object.keys(ordersTickets).length);
-            console.log("selectedDateReceive : ", formattedDate.format("DD/MM/YYYY"));
 
             if (ordersTickets && Object.keys(ordersTickets).length > 0) {
                 setOrdersTickets((prevOrders) => {
@@ -165,7 +122,6 @@ const InsertTrips = () => {
                             Date: formattedDate.format("DD/MM/YYYY"),
                         };
                     }
-                    console.log("Updated Orders with new Date (object):", updated);
                     return updated;
                 });
             }
@@ -179,17 +135,15 @@ const InsertTrips = () => {
                             Date: formattedDate.add(1, 'day').format("DD/MM/YYYY")
                         };
                     }
-                    console.log("Updated Selling with new Date (object):", updated);
                     return updated;
                 });
             }
         }
     };
 
-
     const handleDateChangeDelivery = (newValue) => {
         if (newValue) {
-            const formattedDate = dayjs(newValue); // แปลงวันที่เป็นฟอร์แมต
+            const formattedDate = dayjs(newValue);
             setSelectedDateDelivery(formattedDate);
 
             if (selling && Object.keys(selling).length > 0) {
@@ -201,7 +155,6 @@ const InsertTrips = () => {
                             Date: formattedDate.format("DD/MM/YYYY"),
                         };
                     }
-                    console.log("Updated Orders with new Date (object):", updated);
                     return updated;
                 });
             }
@@ -229,33 +182,7 @@ const InsertTrips = () => {
     const [volumePWD, setVolumePWD] = React.useState(0);
     const [volumeB20, setVolumeB20] = React.useState(0);
 
-    // const total = weightOil.reduce((sum, value) => sum + value, 0);
-    // const totalVolume = volume.reduce((sum, value) => sum + value, 0);
-    // const totalCost = cost.reduce((sum, value) => sum + value, 0);
-
-    // console.log("แสดงน้ำหนักรวมทั้งหมด",weightOil);
-    // console.log("แสดงต้นทุนรวม G91",costG91);
-    // console.log("แสดงปริมาณรวม G91",volumeG91);
-    // console.log("แสดงต้นทุนรวม G95",costG95);
-    // console.log("แสดงปริมาณรวม G95",volumeG95);
-    // console.log("แสดงต้นทุนรวม B7",costB7);
-    // console.log("แสดงปริมาณรวม B7",volumeB7);
-    // console.log("แสดงต้นทุนรวม B95",costB95);
-    // console.log("แสดงปริมาณรวม B95",volumeB95);
-    // console.log("แสดงต้นทุนรวม E20",costE20);
-    // console.log("แสดงปริมาณรวม E20",volumeE20);
-    // console.log("แสดงต้นทุนรวม PWD",costPWD);
-    // console.log("แสดงปริมาณรวม PWD",volumePWD);
-    // console.log("แสดงต้นทุนรวม",cost);
-    // console.log("แสดงปริมาณรวม",volume);
-
     const [heavyOil, setHeavyOil] = React.useState(weightOil);
-
-    // const handleSendBack = (newTotal, newTotalCost, newTotalVolume) => {
-    //     setWeightOil((prev) => [...prev, newTotal]);  // ✅ เก็บค่า total
-    //     setCost((prev) => [...prev, newTotalCost]); // ✅ เก็บค่า totalVolume
-    //     setVolume((prev) => [...prev, newTotalVolume]); // ✅ เก็บค่า totalVolume
-    // };
 
     const handleSendBack = (newTotal, newTotalVolume, newVolumeG91, newVolumeG95, newVolumeB7, newVolumeB95, newVolumeE20, newVolumePWD, newVolumeB20) => {
         setWeightOil((prev) => prev + newTotal);
@@ -267,20 +194,11 @@ const InsertTrips = () => {
         setVolumeE20((prev) => prev + newVolumeE20);
         setVolumePWD((prev) => prev + newVolumePWD);
         setVolumeB20((prev) => prev + newVolumeB20);
-        // setCostG91((prev) => prev + newCostG91);
-        // setCostG95((prev) => prev + newCostG95);
-        // setCostB7((prev) => prev + newCostB7);
-        // setCostB95((prev) => prev + newCostB95);
-        // setCostE20((prev) => prev + newCostE20);
-        // setCostPWD((prev) => prev + newCostPWD);
     };
 
     const handleSendBackSell = (
         newVolumeG91, newVolumeG95, newVolumeB7, newVolumeB95, newVolumeE20, newVolumePWD, newVolumeB20
     ) => {
-        console.log("Before Update:", { volumeG91, volumeG95, volumeB7, volumeB95, volumeE20, volumePWD, volumeB20 });
-        console.log("Received Values:", { newVolumeG91, newVolumeG95, newVolumeB7, newVolumeB95, newVolumeE20, newVolumePWD, newVolumeB20 });
-
         setVolumeG91(prev => prev - newVolumeG91);
         setVolumeG95(prev => prev - newVolumeG95);
         setVolumeB7(prev => prev - newVolumeB7);
@@ -288,15 +206,6 @@ const InsertTrips = () => {
         setVolumeE20(prev => prev - newVolumeE20);
         setVolumePWD(prev => prev - newVolumePWD);
         setVolumeB20(prev => prev - newVolumeB20);
-
-        // setCostG91(prev => prev - newCostG91);
-        // setCostG95(prev => prev - newCostG95);
-        // setCostB7(prev => prev - newCostB7);
-        // setCostB95(prev => prev - newCostB95);
-        // setCostE20(prev => prev - newCostE20);
-        // setCostPWD(prev => prev - newCostPWD);
-
-        console.log("After Update:", { volumeG91, volumeG95, volumeB7, volumeB95, volumeE20, volumePWD, volumeB20 });
     };
 
     const { reghead, small, transport, depots: depotBasicData, customertransports, customergasstations, customertickets, customerbigtruck, customersmalltruck, refetch: refetchBasicData } = useBasicData();
@@ -316,14 +225,6 @@ const InsertTrips = () => {
     const ticketsS = Object.values(customersmalltruck || {});
 
     const [usedShortNames, setUsedShortNames] = useState(new Set());
-
-    console.log("Used ShortNames: ", [...usedShortNames]);
-
-    console.log("ข้อมูลตั๋ว : ", Object.values(ordersTickets));
-    console.log("ข้อมูลลูกค้า : ", Object.values(selling));
-
-    console.log("Order on Trip : ", orderTrip);
-    console.log("Ticket on Trip : ", ticketTrip);
 
     const handlePost = (event) => {
         const ticketValue = event.target.value;
@@ -383,9 +284,6 @@ const InsertTrips = () => {
             return {
                 ...prev,
                 [`Ticket${newIndex}`]: ticketValue
-                // [`Ticket${newIndex}`]: ticketValue.includes("/")
-                //     ? ticketValue.split("/")[1]
-                //     : ticketValue
             };
         });
 
@@ -401,24 +299,6 @@ const InsertTrips = () => {
         const orderData = getCustomers().find(
             (item) => `${item.id}:${item.Name}` === customerValue
         );
-
-        console.log("customerValue : ", customerValue.split(":")[1].split(".")[0]);
-
-        // กำหนดค่า default rate หากไม่พบข้อมูลหรือ depots ยังไม่ได้เลือก
-        // let newRate = 0;
-        // if (orderData && depots) {
-        //     // ตรวจสอบค่า depot ที่เลือก (สมมุติว่า depots เป็น "1", "2", "3")
-        //     if (depots.split(":")[1] === "ลำปาง") {
-        //         // newRate = orderData.Rate1;
-        //         setCostTrip((prev) => (prev === 0 ? 750 : prev + 200));
-        //     } else if (depots.split(":")[1] === "พิจิตร") {
-        //         // newRate = orderData.Rate2;
-        //         setCostTrip((prev) => (prev === 0 ? 2000 : prev + 200));
-        //     } else if (depots.split(":")[1] === "สระบุรี" || depots.split(":")[1] === "บางปะอิน" || depots.split(":")[1] === "IR") {
-        //         // newRate = orderData.Rate3;
-        //         setCostTrip((prev) => (prev === 0 ? (2000 + 1200) : prev + 200));
-        //     }
-        // }
 
         if (orderData && depots) {
             const depotName = depots.split(":")[1];
@@ -480,9 +360,6 @@ const InsertTrips = () => {
             return {
                 ...prev,
                 [`Order${newIndex}`]: customerValue
-                // [`Order${newIndex}`]: customerValue.includes("/")
-                //     ? customerValue.split("/")[1]
-                //     : customerValue
             };
         });
 
@@ -491,7 +368,6 @@ const InsertTrips = () => {
     const handleRegistration = (event) => {
         const registrationValue = event;
         setRegistration(registrationValue);
-        console.log("show registration : ", registrationValue);
 
         if (Object.keys(ordersTickets).length > 0) {
             const registration = `${registrationValue.split(":")[0]}:${registrationValue.split(":")[1]}`;
@@ -575,8 +451,6 @@ const InsertTrips = () => {
         setCostTrip(Number(raw));
     };
 
-    console.log("cost trip : ", costTrip);
-
     // ฟังก์ชันอัพเดตราคาใน ordersTickets เมื่อมีการเปลี่ยน depot
     const updateRatesByDepot = (selectedDepot) => {
         setCostTrip(0);
@@ -586,16 +460,6 @@ const InsertTrips = () => {
                 const ticketData = getTickets().find(
                     (item) => `${item.id}:${item.Name}` === order.TicketName
                 );
-                // let newRate = 0;
-                // if (ticketData) {
-                //     if (selectedDepot === "ลำปาง") {
-                //         newRate = ticketData.Rate1;
-                //     } else if (selectedDepot === "พิจิตร") {
-                //         newRate = ticketData.Rate2;
-                //     } else if (selectedDepot === "สระบุรี" || selectedDepot === "บางปะอิน" || selectedDepot === "IR") {
-                //         newRate = ticketData.Rate3;
-                //     }
-                // }
                 acc[key] = {
                     ...order,
                     Rate1: ticketData.Rate1,
@@ -616,16 +480,6 @@ const InsertTrips = () => {
                 const ticketData = getCustomers().find(
                     (item) => `${item.id}:${item.Name}` === order.TicketName
                 );
-                // let newRate = 0;
-                // if (ticketData) {
-                //     if (selectedDepot === "ลำปาง") {
-                //         newRate = ticketData.Rate1;
-                //     } else if (selectedDepot === "พิจิตร") {
-                //         newRate = ticketData.Rate2;
-                //     } else if (selectedDepot === "สระบุรี" || selectedDepot === "บางปะอิน" || selectedDepot === "IR") {
-                //         newRate = ticketData.Rate3;
-                //     }
-                // }
                 acc[key] = {
                     ...order,
                     Rate1: ticketData.Rate1,
@@ -966,7 +820,6 @@ const InsertTrips = () => {
     };
 
 
-    console.log("Registration s : ", registration);
     const handleSaveAsImage = () => {
         const Trips = {
             Tickets: Object.values(ordersTickets),
@@ -1114,29 +967,6 @@ const InsertTrips = () => {
         setOpen(false);
     }
 
-    // const handleCustomer = () => {
-    //     database
-    //         .ref("order/")
-    //         .child(order.length)
-    //         .update({
-    //             id: order.length + 1,
-    //             DateReceive: dayjs(selectedDateReceive).format('DD/MM/YYYY'),
-    //             Registration: registration.split(":")[1],
-    //             Driver: registration.split(":")[2],
-    //             Customer: customers.split(":")[1],
-    //             TicketName: customers,
-    //             Trip: trip.length
-    //         })
-    //         .then(() => {
-    //             ShowSuccess("เพิ่มออเดอร์เรียบร้อย");
-
-    //         })
-    //         .catch((error) => {
-    //             ShowError("เพิ่มข้อมูลไม่สำเร็จ");
-    //             console.error("Error pushing data:", error);
-    //         });
-    // };
-
     const handleTotalWeight = (newHeavyOil, newWeight) => {
         const total =
             parseFloat(newHeavyOil || 0) +
@@ -1160,8 +990,6 @@ const InsertTrips = () => {
         return driverss.filter((item) => item.id);
     };
 
-    console.log("Driver : ", getDriver());
-
     const getTickets = () => {
         if (!registration || registration === "0:0:0:0:0") return [];
 
@@ -1171,8 +999,6 @@ const InsertTrips = () => {
                     (`${item.id}:${item.RegHead}:${item.Driver}:${item.Type}` === registration)
                     : (`${item.id}:${item.Registration}:${item.id}:${item.Name}:${item.Type}` === registration)
         );
-
-        console.log("selectTicket : ", selectedTruck);
 
         if (!selectedTruck) return [];
 
@@ -1202,9 +1028,6 @@ const InsertTrips = () => {
     const getCustomers = () => {
         if (!registration || registration === "0:0:0:0:0") return [];
 
-        // const selectedTruck = allTruck.find(
-        //     (item) => `${item.id}:${item.RegHead}:${item.Driver}:` === registration.split("รถบริษัท")[0]
-        // );
         const selectedTruck = getDriver().find(
             (item) =>
                 item.Type === "รถบริษัท" ?
@@ -1249,53 +1072,6 @@ const InsertTrips = () => {
         }
     }, [registration, getDriver()]);
 
-    console.log("driver : ", getDriver());
-    console.log("ticket : ", getTickets());
-    console.log("registraation : ", registration);
-    // const getTickets = () => {
-    //     if (codeCustomer === "") {
-    //         // รวมข้อมูลทั้งหมด พร้อมเพิ่ม `type` ให้กับแต่ละรายการ
-    //         return [
-    //             ...ticketsPS.map((item) => ({ ...item, type: item.Code })),
-    //             ...ticketsT
-    //                 .filter((item) => item.Status === "ตั๋ว" || item.Status === "ตั๋ว/ผู้รับ")
-    //                 .map((item) => ({ ...item, type: "T" })),
-    //             ...ticketsB.map((item) => ({ ...item, type: "A" })),
-    //         ];
-    //     } else if (codeCustomer === "PS") {
-    //         return ticketsPS.map((item) => ({ ...item, type: item.Code }));
-    //     } else if (codeCustomer === "T") {
-    //         return ticketsT
-    //             .filter((item) => item.Status === "ตั๋ว" || item.Status === "ตั๋ว/ผู้รับ")
-    //             .map((item) => ({ ...item, type: "T" }));
-    //     } else if (codeCustomer === "A") {
-    //         return ticketsB.map((item) => ({ ...item, type: "A" }));
-    //     }
-    //     return []; // ถ้าไม่มีการกำหนด ให้คืนค่า empty array
-    // };
-
-    // const getCustomers = () => {
-    //     if (codeCustomer === "") {
-    //         // รวมข้อมูลทั้งหมด พร้อมเพิ่ม `type` ให้กับแต่ละรายการ
-    //         return [
-    //             ...ticketsPS.map((item) => ({ ...item, type: "PS" })),
-    //             ...ticketsT
-    //                 .filter((item) => item.Status === "ผู้รับ" || item.Status === "ตั๋ว/ผู้รับ")
-    //                 .map((item) => ({ ...item, type: "T" })),
-    //             ...ticketsB.map((item) => ({ ...item, type: "A" })),
-    //         ];
-    //     } else if (codeCustomer === "PS") {
-    //         return ticketsPS.map((item) => ({ ...item, type: "PS" }));
-    //     } else if (codeCustomer === "T") {
-    //         return ticketsT
-    //             .filter((item) => item.Status === "ผู้รับ" || item.Status === "ตั๋ว/ผู้รับ")
-    //             .map((item) => ({ ...item, type: "T" }));
-    //     } else if (codeCustomer === "A") {
-    //         return ticketsB.map((item) => ({ ...item, type: "A" }));
-    //     }
-    //     return []; // ถ้าไม่มีการกำหนด ให้คืนค่า empty array
-    // };
-
     let G95 = (Number(volumeT.G95) - Number(volumeS.G95));
     let B95 = (Number(volumeT.B95) - Number(volumeS.B95));
     let B7 = (Number(volumeT.B7) - Number(volumeS.B7));
@@ -1311,15 +1087,6 @@ const InsertTrips = () => {
 
     const getBackgroundColor = (value) =>
         value < 0 ? "red" : value > 0 ? "yellow" : "lightgray";
-
-    console.log("G95", G95);
-    console.log("B95", B95);
-    console.log("B7", B7);
-    console.log("G91", G91);
-    console.log("E20", E20);
-    console.log("PWD", PWD);
-    console.log("B20", B20);
-    console.log("Check : ", isNegative);
 
     return (
         <React.Fragment>
@@ -1614,15 +1381,15 @@ const InsertTrips = () => {
                                                                     }}
                                                                     sx={{
                                                                         '& .MuiOutlinedInput-root': {
-                                                                            height: '25px', // ปรับความสูงของ TextField
-                                                                            display: 'flex', // ใช้ flexbox
-                                                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                                            height: '25px',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
                                                                         },
                                                                         '& .MuiInputBase-input': {
-                                                                            fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                                            fontSize: '16px',
                                                                             fontWeight: 'bold',
-                                                                            padding: '2px 6px', // ปรับ padding ภายใน input
-                                                                            textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                                            padding: '2px 6px',
+                                                                            textAlign: 'center',
                                                                             paddingLeft: 2
                                                                         },
                                                                     }}
@@ -1647,15 +1414,15 @@ const InsertTrips = () => {
                                                                     }}
                                                                     sx={{
                                                                         '& .MuiOutlinedInput-root': {
-                                                                            height: '25px', // ปรับความสูงของ TextField
-                                                                            display: 'flex', // ใช้ flexbox
-                                                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                                            height: '25px',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
                                                                         },
                                                                         '& .MuiInputBase-input': {
-                                                                            fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                                            fontSize: '16px',
                                                                             fontWeight: 'bold',
-                                                                            padding: '2px 6px', // ปรับ padding ภายใน input
-                                                                            textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                                            padding: '2px 6px',
+                                                                            textAlign: 'center',
                                                                             paddingLeft: 2
                                                                         },
                                                                     }}
@@ -1680,15 +1447,15 @@ const InsertTrips = () => {
                                                                     }}
                                                                     sx={{
                                                                         '& .MuiOutlinedInput-root': {
-                                                                            height: '25px', // ปรับความสูงของ TextField
-                                                                            display: 'flex', // ใช้ flexbox
-                                                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                                            height: '25px',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
                                                                         },
                                                                         '& .MuiInputBase-input': {
-                                                                            fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                                            fontSize: '16px',
                                                                             fontWeight: 'bold',
-                                                                            padding: '2px 6px', // ปรับ padding ภายใน input
-                                                                            textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                                            padding: '2px 6px',
+                                                                            textAlign: 'center',
                                                                             paddingLeft: 2
                                                                         },
                                                                     }}
@@ -1713,15 +1480,15 @@ const InsertTrips = () => {
                                                                     }}
                                                                     sx={{
                                                                         '& .MuiOutlinedInput-root': {
-                                                                            height: '25px', // ปรับความสูงของ TextField
-                                                                            display: 'flex', // ใช้ flexbox
-                                                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                                            height: '25px',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
                                                                         },
                                                                         '& .MuiInputBase-input': {
-                                                                            fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                                            fontSize: '16px',
                                                                             fontWeight: 'bold',
-                                                                            padding: '2px 6px', // ปรับ padding ภายใน input
-                                                                            textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                                            padding: '2px 6px',
+                                                                            textAlign: 'center',
                                                                             paddingLeft: 2
                                                                         },
                                                                     }}
@@ -1746,15 +1513,15 @@ const InsertTrips = () => {
                                                                     }}
                                                                     sx={{
                                                                         '& .MuiOutlinedInput-root': {
-                                                                            height: '25px', // ปรับความสูงของ TextField
-                                                                            display: 'flex', // ใช้ flexbox
-                                                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                                            height: '25px',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
                                                                         },
                                                                         '& .MuiInputBase-input': {
-                                                                            fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                                            fontSize: '16px',
                                                                             fontWeight: 'bold',
-                                                                            padding: '2px 6px', // ปรับ padding ภายใน input
-                                                                            textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                                            padding: '2px 6px',
+                                                                            textAlign: 'center',
                                                                             paddingLeft: 2
                                                                         },
                                                                     }}
@@ -1779,15 +1546,15 @@ const InsertTrips = () => {
                                                                     }}
                                                                     sx={{
                                                                         '& .MuiOutlinedInput-root': {
-                                                                            height: '25px', // ปรับความสูงของ TextField
-                                                                            display: 'flex', // ใช้ flexbox
-                                                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                                            height: '25px',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
                                                                         },
                                                                         '& .MuiInputBase-input': {
-                                                                            fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                                            fontSize: '16px',
                                                                             fontWeight: 'bold',
-                                                                            padding: '2px 6px', // ปรับ padding ภายใน input
-                                                                            textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                                            padding: '2px 6px',
+                                                                            textAlign: 'center',
                                                                             paddingLeft: 2
                                                                         },
                                                                     }}
@@ -1812,20 +1579,19 @@ const InsertTrips = () => {
                                                                     }}
                                                                     sx={{
                                                                         '& .MuiOutlinedInput-root': {
-                                                                            height: '25px', // ปรับความสูงของ TextField
-                                                                            display: 'flex', // ใช้ flexbox
-                                                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                                            height: '25px',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
                                                                         },
                                                                         '& .MuiInputBase-input': {
-                                                                            fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                                            fontSize: '16px',
                                                                             fontWeight: 'bold',
-                                                                            padding: '2px 6px', // ปรับ padding ภายใน input
-                                                                            textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                                            padding: '2px 6px',
+                                                                            textAlign: 'center',
                                                                             paddingLeft: 2
                                                                         },
                                                                     }}
                                                                     value={volumeT.B20 || 0}
-                                                                // value={volumeB20}
                                                                 />
                                                             </Paper>
                                                             :
@@ -1834,25 +1600,6 @@ const InsertTrips = () => {
                                                 </TableCellB20>
                                                 <TablecellTickets width={Object.keys(ordersTickets).length > 5 ? 90 : 80} sx={{ textAlign: "center", borderLeft: "3px solid white", backgroundColor: (parseFloat(weightH) + parseFloat(weightL) + parseFloat(weight)) > 50300 && theme.palette.error.main }} >
                                                     <Box display="flex" justifyContent="center" alignItems="center">
-                                                        {/* <Typography variant="subtitle2" fontWeight="bold" sx={{ whiteSpace: "nowrap", color: "white", marginRight: 1 }} gutterBottom>ต้นทุนรวม</Typography>
-                                                        <Paper component="form">
-                                                            <TextField size="small" fullWidth
-                                                                type="number"
-                                                                InputLabelProps={{
-                                                                    sx: {
-                                                                        fontSize: '14px'
-                                                                    },
-                                                                }}
-                                                                sx={{
-                                                                    '& .MuiOutlinedInput-root': {
-                                                                        height: '30px', // ปรับความสูงของ TextField
-                                                                    },
-                                                                }}
-                                                                // value={cost}
-                                                                value={showTrips ? cost : ((productTG91.TotalCost || 0) + (productTG95.TotalCost || 0) + (productTB7.TotalCost || 0) + (productTB95.TotalCost || 0) + (productTE20.TotalCost || 0) + (productTPWD.TotalCost || 0))
-                                                            />
-                                                        </Paper> */}
-                                                        {/* <Typography variant="subtitle2" fontWeight="bold" sx={{ whiteSpace: "nowrap", color: "white", marginRight: 1, marginLeft: 1 }} gutterBottom>ปริมาณรวมทั้งหมด</Typography> */}
                                                         {
                                                             editMode ?
                                                                 <Paper component="form" sx={{ width: "100%" }}>
@@ -1865,15 +1612,15 @@ const InsertTrips = () => {
                                                                         }}
                                                                         sx={{
                                                                             '& .MuiOutlinedInput-root': {
-                                                                                height: '25px', // ปรับความสูงของ TextField
-                                                                                display: 'flex', // ใช้ flexbox
-                                                                                alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                                                height: '25px',
+                                                                                display: 'flex',
+                                                                                alignItems: 'center',
                                                                             },
                                                                             '& .MuiInputBase-input': {
-                                                                                fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                                                fontSize: '16px',
                                                                                 fontWeight: 'bold',
-                                                                                padding: '2px 6px', // ปรับ padding ภายใน input
-                                                                                textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                                                padding: '2px 6px',
+                                                                                textAlign: 'center',
                                                                                 paddingLeft: 2
                                                                             },
                                                                         }}
@@ -1942,15 +1689,15 @@ const InsertTrips = () => {
                                         <TextField size="small" fullWidth
                                             sx={{
                                                 '& .MuiOutlinedInput-root': {
-                                                    height: '30px', // ปรับความสูงของ TextField
-                                                    display: 'flex', // ใช้ flexbox
-                                                    alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                    height: '30px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
                                                 },
                                                 '& .MuiInputBase-input': {
-                                                    fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                    fontSize: '16px',
                                                     fontWeight: 'bold',
-                                                    padding: '1px 4px', // ปรับ padding ภายใน input
-                                                    textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                    padding: '1px 4px',
+                                                    textAlign: 'center',
                                                 },
                                                 borderRadius: 10
                                             }}
@@ -1971,15 +1718,15 @@ const InsertTrips = () => {
                                         <TextField size="small" fullWidth
                                             sx={{
                                                 '& .MuiOutlinedInput-root': {
-                                                    height: '30px', // ปรับความสูงของ TextField
-                                                    display: 'flex', // ใช้ flexbox
-                                                    alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                    height: '30px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
                                                 },
                                                 '& .MuiInputBase-input': {
-                                                    fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                    fontSize: '16px',
                                                     fontWeight: 'bold',
-                                                    padding: '1px 4px', // ปรับ padding ภายใน input
-                                                    textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                    padding: '1px 4px',
+                                                    textAlign: 'center',
                                                 },
                                                 borderRadius: 10
                                             }}
@@ -1987,15 +1734,9 @@ const InsertTrips = () => {
                                                 minimumFractionDigits: 2,
                                                 maximumFractionDigits: 2,
                                             }).format(parseFloat(weightL))}
-                                        // InputProps={{
-                                        //     endAdornment: <InputAdornment position="end">กก.</InputAdornment>, // เพิ่ม endAdornment ที่นี่
-                                        // }}
                                         />
                                     </Paper>
                                 </Grid>
-                                {/* {
-                                regHead.map((row) => (
-                                    row.RegHead === registration.split(":")[1] ? */}
                                 <Grid item md={2} xs={6} display="flex" justifyContent="center" alignItems="center">
                                     <Typography variant="h6" fontWeight="bold" sx={{ whiteSpace: "nowrap", marginRight: 0.5 }} gutterBottom>น้ำหนักรถ</Typography>
                                     <Paper
@@ -2003,15 +1744,15 @@ const InsertTrips = () => {
                                         <TextField size="small" fullWidth
                                             sx={{
                                                 '& .MuiOutlinedInput-root': {
-                                                    height: '30px', // ปรับความสูงของ TextField
-                                                    display: 'flex', // ใช้ flexbox
-                                                    alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                    height: '30px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
                                                 },
                                                 '& .MuiInputBase-input': {
-                                                    fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                    fontSize: '16px',
                                                     fontWeight: 'bold',
-                                                    padding: '1px 4px', // ปรับ padding ภายใน input
-                                                    textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                    padding: '1px 4px',
+                                                    textAlign: 'center',
                                                 },
                                                 borderRadius: 10
                                             }}
@@ -2019,10 +1760,6 @@ const InsertTrips = () => {
                                                 minimumFractionDigits: 2,
                                                 maximumFractionDigits: 2,
                                             }).format(parseFloat(weight))}
-                                        //onChange={handleTotalWeight}
-                                        // InputProps={{
-                                        //     endAdornment: <InputAdornment position="end">กก.</InputAdornment>, // เพิ่ม endAdornment ที่นี่
-                                        // }}
                                         />
                                     </Paper>
                                 </Grid>
@@ -2036,14 +1773,14 @@ const InsertTrips = () => {
                                                 <TextField size="small" fullWidth
                                                     sx={{
                                                         '& .MuiOutlinedInput-root': {
-                                                            height: '30px', // ปรับความสูงของ TextField
-                                                            display: 'flex', // ใช้ flexbox
-                                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                            height: '30px',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
                                                         },
                                                         '& .MuiInputBase-input': {
-                                                            fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                            fontSize: '16px',
                                                             fontWeight: 'bold',
-                                                            textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                            textAlign: 'center',
                                                         },
                                                         borderRadius: 10
                                                     }}
@@ -2051,30 +1788,13 @@ const InsertTrips = () => {
                                                         minimumFractionDigits: 2,
                                                         maximumFractionDigits: 2,
                                                     }).format((parseFloat(weightH) + parseFloat(weightL) + parseFloat(weight)) || 0)}
-                                                // InputProps={{
-                                                //     endAdornment: <InputAdornment position="end">กก.</InputAdornment>, // เพิ่ม endAdornment ที่นี่
-                                                // }}
                                                 />
                                             </Paper>
                                         </Box>
                                     </Grid>
                                 }
-                                {/* :
-                                        null
-                                ))
-                            } */}
                             </Grid>
                         </Paper>
-                        {/* {
-                        weightOil !== 0 && showTrips ?
-                            <Box>
-                                <Divider>
-                                    <Button variant="contained" color="info" size="small" onClick={handleTrip} sx={{ borderRadius: 20 }}>จัดเที่ยววิ่ง</Button>
-                                </Divider>
-                            </Box>
-                            :
-                            ""
-                    }*/}
                         <Grid container spacing={1}>
                             <Grid item md={3.5} xs={12} textAlign="right">
                                 <Box display="flex" justifyContent="center" alignItems="center">
@@ -2146,42 +1866,6 @@ const InsertTrips = () => {
                                                         : "";
                                             })()}
                                         />
-                                        {/* <Autocomplete
-                                            id="autocomplete-registration-2"
-                                            options={regHead}
-                                            getOptionLabel={(option) =>
-                                                `${option.Driver ? option.Driver : ""} : ${option.RegHead ? option.RegHead : ""}/${option.RegTail ? option.RegTail : ""}`
-                                            }
-                                            isOptionEqualToValue={(option, value) => option.id === value.id}
-                                            value={registration ? regHead.find(item => `${item.id}:${item.RegHead}:${item.Driver}` === registration) : null}
-                                            onChange={(event, newValue) => {
-                                                if (newValue) {
-                                                    const value = `${newValue.id}:${newValue.RegHead}:${newValue.Driver}`;
-                                                    setRegistration(value);
-                                                } else {
-                                                    setRegistration(null);
-                                                }
-                                            }}
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    label={!registration ? "กรุณาเลือกผู้ขับ/ป้ายทะเบียน" : ""}
-                                                    variant="outlined"
-                                                    size="small"
-                                                    sx={{
-                                                        "& .MuiOutlinedInput-root": { height: "30px" },
-                                                        "& .MuiInputBase-input": { fontSize: "14px", padding: "3px 8px" },
-                                                    }}
-                                                />
-                                            )}
-                                            fullWidth
-                                            renderOption={(props, option) => (
-                                                <li {...props}>
-                                                    <Typography fontSize="14px">{`${option.Driver} : ${option.RegHead}/${option.RegTail}`}</Typography>
-                                                </li>
-                                            )}
-                                            disabled={!showTickers}
-                                        /> */}
                                     </Paper>
                                 </Box>
                             </Grid>
@@ -2195,14 +1879,14 @@ const InsertTrips = () => {
                                             <TextField size="small" fullWidth
                                                 sx={{
                                                     '& .MuiOutlinedInput-root': {
-                                                        height: '30px', // ปรับความสูงของ TextField
-                                                        display: 'flex', // ใช้ flexbox
-                                                        alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                        height: '30px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
                                                     },
                                                     '& .MuiInputBase-input': {
-                                                        fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                        fontSize: '16px',
                                                         fontWeight: 'bold',
-                                                        textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                        textAlign: 'center',
                                                     },
                                                     borderRadius: 10
                                                 }}
@@ -2210,9 +1894,6 @@ const InsertTrips = () => {
                                                     minimumFractionDigits: 2,
                                                     maximumFractionDigits: 2,
                                                 }).format((parseFloat(weightH) + parseFloat(weightL) + parseFloat(weight)) || 0)}
-                                            // InputProps={{
-                                            //     endAdornment: <InputAdornment position="end">กก.</InputAdornment>, // เพิ่ม endAdornment ที่นี่
-                                            // }}
                                             />
                                         </Paper>
                                     </Box>
@@ -2369,14 +2050,14 @@ const InsertTrips = () => {
                                                                     }}
                                                                     sx={{
                                                                         '& .MuiOutlinedInput-root': {
-                                                                            height: '25px', // ปรับความสูงของ TextField
-                                                                            display: 'flex', // ใช้ flexbox
-                                                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                                            height: '25px',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
                                                                         },
                                                                         '& .MuiInputBase-input': {
-                                                                            fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                                            fontSize: '16px',
                                                                             fontWeight: 'bold',
-                                                                            textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                                            textAlign: 'center',
                                                                         },
                                                                     }}
                                                                     value={(volumeS.G91 + volumeS.G95 + volumeS.B7 + volumeS.B95 + volumeS.E20 + volumeS.PWD + volumeS.B20) || 0}
@@ -2444,14 +2125,14 @@ const InsertTrips = () => {
                                                                     }}
                                                                     sx={{
                                                                         '& .MuiOutlinedInput-root': {
-                                                                            height: '25px', // ปรับความสูงของ TextField
-                                                                            display: 'flex', // ใช้ flexbox
-                                                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                                                            height: '25px',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
                                                                         },
                                                                         '& .MuiInputBase-input': {
-                                                                            fontSize: '16px', // ขนาด font เวลาพิมพ์
+                                                                            fontSize: '16px',
                                                                             fontWeight: 'bold',
-                                                                            textAlign: 'center', // จัดให้ตัวเลขอยู่กึ่งกลางแนวนอน (ถ้าต้องการ)
+                                                                            textAlign: 'center',
                                                                         },
                                                                     }}
                                                                     value={totalVolume}
@@ -2509,47 +2190,9 @@ const InsertTrips = () => {
                                                             <Typography fontSize="16px">{`${option.Name}`}</Typography>
                                                         </li>
                                                     )}
-                                                    disabled={!showTrips} // ปิดการใช้งานถ้า showTrips เป็น false
+                                                    disabled={!showTrips}
                                                 />
                                             </Grid>
-
-                                            {/* <Grid item sm={1.5} xs={2}>
-                                            <Paper
-                                                component="form">
-                                                <TextField size="small" fullWidth sx={{ borderRadius: 10 }} value={codes} onChange={(e) => setCodes(e.target.value)} />
-                                            </Paper>
-                                        </Grid>
-                                        <Grid item sm={8} xs={7}>
-                                            <Select
-                                                id="demo-simple-select"
-                                                value={customers}
-                                                size="small"
-                                                sx={{ textAlign: "left" }}
-                                                onChange={(event) => handlePostSelling(event)}
-                                                fullWidth
-                                            >
-                                                <MenuItem value={"0:0"}>
-                                                    เลือกลูกค้าที่ต้องการเพิ่ม
-                                                </MenuItem>
-                                                {getCustomers().map((row) => {
-                                                    // ตรวจสอบประเภทของข้อมูลเพื่อกำหนด prefix ที่เหมาะสม
-                                                    const prefix = row.type;
-                                                    const id = row.id || row.TicketsCode;
-                                                    const name = row.Name || row.Name;
-
-                                                    return (
-                                                        <MenuItem key={id} value={`${prefix}:${id}:${name}`}>
-                                                            {`${prefix}:${id}:${name}`}
-                                                        </MenuItem>
-                                                    );
-                                                })}
-                                            </Select>
-                                        </Grid>
-                                        <Grid item sm={2.5} xs={3} display="flex" alignItems="center" paddingLeft={0.5} paddingRight={0.5}>
-                                            {
-                                                (volumeG95 + volumeG91 + volumeB7 + volumeB95 + volumeE20 + volumePWD) !== 0 && <Button variant="contained" color="info" fullWidth onClick={handleCustomer}>เพิ่มออเดอร์</Button>
-                                            }
-                                        </Grid> */}
                                         </Grid>
                                     </Paper>
                                 </Grid>
@@ -2614,19 +2257,6 @@ const InsertTrips = () => {
                         )
                     }
                 </DialogContent>
-                {/* <DialogActions
-                    sx={{
-                        textAlign: "center", // ตั้งค่ากลาง
-                        borderTop: "2px solid " + theme.palette.panda.dark,
-                        display: "flex", // ใช้ Flexbox
-                        justifyContent: "center", // จัดตำแหน่งปุ่มให้อยู่กึ่งกลาง
-                    }}
-                >
-                    <Button onClick={handleSubmit} variant="contained" color="success" size="small">บันทึก</Button>
-                    <Button onClick={handleCancle} variant="contained" color="error" size="small">ยกเลิก</Button>
-                </DialogActions> */}
-
-
             </Dialog>
         </React.Fragment>
 

@@ -7,7 +7,6 @@ import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import "dayjs/locale/th";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
-// ✅ ติดตั้ง plugin
 // customParseFormat is required for every dayjs(dateString, "DD/MM/YYYY")
 // call throughout the app (that's how every stored date gets parsed back
 // into a real Date for filtering/sorting). Without it, dayjs silently

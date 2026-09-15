@@ -4,12 +4,10 @@ import { Button, Box, Typography, Grid } from '@mui/material';
 const UploadButton = () => {
   const [selectedImages, setSelectedImages] = useState([]);
 
-  // ฟังก์ชันเมื่อผู้ใช้เลือกไฟล์
   const handleImageChange = (event) => {
     const files = Array.from(event.target.files);
     const newImages = files.slice(0, 3 - selectedImages.length).map((file) => URL.createObjectURL(file));
 
-    // เพิ่มรูปภาพใหม่เข้ากับรูปภาพเดิม (สูงสุด 3 รูป)
     setSelectedImages((prevImages) => [...prevImages, ...newImages].slice(0, 3));
   };
 

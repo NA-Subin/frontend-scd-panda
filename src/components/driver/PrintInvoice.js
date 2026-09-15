@@ -56,9 +56,6 @@ const PdaPrinter = () => {
 
   const products = mapProducts(data?.order?.Product);
 
-  console.log("🚀 ~ file: PrintInvoice.js:92 ~ PdaPrinter ~ products:", products);
-  console.log("🚀 ~ file: PrintInvoice.js:92 ~ PdaPrinter ~ data:", data);
-
   return (
     <Box display="flex" justifyContent="center" mt={2}>
       <Box

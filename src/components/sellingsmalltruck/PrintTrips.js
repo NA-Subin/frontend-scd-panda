@@ -21,20 +21,6 @@ const PrintTripsSmall = () => {
     }
   }, []);
 
-  //   const formatThaiDate = (dateString) => {
-  //     if (!dateString) return "-";
-  //     const date = new Date(dateString);
-  //     const day = date.getDate();
-  //     const monthNames = [
-  //         "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-  //         "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
-  //     ];
-  //     const month = monthNames[date.getMonth()];
-  //     const year = date.getFullYear() + 543; // แปลงจาก ค.ศ. เป็น พ.ศ.
-
-  //     return `วันที่ ${day} เดือน${month} พ.ศ.${year}`;
-  // };
-
   const formatThaiDate = (dateString) => {
     if (!dateString) return "ไม่พบข้อมูลวันที่"; // ถ้า undefined หรือ null ให้คืนค่าเริ่มต้น
 
@@ -49,15 +35,6 @@ const PrintTripsSmall = () => {
 
     return `วันที่ ${day} เดือน ${formattedDate} พ.ศ. ${buddhistYear}`;
   };
-
-  console.log("Ticket : ", trips?.Tickets);
-  console.log("Order : ", trips?.Orders);
-  console.log("TotalVolumeTicket : ", trips?.TotalVolumeTicket);
-  console.log("TotalVolumeTicket : ", trips?.TotalVolumeOrder);
-  // console.log("WeightHigh : ", trips?.TotalVolumeTicket);
-  // console.log("WeightLow : ", trips?.WeightLow);
-  // console.log("TotalWeight : ", trips?.TotalWeight);
-  console.log("CostTrip : ", trips?.CostTrip);
 
   const handleDownloadImage = () => {
     const content = document.querySelector("#invoiceContent"); // เลือก div ที่คุณต้องการแปลงเป็นรูปภาพ
@@ -77,28 +54,6 @@ const PrintTripsSmall = () => {
 
   return (
     <div id="invoiceContent" style={{ padding: "20px" }}>
-      {/* <Grid container spacing={2}>
-        <Grid item xs={8}>
-          {
-            trips &&
-            (
-              <React.Fragment>
-                <Typography variant="h6" fontWeight="bold" sx={{ marginBottom: -1 }} gutterBottom>บริษัท แพนด้า สตาร์ ออยล์ จำกัด (สำนักงานใหญ่)</Typography>
-                <Typography variant="subtitle1" sx={{ marginBottom: -1 }} gutterBottom>261 หมู่ 2 ต.สันพระเนตร อ.สันทราย จ.เชียงใหม่ 50210</Typography>
-                <Typography variant="subtitle1" gutterBottom>เลขประจำตัวผู้เสียภาษีอากร : 050 5562 00472 6</Typography>
-              </React.Fragment>
-            )
-          }
-        </Grid>
-        <Grid item xs={4} textAlign="right">
-          <Typography variant="subtitle1" fontWeight="bold" sx={{ marginRight: 2 }}>
-            รายการจัดเที่ยววิ่ง
-          </Typography>
-          <Typography variant="subtitle2" fontWeight="bold" sx={{ marginRight: 2 }}>
-            พิมพ์วันที่ {dayjs(new Date).format("DD/MM/YYYY")}
-          </Typography>
-        </Grid>
-      </Grid> */}
       <Grid container spacing={2}>
         <Grid item xs={12} marginBottom={-2}>
           <Typography variant="subtitle1" fontWeight="bold">วันที่รับ : {formatThaiDate(trips?.DateReceive)} พนักงานขับรถ : {trips?.Driver}</Typography>
@@ -127,15 +82,6 @@ const PrintTripsSmall = () => {
                         row.TicketNameName
                       }
                     </TableCell>
-                    {/* <TableCell sx={{ textAlign: "center", borderLeft: "1px solid black" }}>{row.OrderID}</TableCell>
-                    <TableCell sx={{ textAlign: "center", borderLeft: "1px solid black" }}>
-                      {
-                        trips?.Depot.split(":")[1] === "ลำปาง" ? row.Rate1
-                          : trips?.Depot.split(":")[1] === "พิจิตร" ? row.Rate2
-                            : trips?.Depot.split(":")[1] === "สระบุรี" || trips?.Depot.split(":")[1] === "บางปะอิน" || trips?.Depot.split(":")[1] === "IR" ? row.Rate3
-                              : row.Rate
-                      }
-                    </TableCell> */}
                     <TableCell sx={{ textAlign: "center", borderLeft: "1px solid black" }}>{row.Product.G95 ? row.Product.G95.Volume : "-"}</TableCell>
                     <TableCell sx={{ textAlign: "center", borderLeft: "1px solid black" }}>{row.Product.B95 ? row.Product.B95.Volume : "-"}</TableCell>
                     <TableCell sx={{ textAlign: "center", borderLeft: "1px solid black" }}>{row.Product.B7 ? row.Product.B7.Volume : "-"}</TableCell>
@@ -156,32 +102,6 @@ const PrintTripsSmall = () => {
               </TableRow>
             </TableBody>
           </Table>
-          {/* <Table size="small" sx={{ "& .MuiTableCell-root": { padding: "2px" }, border: "1px solid black" }}>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: "#e0e0e0" }}>
-                <TableCell sx={{ textAlign: "center", height: "20px", borderLeft: "1px solid black", fontWeight: "bold", width: 80 }}>น้ำมันหนัก : </TableCell>
-                <TableCell sx={{ textAlign: "center", height: "20px", fontWeight: "bold" }}>{new Intl.NumberFormat("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }).format(trips?.WeightHigh)}</TableCell>
-                <TableCell sx={{ textAlign: "center", height: "20px", borderLeft: "1px solid black", fontWeight: "bold", width: 80 }}>น้ำมันเบา : </TableCell>
-                <TableCell sx={{ textAlign: "center", height: "20px", fontWeight: "bold" }}>{new Intl.NumberFormat("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }).format(trips?.WeightLow)}</TableCell>
-                <TableCell sx={{ textAlign: "center", height: "20px", borderLeft: "1px solid black", fontWeight: "bold", width: 80 }}>น้ำหนักรถ : </TableCell>
-                <TableCell sx={{ textAlign: "center", height: "20px", fontWeight: "bold" }}>{new Intl.NumberFormat("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }).format(trips?.WeightTruck)}</TableCell>
-                <TableCell sx={{ textAlign: "center", height: "20px", borderLeft: "1px solid black", fontWeight: "bold", width: 80 }}>น้ำหนักรวม : </TableCell>
-                <TableCell sx={{ textAlign: "center", height: "20px", fontWeight: "bold" }}>{new Intl.NumberFormat("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }).format(trips?.TotalWeight)}</TableCell>
-              </TableRow>
-            </TableHead>
-          </Table> */}
         </Grid>
         <Grid item xs={12} marginBottom={-2}>
           <Typography variant="subtitle1" fontWeight="bold">วันที่ส่ง : {formatThaiDate(trips?.DateDelivery)} พนักงานขับรถ : {trips?.Driver}</Typography>

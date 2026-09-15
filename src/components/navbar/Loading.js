@@ -14,15 +14,13 @@ const FullPageLoading = () => (
             bgcolor: "white",
             zIndex: 1300,
             display: "flex",
-            flexDirection: "column", // ✅ เรียงแนวตั้ง
+            flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
         }}
     >
-        {/* โลโก้อยู่ตรงกลางบน */}
         <img src={Logo} width="400" style={{ marginBottom: 24 }} />
 
-        {/* แถบโหลดอยู่ด้านล่างโลโก้ */}
         <Box sx={{ width: "50%" }}>
             <LinearProgress
                 variant="indeterminate"

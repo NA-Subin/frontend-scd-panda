@@ -56,14 +56,14 @@ const TripsBigTruck = ({ openNavbar }) => {
 
     const handleDateChangeDateStart = (newValue) => {
         if (newValue) {
-            const formattedDate = dayjs(newValue); // แปลงวันที่เป็นฟอร์แมต
+            const formattedDate = dayjs(newValue);
             setSelectedDateStart(formattedDate);
         }
     };
 
     const handleDateChangeDateEnd = (newValue) => {
         if (newValue) {
-            const formattedDate = dayjs(newValue); // แปลงวันที่เป็นฟอร์แมต
+            const formattedDate = dayjs(newValue);
             setSelectedDateEnd(formattedDate);
         }
     };
@@ -81,7 +81,6 @@ const TripsBigTruck = ({ openNavbar }) => {
     const registrations = Object.values(reghead || {}).filter((item) => item.StatusTruck !== "ยกเลิก");
 
     const orderDetail = Object.values(order || {});
-    console.log("orderDetail : ", orderDetail.filter((row) => row.TicketName === "35:S.NP..10 ล้อ นาครา 70-1662" && row.Status !== "ยกเลิก"));
     const trips = Object.values(trip || {}).filter(item => {
         const deliveryDate = dayjs(item.DateDelivery, "DD/MM/YYYY");
         const receiveDate = dayjs(item.DateReceive, "DD/MM/YYYY");
@@ -91,8 +90,6 @@ const TripsBigTruck = ({ openNavbar }) => {
     });
 
     const [sortConfig, setSortConfig] = useState({ key: null, direction: "desc" });
-
-    console.log("registrations : ", registrations);
 
     const handleSort = (key) => {
         setSortConfig((prev) => {
@@ -112,11 +109,7 @@ const TripsBigTruck = ({ openNavbar }) => {
         return new Date(year, month - 1, day);
     };
 
-    //const tripDetail = trips.filter((item) => item.TruckType === "รถใหญ่" && item.StatusTrip !== "ยกเลิก" );
     const tripDetail = trips.filter((item) => {
-        // const itemDateR = dayjs(item.DateReceive, "DD/MM/YYYY");
-        // const itemDateD = dayjs(item.DateDelivery, "DD/MM/YYYY");
-
         const itemDate = dayjs(item.DateReceive, "DD/MM/YYYY");
         return (
             check === 2 ?
@@ -128,16 +121,13 @@ const TripsBigTruck = ({ openNavbar }) => {
                 : check === 3 ?
                     (item.TruckType === "รถใหญ่" || item.TruckType === "รถรับจ้างขนส่ง") &&
                     item.StatusTrip === "ยกเลิก" &&
-                    //(itemDateR.isBetween(selectedDateStart, selectedDateEnd, null, "[]") || itemDateD.isBetween(selectedDateStart, selectedDateEnd, null, "[]"))
                     itemDate.isBetween(selectedDateStart, selectedDateEnd, null, "[]")
                     : check === 4 ?
                         (item.TruckType === "รถใหญ่" || item.TruckType === "รถรับจ้างขนส่ง") &&
                         item.StatusTrip === "จบทริป" &&
-                        //(itemDateR.isBetween(selectedDateStart, selectedDateEnd, null, "[]") || itemDateD.isBetween(selectedDateStart, selectedDateEnd, null, "[]"))
                         itemDate.isBetween(selectedDateStart, selectedDateEnd, null, "[]")
                         :
                         (item.TruckType === "รถใหญ่" || item.TruckType === "รถรับจ้างขนส่ง") &&
-                        //(itemDateR.isBetween(selectedDateStart, selectedDateEnd, null, "[]") || itemDateD.isBetween(selectedDateStart, selectedDateEnd, null, "[]"))
                         itemDate.isBetween(selectedDateStart, selectedDateEnd, null, "[]")
         );
     })
@@ -160,12 +150,10 @@ const TripsBigTruck = ({ openNavbar }) => {
             const aValue = a[sortConfig.key];
             const bValue = b[sortConfig.key];
 
-            // ถ้าเป็น number
             if (typeof aValue === "number" && typeof bValue === "number") {
                 return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
             }
 
-            // ถ้าเป็นวันที่
             if (
                 typeof aValue === "string" &&
                 typeof bValue === "string" &&
@@ -179,15 +167,11 @@ const TripsBigTruck = ({ openNavbar }) => {
                     : dateB - dateA;
             }
 
-            // ถ้าเป็น string (ตัวหนังสือ)
             return sortConfig.direction === "asc"
                 ? String(aValue).localeCompare(String(bValue), "th")
                 : String(bValue).localeCompare(String(aValue), "th");
         });
 
-    console.log("Trip Detail : ", tripDetail);
-
-    console.log("Trip : ", tripDetail);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
     useEffect(() => {
@@ -199,7 +183,6 @@ const TripsBigTruck = ({ openNavbar }) => {
             setWindowWidth(width);
         };
 
-        // เรียกครั้งแรกตอน mount
         handleResize();
 
         window.addEventListener('resize', handleResize);
@@ -221,17 +204,6 @@ const TripsBigTruck = ({ openNavbar }) => {
 
     return (
         <Container maxWidth="xl" sx={{ marginTop: 13, marginBottom: 5, width: windowWidth <= 900 && windowWidth > 600 ? (windowWidth - 110) : windowWidth <= 600 ? (windowWidth) : (windowWidth - 230) }}>
-            {/* <Typography
-                variant="h3"
-                fontWeight="bold"
-                textAlign="center"
-                gutterBottom
-            >
-                เที่ยววิ่งรถใหญ่
-            </Typography>
-            <Box textAlign="right" marginTop={-8} marginBottom={4} marginRight={5}>
-                <InsertTrips />
-            </Box> */}
             <Grid container spacing={2}>
                 <Grid item md={4} xs={12}>
 
@@ -252,7 +224,7 @@ const TripsBigTruck = ({ openNavbar }) => {
                 <Grid item md={5} xs={12}>
                     <Box
                         sx={{
-                            width: "100%", // กำหนดความกว้างของ Paper
+                            width: "100%",
                             height: "40px",
                             display: "flex",
                             alignItems: "center",
@@ -344,7 +316,7 @@ const TripsBigTruck = ({ openNavbar }) => {
                             component={Paper}
                             sx={{
                                 maxWidth: "100%",
-                                overflowX: "auto", // แสดง scrollbar แนวนอน
+                                overflowX: "auto",
                                 marginTop: 2,
                                 height: "70vh",
                             }}
@@ -447,29 +419,6 @@ const TripsBigTruck = ({ openNavbar }) => {
                                             สถานะ
                                         </TablecellTickets>
                                         <TablecellTickets sx={{ textAlign: "center", fontSize: 16, width: 100, position: "sticky", right: 0 }} />
-                                        {/* <TablecellHeader sx={{
-                                                    textAlign: "center", fontSize: 16, width: 100, position: "sticky",
-                                                    right: windowWidth <= 900 ? 0 : "200px", // ติดซ้ายสุด
-                                                    zIndex: windowWidth <= 900 ? 2 : 4,
-                                                }}>
-                                                    สถานะ
-                                                </TablecellHeader>
-                                                <TablecellHeader sx={{ textAlign: "center", fontSize: 16, width: 250 }}>
-                                                    เพิ่มเที่ยววิ่งโดย
-                                                </TablecellHeader>
-                                                <TablecellHeader sx={
-                                                    windowWidth <= 900 ?
-                                                        {
-                                                            width: 200,
-                                                        }
-                                                        :
-                                                        {
-                                                            width: 200, position: "sticky",
-                                                            right: 0, // ระยะที่ชิดซ้ายต่อจากเซลล์ก่อนหน้า
-                                                            backgroundColor: theme.palette.panda.light, // ใส่พื้นหลังเพื่อไม่ให้โปร่งใส
-                                                            zIndex: 2,
-                                                        }
-                                                } /> */}
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>

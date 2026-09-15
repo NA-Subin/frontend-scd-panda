@@ -3,7 +3,6 @@ import {
   Box,
   Button,
   Container,
-  Divider,
   Grid,
   InputAdornment,
   Paper,
@@ -45,7 +44,6 @@ const Login = () => {
         password,
       });
 
-      // ✅ ตั้งค่า Cookies
       Cookies.set("user", user, { expires: 30, secure: true, sameSite: "Lax" });
       Cookies.set("sessionToken", `${user}$${matchedUser.id}`, { expires: 30, secure: true, sameSite: "Lax" });
       Cookies.set("token", token, { expires: 30, secure: true, sameSite: "Lax" });
@@ -55,7 +53,6 @@ const Login = () => {
       // of waiting up to POLL_INTERVAL_MS for the next automatic one.
       refetchBasicData();
 
-      // ✅ นำทางตามสิทธิ์
       if (accessRights.length === 1 && accessRights[0] === "DriverData") {
         navigate("/driver-detail", { state: { Employee: matchedUser } });
       } else if (accessRights.length === 1 && accessRights[0] === "GasStationData") {
@@ -191,13 +188,6 @@ const Login = () => {
                 เข้าสู่ระบบ
               </Button>
             </Grid>
-            {/* <Grid item xs={3} textAlign="left"></Grid>
-              <Grid item xs={12}><Divider/></Grid>
-              <Grid item xs={3} textAlign="left"></Grid>
-              <Grid item xs={6} textAlign="center">
-                <Button variant="contained" color="info" onClick={handleGoogleSignIn}>เข้าสู่ระบบด้วย Google</Button>
-              </Grid>
-              <Grid item xs={3} textAlign="left"></Grid> */}
           </Grid>
         </Box>
         <Box
@@ -209,7 +199,6 @@ const Login = () => {
           }}
         />
       </Paper>
-      {/* <UpdateDatabase /> */}
     </Container>
   );
 };

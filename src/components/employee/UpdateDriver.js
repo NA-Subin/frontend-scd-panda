@@ -127,14 +127,9 @@ const UpdateDriver = (props) => {
     const [bigTrucks, setBigTrucks] = useState(driver.TruckType !== "รถเล็ก" ? false : true);
     const [smallTrucks, setSmallTrucks] = useState(driver.TruckType !== "รถใหญ่" ? false : true);
 
-    console.log("bigtruck : ", bigTrucks);
-    console.log("smalltruck : ", smallTrucks);
-
     const handleDateChange = (newDate) => {
         setExpiration(newDate);
     };
-
-    console.log("show date : " + dayjs(expiration).format("DD/MM/YYYY"));
 
     const handleUpdate = async () => {
         if (!driver?.uuid) {
@@ -218,8 +213,6 @@ const UpdateDriver = (props) => {
         }
     };
 
-    console.log("registration ss : ", registration);
-
     return (
         <React.Fragment>
             <TableRow key={driver.id}
@@ -235,16 +228,12 @@ const UpdateDriver = (props) => {
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{driver.Name}</TableCell>
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{driver.IDCard}</TableCell>
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{driver.TruckType !== "รถเล็ก" ? driver.RegistrationName : driver.RegistrationSmallName}</TableCell>
-                {/* {renderSettingCell(driver)} */}
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{driver.TruckType}</TableCell>
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{driver.BankID}</TableCell>
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{driver.BankName}</TableCell>
                 <TableCell sx={{ textAlign: "center", height: "35px" }}>{driver.User}</TableCell>
 
             </TableRow>
-            {/* <TableCell sx={{ textAlign: "center" }}>
-                <IconButton sx={{ marginTop: -0.5 }} onClick={() => setOpen(driver.id)}><InfoIcon color="info" fontSize="12px" /></IconButton>
-            </TableCell> */}
             <Dialog
                 open={open === driver.id ? true : false}
                 keepMounted
@@ -300,7 +289,6 @@ const UpdateDriver = (props) => {
                                                 value={registration}
                                                 onChange={(e) => setRegistration(e.target.value)}
                                             >
-                                                {/* ค่าเริ่มต้น */}
                                                 {registration && (
                                                     <MenuItem value={registration}>
                                                         {registration.split(":")[1] || "ไม่ระบุ"}
@@ -352,18 +340,6 @@ const UpdateDriver = (props) => {
                                             <FormControlLabel control={<Checkbox defaultChecked={!bigTrucks} onChange={() => setBigTrucks(!bigTrucks)} />} label="รถใหญ่" />
                                             <FormControlLabel control={<Checkbox defaultChecked={!smallTrucks} onChange={() => setSmallTrucks(!smallTrucks)} />} label="รถเล็ก" />
                                         </FormGroup>
-                                    // <FormControl variant="standard" fullWidth>
-                                    //     <Select
-                                    //         labelId="demo-simple-select-standard-label"
-                                    //         id="demo-simple-select-standard"
-                                    //         value={truckType}
-                                    //         onChange={(e) => setTruckType(e.target.value)}
-                                    //     >
-                                    //         <MenuItem value={truckType}>{truckType}</MenuItem>
-                                    //         <MenuItem value={"รถใหญ่"}>รถใหญ่</MenuItem>
-                                    //         <MenuItem value={"รถเล็ก"}>รถเล็ก</MenuItem>
-                                    //     </Select>
-                                    // </FormControl>
                                 }
                             </Grid>
                             <Grid item xs={1}>
@@ -474,14 +450,6 @@ const UpdateDriver = (props) => {
                                                 update ?
                                                     <>
                                                         <Box textAlign="center">
-                                                            {/* <TextField
-                                                                                                        size="small"
-                                                                                                        type="text"
-                                                                                                        fullWidth
-                                                                                                        value={file.name}
-                                                                                                        sx={{ marginRight: 2 }}
-                                                                                                    /> */}
-
                                                             <Box display="flex" alignItems="center" justifyContent="center" >
                                                                 {
                                                                     file === "ไม่แนบไฟล์" ?
@@ -554,7 +522,6 @@ const UpdateDriver = (props) => {
                                                                             }}
                                                                         />
                                                                     </Button>
-                                                                    {/* <Chip label="หรือ" size="small" sx={{ marginLeft: 3, marginRight: 3 }} /> */}
                                                                     <Typography variant="subtitle1" fontWeight="bold" sx={{ marginLeft: 3, marginRight: 3, marginTop: 0.5 }} gutterBottom>หรือ</Typography>
                                                                     <Button
                                                                         variant="contained"
@@ -640,14 +607,6 @@ const UpdateDriver = (props) => {
                                                                 </Box>
                                                                 :
                                                                 <Box textAlign="center">
-                                                                    {/* <TextField
-                                                                                                        size="small"
-                                                                                                        type="text"
-                                                                                                        fullWidth
-                                                                                                        value={file.name}
-                                                                                                        sx={{ marginRight: 2 }}
-                                                                                                    /> */}
-
                                                                     <Box display="flex" alignItems="center" justifyContent="center" >
                                                                         <FilePreview file={file} />
                                                                         <Button variant="outlined" color="error" size="small" sx={{ marginLeft: 2 }} onClick={() => { setFileType(1); setFile("ไม่แนบไฟล์"); }}>
@@ -658,22 +617,6 @@ const UpdateDriver = (props) => {
                                                                         <Typography variant="subtitle1" gutterBottom>{file.name}</Typography>
                                                                     </Box>
                                                                 </Box>
-                                                            // <Box sx={{
-                                                            //     display: "flex",
-                                                            //     alignItems: "center",
-                                                            //     justifyContent: "space-between", // ช่วยแยกซ้ายขวา
-                                                            //     paddingLeft: 12,
-                                                            // }}>
-                                                            //     <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                                                            //         File : {file.name}
-                                                            //     </Typography>
-                                                            //     {/* <IconButton color="error" onClick={() => { setFile(null); setFileType(null); }}>
-                                                            //         <DeleteForeverIcon />
-                                                            //     </IconButton> */}
-                                                            //     <Button variant="outlined" color="error" size="small" onClick={() => { setFile(null); setFileType(null); }}>
-                                                            //         ลบไฟล์
-                                                            //     </Button>
-                                                            // </Box>
                                                         }
                                                     </React.Fragment>
                                             }

@@ -8,7 +8,6 @@ import Navbar from "./components/navbar/Navbar";
 import { ThemeProvider } from "@mui/material";
 import Employee from "./components/employee/Employee";
 import GasStations from "./components/depots/GasStations";
-import Customer from "./components/customer/Customer";
 import Tickets from "./components/ticket/Tickets";
 import Setting from "./components/setting/Setting";
 import Backup from "./components/backup/Backup";
@@ -26,9 +25,6 @@ import TicketSmallTruck from "./components/ticket/TicketsSmallTruck";
 import Depots from "./components/depots/depot/Depots";
 import TripsBigTruck from "./components/selling/Trips";
 import TripsSmallTruck from "./components/sellingsmalltruck/Trips";
-//import { DataProvider } from "./server/path";
-//import { DataProvider } from "./server/provider";
-//import { DataProvider } from "./server/ConnectDB";
 import Invoice from "./components/invoice/Invoice";
 import PrintInvoice from "./components/invoice/PrintInvoice";
 import Swal from "sweetalert2";
@@ -67,7 +63,6 @@ import ProfitSmallTruck from "./components/financial/ProfitSmallTruck";
 import ReportGasStation from "./components/depots/report/ReportGasStation";
 import CloseFSSmallTruck from "./components/financial/CloseFSSmallTruck";
 import PdaPrinter from "./components/driver/PrintInvoice";
-//import { BasicDataProvider } from "./server/provider/BasicDataProvider";
 
 const MySwal = withReactContent(Swal);
 
@@ -173,9 +168,6 @@ function App() {
         const latestVersion = data.version;
         const storedVersion = localStorage.getItem("firebase_version");
 
-        console.log("📦 Local Version:", storedVersion);
-        console.log("🆕 Firebase Version:", latestVersion);
-
         if (storedVersion && storedVersion !== latestVersion) {
           ShowInfo("มีการอัปเดตใหม่", "กรุณารีเฟรชหน้าเพื่อใช้เวอร์ชันล่าสุด");
         }
@@ -194,13 +186,10 @@ function App() {
   const [open, setOpen] = useState(true);
 
   return (
-    // <BrowserRouter>
-    //   <BasicDataProvider>
     <ThemeProvider theme={theme}>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
-        {/* <Route path="/:email/*" element={ */}
         <Route path="/gasstation-attendant" element={<RequireAuth><GasStationDataProvider><GasStationA /></GasStationDataProvider></RequireAuth>} />
         <Route path="/gasStation-admin" element={<RequireAuth><GasStationDataProvider><GasStationAdmin /></GasStationDataProvider></RequireAuth>} />
         <Route path="/print-invoice" element={<RequireAuth><TripDataProvider><PrintInvoice /></TripDataProvider></RequireAuth>} />
@@ -237,9 +226,6 @@ function App() {
                   </GasStationDataProvider>
                 </TripDataProvider>
 
-                {/* <Routes>
-                      <Route path="/customer" element={<Customer />} />
-                    </Routes> */}
                 <Routes>
                   <Route path="/creditor" element={<Creditor openNavbar={open} />} />
                 </Routes>
@@ -356,8 +342,6 @@ function App() {
         />
       </Routes>
     </ThemeProvider>
-    //   </BasicDataProvider>
-    // </BrowserRouter>
   );
 }
 

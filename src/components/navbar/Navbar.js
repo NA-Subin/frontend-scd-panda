@@ -94,7 +94,7 @@ const openedMixin = (theme) => ({
   }),
   overflowX: "hidden",
   overflowY: 'auto',
-  height: '100vh', // 👈 เพิ่มตรงนี้
+  height: '100vh',
   display: 'flex',
   flexDirection: 'column',
 });
@@ -106,7 +106,7 @@ const closedMixin = (theme) => ({
   }),
   overflowX: "hidden",
   overflowY: 'auto',
-  height: '100vh', // 👈 เพิ่มตรงนี้
+  height: '100vh',
   width: `calc(${theme.spacing(7)} + 1px)`,
   [theme.breakpoints.up("sm")]: {
     width: `calc(${theme.spacing(8)} + 1px)`,
@@ -188,9 +188,7 @@ export default function Navbar({ open, onOpenChange }) {
   const [showFinancial, setShowFinancial] = useState(false);
   const [showReport, setShowReport] = useState(false);
 
-  // const dataToSend = { position: "admin" };
   const theme = useTheme();
-  //const [open, setOpen] = React.useState(true);
   const [setting, setSetting] = React.useState(false);
   const [show1, setShow1] = React.useState(false);
   const [show2, setShow2] = React.useState(false);
@@ -208,9 +206,8 @@ export default function Navbar({ open, onOpenChange }) {
   const isMobileMD = useMediaQuery((theme) => theme.breakpoints.down('md'));
   const isMobileSM = useMediaQuery((theme) => theme.breakpoints.down('sm'));
 
-  // ปรับค่า open ตามขนาดหน้าจอเมื่อโหลดครั้งแรก
   React.useEffect(() => {
-    onOpenChange(!isMobileMD); // true ถ้า desktop, false ถ้า mobile
+    onOpenChange(!isMobileMD);
 
     if (isMobileMD) {
       setOpenData(false);
@@ -316,12 +313,6 @@ export default function Navbar({ open, onOpenChange }) {
     }
   }, []);
 
-  console.log("OpenData : ", openData);
-
-  // debug
-  console.log("Open : ", open);
-  console.log("shouldDrawerOpen : ", shouldDrawerOpen);
-
   const handleDrawerOpen = () => {
     onOpenChange((prev) => !prev);
     setOpenData(false);
@@ -355,14 +346,8 @@ export default function Navbar({ open, onOpenChange }) {
   };
 
   const handleLogout = () => {
-    navigate("/"); // นำผู้ใช้ไปยังหน้า login
+    navigate("/");
   };
-
-  // const handleLogout = () => {
-  //   showLogout("ออกจากระบบเรียบร้อย"),
-  //   Cookies.remove('token');
-  //   navigate("/")
-  // }
 
   const UserSignOut = () => {
     withReactContent(Swal)
@@ -436,9 +421,9 @@ export default function Navbar({ open, onOpenChange }) {
         </Box>
         <Toolbar variant="dense"
           sx={{
-            display: isMobileSM ? "flex" : "", // ใช้ flexbox
-            justifyContent: isMobileSM ? "center" : "", // จัดให้อยู่กึ่งกลางแนวนอน
-            alignItems: isMobileSM ? "center" : "", // จัดให้อยู่กึ่งกลางแนวตั้ง
+            display: isMobileSM ? "flex" : "",
+            justifyContent: isMobileSM ? "center" : "",
+            alignItems: isMobileSM ? "center" : "",
             flexGrow: isMobileSM ? 1 : 0,
             marginLeft: isMobileSM ? -2 : 0,
             marginRight: isMobileSM ? -2 : 0,
@@ -447,13 +432,12 @@ export default function Navbar({ open, onOpenChange }) {
         >
           {
             isMobileSM ? (
-              // แสดงเฉพาะ IconButton สำหรับจอโทรศัพท์
               <Box
                 width="100%"
                 sx={{
                   display: 'flex',
-                  overflowX: 'auto', // Enable horizontal scrolling if the content overflows
-                  whiteSpace: 'nowrap', // Prevent wrapping of buttons to the next line
+                  overflowX: 'auto',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 <ButtonGroup
@@ -527,7 +511,6 @@ export default function Navbar({ open, onOpenChange }) {
                     );
                   })}
 
-                  {/* ปุ่มย้อนกลับ */}
                   <Button
                     sx={{
                       paddingLeft: 4,
@@ -540,7 +523,6 @@ export default function Navbar({ open, onOpenChange }) {
                     <ReplyAllIcon sx={{ marginTop: -1 }} />
                   </Button>
 
-                  {/* ปุ่มออกจากระบบ */}
                   <Button
                     sx={{
                       paddingLeft: 4,
@@ -589,9 +571,9 @@ export default function Navbar({ open, onOpenChange }) {
                             invisible={activeTrips.length === 0}
                             sx={{
                               "& .MuiBadge-badge": {
-                                fontSize: 11, // ขนาดตัวเลขใน Badge
-                                minWidth: 15, // ความกว้างของ Badge
-                                height: 15, // ความสูงของ Badge
+                                fontSize: 11,
+                                minWidth: 15,
+                                height: 15,
                                 right: -2,
                               },
                             }}
@@ -674,7 +656,6 @@ export default function Navbar({ open, onOpenChange }) {
 
               )
                 : (
-                  // แสดงเนื้อหาทั้งหมดสำหรับหน้าจอที่ไม่ใช่โทรศัพท์
                   <>
                     {!open ? (
                       <Box
@@ -770,9 +751,9 @@ export default function Navbar({ open, onOpenChange }) {
                               invisible={activeTrips.length === 0}
                               sx={{
                                 "& .MuiBadge-badge": {
-                                  fontSize: 11, // ขนาดตัวเลขใน Badge
-                                  minWidth: 15, // ความกว้างของ Badge
-                                  height: 15, // ความสูงของ Badge
+                                  fontSize: 11,
+                                  minWidth: 15,
+                                  height: 15,
                                   right: -2,
                                 },
                               }}
@@ -876,7 +857,7 @@ export default function Navbar({ open, onOpenChange }) {
               zIndex: 800,
               '& .MuiDrawer-paper': {
                 overflowY: 'auto',
-                height: '100vh', // ✅ ใส่ตรงนี้
+                height: '100vh',
               },
             }}
           >
@@ -932,44 +913,6 @@ export default function Navbar({ open, onOpenChange }) {
               </IconButton>
             </DrawerHeader>
             <Divider />
-            {/* {
-              ([!openData, !operation, !report, !financial].filter(Boolean).length === 1) &&
-              <>
-                <Box
-                  sx={{
-                    height: shouldDrawerOpen ? 60 : 60,
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    marginTop: 1
-                  }}
-                >
-                  <StyledBadge
-                    overlap="circular"
-                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                    variant="dot"
-                  >
-                    <Avatar
-              //alt={token.split("#")[0]} 
-              src="/static/images/avatar/2.jpg"
-                      sx={{ width: shouldDrawerOpen ? 60 : 40, height: shouldDrawerOpen ? 60 : 40 }}
-                    />
-                  </StyledBadge>
-                </Box>
-                {
-                  shouldDrawerOpen &&
-                  <Box sx={{ textAlign: "center" }}>
-                    <Typography variant="subtitle2" fontWeight="bold" gutterBottom>User : {Cookies.get('user')}</Typography>
-                  </Box>
-                }
-              </>
-            } */}
-            {/* {
-              shouldDrawerOpen &&
-              <Box sx={{ textAlign: "center" }}>
-                <Typography variant="subtitle2" fontWeight="bold" gutterBottom>User : {Cookies.get('user')}</Typography>
-              </Box>
-            } */}
             <Box sx={{ overflowY: 'auto', flex: 1, marginLeft: shouldDrawerOpen ? 0 : -3, marginRight: shouldDrawerOpen ? 0 : -3 }}>
               {(
                 showBasicData &&
@@ -992,23 +935,21 @@ export default function Navbar({ open, onOpenChange }) {
                           key={"ข้อมูล"}
                           disablePadding
                           sx={{
-                            height: 40, // กำหนดความสูงให้ ListItem
+                            height: 40,
                             paddingY: 1,
                           }}
                         >
                           <ListItemButton
                             onClick={() => setOpenData(true)}
                             sx={{
-                              height: 40, // ปรับขึ้นนิดนึงให้ไม่แน่นเกินไป
-                              px: 2,      // padding แนวนอน
+                              height: 40,
+                              px: 2,
                             }}
                           >
-                            {/* ไอคอนซ้าย */}
-                            <ListItemIcon sx={{ minWidth: 30, color: theme.palette.dark }}>
+                              <ListItemIcon sx={{ minWidth: 30, color: theme.palette.dark }}>
                               <BadgeIcon />
                             </ListItemIcon>
 
-                            {/* ข้อความ */}
                             <ListItemText
                               primary="ข้อมูลทั่วไป"
                               primaryTypographyProps={{
@@ -1019,7 +960,6 @@ export default function Navbar({ open, onOpenChange }) {
                               }}
                             />
 
-                            {/* ไอคอนขวา */}
                             <ListItemIcon sx={{ minWidth: 30, justifyContent: 'flex-end', color: theme.palette.dark }}>
                               <KeyboardArrowDownIcon />
                             </ListItemIcon>
@@ -1035,23 +975,21 @@ export default function Navbar({ open, onOpenChange }) {
                           key={"ข้อมูล"}
                           disablePadding
                           sx={{
-                            height: 40, // กำหนดความสูงให้ ListItem
+                            height: 40,
                             paddingY: 1,
                           }}
                         >
                           <ListItemButton
                             onClick={() => setOpenData(false)}
                             sx={{
-                              height: 40, // ปรับขึ้นนิดนึงให้ไม่แน่นเกินไป
-                              px: 2,      // padding แนวนอน
+                              height: 40,
+                              px: 2,
                             }}
                           >
-                            {/* ไอคอนซ้าย */}
-                            <ListItemIcon sx={{ minWidth: 30, color: theme.palette.dark }}>
+                              <ListItemIcon sx={{ minWidth: 30, color: theme.palette.dark }}>
                               <BadgeIcon />
                             </ListItemIcon>
 
-                            {/* ข้อความ */}
                             <ListItemText
                               primary="ข้อมูลทั่วไป"
                               primaryTypographyProps={{
@@ -1062,7 +1000,6 @@ export default function Navbar({ open, onOpenChange }) {
                               }}
                             />
 
-                            {/* ไอคอนขวา */}
                             <ListItemIcon sx={{ minWidth: 30, justifyContent: 'flex-end', color: theme.palette.dark }}>
                               <KeyboardArrowUpIcon />
                             </ListItemIcon>
@@ -1078,7 +1015,7 @@ export default function Navbar({ open, onOpenChange }) {
                           disablePadding
                           sx={{
                             backgroundColor: show1 === index && "gray",
-                            height: 35, // กำหนดความสูงให้ ListItem
+                            height: 35,
                             paddingY: 1,
                           }}
                         >
@@ -1105,7 +1042,7 @@ export default function Navbar({ open, onOpenChange }) {
                                                       : index === 11 ? "/expense-items"
                                                         : "/company-payment";
 
-                              setPendingPath(path); // ขอไปหน้านั้น
+                              setPendingPath(path);
                             }}
                           >
                             {
@@ -1154,7 +1091,7 @@ export default function Navbar({ open, onOpenChange }) {
                                       {
                                         name: 'offset',
                                         options: {
-                                          offset: [0, -25], // ขยับ tooltip เข้าไปทางซ้าย (ติด icon มากขึ้น)
+                                          offset: [0, -25],
                                         },
                                       },
                                     ],
@@ -1162,8 +1099,8 @@ export default function Navbar({ open, onOpenChange }) {
                                   componentsProps={{
                                     tooltip: {
                                       sx: {
-                                        fontSize: '15px', // ปรับขนาดตัวอักษร
-                                        textAlign: 'left', // จัดข้อความชิดซ้าย
+                                        fontSize: '15px',
+                                        textAlign: 'left',
                                         backgroundColor: theme.palette.panda.dark,
                                       },
                                     },
@@ -1212,7 +1149,7 @@ export default function Navbar({ open, onOpenChange }) {
                                 color: show1 === index && theme.palette.primary.contrastText, fontSize: "15px"
                               }}
                               primaryTypographyProps={{
-                                fontSize: "14px", // กำหนดขนาดตัวอักษรที่นี่
+                                fontSize: "14px",
 
                               }}
                             />
@@ -1245,23 +1182,21 @@ export default function Navbar({ open, onOpenChange }) {
                           key={"ข้อมูล"}
                           disablePadding
                           sx={{
-                            height: 40, // กำหนดความสูงให้ ListItem
+                            height: 40,
                             paddingY: 1,
                           }}
                         >
                           <ListItemButton
                             onClick={() => setOperation(true)}
                             sx={{
-                              height: 40, // ปรับขึ้นนิดนึงให้ไม่แน่นเกินไป
-                              px: 2,      // padding แนวนอน
+                              height: 40,
+                              px: 2,
                             }}
                           >
-                            {/* ไอคอนซ้าย */}
-                            <ListItemIcon sx={{ minWidth: 30, color: theme.palette.success.main }}>
+                              <ListItemIcon sx={{ minWidth: 30, color: theme.palette.success.main }}>
                               <ContactPageIcon />
                             </ListItemIcon>
 
-                            {/* ข้อความ */}
                             <ListItemText
                               primary="ปฎิบัติงาน"
                               primaryTypographyProps={{
@@ -1272,7 +1207,6 @@ export default function Navbar({ open, onOpenChange }) {
                               }}
                             />
 
-                            {/* ไอคอนขวา */}
                             <ListItemIcon sx={{ minWidth: 30, justifyContent: 'flex-end', color: theme.palette.success.main }}>
                               <KeyboardArrowDownIcon />
                             </ListItemIcon>
@@ -1288,23 +1222,21 @@ export default function Navbar({ open, onOpenChange }) {
                           key={"ปฎิบัติงาน"}
                           disablePadding
                           sx={{
-                            height: 40, // กำหนดความสูงให้ ListItem
+                            height: 40,
                             paddingY: 1,
                           }}
                         >
                           <ListItemButton
                             onClick={() => setOperation(false)}
                             sx={{
-                              height: 40, // ปรับขึ้นนิดนึงให้ไม่แน่นเกินไป
-                              px: 2,      // padding แนวนอน
+                              height: 40,
+                              px: 2,
                             }}
                           >
-                            {/* ไอคอนซ้าย */}
-                            <ListItemIcon sx={{ minWidth: 30, color: theme.palette.success.main }}>
+                              <ListItemIcon sx={{ minWidth: 30, color: theme.palette.success.main }}>
                               <ContactPageIcon />
                             </ListItemIcon>
 
-                            {/* ข้อความ */}
                             <ListItemText
                               primary="ปฎิบัติงาน"
                               primaryTypographyProps={{
@@ -1315,7 +1247,6 @@ export default function Navbar({ open, onOpenChange }) {
                               }}
                             />
 
-                            {/* ไอคอนขวา */}
                             <ListItemIcon sx={{ minWidth: 30, justifyContent: 'flex-end', color: theme.palette.success.main }}>
                               <KeyboardArrowUpIcon />
                             </ListItemIcon>
@@ -1331,7 +1262,7 @@ export default function Navbar({ open, onOpenChange }) {
                           disablePadding
                           sx={{
                             backgroundColor: show2 === index && theme.palette.success.main,
-                            height: 35, // กำหนดความสูงให้ ListItem
+                            height: 35,
                             paddingY: 1,
                           }}
                         >
@@ -1341,7 +1272,7 @@ export default function Navbar({ open, onOpenChange }) {
                               index === 0 ? "/gasstations" : index === 1 ? "/report-gasstations" : "/trips-bigtruck"
                             }
                             sx={{
-                              height: 35, // กำหนดความสูงให้ ListItem
+                              height: 35,
                             }}
                             onClick={() => (setShow2(index), setSetting(false))}
                             onMouseUp={() => (setShow2(index), setSetting(false))}
@@ -1376,7 +1307,7 @@ export default function Navbar({ open, onOpenChange }) {
                                       {
                                         name: 'offset',
                                         options: {
-                                          offset: [0, -25], // ขยับ tooltip เข้าไปทางซ้าย (ติด icon มากขึ้น)
+                                          offset: [0, -25],
                                         },
                                       },
                                     ],
@@ -1384,8 +1315,8 @@ export default function Navbar({ open, onOpenChange }) {
                                   componentsProps={{
                                     tooltip: {
                                       sx: {
-                                        fontSize: '15px', // ปรับขนาดตัวอักษร
-                                        textAlign: 'left', // จัดข้อความชิดซ้าย
+                                        fontSize: '15px',
+                                        textAlign: 'left',
                                         backgroundColor: theme.palette.success.dark,
                                       },
                                     },
@@ -1412,7 +1343,7 @@ export default function Navbar({ open, onOpenChange }) {
                                 color: show2 === index && theme.palette.primary.contrastText, fontSize: "15px"
                               }}
                               primaryTypographyProps={{
-                                fontSize: "14px", // กำหนดขนาดตัวอักษรที่นี่
+                                fontSize: "14px",
 
                               }}
                             />
@@ -1434,23 +1365,21 @@ export default function Navbar({ open, onOpenChange }) {
                         key={"การชำระเงิน"}
                         disablePadding
                         sx={{
-                          height: 40, // กำหนดความสูงให้ ListItem
+                          height: 40,
                           paddingY: 1,
                         }}
                       >
                         <ListItemButton
                           onClick={() => setFinacieal(true)}
                           sx={{
-                            height: 40, // ปรับขึ้นนิดนึงให้ไม่แน่นเกินไป
-                            px: 2,      // padding แนวนอน
+                            height: 40,
+                            px: 2,
                           }}
                         >
-                          {/* ไอคอนซ้าย */}
                           <ListItemIcon sx={{ minWidth: 30, color: theme.palette.yellow.dark }}>
                             <PaidIcon />
                           </ListItemIcon>
 
-                          {/* ข้อความ */}
                           <ListItemText
                             primary="การชำระเงิน"
                             primaryTypographyProps={{
@@ -1461,7 +1390,6 @@ export default function Navbar({ open, onOpenChange }) {
                             }}
                           />
 
-                          {/* ไอคอนขวา */}
                           <ListItemIcon sx={{ minWidth: 30, justifyContent: 'flex-end', color: theme.palette.yellow.dark }}>
                             <KeyboardArrowDownIcon />
                           </ListItemIcon>
@@ -1477,23 +1405,21 @@ export default function Navbar({ open, onOpenChange }) {
                         key={"การชำระเงิน"}
                         disablePadding
                         sx={{
-                          height: 40, // กำหนดความสูงให้ ListItem
+                          height: 40,
                           paddingY: 1,
                         }}
                       >
                         <ListItemButton
                           onClick={() => setFinacieal(false)}
                           sx={{
-                            height: 40, // ปรับขึ้นนิดนึงให้ไม่แน่นเกินไป
-                            px: 2,      // padding แนวนอน
+                            height: 40,
+                            px: 2,
                           }}
                         >
-                          {/* ไอคอนซ้าย */}
                           <ListItemIcon sx={{ minWidth: 30, color: theme.palette.yellow.dark }}>
                             <PaidIcon />
                           </ListItemIcon>
 
-                          {/* ข้อความ */}
                           <ListItemText
                             primary="การชำระเงิน"
                             primaryTypographyProps={{
@@ -1504,7 +1430,6 @@ export default function Navbar({ open, onOpenChange }) {
                             }}
                           />
 
-                          {/* ไอคอนขวา */}
                           <ListItemIcon sx={{ minWidth: 30, justifyContent: 'flex-end', color: theme.palette.yellow.dark }}>
                             <KeyboardArrowUpIcon />
                           </ListItemIcon>
@@ -1531,7 +1456,7 @@ export default function Navbar({ open, onOpenChange }) {
                           disablePadding
                           sx={{
                             backgroundColor: show3 === index && theme.palette.yellow.dark,
-                            height: 35, // กำหนดความสูงให้ ListItem
+                            height: 35,
                             paddingY: 1,
                           }}
                         >
@@ -1541,7 +1466,7 @@ export default function Navbar({ open, onOpenChange }) {
                               index === 0 ? "/invoice" : "/report"
                             }
                             sx={{
-                              height: 35, // กำหนดความสูงให้ ListItem
+                              height: 35,
                             }}
                             onClick={() => (setShow3(index), setSetting(false))}
                             onMouseUp={() => (setShow3(index), setSetting(false))}
@@ -1571,7 +1496,7 @@ export default function Navbar({ open, onOpenChange }) {
                                       {
                                         name: 'offset',
                                         options: {
-                                          offset: [0, -25], // ขยับ tooltip เข้าไปทางซ้าย (ติด icon มากขึ้น)
+                                          offset: [0, -25],
                                         },
                                       },
                                     ],
@@ -1579,8 +1504,8 @@ export default function Navbar({ open, onOpenChange }) {
                                   componentsProps={{
                                     tooltip: {
                                       sx: {
-                                        fontSize: '15px', // ปรับขนาดตัวอักษร
-                                        textAlign: 'left', // จัดข้อความชิดซ้าย
+                                        fontSize: '15px',
+                                        textAlign: 'left',
                                         backgroundColor: theme.palette.yellow.dark
                                       },
                                     },
@@ -1607,7 +1532,7 @@ export default function Navbar({ open, onOpenChange }) {
                                 color: show3 === index && theme.palette.primary.contrastText, fontSize: "15px"
                               }}
                               primaryTypographyProps={{
-                                fontSize: "14px", // กำหนดขนาดตัวอักษรที่นี่
+                                fontSize: "14px",
 
                               }}
                             />
@@ -1629,23 +1554,21 @@ export default function Navbar({ open, onOpenChange }) {
                         key={"รายงาน"}
                         disablePadding
                         sx={{
-                          height: 40, // กำหนดความสูงให้ ListItem
+                          height: 40,
                           paddingY: 1,
                         }}
                       >
                         <ListItemButton
                           onClick={() => setReport(true)}
                           sx={{
-                            height: 40, // ปรับขึ้นนิดนึงให้ไม่แน่นเกินไป
-                            px: 2,      // padding แนวนอน
+                            height: 40,
+                            px: 2,
                           }}
                         >
-                          {/* ไอคอนซ้าย */}
                           <ListItemIcon sx={{ minWidth: 30, color: theme.palette.info.main }}>
                             <SummarizeIcon />
                           </ListItemIcon>
 
-                          {/* ข้อความ */}
                           <ListItemText
                             primary="รายงาน"
                             primaryTypographyProps={{
@@ -1656,7 +1579,6 @@ export default function Navbar({ open, onOpenChange }) {
                             }}
                           />
 
-                          {/* ไอคอนขวา */}
                           <ListItemIcon sx={{ minWidth: 30, justifyContent: 'flex-end', color: theme.palette.info.main }}>
                             <KeyboardArrowDownIcon />
                           </ListItemIcon>
@@ -1672,23 +1594,21 @@ export default function Navbar({ open, onOpenChange }) {
                         key={"รายงาน"}
                         disablePadding
                         sx={{
-                          height: 40, // กำหนดความสูงให้ ListItem
+                          height: 40,
                           paddingY: 1,
                         }}
                       >
                         <ListItemButton
                           onClick={() => setReport(false)}
                           sx={{
-                            height: 40, // ปรับขึ้นนิดนึงให้ไม่แน่นเกินไป
-                            px: 2,      // padding แนวนอน
+                            height: 40,
+                            px: 2,
                           }}
                         >
-                          {/* ไอคอนซ้าย */}
                           <ListItemIcon sx={{ minWidth: 30, color: theme.palette.info.main }}>
                             <SummarizeIcon />
                           </ListItemIcon>
 
-                          {/* ข้อความ */}
                           <ListItemText
                             primary="รายงาน"
                             primaryTypographyProps={{
@@ -1699,7 +1619,6 @@ export default function Navbar({ open, onOpenChange }) {
                             }}
                           />
 
-                          {/* ไอคอนขวา */}
                           <ListItemIcon sx={{ minWidth: 30, justifyContent: 'flex-end', color: theme.palette.info.main }}>
                             <KeyboardArrowUpIcon />
                           </ListItemIcon>
@@ -1726,7 +1645,7 @@ export default function Navbar({ open, onOpenChange }) {
                           disablePadding
                           sx={{
                             backgroundColor: show4 === index && theme.palette.info.main,
-                            height: 35, // กำหนดความสูงให้ ListItem
+                            height: 35,
                             paddingY: 1,
                           }}
                         >
@@ -1735,9 +1654,9 @@ export default function Navbar({ open, onOpenChange }) {
                             to={
                               index === 0 ? "/summary-oil-balance" : index === 1 ? "/report-driver-trip" : index === 2 ? "/report-fuel-payment" : index === 3 ? "/report-transport-payment" : index === 4 ? "/expenses" : index === 5 ? "/salary" : index === 6 ? "/close-financial" : "/profit-loss"
                             }
-                            state={{ opennavbar: open }}   // 👈 ส่ง state แบบนี้
+                            state={{ opennavbar: open }}
                             sx={{
-                              height: 35, // กำหนดความสูงให้ ListItem
+                              height: 35,
                             }}
                             onClick={() => (setShow4(index), setSetting(false))}
                             onMouseUp={() => (setShow4(index), setSetting(false))}
@@ -1767,7 +1686,7 @@ export default function Navbar({ open, onOpenChange }) {
                                       {
                                         name: 'offset',
                                         options: {
-                                          offset: [0, -25], // ขยับ tooltip เข้าไปทางซ้าย (ติด icon มากขึ้น)
+                                          offset: [0, -25],
                                         },
                                       },
                                     ],
@@ -1775,8 +1694,8 @@ export default function Navbar({ open, onOpenChange }) {
                                   componentsProps={{
                                     tooltip: {
                                       sx: {
-                                        fontSize: '15px', // ปรับขนาดตัวอักษร
-                                        textAlign: 'left', // จัดข้อความชิดซ้าย
+                                        fontSize: '15px',
+                                        textAlign: 'left',
                                         backgroundColor: theme.palette.info.main,
                                       },
                                     },
@@ -1803,7 +1722,7 @@ export default function Navbar({ open, onOpenChange }) {
                                 color: show4 === index && theme.palette.primary.contrastText, fontSize: "15px"
                               }}
                               primaryTypographyProps={{
-                                fontSize: "14px", // กำหนดขนาดตัวอักษรที่นี่
+                                fontSize: "14px",
 
                               }}
                             />
@@ -1825,23 +1744,21 @@ export default function Navbar({ open, onOpenChange }) {
                         key={"รถเล็ก"}
                         disablePadding
                         sx={{
-                          height: 40, // กำหนดความสูงให้ ListItem
+                          height: 40,
                           paddingY: 1,
                         }}
                       >
                         <ListItemButton
                           onClick={() => setTrucksmall(true)}
                           sx={{
-                            height: 40, // ปรับขึ้นนิดนึงให้ไม่แน่นเกินไป
-                            px: 2,      // padding แนวนอน
+                            height: 40,
+                            px: 2,
                           }}
                         >
-                          {/* ไอคอนซ้าย */}
                           <ListItemIcon sx={{ minWidth: 30, color: theme.palette.pink.main }}>
                             <LocalShippingIcon />
                           </ListItemIcon>
 
-                          {/* ข้อความ */}
                           <ListItemText
                             primary="รถเล็ก"
                             primaryTypographyProps={{
@@ -1852,7 +1769,6 @@ export default function Navbar({ open, onOpenChange }) {
                             }}
                           />
 
-                          {/* ไอคอนขวา */}
                           <ListItemIcon sx={{ minWidth: 30, justifyContent: 'flex-end', color: theme.palette.pink.main }}>
                             <KeyboardArrowDownIcon />
                           </ListItemIcon>
@@ -1868,23 +1784,21 @@ export default function Navbar({ open, onOpenChange }) {
                         key={"รถเล็ก"}
                         disablePadding
                         sx={{
-                          height: 40, // กำหนดความสูงให้ ListItem
+                          height: 40,
                           paddingY: 1,
                         }}
                       >
                         <ListItemButton
                           onClick={() => setTrucksmall(false)}
                           sx={{
-                            height: 40, // ปรับขึ้นนิดนึงให้ไม่แน่นเกินไป
-                            px: 2,      // padding แนวนอน
+                            height: 40,
+                            px: 2,
                           }}
                         >
-                          {/* ไอคอนซ้าย */}
                           <ListItemIcon sx={{ minWidth: 30, color: theme.palette.pink.main }}>
                             <LocalShippingIcon />
                           </ListItemIcon>
 
-                          {/* ข้อความ */}
                           <ListItemText
                             primary="รถเล็ก"
                             primaryTypographyProps={{
@@ -1895,7 +1809,6 @@ export default function Navbar({ open, onOpenChange }) {
                             }}
                           />
 
-                          {/* ไอคอนขวา */}
                           <ListItemIcon sx={{ minWidth: 30, justifyContent: 'flex-end', color: theme.palette.pink.main }}>
                             <KeyboardArrowUpIcon />
                           </ListItemIcon>
@@ -1922,7 +1835,7 @@ export default function Navbar({ open, onOpenChange }) {
                           disablePadding
                           sx={{
                             backgroundColor: show5 === index && theme.palette.pink.main,
-                            height: 35, // กำหนดความสูงให้ ListItem
+                            height: 35,
                             paddingY: 1,
                           }}
                         >
@@ -1932,7 +1845,7 @@ export default function Navbar({ open, onOpenChange }) {
                               index === 0 ? "/trips-smalltruck" : index === 1 ? "/invoice-smalltruck" : index === 2 ? "/oil-balance-smalltruck" : index === 3 ? "/payment-smalltruck" : index === 4 ? "/report-smalltruck": index === 5 ? "/close-financial-smalltruck" : "/profit-loss-smalltruck"
                             }
                             sx={{
-                              height: 35, // กำหนดความสูงให้ ListItem
+                              height: 35,
                             }}
                             onClick={() => (setShow5(index), setSetting(false))}
                             onMouseUp={() => (setShow5(index), setSetting(false))}
@@ -1964,7 +1877,7 @@ export default function Navbar({ open, onOpenChange }) {
                                       {
                                         name: 'offset',
                                         options: {
-                                          offset: [0, -25], // ขยับ tooltip เข้าไปทางซ้าย (ติด icon มากขึ้น)
+                                          offset: [0, -25],
                                         },
                                       },
                                     ],
@@ -1972,8 +1885,8 @@ export default function Navbar({ open, onOpenChange }) {
                                   componentsProps={{
                                     tooltip: {
                                       sx: {
-                                        fontSize: '15px', // ปรับขนาดตัวอักษร
-                                        textAlign: 'left', // จัดข้อความชิดซ้าย
+                                        fontSize: '15px',
+                                        textAlign: 'left',
                                         backgroundColor: theme.palette.pink.light,
                                       },
                                     },
@@ -2000,7 +1913,7 @@ export default function Navbar({ open, onOpenChange }) {
                                 color: show5 === index && theme.palette.primary.contrastText, fontSize: "15px"
                               }}
                               primaryTypographyProps={{
-                                fontSize: "14px", // กำหนดขนาดตัวอักษรที่นี่
+                                fontSize: "14px",
 
                               }}
                             />

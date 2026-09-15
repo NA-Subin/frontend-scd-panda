@@ -79,28 +79,20 @@ const DriverDetail = () => {
   const navigate = useNavigate();
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-  console.log("user id : ", userId);
-
-  // ใช้ useEffect เพื่อรับฟังการเปลี่ยนแปลงของขนาดหน้าจอ
   useEffect(() => {
     const handleResize = () => {
-      setWindowWidth(window.innerWidth); // อัพเดตค่าขนาดหน้าจอ
+      setWindowWidth(window.innerWidth);
     };
 
-    window.addEventListener("resize", handleResize); // เพิ่ม event listener
+    window.addEventListener("resize", handleResize);
 
-    // ลบ event listener เมื่อ component ถูกทำลาย
     return () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
 
-  // const [driver, setDriver] = useState([]);
-  // const [trip, setTrip] = useState([]);
-  // const [order, setOrder] = useState([]);
   const [tripNew, setTripNew] = useState([]);
   const [orderNew, setOrderNew] = useState([]);
-  // const [depot, setDepot] = useState([]);
   const [depotNew, setDepotNew] = useState([]);
   const [showTrip, setShowTrip] = useState(true);
   const [repairTruck, setRepairTruck] = useState(true);
@@ -111,7 +103,6 @@ const DriverDetail = () => {
   const inspectionList = Object.values(inspection || {})
   const regheads = Object.values(reghead || {});
   const smalls = Object.values(small || {});
-  // const trips = Object.values(trip || {});
   const trips = Object.values(trip || {}).filter((item) => {
     const deliveryDate = dayjs(item.DateDelivery, "DD/MM/YYYY");
     const receiveDate = dayjs(item.DateReceive, "DD/MM/YYYY");
@@ -122,7 +113,6 @@ const DriverDetail = () => {
       receiveDate.isSameOrAfter(targetDate, "day")
     );
   });
-  // const orders = Object.values(order || {});
   const orders = Object.values(order || {}).filter((item) => {
     const itemDate = dayjs(item.Date, "DD/MM/YYYY");
     return itemDate.isSameOrAfter(dayjs("01/01/2026", "DD/MM/YYYY"), "day");
@@ -137,10 +127,6 @@ const DriverDetail = () => {
     (reg) => reg.uuid === driverDeetail?.Registration,
   );
 
-  console.log("Driver Detail ", driverDeetail);
-  console.log("Registration Detail ", registrationDetail);
-
-  // กรองตามเงื่อนไขที่ต้องการหลังจาก data มาแล้ว
   const driver = regheads.filter((d) => d.Driver != null);
 
   const today = dayjs(new Date()).format("DD/MM/YYYY");
@@ -176,10 +162,8 @@ const DriverDetail = () => {
   const splitThaiName = (fullName = "") => {
     if (!fullName.trim()) return { firstName: "", lastName: "" };
 
-    // หา prefix ถ้ามี
     const prefix = PREFIXES.find((p) => fullName.startsWith(p));
 
-    // ถ้ามี prefix → ตัดออก
     const nameWithoutPrefix = prefix
       ? fullName.slice(prefix.length).trim()
       : fullName.trim();
@@ -191,12 +175,7 @@ const DriverDetail = () => {
       lastName: parts.slice(1).join(" ") || "",
     };
   };
-  // ตัวอย่างการใช้งาน
   const { prefix, firstName, lastName } = splitThaiName(driverDeetail?.Name);
-
-  console.log("คำนำหน้า:", prefix); // นางสาว
-  console.log("ชื่อ:", firstName); // สมส่วน
-  console.log("นามสกุล:", lastName); // สามสี
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [file, setFile] = useState(null);
@@ -232,7 +211,6 @@ const DriverDetail = () => {
     });
 
     if (!currentTrip) {
-      console.warn("❌ ไม่เจอ trip ของ driver นี้");
       return;
     }
 
@@ -246,11 +224,6 @@ const DriverDetail = () => {
         : "";
 
     const currentDepot = depot.find((item) => item.Zone === depotZone) ?? {};
-
-    console.log("✅ currentTrip:", currentTrip);
-    console.log("✅ relatedOrders:", relatedOrders);
-    console.log("✅ depotZone:", depotZone);
-    console.log("✅ currentDepot:", currentDepot);
 
     const tripMapped = Object.entries(currentTrip)
       .filter(([key]) => key.startsWith("Order"))
@@ -295,7 +268,6 @@ const DriverDetail = () => {
         });
       }
 
-      console.log("Trip completed");
       refetchTripData?.();
     } catch (error) {
       ShowError("เพิ่มข้อมูลไม่สำเร็จ");
@@ -319,14 +291,12 @@ const DriverDetail = () => {
 
     const driverId = trucks?.split(":")?.[0];
 
-    // ✅ หา trip แบบ safe
     const check = tripDetail.find((item) => {
       const id = item.Driver;
       return id === driverId;
     });
 
     if (!check) {
-      console.warn("❌ ไม่เจอ trip");
       setCheck({});
       setTripNew({});
       setOrderNew([]);
@@ -334,27 +304,18 @@ const DriverDetail = () => {
       return;
     }
 
-    console.log("✅ check :", check);
-
-    // ✅ กัน type mismatch + -1 ให้ชัด
+    // กัน type mismatch + -1 ให้ชัด
     const tripId = Number(check.id) - 1;
 
     const checkOrder = orders
       .filter((item) => Number(item.Trip) === tripId)
       .sort((a, b) => Number(a.No) - Number(b.No));
 
-    console.log("✅ checkOrder :", checkOrder);
-
-    // ✅ depot safe
     const depotZone =
       typeof check.Depot === "string" ? check.Depot.split(":")?.[1] : "";
 
     const checkDepot = depot.find((item) => item.Zone === depotZone) ?? {};
 
-    console.log("✅ depotZone :", depotZone);
-    console.log("✅ checkDepot :", checkDepot);
-
-    // ✅ map Order1,2,3 แบบไม่พัง
     const tripNew = Object.keys(check)
       .filter((key) => key.startsWith("Order") && check[key])
       .reduce((acc, key, index) => {
@@ -362,7 +323,7 @@ const DriverDetail = () => {
           Name: check[key],
           No: index,
           Depot: check.Depot,
-          Trip: check.id, // ❗ แก้ตรงนี้ (ของเดิมผิด)
+          Trip: check.id,
         };
         return acc;
       }, {});
@@ -372,7 +333,6 @@ const DriverDetail = () => {
     setOrderNew(checkOrder);
     setDepotNew(checkDepot);
 
-    // ✅ check จบทริป
     const isAllDone =
       checkOrder.length > 0 &&
       checkOrder.every((item) => item.Status === "จัดส่งสำเร็จ");
@@ -434,8 +394,6 @@ const DriverDetail = () => {
       setDialogOpen(false);
       setFile(null);
       setPreview(null);
-
-      console.log("Data pushed successfully");
     } catch (error) {
       console.error("Firebase update error:", error);
       alert("บันทึกข้อมูลไม่สำเร็จ");
@@ -445,7 +403,6 @@ const DriverDetail = () => {
   const generatePDF = (row) => {
     const invoiceData = { order: row, trip: check, depot: depotNew };
 
-    // บันทึกข้อมูลลง sessionStorage
     sessionStorage.setItem("invoiceData", JSON.stringify(invoiceData));
 
     const screenWidth = window.screen.width;
@@ -490,7 +447,6 @@ const DriverDetail = () => {
   };
 
   const formatAddress = (address) => {
-    // แยกข้อมูลจาก address โดยใช้ , หรือ เว้นวรรคเป็นตัวแบ่ง
     const parts = address && address.split(/,|\s+/).filter(Boolean);
 
     if (!parts || parts.length < 5) return "-";
@@ -499,14 +455,6 @@ const DriverDetail = () => {
 
     return `${houseNo} หมู่ ${moo} ต.${subdistrict} อ.${district} จ.${province} ${postalCode}`;
   };
-
-  console.log("Trip : ", tripDetail);
-  console.log("Truck : ", truck.split(":")[1]);
-  console.log("TripNew : ", tripNew);
-  console.log("TripNew length : ", Object.keys(tripNew).length);
-  console.log("DepotNew : ", depotNew);
-  console.log("OrderNew : ", orderNew);
-  console.log("check : ", check);
 
   return (
     <Container
@@ -542,15 +490,7 @@ const DriverDetail = () => {
             marginBottom={4}
             sx={{ marginRight: { xs: -2, sm: -3, md: -4 } }}
           >
-            {/* <Button variant="contained" color="warning" sx={{ border: "3px solid white" }} endIcon={<SettingsIcon fontSize="small" />} onClick={handleBack}>ตั้งค่า</Button> */}
             {
-              //    isMobile ?
-              //        <>
-              //            <Button variant="contained" color="error" sx={{ border: "3px solid white", borderTopRightRadius: 15, borderTopLeftRadius: 6, borderBottomRightRadius: 6, borderBottomLeftRadius: 6 }}><ReplyAllIcon fontSize="small" /></Button>
-              //</Box>        </>
-
-              //        :
-              //        <>
               <Button
                 variant="contained"
                 color="error"
@@ -566,7 +506,6 @@ const DriverDetail = () => {
               >
                 ออกจากระบบ
               </Button>
-              //        </>
             }
           </Box>
           <Typography
@@ -873,34 +812,6 @@ const DriverDetail = () => {
             justifyContent="center"
             alignItems="center"
           >
-            {/* <Typography variant="subtitle1" fontWeight="bold" textAlign="right" sx={{ whiteSpace: 'nowrap' }} gutterBottom>ชื่อพนักงานขับรถ/ทะเบียนรถ : {`${registrationDetail.DriverName}:${registrationDetail.RegHead}:${registrationDetail.RegTail}`} </Typography>
-                        <FormControl variant="standard" sx={{ m: 1, width: "100%" }}>
-                            <Select
-                                labelId="demo-simple-select-standard-label"
-                                id="demo-simple-select-standard"
-                                value={truck}
-                                onChange={handleChangeDriver}
-                                sx={{
-                                    px: 3, // padding ซ้าย-ขวา
-                                }}
-                                MenuProps={{
-                                    PaperProps: {
-                                        sx: {
-                                            maxHeight: 180, // กำหนดความสูงของ dropdown
-                                            overflowY: "auto", // เปิดใช้งาน scrollbar แนวตั้ง
-                                        },
-                                    },
-                                }}
-                                fullWidth
-                            >
-                                <MenuItem value={"0:0:0"}>กรุณาเลือกรถบรรทุก</MenuItem>
-                                {
-                                    driver.map((row) => (
-                                        <MenuItem value={`${row.Driver}:${row.RegHead}:${row.RegTail}`}>{`${row.DriverName} / ${row.RegHead}:${row.RegTail}`}</MenuItem>
-                                    ))
-                                }
-                            </Select>
-                        </FormControl> */}
           </Grid>
           <Grid item xs={0.5} lg={1} />
         </Grid>
@@ -1187,7 +1098,6 @@ const DriverDetail = () => {
                                         gap: 2,
                                       }}
                                     >
-                                      {/* 🔹 Preview รูป */}
                                       {preview ? (
                                         <Box
                                           component="img"
@@ -1210,7 +1120,6 @@ const DriverDetail = () => {
                                         />
                                       )}
 
-                                      {/* 🔹 ปุ่มเลือกไฟล์ */}
                                       <Button
                                         variant="outlined"
                                         component="label"
@@ -1305,11 +1214,10 @@ const DriverDetail = () => {
                               row.Lng !== 0
                                 ? `${row.Lat},${row.Lng}`
                                 : null,
-                            ) // ตรวจสอบ lat,lng
-                            .filter(Boolean), // ลบค่า null ออก
+                            )
+                            .filter(Boolean),
                       );
 
-                      // ถ้ามีพิกัดให้สร้างลิงก์
                       if (coordinates.length > 0) {
                         const depotLatLng =
                           depotNew.lat === "0" && depotNew.lng === "0"
@@ -1522,7 +1430,6 @@ const DriverDetail = () => {
                                           );
                                         }
 
-                                        // ✅ เติม https ถ้ายังไม่มี
                                         if (
                                           !fileUrl.startsWith("http://") &&
                                           !fileUrl.startsWith("https://")
@@ -1553,7 +1460,7 @@ const DriverDetail = () => {
                                               textOverflow: "ellipsis",
                                               whiteSpace: "nowrap",
                                             }}
-                                            title={fileUrl} // ✅ hover เห็นเต็ม
+                                            title={fileUrl}
                                           >
                                             เปิดไฟล์
                                           </Typography>
@@ -1638,7 +1545,6 @@ const DriverDetail = () => {
                                           );
                                         }
 
-                                        // ✅ เติม https ถ้ายังไม่มี
                                         if (
                                           !fileUrl.startsWith("http://") &&
                                           !fileUrl.startsWith("https://")
@@ -1669,7 +1575,7 @@ const DriverDetail = () => {
                                               textOverflow: "ellipsis",
                                               whiteSpace: "nowrap",
                                             }}
-                                            title={fileUrl} // ✅ hover เห็นเต็ม
+                                            title={fileUrl}
                                           >
                                             เปิดไฟล์
                                           </Typography>
@@ -1841,11 +1747,10 @@ const DriverDetail = () => {
                               row.Lng !== 0
                                 ? `${row.Lat},${row.Lng}`
                                 : null,
-                            ) // ตรวจสอบ lat,lng
-                            .filter(Boolean), // ลบค่า null ออก
+                            )
+                            .filter(Boolean),
                       );
 
-                      // ถ้ามีพิกัดให้สร้างลิงก์
                       if (coordinates.length > 0) {
                         const depotLatLng =
                           depotNew.lat === "0" && depotNew.lng === "0"
@@ -1996,7 +1901,6 @@ const DriverDetail = () => {
                                       );
                                     }
 
-                                    // ✅ เติม https ถ้ายังไม่มี
                                     if (
                                       !fileUrl.startsWith("http://") &&
                                       !fileUrl.startsWith("https://")
@@ -2027,7 +1931,7 @@ const DriverDetail = () => {
                                           textOverflow: "ellipsis",
                                           whiteSpace: "nowrap",
                                         }}
-                                        title={fileUrl} // ✅ hover เห็นเต็ม
+                                        title={fileUrl}
                                       >
                                         เปิดไฟล์
                                       </Typography>

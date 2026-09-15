@@ -111,12 +111,6 @@ const ReportDetail = (props) => {
     setOpen(false);
   };
 
-  console.log("orderDetails : ", orderDetail);
-  console.log(
-    "order by date : ",
-    orderDetail.filter((order) => order.Date === "30/04/2026"),
-  );
-
   const orders = orderDetail
     .filter(
       (order) =>
@@ -297,13 +291,8 @@ const ReportDetail = (props) => {
     }
   });
 
-  console.log("Orders : ", row.TicketName, orders);
-  console.log("grouped : ", grouped);
-
   // 2. แปลงเป็น array สำหรับแสดงผล
   const groupedOrders = Object.entries(grouped); // [ [key, [order1, order2]], ... ]
-
-  console.log("groupedOrders : ", groupedOrders.transfers);
 
   const formatted = `${dayjs(dateStart).locale("th").format("วันที่ D เดือนMMMM พ.ศ.BBBB")} - ${dayjs(dateEnd).format("วันที่ D เดือนMMMM พ.ศ.BBBB")}`;
 

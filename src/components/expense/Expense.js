@@ -92,12 +92,11 @@ const ExpenseDetail = ({ openNavbar }) => {
         const handleResize = () => {
             let width = window.innerWidth;
             if (!openNavbar) {
-                width += 120; // ✅ เพิ่ม 200 ถ้า openNavbar = false
+                width += 120;
             }
             setWindowWidth(width);
         };
 
-        // เรียกครั้งแรกตอน mount
         handleResize();
 
         window.addEventListener('resize', handleResize);
@@ -105,7 +104,7 @@ const ExpenseDetail = ({ openNavbar }) => {
         return () => {
             window.removeEventListener('resize', handleResize);
         };
-    }, [openNavbar]); // ✅ ทำงานใหม่ทุกครั้งที่ openNavbar เปลี่ยน
+    }, [openNavbar]);
 
     const { expenseitems, refetch } = useBasicData();
     const expenseitem = Object.values(expenseitems || {});
@@ -223,7 +222,6 @@ const ExpenseDetail = ({ openNavbar }) => {
             <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mb: 1 }}>
                 รายการหมวดค่าใช้จ่ายที่ใช้อ้างอิงเวลาบันทึกรายจ่ายในระบบ
             </Typography>
-            {/* <ImportExcel /> */}
             <Divider sx={{ marginBottom: 2 }} />
             <Box sx={{ width: "100%" }}>
                 {
@@ -263,11 +261,11 @@ const ExpenseDetail = ({ openNavbar }) => {
                                             size="small"
                                             sx={{
                                                 '& .MuiInputBase-root': {
-                                                    height: 35, // ปรับความสูงรวม
+                                                    height: 35,
                                                 },
                                                 '& .MuiInputBase-input': {
-                                                    padding: '4px 8px', // ปรับ padding ด้านใน input
-                                                    fontSize: '0.85rem', // (ถ้าต้องการลดขนาดตัวอักษร)
+                                                    padding: '4px 8px',
+                                                    fontSize: '0.85rem',
                                                 },
                                             }}
                                             InputProps={{
@@ -361,14 +359,14 @@ const ExpenseDetail = ({ openNavbar }) => {
                                                                         size="small"
                                                                         sx={{
                                                                             '& .MuiInputBase-root': {
-                                                                                height: 30, // ปรับความสูงรวม
+                                                                                height: 30,
                                                                             },
                                                                             '& .MuiInputBase-input': {
-                                                                                padding: '4px 8px', // ปรับ padding ด้านใน input
-                                                                                fontSize: '0.85rem', // (ถ้าต้องการลดขนาดตัวอักษร)
+                                                                                padding: '4px 8px',
+                                                                                fontSize: '0.85rem',
                                                                             },
                                                                         }}
-                                                                        InputProps={{ sx: { height: 30 } }} // เพิ่มตรงนี้ด้วยถ้า sx ไม่พอ
+                                                                        InputProps={{ sx: { height: 30 } }}
                                                                     />
                                                                 </Paper>
                                                         }
@@ -387,11 +385,11 @@ const ExpenseDetail = ({ openNavbar }) => {
                                                                         size="small"
                                                                         sx={{
                                                                             "& .MuiInputBase-root": {
-                                                                                height: 30, // ปรับความสูงรวม
+                                                                                height: 30,
                                                                             },
                                                                             "& .MuiInputBase-input": {
-                                                                                padding: "4px 8px", // ปรับ padding ด้านใน input
-                                                                                fontSize: "0.85rem", // ลดขนาด font
+                                                                                padding: "4px 8px",
+                                                                                fontSize: "0.85rem",
                                                                             },
                                                                         }}
                                                                         InputProps={{ sx: { height: 30 } }}
@@ -409,12 +407,12 @@ const ExpenseDetail = ({ openNavbar }) => {
                                                                 <Paper
                                                                     elevation={0}
                                                                     sx={{
-                                                                        p: 0, // ไม่มี padding
-                                                                        m: 0, // ไม่มี margin
-                                                                        display: 'flex', // ให้ Checkbox ขยายได้เต็มพื้นที่
+                                                                        p: 0,
+                                                                        m: 0,
+                                                                        display: 'flex',
                                                                         alignItems: 'center',
-                                                                        justifyContent: 'center', // กรณีต้องการอยู่ตรงกลาง (เลือกปรับตามต้องการ)
-                                                                        width: 'fit-content', // ปรับตาม Checkbox
+                                                                        justifyContent: 'center',
+                                                                        width: 'fit-content',
                                                                         height: 'fit-content',
                                                                         backgroundColor: 'white',
                                                                         marginLeft: 2
@@ -424,8 +422,8 @@ const ExpenseDetail = ({ openNavbar }) => {
                                                                         checked={status}
                                                                         onChange={() => setStatus(!status)}
                                                                         sx={{
-                                                                            p: 0, // ไม่มี padding รอบ checkbox
-                                                                            m: 0, // ไม่มี margin
+                                                                            p: 0,
+                                                                            m: 0,
                                                                         }}
                                                                     />
                                                                 </Paper>
@@ -456,12 +454,12 @@ const ExpenseDetail = ({ openNavbar }) => {
                                                                         <Paper
                                                                             elevation={0}
                                                                             sx={{
-                                                                                p: 0, // ไม่มี padding
-                                                                                m: 0, // ไม่มี margin
-                                                                                display: 'flex', // ให้ Checkbox ขยายได้เต็มพื้นที่
+                                                                                p: 0,
+                                                                                m: 0,
+                                                                                display: 'flex',
                                                                                 alignItems: 'center',
-                                                                                justifyContent: 'center', // กรณีต้องการอยู่ตรงกลาง (เลือกปรับตามต้องการ)
-                                                                                width: 'fit-content', // ปรับตาม Checkbox
+                                                                                justifyContent: 'center',
+                                                                                width: 'fit-content',
                                                                                 height: 'fit-content',
                                                                                 backgroundColor: 'white'
                                                                             }}
@@ -473,12 +471,12 @@ const ExpenseDetail = ({ openNavbar }) => {
                                                                         <Paper
                                                                             elevation={0}
                                                                             sx={{
-                                                                                p: 0, // ไม่มี padding
-                                                                                m: 0, // ไม่มี margin
-                                                                                display: 'flex', // ให้ Checkbox ขยายได้เต็มพื้นที่
+                                                                                p: 0,
+                                                                                m: 0,
+                                                                                display: 'flex',
                                                                                 alignItems: 'center',
-                                                                                justifyContent: 'center', // กรณีต้องการอยู่ตรงกลาง (เลือกปรับตามต้องการ)
-                                                                                width: 'fit-content', // ปรับตาม Checkbox
+                                                                                justifyContent: 'center',
+                                                                                width: 'fit-content',
                                                                                 height: 'fit-content',
                                                                                 backgroundColor: 'white'
                                                                             }}
@@ -505,14 +503,14 @@ const ExpenseDetail = ({ openNavbar }) => {
                                                         size="small"
                                                         sx={{
                                                             '& .MuiInputBase-root': {
-                                                                height: 30, // ปรับความสูงรวม
+                                                                height: 30,
                                                             },
                                                             '& .MuiInputBase-input': {
-                                                                padding: '4px 8px', // ปรับ padding ด้านใน input
-                                                                fontSize: '0.85rem', // (ถ้าต้องการลดขนาดตัวอักษร)
+                                                                padding: '4px 8px',
+                                                                fontSize: '0.85rem',
                                                             },
                                                         }}
-                                                        InputProps={{ sx: { height: 30 } }} // เพิ่มตรงนี้ด้วยถ้า sx ไม่พอ
+                                                        InputProps={{ sx: { height: 30 } }}
                                                     />
                                                 </Paper>
                                             </TableCell>
@@ -526,11 +524,11 @@ const ExpenseDetail = ({ openNavbar }) => {
                                                         size="small"
                                                         sx={{
                                                             "& .MuiInputBase-root": {
-                                                                height: 30, // ปรับความสูงรวม
+                                                                height: 30,
                                                             },
                                                             "& .MuiInputBase-input": {
-                                                                padding: "4px 8px", // ปรับ padding ด้านใน input
-                                                                fontSize: "0.85rem", // ลดขนาด font
+                                                                padding: "4px 8px",
+                                                                fontSize: "0.85rem",
                                                             },
                                                         }}
                                                         InputProps={{ sx: { height: 30 } }}
@@ -540,24 +538,6 @@ const ExpenseDetail = ({ openNavbar }) => {
                                                 </Paper>
                                             </TableCell>
                                             <TableCell sx={{ textAlign: "center" }} colSpan={2}></TableCell>
-                                            {/* <TableCell sx={{ textAlign: "center" }}>
-                                                <TextField
-                                                    fullWidth
-                                                    value={status}
-                                                    onChange={(e) => setStatus(e.target.value)}
-                                                    size="small"
-                                                    sx={{
-                                                        '& .MuiInputBase-root': {
-                                                            height: 30, // ปรับความสูงรวม
-                                                        },
-                                                        '& .MuiInputBase-input': {
-                                                            padding: '4px 8px', // ปรับ padding ด้านใน input
-                                                            fontSize: '0.85rem', // (ถ้าต้องการลดขนาดตัวอักษร)
-                                                        },
-                                                    }}
-                                                    InputProps={{ sx: { height: 30 } }} // เพิ่มตรงนี้ด้วยถ้า sx ไม่พอ
-                                                />
-                                            </TableCell> */}
                                         </TableRow>
                                     }
                                 </TableBody>

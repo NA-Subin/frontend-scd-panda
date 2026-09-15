@@ -21,20 +21,6 @@ const PrintTrips = () => {
     }
   }, []);
 
-  //   const formatThaiDate = (dateString) => {
-  //     if (!dateString) return "-";
-  //     const date = new Date(dateString);
-  //     const day = date.getDate();
-  //     const monthNames = [
-  //         "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-  //         "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
-  //     ];
-  //     const month = monthNames[date.getMonth()];
-  //     const year = date.getFullYear() + 543; // แปลงจาก ค.ศ. เป็น พ.ศ.
-
-  //     return `วันที่ ${day} เดือน${month} พ.ศ.${year}`;
-  // };
-
   const formatThaiDate = (dateString) => {
     if (!dateString) return "ไม่พบข้อมูลวันที่"; // ถ้า undefined หรือ null ให้คืนค่าเริ่มต้น
 
@@ -49,15 +35,6 @@ const PrintTrips = () => {
 
     return `วันที่ ${day} เดือน ${formattedDate} พ.ศ. ${buddhistYear}`;
   };
-
-  console.log("Ticket : ", trips?.Tickets);
-  console.log("Order : ", trips?.Orders);
-  console.log("TotalVolumeTicket : ", trips?.TotalVolumeTicket);
-  console.log("TotalVolumeTicket : ", trips?.TotalVolumeOrder);
-  // console.log("WeightHigh : ", trips?.TotalVolumeTicket);
-  // console.log("WeightLow : ", trips?.WeightLow);
-  // console.log("TotalWeight : ", trips?.TotalWeight);
-  console.log("CostTrip : ", trips?.CostTrip);
 
   const handleDownloadImage = () => {
     const content = document.querySelector("#invoiceContent"); // เลือก div ที่คุณต้องการแปลงเป็นรูปภาพ
@@ -85,28 +62,6 @@ const PrintTrips = () => {
             p: 2
           }}
         >
-      {/* <Grid container spacing={2}>
-        <Grid item xs={8}>
-          {
-            trips &&
-            (
-              <React.Fragment>
-                <Typography variant="h6" fontWeight="bold" sx={{ marginBottom: -1 }} gutterBottom>บริษัท แพนด้า สตาร์ ออยล์ จำกัด (สำนักงานใหญ่)</Typography>
-                <Typography variant="subtitle1" sx={{ marginBottom: -1 }} gutterBottom>261 หมู่ 2 ต.สันพระเนตร อ.สันทราย จ.เชียงใหม่ 50210</Typography>
-                <Typography variant="subtitle1" gutterBottom>เลขประจำตัวผู้เสียภาษีอากร : 050 5562 00472 6</Typography>
-              </React.Fragment>
-            )
-          }
-        </Grid>
-        <Grid item xs={4} textAlign="right">
-          <Typography variant="subtitle1" fontWeight="bold" sx={{ marginRight: 2 }}>
-            รายการจัดเที่ยววิ่ง
-          </Typography>
-          <Typography variant="subtitle2" fontWeight="bold" sx={{ marginRight: 2 }}>
-            พิมพ์วันที่ {dayjs(new Date).format("DD/MM/YYYY")}
-          </Typography>
-        </Grid>
-      </Grid> */}
       <Grid container spacing={2}>
         <Grid item xs={12} marginBottom={-2}>
           <Typography variant="subtitle1" fontWeight="bold">จัดการตั๋ว : วันที่รับ : {formatThaiDate(trips?.DateReceive)} พนักงานขับรถ : {trips?.Driver}</Typography>
@@ -134,22 +89,6 @@ const PrintTrips = () => {
                     <TableCell sx={{ textAlign: "center", borderLeft: "1px solid black" }}>{row.id + 1}</TableCell>
                     <TableCell sx={{ textAlign: "center", borderLeft: "1px solid black" }}>
                       {
-                        // (() => {
-                        //   const branches = [
-                        //     "( สาขาที่  00001)/",
-                        //     "( สาขาที่  00002)/",
-                        //     "( สาขาที่  00003)/",
-                        //     "(สำนักงานใหญ่)/"
-                        //   ];
-
-                        //   for (const branch of branches) {
-                        //     if (row.TicketName.includes(branch)) {
-                        //       return row.TicketName.split(branch)[1];
-                        //     }
-                        //   }
-
-                        //   return row.TicketName;
-                        // })()
                         row.TicketNameName
                       }
                     </TableCell>
@@ -234,22 +173,6 @@ const PrintTrips = () => {
                     <TableCell sx={{ textAlign: "center", borderLeft: "1px solid black" }}>{row.id + 1}</TableCell>
                     <TableCell sx={{ textAlign: "center", borderLeft: "1px solid black" }}>
                       {
-                        // (() => {
-                        //   const branches = [
-                        //     "( สาขาที่  00001)/",
-                        //     "( สาขาที่  00002)/",
-                        //     "( สาขาที่  00003)/",
-                        //     "(สำนักงานใหญ่)/"
-                        //   ];
-
-                        //   for (const branch of branches) {
-                        //     if (row.TicketName.includes(branch)) {
-                        //       return row.TicketName.split(branch)[1];
-                        //     }
-                        //   }
-
-                        //   return row.TicketName;
-                        // })()
                         row.TicketNameName
                       }
                     </TableCell>

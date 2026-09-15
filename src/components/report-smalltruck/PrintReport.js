@@ -34,7 +34,6 @@ const PrintReport = () => {
       html2pdf().set(opt).from(element).save();
     }, 500);
 
-
     return () => clearTimeout(timer);
   }, []);
 
@@ -236,10 +235,6 @@ const PrintReport = () => {
   let mergedCells = {};
   let displayIndex = 0;
 
-  console.log("invoiceData : ", invoiceData);
-  console.log("Tickets Order : ", invoiceData?.Report);
-  console.log("Total Order : ", invoiceData?.Total);
-
   return (
     <React.Fragment>
       <Box
@@ -261,7 +256,6 @@ const PrintReport = () => {
                   <Typography variant="h6" fontWeight="bold" sx={{ marginBottom: -1 }} gutterBottom>{invoiceData?.Company}</Typography>
                   <Typography variant="subtitle1" sx={{ marginBottom: -1 }} gutterBottom>
                     {formatAddressStandard(invoiceData?.Address)}
-                    {/* เบอร์โทร : {formatPhoneNumber(invoiceData?.Phone)} */}
                   </Typography>
                   <Typography variant="subtitle1" gutterBottom>เลขประจำตัวผู้เสียภาษีอากร : {formatTaxID(invoiceData?.CardID)}</Typography>
                 </React.Fragment>

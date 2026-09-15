@@ -76,26 +76,20 @@ const Driver = () => {
   const navigate = useNavigate();
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-  // ใช้ useEffect เพื่อรับฟังการเปลี่ยนแปลงของขนาดหน้าจอ
   useEffect(() => {
     const handleResize = () => {
-      setWindowWidth(window.innerWidth); // อัพเดตค่าขนาดหน้าจอ
+      setWindowWidth(window.innerWidth);
     };
 
-    window.addEventListener("resize", handleResize); // เพิ่ม event listener
+    window.addEventListener("resize", handleResize);
 
-    // ลบ event listener เมื่อ component ถูกทำลาย
     return () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
 
-  // const [driver, setDriver] = useState([]);
-  // const [trip, setTrip] = useState([]);
-  // const [order, setOrder] = useState([]);
   const [tripNew, setTripNew] = useState([]);
   const [orderNew, setOrderNew] = useState([]);
-  // const [depot, setDepot] = useState([]);
   const [depotNew, setDepotNew] = useState([]);
   const [showTrip, setShowTrip] = useState(true);
   const [repairTruck, setRepairTruck] = useState(true);
@@ -121,69 +115,6 @@ const Driver = () => {
     setPreview(null);
   };
 
-  // const getTrip = async () => {
-  //     database.ref("/truck/registration").on("value", (snapshot) => {
-  //         const datas = snapshot.val();
-  //         if (datas === null || datas === undefined) {
-  //             setDriver([]);
-  //         } else {
-  //             const dataDriver = [];
-  //             for (let id in datas) {
-  //                 if (datas[id].Driver !== "ไม่มี") {
-  //                     dataDriver.push({ id, ...datas[id] })
-  //                 }
-  //             }
-  //             setDriver(dataDriver);
-  //         }
-  //     });
-
-  //     database.ref("/trip").on("value", (snapshot) => {
-  //         const datas = snapshot.val();
-  //         if (datas === null || datas === undefined) {
-  //             setTrip([]);
-  //         } else {
-  //             const dataTrip = [];
-  //             for (let id in datas) {
-  //                 if (datas[id].StatusTrips === "กำลังจัดเที่ยววิ่ง" || (datas[id].StatusTrips === "จบทริป" && datas[id].DateEnd === dayjs(new Date).format("DD/MM/YYYY"))) {
-  //                     dataTrip.push({ id, ...datas[id] })
-  //                 }
-  //             }
-  //             setTrip(dataTrip);
-  //         }
-  //     });
-
-  //     database.ref("/order").on("value", (snapshot) => {
-  //         const datas = snapshot.val();
-  //         if (datas === null || datas === undefined) {
-  //             setOrder([]);
-  //         } else {
-  //             const dataOrder = [];
-  //             for (let id in datas) {
-  //                 dataOrder.push({ id, ...datas[id] })
-  //             }
-  //             setOrder(dataOrder);
-  //         }
-  //     });
-
-  //     database.ref("/depot/oils").on("value", (snapshot) => {
-  //         const datas = snapshot.val();
-  //         if (datas === null || datas === undefined) {
-  //             setDepot([]);
-  //         } else {
-  //             const dataDepot = [];
-  //             for (let id in datas) {
-  //                 dataDepot.push({ id, ...datas[id] })
-  //             }
-  //             setDepot(dataDepot);
-  //         }
-  //     });
-  // };
-
-  // useEffect(() => {
-  //     getTrip();
-  // }, []);
-
-  // const { reghead, trip, order, depots } = useData();
   const { reghead, small, depots, inspection } = useBasicData();
   const { trip, order, refetch: refetchTripData } = useTripData();
   const regheadsForUpdate = Object.values(reghead || {});
@@ -191,7 +122,6 @@ const Driver = () => {
 
   const inspectionList = Object.values(inspection || {})
   const drivers = Object.values(reghead || {});
-  // const trips = Object.values(trip || {});
   const trips = Object.values(trip || {}).filter((item) => {
     const deliveryDate = dayjs(item.DateDelivery, "DD/MM/YYYY");
     const receiveDate = dayjs(item.DateReceive, "DD/MM/YYYY");
@@ -202,14 +132,12 @@ const Driver = () => {
       receiveDate.isSameOrAfter(targetDate, "day")
     );
   });
-  // const orders = Object.values(order || {});
   const orders = Object.values(order || {}).filter((item) => {
     const itemDate = dayjs(item.Date, "DD/MM/YYYY");
     return itemDate.isSameOrAfter(dayjs("01/01/2026", "DD/MM/YYYY"), "day");
   });
   const depot = Object.values(depots || {});
 
-  // กรองตามเงื่อนไขที่ต้องการหลังจาก data มาแล้ว
   const driver = drivers.filter((d) => d.Driver != null);
 
   const today = dayjs(new Date()).format("DD/MM/YYYY");
@@ -236,14 +164,12 @@ const Driver = () => {
 
     const driverId = truck?.split(":")?.[0];
 
-    // ✅ หา trip แบบ safe
     const check = tripDetail.find((item) => {
       const id = item.Driver;
       return id === driverId;
     });
 
     if (!check) {
-      console.warn("❌ ไม่เจอ trip");
       setCheck({});
       setTripNew({});
       setOrderNew([]);
@@ -253,18 +179,16 @@ const Driver = () => {
 
     const tripId = Number(check.id) - 1;
 
-    // ✅ กัน type mismatch - เรียงตาม No เพื่อให้ตำแหน่งตรงกับลำดับ OrderN slot
+    // กัน type mismatch - เรียงตาม No เพื่อให้ตำแหน่งตรงกับลำดับ OrderN slot
     const checkOrder = orders
       .filter((item) => Number(item.Trip) === tripId)
       .sort((a, b) => Number(a.No) - Number(b.No));
 
-    // ✅ depot safe
     const depotZone =
       typeof check.Depot === "string" ? check.Depot.split(":")?.[1] : "";
 
     const checkDepot = depot.find((item) => item.Zone === depotZone) ?? {};
 
-    // ✅ map Order1,2,3 (กัน undefined + fix id)
     const tripNewData = Object.keys(check)
       .filter((key) => key.startsWith("Order") && check[key])
       .reduce((acc, key, index) => {
@@ -272,7 +196,7 @@ const Driver = () => {
           Name: check[key],
           No: index,
           Depot: check.Depot,
-          Trip: check.id, // 🔥 แก้จาก check[key].id
+          Trip: check.id,
         };
         return acc;
       }, {});
@@ -281,11 +205,6 @@ const Driver = () => {
     setTripNew(tripNewData);
     setOrderNew(checkOrder);
     setDepotNew(checkDepot);
-
-    // 🔍 debug (แนะนำเปิดไว้ช่วงทดสอบ)
-    console.log("✅ check:", check);
-    console.log("✅ orders:", checkOrder);
-    console.log("✅ depot:", checkDepot);
   }, [truck, orders, tripDetail, depot]);
 
   useEffect(() => {
@@ -323,7 +242,6 @@ const Driver = () => {
           }
         }
 
-        console.log("Trip completed");
         refetchTripData?.();
       } catch (error) {
         ShowError("เพิ่มข้อมูลไม่สำเร็จ");
@@ -338,20 +256,17 @@ const Driver = () => {
 
     const driverId = trucks?.split(":")?.[0];
 
-    // ✅ หา trip
     const check = tripDetail.find((item) => {
       const id = item.Driver;
       return id === driverId;
     });
 
-    // ✅ หา driver
     const driverName = drivers.find((item) => {
       const id = item.Driver;
       return id === driverId;
     });
 
     if (!check) {
-      console.warn("❌ ไม่เจอ trip");
       setCheck({});
       setTripNew({});
       setOrderNew([]);
@@ -359,33 +274,23 @@ const Driver = () => {
       return;
     }
 
-    // ✅ set driver
     setTruckRepair(driverName || {});
     setSelectDriver(
       driverName ? `${driverName.id - 1}:${driverName.RegHead}:รถใหญ่` : "",
     );
 
-    console.log("✅ check :", check);
-
     const tripId = Number(check.id) - 1;
 
-    // ✅ หา order (กัน type mismatch) - เรียงตาม No เพื่อให้ตำแหน่งตรงกับลำดับ OrderN slot
+    // กัน type mismatch - เรียงตาม No เพื่อให้ตำแหน่งตรงกับลำดับ OrderN slot
     const checkOrder = orders
       .filter((item) => Number(item.Trip) === tripId)
       .sort((a, b) => Number(a.No) - Number(b.No));
 
-    console.log("✅ checkOrder :", checkOrder);
-
-    // ✅ depot
     const depotZone =
       typeof check.Depot === "string" ? check.Depot.split(":")?.[1] : "";
 
     const checkDepot = depot.find((item) => item.Zone === depotZone) ?? {};
 
-    console.log("✅ depotZone :", depotZone);
-    console.log("✅ checkDepot :", checkDepot);
-
-    // ✅ map Order1,2,3
     const tripNew = Object.keys(check)
       .filter((key) => key.startsWith("Order") && check[key])
       .reduce((acc, key, index) => {
@@ -393,7 +298,7 @@ const Driver = () => {
           Name: check[key],
           No: index,
           Depot: check.Depot,
-          Trip: check.id, // 🔥 แก้ (ของเดิมพัง)
+          Trip: check.id,
         };
         return acc;
       }, {});
@@ -403,7 +308,6 @@ const Driver = () => {
     setOrderNew(checkOrder);
     setDepotNew(checkDepot);
 
-    // ✅ check จบทริป
     const isAllDone =
       checkOrder.length > 0 &&
       checkOrder.every((item) => item.Status === "จัดส่งสำเร็จ");
@@ -416,7 +320,6 @@ const Driver = () => {
           DateEnd: dayjs().format("DD/MM/YYYY"),
         })
           .then(() => {
-            console.log("✅ Trip completed");
             refetchTripData?.();
           })
           .catch((error) => {
@@ -430,7 +333,6 @@ const Driver = () => {
   const generatePDF = (row) => {
     const invoiceData = { order: row, trip: check, depot: depotNew };
 
-    // บันทึกข้อมูลลง sessionStorage
     sessionStorage.setItem("invoiceData", JSON.stringify(invoiceData));
 
     const screenWidth = window.screen.width;
@@ -504,8 +406,6 @@ const Driver = () => {
       setDialogOpen(false);
       setFile(null);
       setPreview(null);
-
-      console.log("Data pushed successfully");
     } catch (error) {
       console.error("Firebase update error:", error);
       alert("บันทึกข้อมูลไม่สำเร็จ");
@@ -517,7 +417,6 @@ const Driver = () => {
   };
 
   const formatAddress = (address) => {
-    // แยกข้อมูลจาก address โดยใช้ , หรือ เว้นวรรคเป็นตัวแบ่ง
     const parts = address && address.split(/,|\s+/).filter(Boolean);
 
     if (!parts || parts.length < 5) return "-";
@@ -526,14 +425,6 @@ const Driver = () => {
 
     return `${houseNo} หมู่ ${moo} ต.${subdistrict} อ.${district} จ.${province} ${postalCode}`;
   };
-
-  console.log("Trip : ", tripDetail);
-  console.log("Truck : ", truck.split(":")[1]);
-  console.log("TripNew : ", tripNew);
-  console.log("TripNew length : ", Object.keys(tripNew).length);
-  console.log("DepotNew : ", depotNew);
-  console.log("OrderNew : ", orderNew);
-  console.log("check : ", check);
 
   return (
     <Container
@@ -570,13 +461,6 @@ const Driver = () => {
             sx={{ marginRight: { xs: -2, sm: -3, md: -4 } }}
           >
             {
-              //    isMobile ?
-              //        <>
-              //            <Button variant="contained" color="error" sx={{ border: "3px solid white", borderTopRightRadius: 15, borderTopLeftRadius: 6, borderBottomRightRadius: 6, borderBottomLeftRadius: 6 }}><ReplyAllIcon fontSize="small" /></Button>
-              //</Box>        </>
-
-              //        :
-              //        <>
               <Button
                 variant="contained"
                 color="error"
@@ -592,7 +476,6 @@ const Driver = () => {
               >
                 กลับหน้าแรก
               </Button>
-              //        </>
             }
           </Box>
           <Box
@@ -979,7 +862,6 @@ const Driver = () => {
                                         gap: 2,
                                       }}
                                     >
-                                      {/* 🔹 Preview รูป */}
                                       {preview ? (
                                         <Box
                                           component="img"
@@ -1002,7 +884,6 @@ const Driver = () => {
                                         />
                                       )}
 
-                                      {/* 🔹 ปุ่มเลือกไฟล์ */}
                                       <Button
                                         variant="outlined"
                                         component="label"
@@ -1097,11 +978,10 @@ const Driver = () => {
                               row.Lng !== 0
                                 ? `${row.Lat},${row.Lng}`
                                 : null,
-                            ) // ตรวจสอบ lat,lng
-                            .filter(Boolean), // ลบค่า null ออก
+                            )
+                            .filter(Boolean),
                       );
 
-                      // ถ้ามีพิกัดให้สร้างลิงก์
                       if (coordinates.length > 0) {
                         const depotLatLng =
                           depotNew.lat === "0" && depotNew.lng === "0"
@@ -1314,7 +1194,6 @@ const Driver = () => {
                                           );
                                         }
 
-                                        // ✅ เติม https ถ้ายังไม่มี
                                         if (
                                           !fileUrl.startsWith("http://") &&
                                           !fileUrl.startsWith("https://")
@@ -1345,7 +1224,7 @@ const Driver = () => {
                                               textOverflow: "ellipsis",
                                               whiteSpace: "nowrap",
                                             }}
-                                            title={fileUrl} // ✅ hover เห็นเต็ม
+                                            title={fileUrl}
                                           >
                                             เปิดไฟล์
                                           </Typography>
@@ -1430,7 +1309,6 @@ const Driver = () => {
                                           );
                                         }
 
-                                        // ✅ เติม https ถ้ายังไม่มี
                                         if (
                                           !fileUrl.startsWith("http://") &&
                                           !fileUrl.startsWith("https://")
@@ -1461,7 +1339,7 @@ const Driver = () => {
                                               textOverflow: "ellipsis",
                                               whiteSpace: "nowrap",
                                             }}
-                                            title={fileUrl} // ✅ hover เห็นเต็ม
+                                            title={fileUrl}
                                           >
                                             เปิดไฟล์
                                           </Typography>
@@ -1633,11 +1511,10 @@ const Driver = () => {
                               row.Lng !== 0
                                 ? `${row.Lat},${row.Lng}`
                                 : null,
-                            ) // ตรวจสอบ lat,lng
-                            .filter(Boolean), // ลบค่า null ออก
+                            )
+                            .filter(Boolean),
                       );
 
-                      // ถ้ามีพิกัดให้สร้างลิงก์
                       if (coordinates.length > 0) {
                         const depotLatLng =
                           depotNew.lat === "0" && depotNew.lng === "0"
@@ -1788,7 +1665,6 @@ const Driver = () => {
                                       );
                                     }
 
-                                    // ✅ เติม https ถ้ายังไม่มี
                                     if (
                                       !fileUrl.startsWith("http://") &&
                                       !fileUrl.startsWith("https://")
@@ -1819,7 +1695,7 @@ const Driver = () => {
                                           textOverflow: "ellipsis",
                                           whiteSpace: "nowrap",
                                         }}
-                                        title={fileUrl} // ✅ hover เห็นเต็ม
+                                        title={fileUrl}
                                       >
                                         เปิดไฟล์
                                       </Typography>

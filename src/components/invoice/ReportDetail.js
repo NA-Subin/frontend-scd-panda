@@ -71,8 +71,6 @@ const ReportDetail = (props) => {
         setOpen(false);
     };
 
-    console.log("orderDetail : ", orderDetail);
-
     const orders = orderDetail
         .filter(order => order.TicketName === row.TicketName)
         .sort((a, b) => {
@@ -96,7 +94,6 @@ const ReportDetail = (props) => {
         return acc;
     }, {});
 
-    console.log("Grouped Orders : ", grouped);
     // 2. แปลงเป็น array สำหรับแสดงผล
     const groupedOrders = Object.entries(grouped); // [ [key, [order1, order2]], ... ]
 
@@ -267,21 +264,6 @@ const ReportDetail = (props) => {
                                             <TablecellTickets sx={{ textAlign: "center", width: 130, fontSize: "16px" }}>ยอดเงิน</TablecellTickets>
                                         </TableRow>
                                     </TableHead>
-                                    {/* <TableBody>
-                                        {
-                                            orders.map((order, index) => (
-                                                <TableRow>
-                                                    <TableCell sx={{ textAlign: "center" }}>{index + 1}</TableCell>
-                                                    <TableCell sx={{ textAlign: "center" }}>{order.Date}</TableCell>
-                                                    <TableCell sx={{ textAlign: "center" }}>{`${order.DriverName}/${row.RegistrationName}`}</TableCell>
-                                                    <TableCell sx={{ textAlign: "center" }}>{order.ProductName}</TableCell>
-                                                    <TableCell sx={{ textAlign: "center" }}>{new Intl.NumberFormat("en-US").format(order.VolumeProduct)}</TableCell>
-                                                    <TableCell sx={{ textAlign: "center" }}>{new Intl.NumberFormat("en-US").format(order.RateOil)}</TableCell>
-                                                    <TableCell sx={{ textAlign: "center" }}>{new Intl.NumberFormat("en-US").format(order.Amount)}</TableCell>
-                                                </TableRow>
-                                            ))
-                                        }
-                                    </TableBody> */}
                                     <TableBody>
                                         {groupedOrders.map(([groupKey, groupOrders], groupIndex) => {
                                             const rowSpan = groupOrders.length;

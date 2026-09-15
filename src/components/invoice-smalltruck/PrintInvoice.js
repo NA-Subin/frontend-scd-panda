@@ -72,31 +72,12 @@ const PrintInvoiceSmallTruck = () => {
   const invoiceData = JSON.parse(sessionStorage.getItem("invoiceData"));
   if (!invoiceData) return <div>กำลังโหลด...</div>;
 
-  console.log("customer smalltruck : ", customerS);
-  console.log("TicketName :  ", invoiceData?.Order[0].TicketName);
-
-  // const address = invoiceData?.Order[0].Address || ''; // ดึงที่อยู่จาก invoiceData
-
-  // console.log("Address : ", address);
-
   const customer = customerS.find(
     (row) => row.uuid === invoiceData?.Order[0].TicketName,
   );
   const invoiceC = companyDetail.find((row) => row.uuid === customer?.Company);
 
-  console.log("customer?.Company : ", customer?.Company);
-
   let formattedAddress = "-"; // ค่าเริ่มต้นเป็น "-"
-
-  // if (address !== "-") {
-  //   // แยกที่อยู่เป็นส่วนๆ โดยใช้ split(" ")
-  //   const addressParts = address.split(" ");
-
-  //   // ตรวจสอบว่ามีค่าพอให้ใช้งานหรือไม่ (ป้องกัน error)
-  //   if (addressParts.length >= 6) {
-  //     formattedAddress = `บ้านเลขที่${addressParts[0]} หมู่ที่${addressParts[1]} ตำบล${addressParts[2]} อำเภอ${addressParts[3]} จังหวัด${addressParts[4]} รหัสไปรษณีย์${addressParts[5]}`;
-  //   }
-  // }
 
   const numberToThaiText = (num) => {
     const thaiNumbers = [
@@ -354,10 +335,6 @@ const PrintInvoiceSmallTruck = () => {
     return String(phone).replace(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3");
   };
 
-  console.log("invoiceData: ", invoiceData?.Report);
-  console.log("Reagistration : ", invoiceData?.Registration);
-  console.log("order: ", invoiceData?.Order[0].Address);
-
   const handleDownloadImage = () => {
     const content = document.querySelector("#invoiceContent"); // เลือก div ที่คุณต้องการแปลงเป็นรูปภาพ
 
@@ -373,11 +350,6 @@ const PrintInvoiceSmallTruck = () => {
       link.click(); // คลิกเพื่อดาวน์โหลด
     });
   };
-
-  console.log("invoice C : ", invoiceC);
-  console.log("invoiceData : ", invoiceData);
-  console.log("invoiceData Address : ", invoiceData?.Address);
-  console.log("date : ", invoiceData?.DateEnd);
 
   return (
     <Box display="flex" justifyContent="center" mt={5} overflow="auto">
@@ -401,31 +373,6 @@ const PrintInvoiceSmallTruck = () => {
         >
           <Grid container spacing={2} marginTop={-3}>
             <Grid item xs={8}>
-              {/* {invoiceC ? (
-                <React.Fragment>
-                  <Typography variant="h6" fontWeight="bold" gutterBottom>
-                    {invoiceC.Name}
-                  </Typography>
-                  <Typography variant="subtitle1" sx={{ marginTop: -1 }} gutterBottom>
-                    {formatAddress(invoiceC.Address)} เบอร์โทร : {formatPhoneNumber(invoiceC.Phone)}
-                  </Typography>
-                  <Typography variant="subtitle1" sx={{ marginTop: -1 }} gutterBottom>
-                    เลขประจำตัวผู้เสียภาษีอากร : {formatTaxID(invoiceC.CardID)}
-                  </Typography>
-                </React.Fragment>
-              ) : invoiceData && (
-                <React.Fragment>
-                  <Typography variant="h6" fontWeight="bold" gutterBottom>
-                    {invoiceData.Company}
-                  </Typography>
-                  <Typography variant="subtitle1" sx={{ marginTop: -1 }} gutterBottom>
-                    {formatAddress(invoiceData.Address)} เบอร์โทร : {formatPhoneNumber(invoiceData.Phone)}
-                  </Typography>
-                  <Typography variant="subtitle1" sx={{ marginTop: -1 }} gutterBottom>
-                    เลขประจำตัวผู้เสียภาษีอากร : {formatTaxID(invoiceData.CardID)}
-                  </Typography>
-                </React.Fragment>
-              )} */}
               <Typography variant="h6" fontWeight="bold" gutterBottom>
                 {invoiceData?.Company}
               </Typography>
@@ -435,7 +382,6 @@ const PrintInvoiceSmallTruck = () => {
                 gutterBottom
               >
                 {formatAddress(invoiceData?.Address)}
-                {/* เบอร์โทร : {formatPhoneNumber(invoiceData?.Phone)} */}
               </Typography>
               <Typography
                 variant="subtitle1"
@@ -498,9 +444,6 @@ const PrintInvoiceSmallTruck = () => {
                     </Typography>
                   </Box>
                 </Box>
-                {/* <Typography variant="subtitle2"><b>ชื่อบริษัท:</b> {invoiceData?.Order[0].CompanyName}</Typography>
-                <Typography variant="subtitle2"><b>ที่อยู่:</b> {formatAddressS(address)}</Typography>
-                <Typography variant="subtitle2"><b>เลขประจำตัวผู้เสียภาษีอากร:</b> {invoiceData?.Order[0].CodeID}</Typography> */}
               </Grid>
 
               {/* ส่วนวันที่และเลขที่เอกสาร */}
@@ -945,15 +888,6 @@ const PrintInvoiceSmallTruck = () => {
                         gutterBottom
                       >{`( ${numberToThaiText(invoiceData.Amount)} )`}</Typography>
                     </TableCell>
-                    {/* <TableCell sx={{ textAlign: "center", borderRight: "2px solid black" }}>
-                      <Typography variant="subtitle2" fontWeight="bold" gutterBottom>รวมเป็นเงิน</Typography>
-                    </TableCell>
-                    <TableCell sx={{ textAlign: "center", fontWeight: "bold" }} colSpan={2}>
-                      {new Intl.NumberFormat("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                      }).format(invoiceData.Amount)}
-                    </TableCell> */}
                   </TableRow>
                 </TableBody>
               </Table>
@@ -1085,9 +1019,6 @@ const PrintInvoiceSmallTruck = () => {
           )}
         </Box>
         <div style={{ textAlign: "center", marginTop: "20px" }}>
-          {/* <Button variant="contained" onClick={handleDownloadImage}>
-            บันทึกรูปภาพ
-          </Button> */}
         </div>
       </Box>
     </Box>

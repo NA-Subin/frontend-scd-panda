@@ -50,8 +50,6 @@ const GasStationA = () => {
     // now, not "id:name" text - match on uuid directly.
     const gasStationsDetail = gasstations.find((gas) => gas.uuid === employeeDetail?.GasStation);
 
-    console.log("GasStation : :", employeeDetail?.GasStation);
-
     const [open, setOpen] = React.useState(true);
     const [openOil, setOpenOil] = React.useState(true);
     const [gasStationOil, setGasStationsOil] = useState([]);
@@ -66,17 +64,12 @@ const GasStationA = () => {
 
     const isMobile = useMediaQuery((theme) => theme.breakpoints.down('sm'));
 
-    console.log("User Id ", userId.split("$")[1]);
-    console.log("Employee ", employee);
-    console.log("Employee Detail ", employeeDetail);
-
     const [gasStationID, setGasStationID] = React.useState(0);
     const [newVolumes, setNewVolumes] = useState({});
     const [products, setProducts] = useState([]);
     const [report, setReport] = React.useState([]);
     const [setting, setSetting] = React.useState(true);
     const [gasStationReport, setGasStationReport] = React.useState([]);
-    //const [gasstationDetails,setGasStationDetail] = React.useState("");
     const gasstationDetails = employeeDetail?.GasStation;
 
     const PREFIXES = ["นาย", "นาง", "นางสาว", "เด็กชาย", "เด็กหญิง", "ด.ช.", "ด.ญ."];
@@ -98,18 +91,7 @@ const GasStationA = () => {
         };
     };
 
-    // ตัวอย่างการใช้งาน
     const { prefix, firstName, lastName } = splitThaiName(employeeDetail?.Name);
-
-    console.log("คำนำหน้า:", prefix);     // นางสาว
-    console.log("ชื่อ:", firstName);       // สมส่วน
-    console.log("นามสกุล:", lastName);     // สามสี
-
-
-    console.log("GasStation : ", gasStationsDetail);
-    console.log("GasStation Oil : ", gasStationOil);
-    console.log("GasStation ID : ", gasStationID);
-    console.log("GasStation Detail : ", gasstationDetails);
 
     const handleDateChange = (newValue) => {
         if (newValue) {
@@ -170,74 +152,6 @@ const GasStationA = () => {
 
         setStatusSave(false);
     }, [gasstationDetails, gasstations, stocks]);
-
-    // const handleGasStationChange = (e) => {
-    //     setGasStation(e.target.value);
-    //     const DataGasStation = e.target.value;
-    //     database.ref("/depot/gasStations").on("value", (snapshot) => {
-    //         const datasG = snapshot.val();
-    //         const dataListG = [];
-    //         for (let idG in datasG) {
-    //             if (datasG[idG].Name === DataGasStation) {
-    //                 dataListG.push({ idG, ...datasG[idG] });
-    //                 database.ref("/depot/stock").on("value", (snapshot) => {
-    //                     const datasS = snapshot.val();
-    //                     const productsList = [];
-    //                     const dataListReport = [];
-
-    //                     for (let idS in datasS) {
-    //                         if (datasS[idS].Name === datasG[idG].Stock) {
-    //                             // ดึงเฉพาะ Products และบันทึกลง productsList
-    //                             const products = datasS[idS].Products || {};
-    //                             productsList.push(...Object.values(products)); // รวม Products ทั้งหมดเข้าใน array
-
-    //                             const report = datasG[idG].Report || {};
-    //                             dataListReport.push(...Object.values(report));
-
-    //                             // ตั้งค่า GasStationID
-    //                             setGasStationID(datasG[idG].id);
-    //                             database.ref("depot/gasStations/" + (datasG[idG].id - 1) + "/Report/" + dayjs(selectedDate).format("DD-MM-YYYY")).on("value", (snapshot) => {
-    //                                 const datas = snapshot.val();
-    //                                 const dataList = [];
-    //                                 for (let id in datas) {
-    //                                     dataList.push({ id, ...datas[id] });
-    //                                 }
-    //                                 setGasStationReport(dataList);
-    //                             });
-    //                         }
-    //                     }
-    //                     if (dataListReport.length === 0) {
-    //                         setReport(0); // ถ้าไม่มีข้อมูลใน dataListReport ให้ตั้งค่าเป็น 0
-    //                     } else {
-    //                         setReport(dataListReport); // ถ้ามีข้อมูลให้บันทึกลง state
-    //                     }
-    //                     setStock(productsList);
-    //                 })
-    //             }
-    //         }
-    //         setGasStationsOil(dataListG);
-    //         setStatusSave(false);
-    //     });
-    // };
-
-    // const [showButton, setShowButton] = useState(false);
-
-    // useEffect(() => {
-    //     const checkTime = () => {
-    //         const now = dayjs(); // เวลาปัจจุบัน
-    //         const start = dayjs().hour(17).minute(0).second(0); // 17:00
-    //         const end = dayjs().hour(20).minute(0).second(0); // 20:00
-    //         setShowButton(now.isAfter(start) && now.isBefore(end)); // อัปเดตสถานะปุ่มตามช่วงเวลา
-    //     };
-
-    //     checkTime(); // ตรวจสอบครั้งแรกเมื่อคอมโพเนนต์โหลด
-    //     const interval = setInterval(checkTime, 1000); // ตรวจสอบทุก 1 วินาที
-
-    //     return () => clearInterval(interval); // ล้าง interval เมื่อคอมโพเนนต์ถูกทำลาย
-    // }, []);
-
-    console.log("GasStation :", gasstationDetails);
-    console.log("GasStationOil ::", gasStationOil);
 
     return (
         <Container sx={{ p: { xs: 2, sm: 3, md: 4 }, maxWidth: { xs: "lg", sm: "lg", md: "lg" } }}>
@@ -343,22 +257,22 @@ const GasStationA = () => {
                                     value={prefix}
                                     sx={{
                                         '& .MuiOutlinedInput-root': {
-                                            height: '25px', // ปรับความสูงของ TextField
-                                            display: 'flex', // ใช้ flexbox
-                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                            height: '25px',
+                                            display: 'flex',
+                                            alignItems: 'center',
                                         },
                                         '& .MuiInputBase-input': {
-                                            fontSize: '18px', // ขนาด font เวลาพิมพ์
+                                            fontSize: '18px',
                                             fontWeight: 'bold',
-                                            padding: '2px 6px', // ปรับ padding ภายใน input
+                                            padding: '2px 6px',
                                             marginLeft: 2,
                                             color: "#616161"
                                         },
                                         "& .MuiInput-underline:before": {
-                                            borderBottom: "1px dashed gray", // เส้นประที่ด้านล่าง
+                                            borderBottom: "1px dashed gray",
                                         },
                                         "& .MuiInput-underline:after": {
-                                            borderBottom: "1px dashed gray", // เส้นประที่ด้านล่างหลังจากการโฟกัส
+                                            borderBottom: "1px dashed gray",
                                         }
                                     }}
                                 />
@@ -374,22 +288,22 @@ const GasStationA = () => {
                                     value={firstName}
                                     sx={{
                                         '& .MuiOutlinedInput-root': {
-                                            height: '25px', // ปรับความสูงของ TextField
-                                            display: 'flex', // ใช้ flexbox
-                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                            height: '25px',
+                                            display: 'flex',
+                                            alignItems: 'center',
                                         },
                                         '& .MuiInputBase-input': {
-                                            fontSize: '18px', // ขนาด font เวลาพิมพ์
+                                            fontSize: '18px',
                                             fontWeight: 'bold',
-                                            padding: '2px 6px', // ปรับ padding ภายใน input
+                                            padding: '2px 6px',
                                             marginLeft: 2,
                                             color: "#616161"
                                         },
                                         "& .MuiInput-underline:before": {
-                                            borderBottom: "1px dashed gray", // เส้นประที่ด้านล่าง
+                                            borderBottom: "1px dashed gray",
                                         },
                                         "& .MuiInput-underline:after": {
-                                            borderBottom: "1px dashed gray", // เส้นประที่ด้านล่างหลังจากการโฟกัส
+                                            borderBottom: "1px dashed gray",
                                         }
                                     }}
                                 />
@@ -405,22 +319,22 @@ const GasStationA = () => {
                                     value={lastName}
                                     sx={{
                                         '& .MuiOutlinedInput-root': {
-                                            height: '25px', // ปรับความสูงของ TextField
-                                            display: 'flex', // ใช้ flexbox
-                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                            height: '25px',
+                                            display: 'flex',
+                                            alignItems: 'center',
                                         },
                                         '& .MuiInputBase-input': {
-                                            fontSize: '18px', // ขนาด font เวลาพิมพ์
+                                            fontSize: '18px',
                                             fontWeight: 'bold',
-                                            padding: '2px 6px', // ปรับ padding ภายใน input
+                                            padding: '2px 6px',
                                             marginLeft: 2,
                                             color: "#616161"
                                         },
                                         "& .MuiInput-underline:before": {
-                                            borderBottom: "1px dashed gray", // เส้นประที่ด้านล่าง
+                                            borderBottom: "1px dashed gray",
                                         },
                                         "& .MuiInput-underline:after": {
-                                            borderBottom: "1px dashed gray", // เส้นประที่ด้านล่างหลังจากการโฟกัส
+                                            borderBottom: "1px dashed gray",
                                         }
                                     }}
                                 />
@@ -436,22 +350,22 @@ const GasStationA = () => {
                                     value={employeeDetail?.Position.split(":")[1]}
                                     sx={{
                                         '& .MuiOutlinedInput-root': {
-                                            height: '25px', // ปรับความสูงของ TextField
-                                            display: 'flex', // ใช้ flexbox
-                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                            height: '25px',
+                                            display: 'flex',
+                                            alignItems: 'center',
                                         },
                                         '& .MuiInputBase-input': {
-                                            fontSize: '18px', // ขนาด font เวลาพิมพ์
+                                            fontSize: '18px',
                                             fontWeight: 'bold',
-                                            padding: '2px 6px', // ปรับ padding ภายใน input
+                                            padding: '2px 6px',
                                             marginLeft: 2,
                                             color: "#616161"
                                         },
                                         "& .MuiInput-underline:before": {
-                                            borderBottom: "1px dashed gray", // เส้นประที่ด้านล่าง
+                                            borderBottom: "1px dashed gray",
                                         },
                                         "& .MuiInput-underline:after": {
-                                            borderBottom: "1px dashed gray", // เส้นประที่ด้านล่างหลังจากการโฟกัส
+                                            borderBottom: "1px dashed gray",
                                         }
                                     }}
                                 />
@@ -472,11 +386,11 @@ const GasStationA = () => {
                                             fullWidth: true,
                                             variant: "standard",
                                             inputProps: {
-                                                value: formatThaiSlash(selectedDate), // ✅ แสดงเป็น 05/11/2568
-                                                readOnly: true, // ปิดการพิมพ์เอง
+                                                value: formatThaiSlash(selectedDate),
+                                                readOnly: true,
                                             },
                                             InputProps: {
-                                                disableUnderline: false, // ยังมีเส้นอยู่
+                                                disableUnderline: false,
                                                 sx: {
                                                     '& .MuiOutlinedInput-root': {
                                                         height: '25px',
@@ -492,7 +406,6 @@ const GasStationA = () => {
                                                     },
                                                 },
                                             },
-                                            // ✅ เพิ่มเส้นประที่ด้านล่าง
                                             sx: {
                                                 "& .MuiInput-underline:before": {
                                                     borderBottom: "1px dashed gray",
@@ -518,63 +431,38 @@ const GasStationA = () => {
                                     value={gasStationsDetail?.Name}
                                     sx={{
                                         '& .MuiOutlinedInput-root': {
-                                            height: '25px', // ปรับความสูงของ TextField
-                                            display: 'flex', // ใช้ flexbox
-                                            alignItems: 'center', // จัดให้ข้อความอยู่กึ่งกลางแนวตั้ง
+                                            height: '25px',
+                                            display: 'flex',
+                                            alignItems: 'center',
                                         },
                                         '& .MuiInputBase-input': {
-                                            fontSize: '18px', // ขนาด font เวลาพิมพ์
+                                            fontSize: '18px',
                                             fontWeight: 'bold',
-                                            padding: '2px 6px', // ปรับ padding ภายใน input
+                                            padding: '2px 6px',
                                             marginLeft: 2,
                                             color: "#616161"
                                         },
                                         "& .MuiInput-underline:before": {
-                                            borderBottom: "1px dashed gray", // เส้นประที่ด้านล่าง
+                                            borderBottom: "1px dashed gray",
                                         },
                                         "& .MuiInput-underline:after": {
-                                            borderBottom: "1px dashed gray", // เส้นประที่ด้านล่างหลังจากการโฟกัส
+                                            borderBottom: "1px dashed gray",
                                         }
                                     }}
                                 />
                             </Box>
-                            {/*<Typography variant="h6" fontWeight="bold" textAlign="center" sx={{ whiteSpace: 'nowrap', marginTop: 0.5 }} gutterBottom>ชื่อปั้ม : {gasStationsDetail.Name} </Typography>
-                             <FormControl variant="standard" sx={{ m: 1, width: "100%" }}>
-                                <Select
-                                    labelId="demo-simple-select-standard-label"
-                                    id="demo-simple-select-standard"
-                                    value={gasStation}
-                                    onChange={handleGasStationChange}
-                                    fullWidth
-                                >
-                                    <MenuItem value={0}>กรุณาเลือกปั้ม</MenuItem>
-                                    {
-                                        [...new Set(gasStations.map(row => row.Name))].map((name) => (
-                                            <MenuItem key={name} value={name}>{name}</MenuItem>
-                                        ))
-                                    }
-
-                                </Select>
-                            </FormControl> */}
                         </Grid>
-                        {/* <Grid item xs={5} md={3} lg={2} textAlign="right">
-                            {
-                                openOil === true || openOil === false ? <Button variant="contained" color="error" onClick={() => setOpenOil("")}>ย้อนกลับ</Button> : ""
-                            }
-                        </Grid> */}
                     </Grid>
                     {gasStationOil.map((row, index) => {
-                        const prevIndex = index - 1; // index ก่อนหน้า
-                        const prevGas = gasStationOil[prevIndex] || {}; // ✅ ใช้ {} แทน []
-                        const latestGas = gasStationOil[index] || {}; // ✅ ใช้ {} แทน []
+                        const prevIndex = index - 1;
+                        const prevGas = gasStationOil[prevIndex] || {};
+                        const latestGas = gasStationOil[index] || {};
 
                         const selectedDateKey = dayjs(selectedDate).format("DD-MM-YYYY");
 
-                        // ตรวจสอบว่ามีค่าเป็นอาร์เรย์ก่อนใช้ spread operator
                         const prevReport = Array.isArray(prevGas.Report?.[selectedDateKey]) ? [...prevGas.Report[selectedDateKey]] : [];
                         const latestReport = Array.isArray(latestGas.Report?.[selectedDateKey]) ? [...latestGas.Report[selectedDateKey]] : [];
 
-                        // ตรวจสอบข้อมูลซ้ำ
                         const reportOilBalance = prevReport.map((prevItem) => {
                             const matchingLatestItem = latestReport.find(
                                 (latestItem) => latestItem.ProductName === prevItem.ProductName
@@ -622,10 +510,7 @@ const GasStationA = () => {
                                 <GasStationDetail
                                     stock={stock}
                                     gasStationID={gasStationID}
-                                    // report={report}
-                                    // gasStationReport={gasStationReport}
                                     selectedDate={selectedDate}
-                                    // gasStationOil={gasStationOil}
                                     isToday={isToday}
                                     gas={row}
                                     gasID={index}

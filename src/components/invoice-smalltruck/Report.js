@@ -75,11 +75,6 @@ const ReportPaymentSmallTruck = ({ openNavbar }) => {
     const filteredItemsRef = useRef([]);
     const incomingMoneyRef = useRef([]);
 
-    console.log("sortConfig : ", sortConfig);
-    console.log("filteredItem รายการย่อย:", filteredItemsRef.current);
-    console.log("flattened รายการย่อย:", flattenedRef.current);
-    console.log("IncomingMoney รายการย่อย:", incomingMoneyRef.current);
-
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
     useEffect(() => {
@@ -161,10 +156,8 @@ const ReportPaymentSmallTruck = ({ openNavbar }) => {
         }
     };
 
-    // const { reportFinancial, drivers } = useData();
     const { drivers, customertransports, customergasstations, customerbigtruck, customersmalltruck, customertickets } = useBasicData();
     const { order, transferMoney } = useTripData();
-    // const orders = Object.values(order || {});
     const orders = Object.values(order || {}).filter(item => {
         const itemDate = dayjs(item.Date, "DD/MM/YYYY");
         return itemDate.isSameOrAfter(dayjs("01/01/2026", "DD/MM/YYYY"), 'day');
@@ -176,58 +169,6 @@ const ReportPaymentSmallTruck = ({ openNavbar }) => {
     const ticketsS = Object.values(customersmalltruck || {});
     const ticketsA = Object.values(customertickets || {});
     const transferMoneyDetail = Object.values(transferMoney || {});
-
-    console.log("Select Driver ID : ", selectDriver);
-    // const orderDetail = orders
-    //     .filter((item) => {
-    //         const itemDate = dayjs(item.Date, "DD/MM/YYYY");
-    //         const customerId = Number(item.TicketName.split(":")[0]);
-    //         console.log("checks : ", check);
-    //         let isInCompany =
-    //             check === 1 ?
-    //                 ticketsB.find((customer) => customer.id === Number(item.TicketName.split(":")[0]))
-    //                 : check === 2 ?
-    //                     ticketsB.find((customer) => customer.id === Number(item.TicketName.split(":")[0]) && customer.StatusCompany === "อยู่บริษัทในเครือ")
-    //                     : ticketsB.find((customer) => customer.id === Number(item.TicketName.split(":")[0]) && customer.StatusCompany === "ไม่อยู่บริษัทในเครือ");
-
-    //         return (
-    //             isInCompany && // <--- ป้องกัน error
-    //             isInCompany.id === customerId &&
-    //             item.CustomerType === "ตั๋วรถใหญ่" &&
-    //             item.Trip !== "ยกเลิก" &&
-    //             itemDate.isBetween(selectedDateStart, selectedDateEnd, null, "[]") // "[]" คือรวมวันที่ปลายทางด้วย
-    //         );
-    //     })
-    //     .map((item) => {
-    //         let totalVolume = 0;
-    //         let totalAmount = 0;
-    //         let totalOverdue = 0;
-
-    //         const totalIncomingMoney = transferMoneyDetail
-    //             .filter(trans => trans.TicketNo === item.No)
-    //             .reduce((sum, trans) => {
-    //                 const value = parseFloat(trans.IncomingMoney) || 0;
-    //                 return sum + value;
-    //             }, 0);
-
-    //         Object.entries(item.Product).forEach(([key, value]) => {
-    //             if (key !== "P") {
-    //                 totalVolume += parseFloat(value.Volume || 0);
-    //                 totalAmount += parseFloat(value.Amount || 0);
-    //             }
-    //         });
-    //         return {
-    //             ...item,
-    //             TotalVolume: totalVolume,
-    //             TotalAmount: totalAmount,
-    //             TotalOverdue: totalIncomingMoney,
-    //         };
-    //     }).sort((a, b) => a.TicketName.localeCompare(b.TicketName));
-
-    console.log("transfer : ", transferMoneyDetail
-        .filter(trans => trans.TicketName === "15:C.สหพานิช"));
-
-    console.log("orders : ", orders.filter((t) => t.TicketName === "15:C.สหพานิช"));
 
     const orderDetail = useMemo(() => {
         if (!selectedDateStart || !selectedDateEnd) return [];
@@ -271,8 +212,6 @@ const ReportPaymentSmallTruck = ({ openNavbar }) => {
 
             const incomingMoneyDetail = transferMoneyDetail
                 .filter(trans => trans.TicketNo === item.No)
-
-            console.log("show incoming : ", incomingMoneyDetail);
 
             return Object.entries(item.Product)
                 .filter(([productName]) => productName !== "P")
@@ -399,10 +338,6 @@ const ReportPaymentSmallTruck = ({ openNavbar }) => {
         return customers.filter((item) => item.id || item.TicketsCode);
     };
 
-
-    console.log("Order Detail : ", orderDetail);
-    console.log("Select Tickets : ", selectTickets);
-
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const pageCount = Math.max(1, Math.ceil(sortedOrderDetail.length / rowsPerPage));
@@ -486,7 +421,6 @@ const ReportPaymentSmallTruck = ({ openNavbar }) => {
         const buffer = await workbook.xlsx.writeBuffer();
         saveAs(new Blob([buffer]), `รายงานชำระค่าน้ำมัน_${dayjs().format("YYYYMMDD_HHmmss")}.xlsx`);
     };
-
 
     return (
         <Container maxWidth="xl" sx={{ marginTop: 13, marginBottom: 5, width: windowWidth <= 900 && windowWidth > 600 ? (windowWidth - 110) : windowWidth <= 600 ? (windowWidth) : (windowWidth - 230) }}>
@@ -584,64 +518,6 @@ const ReportPaymentSmallTruck = ({ openNavbar }) => {
                                 </Box>
                             </Grid>
                             <Grid item sm={12} lg={7}>
-                                {/* <Paper>
-                            <Paper>
-                                <Autocomplete
-                                    id="autocomplete-tickets"
-                                    options={getCustomers()}
-                                    getOptionLabel={(option) => selectTickets === "0:แสดงทั้งหมด" ? option.Name : `${option.Name} (${option.CustomerType})`}
-                                    isOptionEqualToValue={(option, value) =>
-                                        option.id === value.id && option.Name === value.Name
-                                    }
-                                    value={
-                                        selectTickets
-                                            ? getCustomers().find(item => `${item.id}:${item.Name}` === selectTickets)
-                                            : null
-                                    }
-                                    onChange={(event, newValue) => {
-                                        if (newValue) {
-                                            handleChangeTickets({ target: { value: `${newValue.id}:${newValue.Name}` } });
-                                        } else {
-                                            handleChangeTickets({ target: { value: "" } });
-                                        }
-                                    }}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            variant="outlined"
-                                            size="small"
-                                            label=""
-                                            InputProps={{
-                                                ...params.InputProps,
-                                                startAdornment: (
-                                                    <InputAdornment position="start" sx={{ marginRight: 1 }}>
-                                                        กรุณาเลือกตั๋ว :
-                                                    </InputAdornment>
-                                                ),
-                                                sx: {
-                                                    height: "40px",
-                                                    fontSize: "18px",
-                                                    paddingRight: "8px",
-                                                },
-                                            }}
-                                            InputLabelProps={{ shrink: false }}
-                                        />
-                                    )}
-                                    renderOption={(props, option) => (
-                                        <li {...props}>
-                                            <Typography fontSize="16px">
-                                                {selectTickets === "0:แสดงทั้งหมด" ? option.Name : `${option.Name} (${option.CustomerType})`}
-                                            </Typography>
-                                        </li>
-                                    )}
-                                    ListboxProps={{
-                                        style: {
-                                            maxHeight: 250,
-                                        },
-                                    }}
-                                />
-                            </Paper>
-                        </Paper> */}
                                 <FormGroup row sx={{ marginBottom: -1.5 }}>
                                     <Typography variant="subtitle1" fontWeight="bold" sx={{ marginTop: 1, marginRight: 2 }} gutterBottom>กรุณาเลือกสถานะที่ต้องการ : </Typography>
                                     <FormControlLabel control={<Checkbox color="pink" checked={check === 1 ? true : false} />} onChange={() => setCheck(1)} label="ทั้งหมด" />
@@ -725,64 +601,6 @@ const ReportPaymentSmallTruck = ({ openNavbar }) => {
                                 </Box>
                             </Grid>
                             <Grid item xs={12}>
-                                {/* <Paper>
-                            <Paper>
-                                <Autocomplete
-                                    id="autocomplete-tickets"
-                                    options={getCustomers()}
-                                    getOptionLabel={(option) => selectTickets === "0:แสดงทั้งหมด" ? option.Name : `${option.Name} (${option.CustomerType})`}
-                                    isOptionEqualToValue={(option, value) =>
-                                        option.id === value.id && option.Name === value.Name
-                                    }
-                                    value={
-                                        selectTickets
-                                            ? getCustomers().find(item => `${item.id}:${item.Name}` === selectTickets)
-                                            : null
-                                    }
-                                    onChange={(event, newValue) => {
-                                        if (newValue) {
-                                            handleChangeTickets({ target: { value: `${newValue.id}:${newValue.Name}` } });
-                                        } else {
-                                            handleChangeTickets({ target: { value: "" } });
-                                        }
-                                    }}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            variant="outlined"
-                                            size="small"
-                                            label=""
-                                            InputProps={{
-                                                ...params.InputProps,
-                                                startAdornment: (
-                                                    <InputAdornment position="start" sx={{ marginRight: 1 }}>
-                                                        กรุณาเลือกตั๋ว :
-                                                    </InputAdornment>
-                                                ),
-                                                sx: {
-                                                    height: "40px",
-                                                    fontSize: "18px",
-                                                    paddingRight: "8px",
-                                                },
-                                            }}
-                                            InputLabelProps={{ shrink: false }}
-                                        />
-                                    )}
-                                    renderOption={(props, option) => (
-                                        <li {...props}>
-                                            <Typography fontSize="16px">
-                                                {selectTickets === "0:แสดงทั้งหมด" ? option.Name : `${option.Name} (${option.CustomerType})`}
-                                            </Typography>
-                                        </li>
-                                    )}
-                                    ListboxProps={{
-                                        style: {
-                                            maxHeight: 250,
-                                        },
-                                    }}
-                                />
-                            </Paper>
-                        </Paper> */}
                                 <FormGroup row sx={{ marginBottom: -1.5 }}>
                                     <Typography variant="subtitle1" fontWeight="bold" sx={{ marginTop: 1, marginRight: 2 }} gutterBottom>กรุณาเลือกสถานะที่ต้องการ : </Typography>
                                     <FormControlLabel control={<Checkbox color="pink" checked={check === 1 ? true : false} />} onChange={() => setCheck(1)} label="ทั้งหมด" />
@@ -961,8 +779,6 @@ const ReportPaymentSmallTruck = ({ openNavbar }) => {
                                 </Paper>
                             </Grid>
                             <Grid item xs={3}>
-                                {/* <Box sx={{ display: "flex", alignItems: "center", justifyContent: "right", marginRight: 2 }}>
-                                    <Typography variant="h6" sx={{ marginRight: 1, fontWeight: "bold" }} gutterBottom>รวมลิตร</Typography> */}
                                 <Paper sx={{ backgroundColor: "white" }}>
                                     <TextField
                                         fullWidth
@@ -1001,7 +817,6 @@ const ReportPaymentSmallTruck = ({ openNavbar }) => {
                                     />
 
                                 </Paper>
-                                {/* </Box> */}
                             </Grid>
                             <Grid item xs={3}>
                                 <Paper sx={{ backgroundColor: "white" }}>
@@ -1042,12 +857,6 @@ const ReportPaymentSmallTruck = ({ openNavbar }) => {
                                     />
 
                                 </Paper>
-                                {/* <Box sx={{ display: "flex", alignItems: "center", justifyContent: "left", marginLeft: 2 }}>
-                                    <Typography variant="h6" sx={{ marginRight: 1, fontWeight: "bold" }} gutterBottom>ยอดเงิน</Typography>
-                                    <Paper>
-                                        <TextField fullWidth size="small" value={new Intl.NumberFormat("en-US").format(totalAmount)} />
-                                    </Paper>
-                                </Box> */}
                             </Grid>
                             <Grid item xs={3}>
                                 <Paper sx={{ backgroundColor: "white" }}>

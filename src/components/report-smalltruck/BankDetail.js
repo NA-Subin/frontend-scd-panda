@@ -73,12 +73,12 @@ const BankDetail = () => {
         setOpen(false);
     };
 
-    const [updateId, setUpdateId] = useState(null); // เก็บ ID ที่กำลังแก้ไข
-    const [editedData, setEditedData] = useState({}); // เก็บค่าที่แก้ไข
+    const [updateId, setUpdateId] = useState(null);
+    const [editedData, setEditedData] = useState({});
 
     const handleEditClick = (id, row) => {
-        setUpdateId(id); // ตั้งค่า ID ที่ต้องการแก้ไข
-        setEditedData({ ...row }); // คัดลอกค่าของ row นั้นมาเก็บไว้
+        setUpdateId(id);
+        setEditedData({ ...row });
     };
 
     const handleSaveClick = async () => {
@@ -96,7 +96,7 @@ const BankDetail = () => {
             setBank("")
             setBankShortName("")
             setStatus("")
-            setUpdateId(null); // รีเซ็ตค่า updateId กลับเป็น null
+            setUpdateId(null);
             refetch?.();
         } catch (error) {
             ShowError("เพิ่มข้อมูลไม่สำเร็จ");
@@ -110,8 +110,6 @@ const BankDetail = () => {
             [field]: value,
         }));
     };
-
-    console.log("editedData : ", editedData);
 
     const handlePost = async () => {
         try {
@@ -316,7 +314,7 @@ const BankDetail = () => {
                                                                 color="warning"
                                                                 startIcon={<EditNoteIcon />}
                                                                 sx={{ height: "25px" }}
-                                                                onClick={() => handleEditClick(row.uuid, row)} // ✅ ใช้ arrow function
+                                                                onClick={() => handleEditClick(row.uuid, row)}
                                                                 size="small"
                                                                 fullWidth
                                                             >
