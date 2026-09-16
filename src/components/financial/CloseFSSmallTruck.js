@@ -393,9 +393,10 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
             totalProfitLoss += row.ProfitLoss || 0;
 
             (row.Registration || []).forEach((d) => {
-                // const driverName = d.DriverName || "";
-                const regis = d.RegistrationName || "";
-                const key = regis;
+                // Keyed by the truck's real Registration (uuid), not its
+                // display RegistrationName - see the matching comment in
+                // grandTotal's driverTotals below for why.
+                const key = d.Registration || "";
 
                 if (!driverTransport[key]) {
                     driverTransport[key] = {
@@ -446,9 +447,12 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
             totalVolume += row.Volume || 0;
 
             (row.Registration || []).forEach((d) => {
-                // const driverName = d.DriverName || "";
-                const regis = d.RegistrationName || "";
-                const key = regis;
+                // Keyed by the truck's real Registration (uuid), not its
+                // display RegistrationName - two different trucks can share
+                // the same display text (e.g. several unassigned trucks all
+                // showing "ไม่มี"), which would otherwise silently sum their
+                // money together under one shared bucket.
+                const key = d.Registration || "";
 
                 if (!driverTotals[key]) {
                     driverTotals[key] = {
@@ -1181,8 +1185,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
                 // "",
                 total,
                 ...driverGroups.map((row) => {
-                    const regis = row.RegistrationName || "";
-                    const key = regis;
+                    const key = row.Registration || "";
 
                     const found = driverTotals[key];
 
@@ -1207,8 +1210,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
             // "",
             (grandTotal?.Transport + grandTotal?.ProfitLoss),
             ...driverGroups.map((row) => {
-                const regis = row.RegistrationName || "";
-                const key = regis;
+                const key = row.Registration || "";
 
                 const total = grandTotal.driverTotals[key];
                 return (total?.Transport || 0) + (total?.ProfitLoss || 0);
@@ -1309,8 +1311,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
             ...driverGroups.map((row) => {
                 const key = row._key; // ✅ ใช้อันเดียว
 
-                const regis = row.RegistrationName || "";
-                const keys = regis;
+                const keys = row.Registration || "";
 
                 const total1 = grandTotal.driverTotals[keys];
 
@@ -1684,8 +1685,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
                                             }).format(total || 0)}
                                         </TableCell>
                                         {driverGroups.map((row) => {
-                                            const regis = row.RegistrationName || "";
-                                            const key = regis;
+                                            const key = row.Registration || "";
 
                                             const found = driverTotals[key];
 
@@ -1766,8 +1766,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
                                 </TableCell>
 
                                 {driverGroups.map((row) => {
-                                    const regis = row.RegistrationName || "";
-                                    const key = regis;
+                                    const key = row.Registration || "";
 
                                     const total = grandTotal.driverTotals[key];
 
@@ -2041,8 +2040,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
                                 {driverGroups.map((row) => {
                                     const key = row._key; // ✅ ใช้อันเดียว
 
-                                    const regis = row.RegistrationName || "";
-                                    const keys = `${regis}`;
+                                    const keys = row.Registration || "";
 
                                     const total1 = grandTotal.driverTotals[keys];
 
