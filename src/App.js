@@ -89,6 +89,7 @@ const ShowSessionExpired = (navigate) => {
   }).then(() => {
     Cookies.remove("user");
     Cookies.remove("sessionToken");
+    Cookies.remove("token");
     Cookies.remove("password");
     navigate("/login");
   });
