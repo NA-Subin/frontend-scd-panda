@@ -29,6 +29,7 @@ const EMPTY_BASIC_DATA = {
     expenseitems: {},
     quotation: {},
     inspection: {},
+    products: {},
 };
 
 // Poll interval to approximate the old Firebase realtime listeners without
