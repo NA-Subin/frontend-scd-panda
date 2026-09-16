@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   Checkbox,
+  CircularProgress,
   Avatar,
   Chip,
   Container,
@@ -28,6 +29,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import LockResetIcon from '@mui/icons-material/LockReset';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import PasswordIcon from '@mui/icons-material/Password';
 import BusinessIcon from '@mui/icons-material/Business';
@@ -129,6 +131,43 @@ const Setting = () => {
   const [checkDriverData, setCheckDriverData] = useState("");
   const [updatePosition, setUpdatePosition] = React.useState(true);
   const [name, setName] = useState("");
+
+  // Reset the shared access code for the login-page bootstrap-import door
+  // (see bootstrapImportAccess.js on the backend) - admin-only, same
+  // inline toggle-panel pattern as the backup-page password reset.
+  const [showChangeBootstrapCode, setShowChangeBootstrapCode] = useState(false);
+  const [bootstrapOldCode, setBootstrapOldCode] = useState("");
+  const [bootstrapNewCode, setBootstrapNewCode] = useState("");
+  const [bootstrapConfirmCode, setBootstrapConfirmCode] = useState("");
+  const [showBootstrapCodes, setShowBootstrapCodes] = useState(false);
+  const [changingBootstrapCode, setChangingBootstrapCode] = useState(false);
+
+  const handleChangeBootstrapCode = async () => {
+    if (!bootstrapOldCode || !bootstrapNewCode) {
+      ShowError("กรุณากรอกรหัสผ่านเดิมและรหัสผ่านใหม่");
+      return;
+    }
+    if (bootstrapNewCode !== bootstrapConfirmCode) {
+      ShowError("รหัสผ่านใหม่ทั้งสองช่องไม่ตรงกัน");
+      return;
+    }
+    setChangingBootstrapCode(true);
+    try {
+      await apiPost("/api/admin/bootstrap-import-access/reset", {
+        oldPassword: bootstrapOldCode,
+        newPassword: bootstrapNewCode,
+      });
+      ShowSuccess("เปลี่ยนรหัสผ่านสำหรับนำเข้าข้อมูลเริ่มต้นระบบสำเร็จ");
+      setBootstrapOldCode("");
+      setBootstrapNewCode("");
+      setBootstrapConfirmCode("");
+      setShowChangeBootstrapCode(false);
+    } catch (err) {
+      ShowError(err?.data?.error || "เปลี่ยนรหัสผ่านไม่สำเร็จ");
+    } finally {
+      setChangingBootstrapCode(false);
+    }
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -1007,6 +1046,7 @@ const Setting = () => {
                     />
                   </Paper>
                   :
+                  <>
                   <Paper sx={{ height: "70vh", borderRadius: 5, padding: 2 }}>
                     <Typography variant="h6" fontWeight="bold" textAlign="center">จัดการสิทธิ์เข้าใช้งานระบบ</Typography>
                     <Box display="flex" justifyContent="center" alignItems="center" flexWrap="wrap" gap={2} sx={{ mb: 0.5 }}>
@@ -1335,6 +1375,78 @@ const Setting = () => {
                     </Grid>
 
                   </Paper>
+                  <Box sx={{ mt: 3 }}>
+                    <Button
+                      variant="text"
+                      color="inherit"
+                      startIcon={<LockResetIcon />}
+                      onClick={() => setShowChangeBootstrapCode((v) => !v)}
+                      sx={{ fontWeight: "bold" }}
+                    >
+                      เปลี่ยนรหัสผ่านสำหรับนำเข้าข้อมูลเริ่มต้นระบบ (หน้า Login)
+                    </Button>
+                    {showChangeBootstrapCode && (
+                      <Paper variant="outlined" sx={{ p: 2.5, mt: 1, borderRadius: 3, maxWidth: 500 }}>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                          รหัสผ่านนี้ใช้สำหรับปุ่ม "นำเข้าข้อมูลเริ่มต้นระบบ" ที่หน้า Login เท่านั้น (ใช้ตอนติดตั้งระบบใหม่บนฐานข้อมูลที่ยังไม่มีข้อมูล) ต้องกรอกรหัสผ่านเดิมให้ถูกต้องก่อน จึงจะตั้งรหัสผ่านใหม่ได้
+                        </Typography>
+                        <Grid container spacing={1.5}>
+                          <Grid item xs={12}>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              label="รหัสผ่านเดิม"
+                              type={showBootstrapCodes ? "text" : "password"}
+                              value={bootstrapOldCode}
+                              onChange={(e) => setBootstrapOldCode(e.target.value)}
+                            />
+                          </Grid>
+                          <Grid item xs={12}>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              label="รหัสผ่านใหม่"
+                              type={showBootstrapCodes ? "text" : "password"}
+                              value={bootstrapNewCode}
+                              onChange={(e) => setBootstrapNewCode(e.target.value)}
+                            />
+                          </Grid>
+                          <Grid item xs={12}>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              label="ยืนยันรหัสผ่านใหม่"
+                              type={showBootstrapCodes ? "text" : "password"}
+                              value={bootstrapConfirmCode}
+                              onChange={(e) => setBootstrapConfirmCode(e.target.value)}
+                              InputProps={{
+                                endAdornment: (
+                                  <InputAdornment position="end">
+                                    <IconButton size="small" onClick={() => setShowBootstrapCodes((v) => !v)}>
+                                      {showBootstrapCodes ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                                    </IconButton>
+                                  </InputAdornment>
+                                ),
+                              }}
+                            />
+                          </Grid>
+                          <Grid item xs={12} textAlign="right">
+                            <Button
+                              variant="contained"
+                              color="success"
+                              disabled={changingBootstrapCode}
+                              onClick={handleChangeBootstrapCode}
+                              startIcon={changingBootstrapCode ? <CircularProgress size={16} color="inherit" /> : null}
+                              sx={{ borderRadius: 3, fontWeight: "bold" }}
+                            >
+                              บันทึกรหัสผ่านใหม่
+                            </Button>
+                          </Grid>
+                        </Grid>
+                      </Paper>
+                    )}
+                  </Box>
+                  </>
             }
           </Grid>
         </Grid>

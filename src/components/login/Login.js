@@ -1,9 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
+  CircularProgress,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Grid,
+  IconButton,
   InputAdornment,
   Paper,
   TextField,
@@ -13,22 +19,138 @@ import theme from "../../theme/theme";
 import { Link, useNavigate } from "react-router-dom";
 import EmailIcon from "@mui/icons-material/Email";
 import PasswordIcon from "@mui/icons-material/Password";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
+import LockIcon from "@mui/icons-material/Lock";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import {
+  ShowConfirm,
   ShowError,
   ShowInfo,
-  ShowSuccess,
   ShowWarning,
 } from "../sweetalert/sweetalert";
 import Logo from "../../theme/img/logoPanda.jpg";
 import Cookies from 'js-cookie';
-import { apiPost } from "../../server/apiClient";
+import { apiGet, apiPost } from "../../server/apiClient";
 import { useBasicData } from "../../server/provider/BasicDataProvider";
+
+// Same shape as the identical helper in Choose.js - kept as a local
+// duplicate rather than a shared import since it's this small and the two
+// import flows (post-login vs. pre-login bootstrap) are deliberately kept
+// independent.
+const buildImportIssuesList = (result) => {
+  const issues = [...(result.warnings || [])];
+  for (const fk of result.fkReferencesNotResolved || []) {
+    issues.push(`เชื่อมข้อมูลไม่สำเร็จ ${fk.unresolvedRefs} รายการที่ "${fk.field}" (ไม่พบแถวปลายทางที่อ้างอิงถึง)`);
+  }
+  return issues;
+};
 
 const Login = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState("");
   const [password, setPassword] = useState("");
   const { refetch: refetchBasicData } = useBasicData();
+
+  // Bootstrap import (login-page JSON import for a brand-new, empty
+  // database) - only offered while the DB genuinely has no account yet;
+  // self-hides the moment that's no longer true.
+  const [showBootstrapImport, setShowBootstrapImport] = useState(false);
+  const [bootstrapOpen, setBootstrapOpen] = useState(false);
+  const [bootstrapFile, setBootstrapFile] = useState(null);
+  const [bootstrapCode, setBootstrapCode] = useState("");
+  const [showBootstrapCode, setShowBootstrapCode] = useState(false);
+  const [bootstrapSubmitting, setBootstrapSubmitting] = useState(false);
+  const bootstrapFileInputRef = useRef(null);
+
+  useEffect(() => {
+    let mounted = true;
+    apiGet("/api/bootstrap-import/status")
+      .then((res) => {
+        if (mounted) setShowBootstrapImport(!!res?.available);
+      })
+      .catch(() => {
+        if (mounted) setShowBootstrapImport(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const handleOpenBootstrapDialog = () => {
+    setBootstrapFile(null);
+    setBootstrapCode("");
+    setShowBootstrapCode(false);
+    setBootstrapOpen(true);
+  };
+
+  const handleCloseBootstrapDialog = () => {
+    if (bootstrapSubmitting) return;
+    setBootstrapOpen(false);
+  };
+
+  const handleBootstrapFileChange = (event) => {
+    setBootstrapFile(event.target.files?.[0] || null);
+    event.target.value = "";
+  };
+
+  const handleBootstrapSubmit = () => {
+    if (!bootstrapFile) {
+      ShowError("กรุณาเลือกไฟล์ JSON");
+      return;
+    }
+    if (!bootstrapCode) {
+      ShowError("กรุณากรอกรหัสผ่าน");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      let data;
+      try {
+        data = JSON.parse(reader.result);
+      } catch {
+        ShowError("ไฟล์ไม่ถูกต้อง", "อ่านไฟล์ JSON ไม่สำเร็จ กรุณาตรวจสอบไฟล์อีกครั้ง");
+        return;
+      }
+
+      ShowConfirm(
+        `นำเข้าข้อมูลจาก "${bootstrapFile.name}" เพื่อสร้างฐานข้อมูลเริ่มต้นใช่หรือไม่?`,
+        async () => {
+          setBootstrapSubmitting(true);
+          try {
+            const result = await apiPost("/api/bootstrap-import", { code: bootstrapCode, data });
+            const issues = buildImportIssuesList(result);
+            if (issues.length) {
+              ShowWarning(
+                `นำเข้าข้อมูลสำเร็จ (${result.tables} ตาราง, ${result.totalRows} แถว) แต่พบข้อควรตรวจสอบ`,
+                <ul style={{ textAlign: "left", margin: 0, paddingLeft: 18 }}>
+                  {issues.map((line, i) => (
+                    <li key={i}>{line}</li>
+                  ))}
+                </ul>
+              );
+            } else {
+              ShowInfo(
+                `นำเข้าข้อมูลสำเร็จ (${result.tables} ตาราง, ${result.totalRows} แถว)`,
+                "กรุณาเข้าสู่ระบบด้วยบัญชีจากข้อมูลที่นำเข้า"
+              );
+            }
+            setBootstrapOpen(false);
+            setShowBootstrapImport(false);
+          } catch (err) {
+            ShowError("นำเข้าข้อมูลไม่สำเร็จ", err?.data?.error || err.message);
+          } finally {
+            setBootstrapSubmitting(false);
+          }
+        }
+      );
+    };
+    reader.onerror = () => {
+      ShowError("อ่านไฟล์ไม่สำเร็จ", "");
+    };
+    reader.readAsText(bootstrapFile);
+  };
 
   const loginUser = async (event) => {
     event.preventDefault();
@@ -188,6 +310,19 @@ const Login = () => {
                 เข้าสู่ระบบ
               </Button>
             </Grid>
+            {showBootstrapImport && (
+              <Grid item xs={12} textAlign="center">
+                <Button
+                  variant="text"
+                  color="inherit"
+                  size="small"
+                  startIcon={<UploadFileIcon fontSize="small" />}
+                  onClick={handleOpenBootstrapDialog}
+                >
+                  นำเข้าข้อมูลเริ่มต้นระบบ (ติดตั้งใหม่)
+                </Button>
+              </Grid>
+            )}
           </Grid>
         </Box>
         <Box
@@ -199,6 +334,68 @@ const Login = () => {
           }}
         />
       </Paper>
+      <Dialog open={bootstrapOpen} onClose={handleCloseBootstrapDialog} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <LockIcon color="warning" />
+          นำเข้าข้อมูลเริ่มต้นระบบ
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            ใช้สำหรับติดตั้งระบบใหม่บนฐานข้อมูลที่ยังไม่มีข้อมูลเท่านั้น จะสร้างตารางและนำเข้าข้อมูลจากไฟล์ Firebase export ทั้งหมด
+          </Typography>
+          <input
+            type="file"
+            accept="application/json,.json"
+            ref={bootstrapFileInputRef}
+            style={{ display: "none" }}
+            onChange={handleBootstrapFileChange}
+          />
+          <Button
+            variant="outlined"
+            fullWidth
+            startIcon={<UploadFileIcon />}
+            onClick={() => bootstrapFileInputRef.current?.click()}
+            sx={{ mb: 2 }}
+          >
+            {bootstrapFile ? bootstrapFile.name : "เลือกไฟล์ JSON"}
+          </Button>
+          <TextField
+            autoFocus
+            fullWidth
+            size="small"
+            type={showBootstrapCode ? "text" : "password"}
+            label="รหัสผ่าน"
+            value={bootstrapCode}
+            onChange={(e) => setBootstrapCode(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleBootstrapSubmit();
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={() => setShowBootstrapCode((v) => !v)} edge="end">
+                    {showBootstrapCode ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={handleCloseBootstrapDialog} disabled={bootstrapSubmitting}>
+            ยกเลิก
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleBootstrapSubmit}
+            disabled={bootstrapSubmitting || !bootstrapFile || !bootstrapCode}
+            startIcon={bootstrapSubmitting ? <CircularProgress color="inherit" size={16} /> : null}
+          >
+            นำเข้าข้อมูล
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };
