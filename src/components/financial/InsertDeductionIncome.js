@@ -418,9 +418,7 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
 
                                             let regHead = "";
                                             if (option?.Registration !== "0:ไม่มี") {
-                                                regHead = option?.Registration?.includes(":")
-                                                    ? option.RegistrationName
-                                                    : option?.Registration || "";
+                                                regHead = option?.RegistrationName || option?.Registration || "";
                                             } else {
                                                 regHead = "( ไม่ได้ผูกทะเบียนรถ )";
                                             }
@@ -428,9 +426,7 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
                                             let regTail = "";
                                             if (option?.TruckType === "รถใหญ่") {
                                                 if (option?.RegTail !== "0:ไม่มี") {
-                                                    regTail = option.RegTail.includes(":")
-                                                        ? `/${option.RegTailName}`
-                                                        : `/${option.RegTail}`;
+                                                    regTail = `/${option?.RegTailName || option?.RegTail || ""}`;
                                                 } else {
                                                     regTail = "( ไม่ได้ผูกทะเบียนหาง )"
                                                 }
@@ -466,9 +462,7 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
 
                                             let regHead = "";
                                             if (option?.Registration !== "0:ไม่มี") {
-                                                regHead = option?.Registration?.includes(":")
-                                                    ? option.RegistrationName
-                                                    : option?.Registration || "";
+                                                regHead = option?.RegistrationName || option?.Registration || "";
                                             } else {
                                                 regHead = "( ไม่ได้ผูกทะเบียนรถ )";
                                             }
@@ -476,9 +470,7 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
                                             let regTail = "";
                                             if (option?.TruckType === "รถใหญ่") {
                                                 if (option?.RegTail !== "0:ไม่มี") {
-                                                    regTail = option.RegTail.includes(":")
-                                                        ? `/${option.RegTailName}`
-                                                        : `/${option.RegTail}`;
+                                                    regTail = `/${option?.RegTailName || option?.RegTail || ""}`;
                                                 } else {
                                                     regTail = "( ไม่ได้ผูกทะเบียนหาง )"
                                                 }
