@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
     Box,
     Button,
@@ -42,9 +42,13 @@ const GasStationA = () => {
     const navigate = useNavigate();
     const { officers } = useBasicData();
     const { gasstationDetail, stockDetail, refetch: refetchGasStationData } = useGasStationData();
-    const stocks = Object.values(stockDetail || {});
+    // Object.values() built a fresh array every render, which made the
+    // useEffect below (depending on gasstations/stocks) fire on every
+    // render and re-set state each time - an infinite render loop. Memoize
+    // so the array reference only changes when the underlying data does.
+    const stocks = useMemo(() => Object.values(stockDetail || {}), [stockDetail]);
     const employee = Object.values(officers || {});
-    const gasstations = Object.values(gasstationDetail || {});
+    const gasstations = useMemo(() => Object.values(gasstationDetail || {}), [gasstationDetail]);
     const employeeDetail = employee.find((emp) => (emp.id === Number(userId.split("$")[1])));
     // employee_officers.GasStation is a real UUID FK into depot_gas_stations
     // now, not "id:name" text - match on uuid directly.

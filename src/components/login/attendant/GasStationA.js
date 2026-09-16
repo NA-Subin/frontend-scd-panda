@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
     Box,
     Button,
@@ -43,8 +43,12 @@ const GasStationAdmin = () => {
 
     const navigate = useNavigate();
     const { gasstationDetail, stockDetail } = useGasStationData();
-    const gasstations = Object.values(gasstationDetail || {});
-    const stocks = Object.values(stockDetail || {});
+    // Object.values() built a fresh array every render, which made the
+    // useEffect below (depending on gasstations/stocks) fire on every
+    // render and re-set state each time - an infinite render loop. Memoize
+    // so the array reference only changes when the underlying data does.
+    const gasstations = useMemo(() => Object.values(gasstationDetail || {}), [gasstationDetail]);
+    const stocks = useMemo(() => Object.values(stockDetail || {}), [stockDetail]);
     const [open, setOpen] = React.useState(true);
     const [openOil, setOpenOil] = React.useState(true);
     const [gasStationOil, setGasStationsOil] = useState([]);

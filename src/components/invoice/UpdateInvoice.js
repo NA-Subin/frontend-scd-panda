@@ -2036,7 +2036,6 @@ const UpdateInvoice = (props) => {
                       เงินเข้า
                     </Typography>
                     <Paper
-                      component="form"
                       sx={{ width: "100%", marginTop: -0.5 }}
                     >
                       <LocalizationProvider
@@ -2109,7 +2108,7 @@ const UpdateInvoice = (props) => {
                     >
                       บัญชี
                     </Typography>
-                    <Paper component="form" sx={{ width: "100%" }}>
+                    <Paper sx={{ width: "100%" }}>
                       <FormControl
                         fullWidth
                         size="small"
@@ -2174,7 +2173,7 @@ const UpdateInvoice = (props) => {
                     >
                       จำนวนเงิน
                     </Typography>
-                    <Paper component="form" sx={{ width: "100%" }}>
+                    <Paper sx={{ width: "100%" }}>
                       <TextField
                         type="number"
                         value={price.IncomingMoney || ""}
@@ -2210,7 +2209,7 @@ const UpdateInvoice = (props) => {
                     >
                       หมายเหตุ
                     </Typography>
-                    <Paper component="form" sx={{ width: "100%" }}>
+                    <Paper sx={{ width: "100%" }}>
                       <TextField
                         value={price.Note || ""}
                         onChange={(e) => handleChange("Note", e.target.value)}

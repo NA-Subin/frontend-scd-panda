@@ -1691,7 +1691,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
 
                                             return (
                                                 <TableCell
-                                                    key={key}
+                                                    key={row._key}
                                                     sx={{
                                                         textAlign: "right",
                                                         backgroundColor: "#efc9ecff",
@@ -1773,7 +1773,7 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
 
                                     return (
                                         <TableCell
-                                            key={key}
+                                            key={row._key}
                                             sx={{
                                                 textAlign: "right",
                                                 backgroundColor: "#fce3fdff",

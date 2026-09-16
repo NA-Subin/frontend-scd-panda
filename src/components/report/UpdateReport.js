@@ -3281,29 +3281,31 @@ const UpdateReport = (props) => {
                                     const transportCompanyB = companies.find(
                                       (c) => c.id === 3,
                                     );
-                                    return (
-                                      <>
-                                        {transportCompanyA &&
-                                          transportCompanyA.uuid !== transport && (
-                                            <MenuItem
-                                              value={transportCompanyA.uuid}
-                                              sx={{ fontSize: "14px" }}
-                                            >
-                                              บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)
-                                            </MenuItem>
-                                          )}
-                                        {transportCompanyB &&
-                                          transportCompanyB.uuid !== transport && (
-                                            <MenuItem
-                                              value={transportCompanyB.uuid}
-                                              sx={{ fontSize: "14px" }}
-                                            >
-                                              บริษัท พิชยา ทรานสปอร์ต จำกัด
-                                              (สำนักงานใหญ่)
-                                            </MenuItem>
-                                          )}
-                                      </>
-                                    );
+                                    // MUI's Select requires a flat array of
+                                    // children, not a Fragment.
+                                    return [
+                                      transportCompanyA &&
+                                        transportCompanyA.uuid !== transport && (
+                                          <MenuItem
+                                            key="a"
+                                            value={transportCompanyA.uuid}
+                                            sx={{ fontSize: "14px" }}
+                                          >
+                                            บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)
+                                          </MenuItem>
+                                        ),
+                                      transportCompanyB &&
+                                        transportCompanyB.uuid !== transport && (
+                                          <MenuItem
+                                            key="b"
+                                            value={transportCompanyB.uuid}
+                                            sx={{ fontSize: "14px" }}
+                                          >
+                                            บริษัท พิชยา ทรานสปอร์ต จำกัด
+                                            (สำนักงานใหญ่)
+                                          </MenuItem>
+                                        ),
+                                    ];
                                   })()}
                                 </Select>
                               </FormControl>
@@ -3671,7 +3673,6 @@ const UpdateReport = (props) => {
                       เงินเข้า
                     </Typography>
                     <Paper
-                      component="form"
                       sx={{ width: "100%", marginTop: -0.5 }}
                     >
                       <LocalizationProvider
@@ -3736,7 +3737,6 @@ const UpdateReport = (props) => {
                     </Typography>
 
                     <Paper
-                      component="form"
                       sx={{ width: "100%", marginTop: -0.5 }}
                     >
                       <FormControl
@@ -3763,26 +3763,29 @@ const UpdateReport = (props) => {
                             const transportCompanyB = companies.find(
                               (c) => c.id === 3,
                             );
-                            return (
-                              <>
-                                {transportCompanyA && (
-                                  <MenuItem
-                                    value={transportCompanyA.uuid}
-                                    sx={{ fontSize: "14px" }}
-                                  >
-                                    บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)
-                                  </MenuItem>
-                                )}
-                                {transportCompanyB && (
-                                  <MenuItem
-                                    value={transportCompanyB.uuid}
-                                    sx={{ fontSize: "14px" }}
-                                  >
-                                    บริษัท พิชยา ทรานสปอร์ต จำกัด (สำนักงานใหญ่)
-                                  </MenuItem>
-                                )}
-                              </>
-                            );
+                            // MUI's Select requires a flat array of children,
+                            // not a Fragment - array elements are keyed below
+                            // since they can each be conditionally omitted.
+                            return [
+                              transportCompanyA && (
+                                <MenuItem
+                                  key="a"
+                                  value={transportCompanyA.uuid}
+                                  sx={{ fontSize: "14px" }}
+                                >
+                                  บจ.นาครา ทรานสปอร์ต (สำนักงานใหญ่)
+                                </MenuItem>
+                              ),
+                              transportCompanyB && (
+                                <MenuItem
+                                  key="b"
+                                  value={transportCompanyB.uuid}
+                                  sx={{ fontSize: "14px" }}
+                                >
+                                  บริษัท พิชยา ทรานสปอร์ต จำกัด (สำนักงานใหญ่)
+                                </MenuItem>
+                              ),
+                            ];
                           })()}
                         </Select>
                       </FormControl>
@@ -3808,7 +3811,7 @@ const UpdateReport = (props) => {
                     >
                       บัญชี
                     </Typography>
-                    <Paper component="form" sx={{ width: "100%" }}>
+                    <Paper sx={{ width: "100%" }}>
                       <FormControl
                         fullWidth
                         size="small"
@@ -3873,7 +3876,7 @@ const UpdateReport = (props) => {
                     >
                       จำนวนเงิน
                     </Typography>
-                    <Paper component="form" sx={{ width: "100%" }}>
+                    <Paper sx={{ width: "100%" }}>
                       <TextField
                         type="number"
                         value={price.IncomingMoney || ""}
@@ -3909,7 +3912,7 @@ const UpdateReport = (props) => {
                     >
                       หมายเหตุ
                     </Typography>
-                    <Paper component="form" sx={{ width: "100%" }}>
+                    <Paper sx={{ width: "100%" }}>
                       <TextField
                         value={price.Note || ""}
                         onChange={(e) => handleChange("Note", e.target.value)}

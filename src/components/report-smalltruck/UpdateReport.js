@@ -1748,7 +1748,7 @@ const UpdateReport = (props) => {
                                 <Grid item md={3} xs={6}>
                                     <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                                         <Typography variant="subtitle1" fontWeight="bold" sx={{ marginRight: 1, whiteSpace: "nowrap" }} gutterBottom>เงินเข้า</Typography>
-                                        <Paper component="form" sx={{ width: "100%", marginTop: -0.5 }}>
+                                        <Paper sx={{ width: "100%", marginTop: -0.5 }}>
                                             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="th">
                                                 <DatePicker
                                                     openTo="day"
@@ -1782,7 +1782,7 @@ const UpdateReport = (props) => {
                                     <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                                         <Typography variant="subtitle1" fontWeight="bold" sx={{ marginRight: 1, whiteSpace: "nowrap" }} gutterBottom>บริษัทรับจ้างขนส่ง</Typography>
 
-                                        <Paper component="form" sx={{ width: "100%", marginTop: -0.5 }}>
+                                        <Paper sx={{ width: "100%", marginTop: -0.5 }}>
                                             <FormControl
                                                 fullWidth
                                                 size="small"
@@ -1814,7 +1814,7 @@ const UpdateReport = (props) => {
                                 <Grid item md={5.5} xs={6}>
                                     <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                                         <Typography variant="subtitle1" fontWeight="bold" sx={{ marginRight: 1, whiteSpace: "nowrap" }} gutterBottom>บัญชี</Typography>
-                                        <Paper component="form" sx={{ width: "100%" }}>
+                                        <Paper sx={{ width: "100%" }}>
                                             <FormControl
                                                 fullWidth
                                                 size="small"
@@ -1863,7 +1863,7 @@ const UpdateReport = (props) => {
                                 <Grid item md={3} xs={6}>
                                     <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                                         <Typography variant="subtitle1" fontWeight="bold" sx={{ marginRight: 1, whiteSpace: "nowrap" }} gutterBottom>จำนวนเงิน</Typography>
-                                        <Paper component="form" sx={{ width: "100%" }}>
+                                        <Paper sx={{ width: "100%" }}>
                                             <TextField
                                                 type="number"
                                                 value={price.IncomingMoney || ""}
@@ -1881,7 +1881,7 @@ const UpdateReport = (props) => {
                                 <Grid item md={3} xs={12}>
                                     <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                                         <Typography variant="subtitle1" fontWeight="bold" sx={{ marginRight: 1, whiteSpace: "nowrap" }} gutterBottom>หมายเหตุ</Typography>
-                                        <Paper component="form" sx={{ width: "100%" }}>
+                                        <Paper sx={{ width: "100%" }}>
                                             <TextField
                                                 value={price.Note || ""}
                                                 onChange={(e) => handleChange("Note", e.target.value)}
