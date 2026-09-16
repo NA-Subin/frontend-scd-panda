@@ -634,7 +634,7 @@ const CloseFS = ({ openNavbar }) => {
 
     filteredReports
       .filter((r) => {
-        const name = r.Name.split(":")[1]?.trim();
+        const name = r.NameName?.trim();
         const rowDate = dayjs(r.Date, "DD/MM/YYYY");
         const selectedMonth = dayjs(months);
         const selectedYear = dayjs(years);
@@ -658,7 +658,7 @@ const CloseFS = ({ openNavbar }) => {
         );
       })
       .forEach((curr) => {
-        const bankName = curr.Name.split(":")[1]?.trim() || curr.Name;
+        const bankName = curr.NameName?.trim() || curr.NameName;
         let bankGroup = reportInit.find((b) => b.Bank.includes(bankName));
         if (!bankGroup) {
           bankGroup = { Bank: bankName, Type: "ค่าใช้จ่าย", Registrations: [] };

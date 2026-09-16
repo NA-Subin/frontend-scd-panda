@@ -649,13 +649,13 @@ const CloseFSSmallTruck = ({ openNavbar }) => {
                     truckCompany = reg?.Company || "";
                 }
 
-                const depot = tripDetail?.Depot?.split(":")[1] || "-";
-
-                let Rate = 0;
-                if (depot === "ลำปาง") Rate = parseFloat(curr.Rate1) || 0;
-                else if (depot === "พิจิตร") Rate = parseFloat(curr.Rate2) || 0;
-                else if (["สระบุรี", "บางปะอิน", "IR"].includes(depot))
-                    Rate = parseFloat(curr.Rate3) || 0;
+                // The rate is set per-ticket when the trip is arranged
+                // (curr.Rate), not derived from the delivery depot - a
+                // depot-based Rate1/Rate2/Rate3 lookup was used here before,
+                // confirmed incorrect: this ticket's own rate is what was
+                // actually agreed for it, regardless of which depot it's
+                // delivered from.
+                const Rate = parseFloat(curr.Rate) || 0;
 
                 // 🔥 คำนวณยอดจาก Product
                 const totalProductCost = calcProductTotal(curr.Product, Rate);

@@ -260,7 +260,8 @@ const InsertDeducetionIncome = ({ year, periodData, periods }) => {
                 RegTail: isBigTruck ? (driver?.RegTail || null) : null,
                 RegTailName: isBigTruck ? (driver?.RegTailName || "ไม่มี") : "",
                 Code: row.type.Code, // ใช้ Code ของ row ถ้ามี ไม่งั้นใช้ type.Code
-                Name: `${row.type.id}:${row.type.Name}`, // ใช้ Name ของ row
+                Name: row.type.uuid,
+                NameName: row.type.Name,
                 Type: check ? "รายได้" : "รายหัก",
                 VehicleType: driver?.TruckType,
                 ShortName: driver?.ShortName || "",

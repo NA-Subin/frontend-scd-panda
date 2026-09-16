@@ -207,26 +207,28 @@ const DocSalary = ({ openNavbar }) => {
         ...new Map(
             reportDetail
                 .map((item) => {
-                    const [id, name] = item.Name.split(":");
+                    const id = item.Name;
+                    const name = item.NameName;
                     return [id, { id, name, type: item.Type }];
                 })
         ).values(),
     ].sort((a, b) => {
-        // จัดกลุ่ม รายได้ (id น้อย) ให้อยู่อันดับแรก
-        const incomeIds = ["1", "2", "3"]; // <-- ระบุ id ที่ถือว่าเป็นรายได้
-        const aIsIncome = incomeIds.includes(a.id);
-        const bIsIncome = incomeIds.includes(b.id);
+        // จัดกลุ่ม รายได้ ให้อยู่อันดับแรก
+        // (Name is now the deductibleincome UUID, not a small numeric id, so
+        // group by the row's own Type instead of a hardcoded id whitelist.)
+        const aIsIncome = a.type === "รายได้";
+        const bIsIncome = b.type === "รายได้";
 
         if (aIsIncome && !bIsIncome) return -1;
         if (!aIsIncome && bIsIncome) return 1;
 
-        return Number(a.id) - Number(b.id);
+        return (a.name || "").localeCompare(b.name || "", "th");
     });
 
     const columnTotals = uniqueNames.map((col) => {
         const total = document.reduce((acc, row) => {
             const found = row.document.find(
-                (doc) => doc.Name.split(":")[0] === col.id
+                (doc) => doc.Name === col.id
             );
 
             if (!found) return acc;
@@ -305,7 +307,7 @@ const DocSalary = ({ openNavbar }) => {
 
         // total ของ row
         const total = row.document.reduce((acc, doc) => {
-            const [id] = doc.Name.split(":");
+            const id = doc.Name;
             const col = uniqueNames.find((c) => c.id === id);
             if (!col) return acc;
             return col.type === "รายได้"
@@ -316,7 +318,7 @@ const DocSalary = ({ openNavbar }) => {
 
         // columns
         row.document.forEach((doc) => {
-            const [id] = doc.Name.split(":");
+            const id = doc.Name;
             const col = uniqueNames.find((c) => c.id === id);
             if (!col) return;
             const value = Number(doc.Money);
@@ -326,7 +328,7 @@ const DocSalary = ({ openNavbar }) => {
         // เงินค้ำประกัน
         const moneyGuarantee = reports.filter(
             (doc) =>
-                (doc.Name.split(":")[1] === "เงินค้ำประกัน" || doc.Name.split(":")[1] === "คืนเงินค้ำประกัน") &&
+                (doc.NameName === "เงินค้ำประกัน" || doc.NameName === "คืนเงินค้ำประกัน") &&
                 doc.Status !== "ยกเลิก" &&
                 Number(doc.Period) <= currentPeriod &&
                 doc.Driver === row.uuid
@@ -347,7 +349,7 @@ const DocSalary = ({ openNavbar }) => {
         // เงินกู้ยืม
         const moneyLoan = reports.filter(
             (doc) =>
-                (doc.Name.split(":")[1] === "เบิกเงินกู้ยืม" || doc.Name.split(":")[1] === "คืนเงินกู้ยืม") &&
+                (doc.NameName === "เบิกเงินกู้ยืม" || doc.NameName === "คืนเงินกู้ยืม") &&
                 doc.Status !== "ยกเลิก" &&
                 Number(doc.Period) <= currentPeriod &&
                 doc.Driver === row.uuid
@@ -437,7 +439,7 @@ const DocSalary = ({ openNavbar }) => {
                 trip: costrip,
                 ...uniqueNames.reduce((acc, col) => {
                     const found = row.document.find(
-                        (doc) => doc.Name.split(":")[0] === col.id
+                        (doc) => doc.Name === col.id
                     );
                     acc[col.id] = found
                         ? col.type === "รายได้"
@@ -488,7 +490,7 @@ const DocSalary = ({ openNavbar }) => {
             // sum เฉพาะ column นั้น ๆ
             const sumCol = processed.reduce((acc2, p) => {
                 const found = p.row.document.find(
-                    (doc) => doc.Name.split(":")[0] === col.id
+                    (doc) => doc.Name === col.id
                 );
                 if (!found) return acc2;
                 return acc2 + (col.type === "รายได้" ? Number(found.Money) : -Number(found.Money));
@@ -799,7 +801,7 @@ const DocSalary = ({ openNavbar }) => {
 
                                             {uniqueNames.map((col) => {
                                                 const found = row.document.find(
-                                                    (doc) => doc.Name.split(":")[0] === col.id
+                                                    (doc) => doc.Name === col.id
                                                 );
 
                                                 let displayMoney = "";

@@ -246,7 +246,7 @@ const DeductionOfIncome = (props) => {
                     no: order++,
                     driver: driverName,
                     code: row.Code,
-                    name: row.Name.split(":")[1],
+                    name: row.NameName,
                     income: row.Type === "รายได้" ? Number(row.Money) : 0,
                     expense: row.Type === "รายหัก" ? Number(row.Money) : 0,
                     note: row.Note || "",
@@ -370,6 +370,7 @@ const DeductionOfIncome = (props) => {
     const [deductionID, setDeductionID] = useState("");
     const [deductionCode, setDeductionCode] = useState("");
     const [deductionName, setDeductionName] = useState("");
+    const [deductionNameText, setDeductionNameText] = useState("");
     const [deductionMoney, setDeductionMoney] = useState("");
     const [deductionNote, setDeductionNote] = useState("");
     const [deductionType, setDeductionType] = useState("");
@@ -378,6 +379,7 @@ const DeductionOfIncome = (props) => {
         setDeductionCode(row.Code);
         setDeductionID(row.id);
         setDeductionName(row.Name);
+        setDeductionNameText(row.NameName);
         setDeductionMoney(row.Money);
         setDeductionNote(row.Note);
         setDeductionType(row.Type);
@@ -387,6 +389,7 @@ const DeductionOfIncome = (props) => {
         setDeductionID("");
         setDeductionCode("");
         setDeductionName("");
+        setDeductionNameText("");
         setDeductionMoney("");
         setDeductionNote("");
         setDeductionType("");
@@ -403,6 +406,7 @@ const DeductionOfIncome = (props) => {
             await apiPut(`/api/report_financial/${targetRow.uuid}`, {
                 Code: deductionCode,
                 Name: deductionName,
+                NameName: deductionNameText,
                 Money: deductionMoney,
                 Note: deductionNote,
             });
@@ -413,6 +417,7 @@ const DeductionOfIncome = (props) => {
             setDeductionID("");
             setDeductionCode("");
             setDeductionName("");
+            setDeductionNameText("");
             setDeductionMoney("");
             setDeductionNote("");
             setDeductionType("");
@@ -686,7 +691,7 @@ const DeductionOfIncome = (props) => {
                                         <TableCell sx={{ textAlign: "center", borderBottom: (sortedRows.length - 1) === rowIndex && "2px solid lightgray" }}>
                                             {
                                                 deductionID !== row.id ?
-                                                    row.Name.split(":")[1]
+                                                    row.NameName
                                                     :
                                                     <Autocomplete
                                                         options={deductibleincomeDetail
@@ -696,16 +701,17 @@ const DeductionOfIncome = (props) => {
                                                         getOptionLabel={(option) => option?.Name || ""}
                                                         value={
                                                             deductibleincomeDetail.find(
-                                                                (opt) => `${opt.id}:${opt.Name}` === deductionName
+                                                                (opt) => opt.uuid === deductionName
                                                             ) || null
                                                         }
                                                         onChange={(e, newValue) => {
                                                             if (newValue) {
-                                                                const deductionnames = `${newValue.id}:${newValue.Name}`;
-                                                                setDeductionName(deductionnames);
+                                                                setDeductionName(newValue.uuid);
+                                                                setDeductionNameText(newValue.Name);
                                                                 setDeductionCode(newValue.Code);
                                                             } else {
                                                                 setDeductionName("");
+                                                                setDeductionNameText("");
                                                                 setDeductionCode("");
                                                             }
                                                         }}
