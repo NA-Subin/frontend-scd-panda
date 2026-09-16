@@ -171,7 +171,7 @@ const QuotationUpdate = ({ setOpen }) => {
         return quotations.filter(q => {
             const codeText = q.Code.split(":")[1] || q.Code;
             const companyText = q.CompanyName || q.Company;
-            const customerText = q.Customer.split(":")[1] || q.Customer;
+            const customerText = q.CustomerName || q.Customer;
 
             const matchesSearch = search
                 ? codeText.toLowerCase().includes(search.toLowerCase()) ||
@@ -199,8 +199,8 @@ const QuotationUpdate = ({ setOpen }) => {
                     bValue = b.CompanyName || "";
                     break;
                 case "Customer":
-                    aValue = a.Customer?.split(":")[1] || "";
-                    bValue = b.Customer?.split(":")[1] || "";
+                    aValue = a.CustomerName || "";
+                    bValue = b.CustomerName || "";
                     break;
                 case "Employee":
                     aValue = a.EmployeeName || "";
@@ -235,18 +235,13 @@ const QuotationUpdate = ({ setOpen }) => {
     const handleUpdate = (row) => {
         setID(row.uuid);
         setCode(row.Code);
-        // Company/Employee are real UUID FKs - match directly. Customer is
-        // still a legacy "id:Name" composite string, so it needs parsing.
-        const getIdFromString = (str) => (str ? Number(str.split(":")[0]) : null);
-
-        const customerId = getIdFromString(row.Customer);
 
         const cn = companyDetail.find((com) => com.uuid === row.Company);
 
         const cm =
             row.Truck === "รถใหญ่"
-                ? customerB.find((cus) => cus.id === customerId)
-                : customerS.find((cus) => cus.id === customerId);
+                ? customerB.find((cus) => cus.uuid === row.Customer)
+                : customerS.find((cus) => cus.uuid === row.Customer);
 
         const em = employees.find((emp) => emp.uuid === row.Employee);
 
@@ -305,7 +300,8 @@ const QuotationUpdate = ({ setOpen }) => {
                 DateDelivery: dayjs(selectedDateDelivery, "DD/MM/YYYY").format("DD/MM/YYYY"),
                 Company: companies?.uuid,
                 CompanyName: companies?.Name,
-                Customer: `${customer?.id}:${customer?.Name}`,
+                Customer: customer?.uuid,
+                CustomerName: customer?.Name,
                 Employee: employee?.uuid,
                 EmployeeName: employee?.Name,
                 Product: getFilledFuelData(fuelData),
@@ -647,7 +643,7 @@ const QuotationUpdate = ({ setOpen }) => {
                                                     }}
                                                 >
                                                     <Box sx={{ marginLeft: 1 }}>
-                                                        {row.Customer ? row.Customer.split(":")[1] : ""}
+                                                        {row.CustomerName || ""}
                                                     </Box>
                                                 </TableCell>
                                                 <TableCell
