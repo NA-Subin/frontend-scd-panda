@@ -180,6 +180,16 @@ const UpdateFinancial = (props) => {
         "รถเล็ก": "รถเล็ก"
     };
 
+    // report_invoice has no single "Registration"/"RegistrationName" column -
+    // a head/tail/small truck's id ranges overlap, so Postgres needs one real
+    // FK column per truck type, only the one matching a row's TruckType is
+    // ever filled in.
+    const REGISTRATION_FIELD_BY_TRUCK_TYPE = {
+        "หัวรถใหญ่": { field: "RegistrationHead", nameField: "RegistrationHeadName" },
+        "หางรถใหญ่": { field: "RegistrationTail", nameField: "RegistrationTailName" },
+        "รถเล็ก": { field: "RegistrationSmall", nameField: "RegistrationSmallName" },
+    };
+
     const handleDateChangeDateInvoice = (newValue) => {
         if (newValue) {
             const formattedDate = dayjs(newValue);
@@ -203,14 +213,15 @@ const UpdateFinancial = (props) => {
 
         const price = parseNumber(item.Price);
         const vat = parseNumber(item.Vat);
+        const regFields = REGISTRATION_FIELD_BY_TRUCK_TYPE[item.TruckType];
 
         return {
             id: item.id,
             invoiceID: item.InvoiceID,
             dateInvoice: item.SelectedDateInvoice,
             dateTranfer: item.SelectedDateTransfer,
-            registration: item.Registration,
-            registrationName: item.RegistrationName,
+            registration: regFields ? item[regFields.field] : undefined,
+            registrationName: regFields ? item[regFields.nameField] : undefined,
             company: item.Company,
             details: item.Details,
             Group: group,
@@ -227,8 +238,10 @@ const UpdateFinancial = (props) => {
     const [list, setList] = useState(formattedList);
 
     const [selectedValue, setSelectedValue] = useState(row.Group !== "กลุ่ม" ? (
-        getRegistration().find((item) =>
-            item.TruckType === row.TruckType && item.uuid === row.Registration)) : null
+        getRegistration().find((item) => {
+            const regFields = REGISTRATION_FIELD_BY_TRUCK_TYPE[row.TruckType];
+            return item.TruckType === row.TruckType && regFields && item.uuid === row[regFields.field];
+        })) : null
     );
 
     const handleAdd = () => {
@@ -315,8 +328,10 @@ const UpdateFinancial = (props) => {
         setSelectedDateInvoice(dayjs(row.SelectedDateInvoice, "DD/MM/YYYY"));
         setSelectedDateTransfer(dayjs(row.SelectedDateTransfer, "DD/MM/YYYY"));
         setSelectedValue(row.Group !== "กลุ่ม" ? (
-            getRegistration().find((item) =>
-                item.TruckType === row.TruckType && item.uuid === row.Registration)) : null
+            getRegistration().find((item) => {
+                const regFields = REGISTRATION_FIELD_BY_TRUCK_TYPE[row.TruckType];
+                return item.TruckType === row.TruckType && regFields && item.uuid === row[regFields.field];
+            })) : null
         );
         setList(formattedList);
         setGroup(row.Group !== "กลุ่ม" ? "เดี่ยว" : "กลุ่ม");
@@ -429,29 +444,34 @@ const UpdateFinancial = (props) => {
             }
         }
 
-        const payloads = list.map((item) => ({
-            item,
-            data: {
-                InvoiceID: invoiceID,
-                SelectedDateInvoice: dayjs(selectedDateInvoice, "DD/MM/YYYY").format("DD/MM/YYYY"),
-                SelectedDateTransfer: dayjs(selectedDateTransfer, "DD/MM/YYYY").format("DD/MM/YYYY"),
-                Registration: item.registration,
-                RegistrationName: item.registrationName,
-                Company: company?.uuid,
-                CompanyName: company?.Name,
-                Details: details,
-                Bank: bank?.uuid,
-                BankName: bank?.Name,
-                Group: group,
-                Note: note,
-                Price: list.length <= 1 ? parseNumber(price) : parseNumber(resultPrice),
-                Vat: list.length <= 1 ? parseNumber(vat) : parseNumber(resultVat),
-                Total: list.length <= 1 ? parseNumber(total) : parseNumber(resultTotal),
-                TruckType: item.truckType,
-                Status: "อยู่ในระบบ",
-                Path: img,
-            },
-        }));
+        const payloads = list.map((item) => {
+            const regFields = REGISTRATION_FIELD_BY_TRUCK_TYPE[item.truckType] || {};
+            return {
+                item,
+                data: {
+                    InvoiceID: invoiceID,
+                    SelectedDateInvoice: dayjs(selectedDateInvoice, "DD/MM/YYYY").format("DD/MM/YYYY"),
+                    SelectedDateTransfer: dayjs(selectedDateTransfer, "DD/MM/YYYY").format("DD/MM/YYYY"),
+                    ...(regFields.field && {
+                        [regFields.field]: item.registration,
+                        [regFields.nameField]: item.registrationName,
+                    }),
+                    Company: company?.uuid,
+                    CompanyName: company?.Name,
+                    Details: details,
+                    Bank: bank?.uuid,
+                    BankName: bank?.Name,
+                    Group: group,
+                    Note: note,
+                    Price: list.length <= 1 ? parseNumber(price) : parseNumber(resultPrice),
+                    Vat: list.length <= 1 ? parseNumber(vat) : parseNumber(resultVat),
+                    Total: list.length <= 1 ? parseNumber(total) : parseNumber(resultTotal),
+                    TruckType: item.truckType,
+                    Status: "อยู่ในระบบ",
+                    Path: img,
+                },
+            };
+        });
 
         try {
             await Promise.all(
@@ -685,9 +705,11 @@ const UpdateFinancial = (props) => {
                                                         invoiceID: invoiceID,
                                                         dateInvoice: dayjs(selectedDateInvoice, "DD/MM/YYYY").format("DD/MM/YYYY"),
                                                         dateTranfer: dayjs(selectedDateTransfer, "DD/MM/YYYY").format("DD/MM/YYYY"),
-                                                        // report_invoice.Registration is a real UUID FK into
-                                                        // truck_registration now, not "id:name" text - newValue
-                                                        // is already that row, so its own uuid is the value.
+                                                        // report_invoice's registration columns are real UUID
+                                                        // FKs now, not "id:name" text - newValue is already
+                                                        // that row, so its own uuid is the value (which of the
+                                                        // 3 columns it lands in is decided by TruckType in
+                                                        // handlePost - see REGISTRATION_FIELD_BY_TRUCK_TYPE).
                                                         registration: newValue.uuid,
                                                         registrationName: newValue.Registration,
                                                         company: company,

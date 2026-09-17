@@ -192,6 +192,16 @@ const InsertFinancial = () => {
     รถเล็ก: "รถเล็ก",
   };
 
+  // report_invoice has no single "Registration" column anymore - a head/tail/
+  // small truck's id ranges overlap, so Postgres needs one real FK column per
+  // truck type (RegistrationHead/RegistrationTail/RegistrationSmall), only
+  // the one matching this row's TruckType ever gets filled in.
+  const REGISTRATION_FIELD_BY_TRUCK_TYPE = {
+    หัวรถใหญ่: { field: "RegistrationHead", nameField: "RegistrationHeadName" },
+    หางรถใหญ่: { field: "RegistrationTail", nameField: "RegistrationTailName" },
+    รถเล็ก: { field: "RegistrationSmall", nameField: "RegistrationSmallName" },
+  };
+
   const handleDateChangeDateInvoice = (newValue) => {
     if (newValue) {
       const formattedDate = dayjs(newValue);
@@ -357,8 +367,10 @@ const InsertFinancial = () => {
 
     try {
       await Promise.all(
-        list.map((item) =>
-          apiPost("/api/report_invoice", {
+        list.map((item) => {
+          const regFields =
+            REGISTRATION_FIELD_BY_TRUCK_TYPE[item.truckType] || {};
+          return apiPost("/api/report_invoice", {
             id: crypto.randomUUID(),
             InvoiceID: invoiceID,
             SelectedDateInvoice: dayjs(
@@ -369,8 +381,10 @@ const InsertFinancial = () => {
               selectedDateTransfer,
               "DD/MM/YYYY",
             ).format("DD/MM/YYYY"),
-            Registration: item.registration,
-            RegistrationName: item.registrationName,
+            ...(regFields.field && {
+              [regFields.field]: item.registration,
+              [regFields.nameField]: item.registrationName,
+            }),
             Company: company?.uuid,
             CompanyName: company?.Name,
             Details: details,
@@ -386,8 +400,8 @@ const InsertFinancial = () => {
             TruckType: item.truckType,
             Status: "อยู่ในระบบ",
             Path: img,
-          })
-        ),
+          });
+        }),
       );
 
       ShowSuccess("เพิ่มข้อมูลสำเร็จ");
@@ -722,9 +736,11 @@ const InsertFinancial = () => {
                       setSelectedRegistration(newValue);
                       if (!newValue) return;
 
-                      // report_invoice.Registration is a real UUID FK into
-                      // truck_registration now, not "id:name" text - newValue
-                      // is already that row, so its own uuid is the value.
+                      // report_invoice's registration columns are real UUID
+                      // FKs now, not "id:name" text - newValue is already
+                      // that row, so its own uuid is the value (which of the
+                      // 3 columns it lands in is decided by TruckType at
+                      // submit time - see REGISTRATION_FIELD_BY_TRUCK_TYPE).
                       const newItem = {
                         id: Date.now(),
                         registration: newValue?.uuid,

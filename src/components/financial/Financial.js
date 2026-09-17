@@ -102,10 +102,20 @@ const Financial = () => {
         return registartion;
     };
 
-    // report_invoice.Registration is a real UUID FK into truck_registration
-    // now, not "id:PlateText" text - the plate name is already on the row as
-    // RegistrationName, no lookup needed.
-    const resolveRegistrationDisplay = (row) => row?.RegistrationName || "";
+    // report_invoice has no single "Registration"/"RegistrationName" column -
+    // a head/tail/small truck's id ranges overlap, so Postgres needs one real
+    // FK column per truck type, only the one matching the row's TruckType is
+    // ever filled in. The plate text is already on the row (no lookup
+    // needed), just under whichever *Name column that is.
+    const REGISTRATION_FIELD_BY_TRUCK_TYPE = {
+        หัวรถใหญ่: { field: "RegistrationHead", nameField: "RegistrationHeadName" },
+        หางรถใหญ่: { field: "RegistrationTail", nameField: "RegistrationTailName" },
+        รถเล็ก: { field: "RegistrationSmall", nameField: "RegistrationSmallName" },
+    };
+    const resolveRegistrationDisplay = (row) => {
+        const regFields = REGISTRATION_FIELD_BY_TRUCK_TYPE[row?.TruckType];
+        return (regFields && row?.[regFields.nameField]) || "";
+    };
 
     const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
@@ -142,8 +152,11 @@ const Financial = () => {
         );
     }).sort((a, b) => {
         if (!sortConfig.key) return 0;
-        const aValue = a[sortConfig.key];
-        const bValue = b[sortConfig.key];
+        // "Registration" isn't a real field on the row anymore (split into
+        // RegistrationHead/Tail/Small by TruckType) - sort by the same
+        // display text the column itself shows.
+        const aValue = sortConfig.key === "Registration" ? resolveRegistrationDisplay(a) : a[sortConfig.key];
+        const bValue = sortConfig.key === "Registration" ? resolveRegistrationDisplay(b) : b[sortConfig.key];
 
         if (typeof aValue === "number" && typeof bValue === "number") {
             return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
@@ -383,8 +396,11 @@ const Financial = () => {
         setInvoiceID(row.InvoiceID);
         setSelectedDateInvoice(row.SelectedDateInvoice);
         setSelectedDateTransfer(row.SelectedDateTransfer);
-        setRegistration(`${row.Registration}:${row.RegistrationName}`);
-        setRegID(row.Registration);
+        const regFields = REGISTRATION_FIELD_BY_TRUCK_TYPE[row.TruckType];
+        setRegistration(
+            regFields ? `${row[regFields.field]}:${row[regFields.nameField]}` : ""
+        );
+        setRegID(regFields ? row[regFields.field] : "");
         setCompany(row.Company);
         setCompanyID(row.Company);
         setBank(row.Bank);
@@ -571,16 +587,20 @@ const Financial = () => {
         const bankRow = expenseitem.find((row) => row.uuid === bank);
 
         try {
+            const regFields = REGISTRATION_FIELD_BY_TRUCK_TYPE[trucktype];
             await apiPut(`/api/report_invoice/${targetRow.uuid}`, {
                 InvoiceID: invoiceID,
                 SelectedDateInvoice: dayjs(selectedDateInvoice, "DD/MM/YYYY").format("DD/MM/YYYY"),
                 SelectedDateTransfer: dayjs(selectedDateTransfer, "DD/MM/YYYY").format("DD/MM/YYYY"),
-                // report_invoice.Registration is a real UUID FK now - regID
-                // already holds the clean uuid (see handleUpdateBill), and
-                // this form never lets the user change it, so just resubmit
-                // both parts of what was loaded.
-                Registration: regID,
-                RegistrationName: registration.includes(":") ? registration.split(":").slice(1).join(":") : "",
+                // report_invoice's registration columns are real UUID FKs now
+                // - regID already holds the clean uuid (see handleUpdateBill),
+                // and this form never lets the user change the truck type, so
+                // just resubmit both parts of what was loaded into the same
+                // column pair they came from.
+                ...(regFields && {
+                    [regFields.field]: regID,
+                    [regFields.nameField]: registration.includes(":") ? registration.split(":").slice(1).join(":") : "",
+                }),
                 Company: company,
                 CompanyName: companyRow?.Name,
                 Bank: bank,
